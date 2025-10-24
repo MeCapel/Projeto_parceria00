@@ -27,6 +27,18 @@
   box-sizing: border-box;
 }
 
+.hidden-header {
+    display: none;
+}
+
+.text-link-custom {
+    color: var(--red00);
+}
+
+.text-link-custom:hover {
+    color: var(--red01);
+}
+
 /* ===== CUSTOM BACKGROUNDS ===== */
 .bg-custom-red00
 {

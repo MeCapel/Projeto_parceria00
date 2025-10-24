@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 
 export default function NewProjectModal()
@@ -8,6 +8,14 @@ export default function NewProjectModal()
     const openModal = () => setShow(true);
     const closeModal = () => setShow(false);
 
+    useEffect(() => {
+        const header = document.querySelector('.showOrHide') as HTMLElement | null;
+
+        if (!header) return;
+
+        header.classList.toggle("hidden-header", show);
+    }, [show]);
+
     return(
         <>
             <button className='btn-custom btn-custom-primary' onClick={openModal} >
@@ -15,14 +23,14 @@ export default function NewProjectModal()
             </button>
 
             <Modal show={show} onHide={closeModal} dialogClassName="modal-fullscreen" className='p-0'>
-                <Modal.Header closeButton className="mb-0 mx-5 border-0" style={{ paddingTop: '85px' }}></Modal.Header>
+                <Modal.Header closeButton className="mb-0 mx-5 border-0 my-3"></Modal.Header>
                 <Modal.Body className="container-fluid d-flex flex-column align-items-center m-auto"> 
 
                     {/* --- 🔴 Inner content div --- */}
                     <div className="">
 
                         {/* --- Title div --- */}
-                        <div className="my-4">
+                        <div className="">
                             <p className='fs-5 mb-0 text-custom-red'>Adicionar</p>
                             <p className='text-custom-black display-6 fw-bold mb-1'>Novo projeto</p>
                             <p className='text-custom-black'>*Campos obrigatórios</p>

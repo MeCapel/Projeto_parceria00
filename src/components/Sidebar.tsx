@@ -47,7 +47,7 @@ export default function Sidebar({ onWidthChange } : SidebarProps)
     )
 
     const navItems = [
-                      { to: '/', label: 'Home', icon: <HouseFill size={25} /> },
+                      { to: '/home', label: 'Home', icon: <HouseFill size={25} /> },
                       { to: '/projects', label: 'Projects', icon: <CollectionFill size={25} /> },
                      ]
 
@@ -59,7 +59,7 @@ export default function Sidebar({ onWidthChange } : SidebarProps)
             <ul className="d-flex flex-column gap-3 px-3 list-unstyled py-0 m-0 flex-grow-1">
 
                 {/* Header Logo */}
-                <div style={{ width: '100%' }} className={`d-flex align-items-center gap-4 px-3 pt-3
+                <div style={{ width: '100%', transition: 'all 0.5s ease' }} className={`d-flex align-items-center gap-4 px-3 pt-3
                     ${isCollapsed ? "justify-content-between" : "flex-column"}`}>
 
                     {!isCollapsed && isHovered ? (

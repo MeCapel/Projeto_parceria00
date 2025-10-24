@@ -9,7 +9,7 @@ interface RecentProjectsProps {
 
 export default function RecentProjects({ displayAll } : RecentProjectsProps)
 {
-     const membersList = [{ id: 1, img: '/vite.svg', name: "Maria"},
+    const membersList = [{ id: 1, img: '/vite.svg', name: "Maria"},
                           { id: 2, img: '/vite.svg', name: "Pedro"},
                           { id: 3, img: '/vite.svg', name: "Irene"},
                           { id: 4, img: '/vite.svg', name: "Dejair"},
@@ -17,8 +17,8 @@ export default function RecentProjects({ displayAll } : RecentProjectsProps)
                           { id: 6, img: '/vite.svg', name: "Elen"}]
 
     const cardsInfos = [{id: 1, imgUrl: '/vite.svg', title: 'Project#1', description: 'Description', element: <MembersCircles membersList={membersList} />, hasUpdates: false },
-                        {id: 1, imgUrl: '/vite.svg', title: 'Project#2', description: 'Description', element: <MembersCircles membersList={membersList} />, hasUpdates: false },
-                        {id: 1, imgUrl: '/vite.svg', title: 'Project#3', description: 'Description', element: <MembersCircles membersList={membersList} />, hasUpdates: true },
+                        {id: 2, imgUrl: '/vite.svg', title: 'Project#2', description: 'Description', element: <MembersCircles membersList={membersList} />, hasUpdates: false },
+                        {id: 3, imgUrl: '/vite.svg', title: 'Project#3', description: 'Description', element: <MembersCircles membersList={membersList} />, hasUpdates: true },
     ]
 
     return(

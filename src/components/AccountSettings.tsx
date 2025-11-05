@@ -1,11 +1,12 @@
 import { createPortal } from "react-dom";
-import { PersonCircle } from "react-bootstrap-icons";
-import { BoxArrowRight } from "react-bootstrap-icons";
-import { Logout } from "../services/authService";
 import { useNavigate } from "react-router";
-import { auth, db } from "../firebaseConfig/config";
 import { useState, useEffect } from "react";
 import { doc, getDoc } from 'firebase/firestore'
+import { Logout } from "../services/authService";
+import { auth, db } from "../firebaseConfig/config";
+
+import { PersonCircle } from "react-bootstrap-icons";
+import { BoxArrowRight } from "react-bootstrap-icons";
 
 interface AccountSettingsProps {
     isOpen: boolean;

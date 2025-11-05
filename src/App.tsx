@@ -1,29 +1,49 @@
+// Importing geral stuff
+import './App.css'
 import { Routes, Route } from 'react-router'
-import Login from './pages/Login'
-import Home from './pages/Home'
-import SignUp from './pages/SignUp'
+
+// Importing components
+import AuthProvider from './context/AuthProvider'
 import ProtectedRoute from './components/ProtectedRoute'
+
+// Importing full pages
+import Home from './pages/Home'
+import Login from './pages/Login'
+import SignUp from './pages/SignUp'
+import Project from './pages/Project'
 import Projects from './pages/Projects'
+import NotFoundPage from './pages/NotFoundPage'
 import ResetPassword from './pages/ResetPassword'
 import ConfirmResetPassword from './pages/ConfirmResetPassword'
-import AuthProvider from './context/AuthProvider'
-import './App.css'
+import ProtoItem from './components/ProtoItem'
 
+// App.tsx component
 export default function App() {
 
   return (
+
+    // Wrap all pages inside an AuthProvider component that sets the user variable - it can be null if the user do not exists
     <AuthProvider>
+
+      {/* Main div that wrap all those app routes */}
       <main className="" style={{}}>
+
+        {/* Route component - inside there are all of the possible routes in this app */}
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path='/home' element={<ProtectedRoute><Home /></ProtectedRoute>}/>
           <Route path='/login' element={<Login />}/>
+          <Route path='/test' element={<ProtoItem />}/>
           <Route path='/resetpassword' element={<ResetPassword />}/>
           <Route path='/confirmresetpassword' element={<ConfirmResetPassword />}/>
-          <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="*" element={<NotFoundPage />} />
+          <Route path='/home' element={<ProtectedRoute><Home /></ProtectedRoute>}/>
+          <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+          <Route path="/projects/:projectid" element={<ProtectedRoute><Project /></ProtectedRoute>} />
         </Routes>
+
       </main>
+
     </AuthProvider>
   )
 }

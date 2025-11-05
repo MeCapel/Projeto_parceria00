@@ -1,4 +1,3 @@
-// Header.tsx
 import { useState } from "react";
 // import Notifications from "./Notifications";
 import AccountSettings from "./AccountSettings";
@@ -25,7 +24,7 @@ export default function Header({ sidebarWidth, hidden = false }: HeaderProps) {
       style={{ position: "fixed", top: 0, left: `${sidebarWidth}px`, right: 0 , zIndex: 1100 }}
       className="showOrHide navbar navbar-light bg-white text-custom-black px-3 p-0 px-md-5 border-bottom"
     >
-      {/* <img height={30} src="/fromBrand/baldan-principal.png" alt="Logotipo da marca" /> */}
+      <img height={30} src="/fromBrand/baldan-principal.png" alt="Logotipo da marca" />
       <div className="d-flex align-items-center py-2 gap-1 ms-auto">
         {/* <Notifications
           notificationsList={notificationsList}

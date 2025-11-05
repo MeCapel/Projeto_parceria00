@@ -1,7 +1,7 @@
+import { AuthContext } from "./AuthContext";
+import { auth } from "../firebaseConfig/config"
 import React, { useEffect, useState } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
-import { auth } from "../firebaseConfig/config"
-import { AuthContext } from "./AuthContext";
 
 export default function AuthProvider({ children } : { children: React.ReactNode })
 {

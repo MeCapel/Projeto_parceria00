@@ -59,27 +59,15 @@ export default function Sidebar({ onWidthChange } : SidebarProps)
             <ul className="d-flex flex-column gap-3 px-3 list-unstyled py-0 m-0 flex-grow-1">
 
                 {/* Header Logo */}
-                <div style={{ width: '100%', transition: 'all 0.5s ease' }} className={`d-flex align-items-center gap-4 px-3 pt-3
+                <div style={{ width: '100%', transition: 'all 0.5s ease' }} className={`d-flex align-items-center gap-4 pt-3
                     ${isCollapsed ? "justify-content-between" : "flex-column"}`}>
 
-                    {!isCollapsed && isHovered ? (
+                    {!isCollapsed ? (
                         <button className="btn-custom text-secondary" onClick={() => setIsCollapsed(true)}
                         aria-label="Expand sidebar" title="Expand sidebar" style={{ height: '3rem' }}>
                             <LayoutSidebarReverse size={25} />
                         </button>
                     ) : (
-                        (isCollapsed ? (
-                            <div className="d-flex align-items-center text-secondary" style={{ height: '3rem' }}>
-                                <img src="/fromBrand/baldan-principal.png" alt="" style={{ height: '1.5rem'}} />
-                            </div>
-                        ) : (
-                            <div className="d-flex align-items-center text-secondary" style={{ height: '3rem' }}>
-                                <img src="/fromBrand/baldan-vertical.png" alt="" style={{ width: '3rem'}}/>
-                            </div>
-                        ))
-                    )}
-
-                    {isCollapsed && (
                         <button className="btn-custom text-secondary" onClick={() => setIsCollapsed(false)}
                                 aria-label="Collapse sidebar" title="Collapse sidebar">
                             <LayoutSidebar size={25} />

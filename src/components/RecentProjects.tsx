@@ -1,7 +1,12 @@
-import ReusableCards from '../components/ReusableCards'
+import { Link } from 'react-router'
+import { useState, useEffect } from 'react'
+import { db } from '../firebaseConfig/config'
+import { collection, onSnapshot } from 'firebase/firestore'
+
+import ProjectCard from './ProjectCard'
 import MembersCircles from '../components/MembersCircles'
 import NewProjectModal from '../components/NewProjectModal'
-import { Link } from 'react-router'
+
 
 interface RecentProjectsProps {
     displayAll: boolean;
@@ -9,6 +14,18 @@ interface RecentProjectsProps {
 
 export default function RecentProjects({ displayAll } : RecentProjectsProps)
 {
+    const [ projects, setProjects ] = useState([]);
+    // const projectsCollectionRef = collection(db, "projects");
+
+    useEffect(() => {
+        const unsubscribe = onSnapshot(collection(db, "projects"), (snapshot) => {
+            const projectsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setProjects(projectsData);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
     const membersList = [{ id: 1, img: '/vite.svg', name: "Maria"},
                           { id: 2, img: '/vite.svg', name: "Pedro"},
                           { id: 3, img: '/vite.svg', name: "Irene"},
@@ -16,10 +33,12 @@ export default function RecentProjects({ displayAll } : RecentProjectsProps)
                           { id: 5, img: '/vite.svg', name: "Nicolas"},
                           { id: 6, img: '/vite.svg', name: "Elen"}]
 
-    const cardsInfos = [{id: 1, imgUrl: '/vite.svg', title: 'Project#1', description: 'Description', element: <MembersCircles membersList={membersList} />, hasUpdates: false },
-                        {id: 2, imgUrl: '/vite.svg', title: 'Project#2', description: 'Description', element: <MembersCircles membersList={membersList} />, hasUpdates: false },
-                        {id: 3, imgUrl: '/vite.svg', title: 'Project#3', description: 'Description', element: <MembersCircles membersList={membersList} />, hasUpdates: true },
-    ]
+    // const cardsInfos = [{id: 1, imgUrl: '/vite.svg', title: 'Project#1', description: 'Description', element: <MembersCircles membersList={membersList} />, hasUpdates: false },
+    //                     {id: 2, imgUrl: '/vite.svg', title: 'Project#2', description: 'Description', element: <MembersCircles membersList={membersList} />, hasUpdates: false },
+    //                     {id: 3, imgUrl: '/vite.svg', title: 'Project#3', description: 'Description', element: <MembersCircles membersList={membersList} />, hasUpdates: true },
+    // ]
+
+
 
     return(
         <div className='p-5 mx-3'>
@@ -41,7 +60,7 @@ export default function RecentProjects({ displayAll } : RecentProjectsProps)
                             <p className='mb-0 text-custom-black fs-1 fw-bold'>Visitados recentemente</p>
                         </div>
                         <div className="d-flex align-items-start justify-content-end col-2">
-                            <Link to='/projects'>
+                            <Link to={"/projects"} >
                                 <p className='mb-0 fs-5 text-custom-black'><u>Ver todos</u></p>
                             </Link>
                         </div>
@@ -50,7 +69,14 @@ export default function RecentProjects({ displayAll } : RecentProjectsProps)
                 
             </div>
             <div className="d-flex gap-4 my-5 flex-wrap">
-                <ReusableCards infosList={cardsInfos} border={true} />
+                {projects.map((project) => (
+                    <>
+                        {/* <Link to={`/projects/${project.id}`} style={{ textDecoration: 'none' }}> */}
+                            <ProjectCard id={project.id} imgUrl="/vite.svg" title={project.projectName} description={project.description} 
+                                           element={<MembersCircles membersList={membersList} />} border={true} location={`/projects/${project.id}`}/>
+                        {/* </Link> */}
+                    </>
+                ))}
             </div>
         </div>
     )

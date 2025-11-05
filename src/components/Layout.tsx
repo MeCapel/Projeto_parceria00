@@ -1,13 +1,13 @@
-import type React from "react"
-import { useState } from "react";
-import Sidebar from './Sidebar'
+import React,{ useState } from "react";
+
 import Header from './Header'
+import Sidebar from './Sidebar'
 
 interface LayoutProps {
     children: React.ReactNode;
 }
 
-export default function Layuot({ children } : LayoutProps)
+export default function Layout({ children } : LayoutProps)
 {
     const [ sidebarWidth, setSidebarWidth ] = useState<number>(0);
 

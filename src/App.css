@@ -50,6 +50,20 @@
     background-color: var(--red01);
 }
 
+.bg-custom-gray00
+{
+    background-color: var(--gray00);
+}
+
+.bg-custom-gray02
+{
+    background-color: var(--gray02);
+}
+
+.bg-custom-success01
+{
+    background-color: var(--success01);
+}
 /* ===== CUSTOM BUTTONS ===== */
 
 .btn-custom {
@@ -70,6 +84,14 @@
 .btn-custom-primary:hover {
     background-color: var(--red02);
     color: var(--white00);
+}
+
+.btn-custom-inside-primary {
+    color: var(--gray00);
+}
+
+.btn-custom-inside-primary:hover {
+    color: var(--red00);
 }
 
 .btn-custom-outline-primary {
@@ -132,6 +154,18 @@
 
 .text-custom-red {
     color: var(--red00);
+}
+
+.text-custom-red01 {
+    color: var(--red01);
+}
+
+.text-custom-blue {
+    color: var(--various03);
+}
+
+.text-custom-green {
+    color: var(--success01);
 }
 
 /* ===== POSITION RELATIVE FOR THE PEOPLE CIRCLES AT PROJECT CARDS ===== */

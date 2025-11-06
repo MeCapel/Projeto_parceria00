@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import Modal from 'react-bootstrap/Modal';
 import { CheckLg } from 'react-bootstrap-icons';
 
@@ -150,6 +150,10 @@ export default function ProtoMultiForm()
 
 function NewProtoForm01()
 {
+    const [ numSerie, setNumSerie ] = useState("");
+    const [ numProtoName, setProtoName ] = useState("");
+    const [ numProtoDescription, setProtoDescription ] = useState("");
+
     return(
         <>
             <Modal.Body className="container-fluid d-flex flex-column align-items-center m-auto"> 
@@ -184,12 +188,12 @@ function NewProtoForm01()
                     {/* --- 🔵 Inputs div --- */}
                     <div className="d-flex flex-column my-4 gap-3">
                         <input type="text" placeholder='N° de série' className='text-custom-black py-1 px-3 fs-5 border rounded-2' 
-                                required onChange={(e) => (e.target.value)}/>
+                                required onChange={(e) => setNumSerie(e.target.value)}/>
                         <input type="text" placeholder='Nome do protótipo' className='text-custom-black py-1 px-3 fs-5 border rounded-2' 
-                                required onChange={(e) => (e.target.value)}/>
+                                required onChange={(e) => setProtoName(e.target.value)}/>
                         {/* <input type="text" placeholder='Convide alguém' className='text-custom-black py-1 px-3 fs-5 border rounded-2' required/> */}
                         <input type="text" placeholder='Descrição do protótipo' className='text-custom-black py-1 px-3 fs-5 border rounded-2' 
-                                required onChange={(e) => (e.target.value)}/>
+                                required onChange={(e) => setProtoDescription(e.target.value)}/>
                     </div>
 
                     {/* --- 🔵 Button div --- */}

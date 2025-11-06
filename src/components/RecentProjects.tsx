@@ -70,12 +70,12 @@ export default function RecentProjects({ displayAll } : RecentProjectsProps)
             </div>
             <div className="d-flex gap-4 my-5 flex-wrap">
                 {projects.map((project) => (
-                    <>
+                    <div key={project.id}>
                         {/* <Link to={`/projects/${project.id}`} style={{ textDecoration: 'none' }}> */}
                             <ProjectCard id={project.id} imgUrl="/vite.svg" title={project.projectName} description={project.description} 
                                            element={<MembersCircles membersList={membersList} />} border={true} location={`/projects/${project.id}`}/>
                         {/* </Link> */}
-                    </>
+                    </div>
                 ))}
             </div>
         </div>

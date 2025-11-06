@@ -68,35 +68,6 @@ export default function ProjectItem()
         { id: 3, label: "Concluído", color: "var(--success01)", rows: 0 }
     ]
 
-    function renderTable(fields: string[] , rows: number)
-    {
-        const tableHeadings = fields.map((field, index) => (
-            <th className="border py-2 px-4 text-custom-black text-center" key={index}>{field}</th>
-        ));
-
-        const tableRows = [];
-
-        for (let i = 0; i < rows; i++) {
-            const cells = fields.map((_, j) => (
-            <td className="border py-2 px-4" key={j}>
-                Row {i + 1}, Col {j + 1}
-            </td>
-        ));
-            tableRows.push(<tr key={i}>{cells}</tr>);
-        }
-
-        return( 
-            <table className="table table-bordered table-striped p-0 m-0 rounded-2 overflow-hidden" >
-                <thead>
-                    <tr>
-                        {tableHeadings}
-                    </tr>
-                </thead>
-                <tbody style={{ border: '1px solid var(--gray00)', borderRadius: "10px" }} >{tableRows}</tbody>
-            </table>
-        )
-    }
-
     return(
         <Layuot>
             {/* <h1>Projeto n°: {projectid}</h1>
@@ -155,5 +126,34 @@ export default function ProjectItem()
                 </div>
             </div>
         </Layuot>
+    )
+}
+
+function renderTable(fields: string[] , rows: number)
+{
+    const tableHeadings = fields.map((field, index) => (
+        <th className="border py-2 px-4 text-custom-black text-center" key={index}>{field}</th>
+    ));
+
+    const tableRows = [];
+
+    for (let i = 0; i < rows; i++) {
+        const cells = fields.map((_, j) => (
+        <td className="border py-2 px-4" key={j}>
+            Row {i + 1}, Col {j + 1}
+        </td>
+    ));
+        tableRows.push(<tr key={i}>{cells}</tr>);
+    }
+
+    return( 
+        <table className="table table-bordered table-striped p-0 m-0 rounded-2 overflow-hidden" >
+            <thead>
+                <tr>
+                    {tableHeadings}
+                </tr>
+            </thead>
+            <tbody style={{ border: '1px solid var(--gray00)', borderRadius: "10px" }} >{tableRows}</tbody>
+        </table>
     )
 }

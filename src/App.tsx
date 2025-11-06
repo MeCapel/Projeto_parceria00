@@ -1,6 +1,8 @@
 // Importing geral stuff
 import './App.css'
 import { Routes, Route } from 'react-router'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Importing components
 import AuthProvider from './context/AuthProvider'
@@ -16,6 +18,7 @@ import NotFoundPage from './pages/NotFoundPage'
 import ResetPassword from './pages/ResetPassword'
 import ConfirmResetPassword from './pages/ConfirmResetPassword'
 import ProtoItem from './components/ProtoItem'
+import Test from './components/Test'
 
 // App.tsx component
 export default function App() {
@@ -43,6 +46,17 @@ export default function App() {
         </Routes>
 
       </main>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="colored"
+      />
 
     </AuthProvider>
   )

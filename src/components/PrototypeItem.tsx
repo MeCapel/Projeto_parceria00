@@ -1,8 +1,8 @@
 import Modal from 'react-bootstrap/Modal';
-import { CalendarEvent } from 'react-bootstrap-icons';
+// import { CalendarEvent } from 'react-bootstrap-icons';
 import { useState, useEffect } from 'react';
 
-export default function ProtoItem()
+export default function PrototypeItem()
 {
     const [ show, setShow ] = useState(false);
 

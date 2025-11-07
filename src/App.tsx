@@ -17,7 +17,7 @@ import Projects from './pages/Projects'
 import NotFoundPage from './pages/NotFoundPage'
 import ResetPassword from './pages/ResetPassword'
 import ConfirmResetPassword from './pages/ConfirmResetPassword'
-import ProtoItem from './components/ProtoItem'
+import PrototypeItem from './components/PrototypeItem'
 import Test from './components/Test'
 
 // App.tsx component
@@ -35,7 +35,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path='/login' element={<Login />}/>
-          <Route path='/test' element={<ProtoItem />}/>
+          <Route path='/test' element={<PrototypeItem />}/>
           <Route path='/resetpassword' element={<ResetPassword />}/>
           <Route path='/confirmresetpassword' element={<ConfirmResetPassword />}/>
           <Route path="/signup" element={<SignUp />} />

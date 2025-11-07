@@ -142,6 +142,11 @@
     color: var(--black00);
 }
 
+.border-custom-red00 
+{
+    border: 1px solid var(--red00);
+}
+
 /* ===== CUSTOM TEXT COLORS ===== */
 
 .text-custom-black {

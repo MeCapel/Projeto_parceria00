@@ -56,37 +56,32 @@ export const addPrototypeToProject = async ( projectId: string, prototypeId: str
 }
 
 interface PrototypeProps {
-    projectId: string,
-    protoName: string,
-    protoStatus: string,
-    protoDescription: string,
-    protoP: string,
-    state?: string,
-    city?: string,
-    area?: string,
+    prototype: {
+        projectId?: string,
+        protoName: string,
+        protoStatus: string,
+        protoDescription: string,
+        protoP: string,
+        state?: string,
+        city?: string,
+        area?: string,
+    }    
 }
 
-export const createPrototype = async ( { projectId,
-                                         protoName,
-                                         protoStatus,
-                                         protoDescription,
-                                         protoP,
-                                         state,
-                                         city,
-                                         area } : PrototypeProps) => {
+export const createPrototype = async (prototype : PrototypeProps["prototype"]) => {
     try
     {
         const protypesCollectionRef = collection(db, "prototypes");
 
         const newPrototype = { 
-                                projectId: projectId, 
-                                name: protoName.trim(),
-                                status: protoStatus,
-                                description: protoDescription,
-                                whichP: protoP,
-                                state: state ?? null,
-                                city: city ?? null,
-                                area: area ?? null,
+                                projectId: prototype.projectId, 
+                                name: prototype.protoName.trim(),
+                                status: prototype.protoStatus,
+                                description: prototype.protoDescription,
+                                whichP: prototype.protoP,
+                                state: prototype.state ?? null,
+                                city: prototype.city ?? null,
+                                area: prototype.area ?? null,
                                 createdAt: new Date()
         };
 

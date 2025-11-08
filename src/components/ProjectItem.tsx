@@ -1,5 +1,5 @@
 import { useParams } from "react-router"
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CaretUp } from "react-bootstrap-icons";
 import { CaretDown } from "react-bootstrap-icons";
 
@@ -8,27 +8,16 @@ import ProtoMultiForm from './ProtoMultiForm'
 import { db } from '../firebaseConfig/config'
 // import { getProjectData } from "../services/dbService"
 import { doc, onSnapshot } from 'firebase/firestore'
+import Test from "./Test";
 
 export default function ProjectItem()
 {
     const { projectid } = useParams();
     const [ projectData, setProjectData ] = useState<any>(null);
-
-    const [ open, setOpen ] = useState<{ [key: number]: boolean }>({
-        1: false,
-        2: false,
-        3: false
-    })
-
-    const toggleItem = (id: number) => {
-        setOpen((prev) => ({
-            ...prev,
-            [id]: !prev[id]
-        }));
-    };
+    const [ render, setRender ] = useState<React.ReactNode>();
 
     // console.log("This one is the id: ", projectid);
-
+ 
     useEffect(() => {
         if (!projectid) return;
 
@@ -60,13 +49,21 @@ export default function ProjectItem()
         return <p>Carregando o projeto...</p>;
     }
 
-    const fields = ["Nome", "Qual P", "Prazo", "Status", "Progresso"];
+    if (!projectid)
+    {
+        window.alert("Id do projeto invalido!")
+        return;
+    } 
 
-    const status = [
-        { id: 1, label: "Pendentes", color: "var(--red00)", rows: 5 },
-        { id: 2, label: "Em andamento", color: "var(--various03)", rows: 0 },
-        { id: 3, label: "Concluído", color: "var(--success01)", rows: 0 }
-    ]
+    function handleMainFrame()
+    {
+        setRender(<Test />);
+    }
+
+    function handleProgressFrame()
+    {
+        setRender(<DividedByProgress />);
+    }
 
     return(
         <Layuot>
@@ -87,45 +84,80 @@ export default function ProjectItem()
                 {/* ----- Navigation between inner project pages ----- */}
 
                 <div className="d-flex flex-column align-items-start">
-                    <div style={{ borderBottom: "2px solid var(--red00)", position: 'relative', bottom: "-2px" }}>
-                        <p className='mb-0 fs-5 text-custom-black'>Quadro principal</p>
-                    </div>
+                    <div className="d-flex">
+                        <div className="d-flex justify-content-center" style={{ width: "200px", borderBottom: "2px solid var(--red00)", position: 'relative', bottom: "-2px", cursor: "pointer" }}>
+                            <p className='px-3 mb-0 fs-5 text-custom-black' onClick={handleMainFrame}>Quadro principal</p>
+                        </div>
+                        <div className="d-flex justify-content-center" style={{ width: "200px", position: 'relative', bottom: "-2px", cursor: "pointer" }}>
+                            <p className='px-3 mb-0 fs-5 text-custom-black' onClick={handleProgressFrame}>Por progresso</p>
+                        </div>
+                        </div>
                     <div className="w-100" style={{ border: "1px solid var(--gray02)" }}></div>
                     <div className="d-flex align-items-start my-2">
                     </div>
-                        <ProtoMultiForm />
+                        <ProtoMultiForm projectId={projectid}/>
                 </div>
                     
                 <div className="my-3">
-                    {status.map((item) => (
-                        <div className="d-flex flex-column gap-3 " key={item.id}>
-                            {open[item.id] ? 
-                                (
-                                    <div className="d-flex gap-3 align-items-center" onClick={() => toggleItem(item.id)} style={{ cursor: 'pointer'}} >
-                                        <CaretUp size={25} color={item.color} />
-                                        <p className="mb-0 fs-5 fw-semimbold" style={{ color: `${item.color}`}}>{item.label}</p>
-                                    </div>
-                                ) : 
-                                (
-                                    <div className="d-flex gap-3 align-items-center" onClick={() => toggleItem(item.id)} style={{ cursor: 'pointer'}} >
-                                        <CaretDown size={25} color={item.color} />
-                                        <p className="mb-0 fs-5 fw-semimbold" style={{ color: `${item.color}`}}>{item.label}</p>
-                                    </div>
-                                )
-                            }
-                            {open[item.id] && (
-                                <div className="mb-4">
-                                    {/* {renderTable( status,item.rows, item.fields.length)} */}
-                                    <div key={item.id}>
-                                        {renderTable(fields, item.rows)}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                    {render}
                 </div>
             </div>
         </Layuot>
+    )
+}
+
+function DividedByProgress()
+{
+    const [ open, setOpen ] = useState<{ [key: number]: boolean }>({
+        1: false,
+        2: false,
+        3: false
+    })
+
+    const toggleItem = (id: number) => {
+        setOpen((prev) => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
+
+    const fields = ["Nome", "Qual P", "Prazo", "Status", "Progresso"];
+
+    const status = [
+        { id: 1, label: "Pendentes", color: "var(--red00)", rows: 5 },
+        { id: 2, label: "Em andamento", color: "var(--various03)", rows: 0 },
+        { id: 3, label: "Concluído", color: "var(--success01)", rows: 0 }
+    ]
+
+    return(
+        <>
+            {status.map((item) => (
+                <div className="d-flex flex-column gap-3 " key={item.id}>
+                    {open[item.id] ? 
+                        (
+                            <div className="d-flex gap-3 align-items-center" onClick={() => toggleItem(item.id)} style={{ cursor: 'pointer'}} >
+                                <CaretUp size={25} color={item.color} />
+                                <p className="mb-0 fs-5 fw-semimbold" style={{ color: `${item.color}`}}>{item.label}</p>
+                            </div>
+                        ) : 
+                        (
+                            <div className="d-flex gap-3 align-items-center" onClick={() => toggleItem(item.id)} style={{ cursor: 'pointer'}} >
+                                <CaretDown size={25} color={item.color} />
+                                <p className="mb-0 fs-5 fw-semimbold" style={{ color: `${item.color}`}}>{item.label}</p>
+                            </div>
+                        )
+                    }
+                    {open[item.id] && (
+                        <div className="mb-4">
+                            {/* {renderTable( status,item.rows, item.fields.length)} */}
+                            <div key={item.id}>
+                                {renderTable(fields, item.rows)}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            ))}
+        </>
     )
 }
 

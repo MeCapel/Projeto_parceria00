@@ -45,6 +45,7 @@ export default function Test()
                 {prototypesList.map((item) => (
                     <li key={item.id}>
                         <strong>{item.name}</strong> - {item.status}
+                        <p>{item.description}</p>
                     </li>
                 ))}
             </ul>

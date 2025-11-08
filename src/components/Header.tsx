@@ -37,6 +37,7 @@ export default function Header({ sidebarWidth, hidden = false }: HeaderProps) {
           onOpen={() => setOpenComponent("account")}
           onClose={() => setOpenComponent(null)}
         />
+        
       </div>
     </header>
   );

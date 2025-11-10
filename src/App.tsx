@@ -18,7 +18,6 @@ import NotFoundPage from './pages/NotFoundPage'
 import ResetPassword from './pages/ResetPassword'
 import ConfirmResetPassword from './pages/ConfirmResetPassword'
 import PrototypeItem from './components/PrototypeItem'
-import Test from './components/Test'
 
 // App.tsx component
 export default function App() {
@@ -35,8 +34,6 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path='/login' element={<Login />}/>
-          <Route path='/test' element={<PrototypeItem />}/>
-          <Route path='/outro' element={<Test />}/>
           <Route path='/resetpassword' element={<ResetPassword />}/>
           <Route path='/confirmresetpassword' element={<ConfirmResetPassword />}/>
           <Route path="/signup" element={<SignUp />} />
@@ -44,6 +41,7 @@ export default function App() {
           <Route path='/home' element={<ProtectedRoute><Home /></ProtectedRoute>}/>
           <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
           <Route path="/projects/:projectid" element={<ProtectedRoute><Project /></ProtectedRoute>} />
+          <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><PrototypeItem /></ProtectedRoute>} />
         </Routes>
 
       </main>

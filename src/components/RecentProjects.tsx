@@ -14,7 +14,7 @@ interface RecentProjectsProps {
 
 export default function RecentProjects({ displayAll } : RecentProjectsProps)
 {
-    const [ projects, setProjects ] = useState([]);
+    const [ projects, setProjects ] = useState<any>([]);
     // const projectsCollectionRef = collection(db, "projects");
 
     useEffect(() => {
@@ -73,7 +73,7 @@ export default function RecentProjects({ displayAll } : RecentProjectsProps)
                     <div key={project.id}>
                         {/* <Link to={`/projects/${project.id}`} style={{ textDecoration: 'none' }}> */}
                             <ProjectCard id={project.id} imgUrl="/vite.svg" title={project.projectName} description={project.description} 
-                                           element={<MembersCircles membersList={membersList} />} border={true} location={`/projects/${project.id}`}/>
+                                           element={<MembersCircles membersList={membersList} />} location={`/projects/${project.id}`}/>
                         {/* </Link> */}
                     </div>
                 ))}

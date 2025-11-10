@@ -4,17 +4,17 @@ import { CaretUp } from "react-bootstrap-icons";
 import { CaretDown } from "react-bootstrap-icons";
 
 import Layuot from "./Layout";
+import MainFrame from "./MainFrame";
 import ProtoMultiForm from './ProtoMultiForm'
 import { db } from '../firebaseConfig/config'
 // import { getProjectData } from "../services/dbService"
 import { doc, onSnapshot } from 'firebase/firestore'
-import Test from "./Test";
 
 export default function ProjectItem()
 {
     const { projectid } = useParams();
     const [ projectData, setProjectData ] = useState<any>(null);
-    const [ render, setRender ] = useState<React.ReactNode>();
+    const [ render, setRender ] = useState<React.ReactNode>(<MainFrame projectId={projectid} />);
 
     // console.log("This one is the id: ", projectid);
  
@@ -57,8 +57,8 @@ export default function ProjectItem()
 
     function handleMainFrame()
     {
-        setRender(<Test />);
-    }
+        setRender(<MainFrame projectId={projectid} />);
+    } 
 
     function handleProgressFrame()
     {

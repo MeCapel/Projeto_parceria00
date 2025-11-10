@@ -39,7 +39,7 @@ export default function ProtoMultiForm({ projectId } : ProtoMultiFormProps)
     const [ show, setShow ] = useState(false);
     const [ step, setStep ] = useState<number>(1);
     const [ formData, setFormData ] = useState({
-        step1: { protoCode: "", protoName: "", protoDescription: "", whichP: ''},
+        step1: { protoCode: "", protoName: "", protoDescription: "", whichP: ""},
         step2: { status: "", state: "", city: "", area: ""},
     });
     const [ stepErrors, setStepErrors ] = useState<Record<number, Record<string, string> | undefined>>({});
@@ -155,6 +155,7 @@ export default function ProtoMultiForm({ projectId } : ProtoMultiFormProps)
 
         const newPrototype = {
                                 projectId: projectId,
+                                protoCode: formData.step1.protoCode,
                                 protoName: formData.step1.protoName,
                                 protoStatus: formData.step2.status,
                                 protoDescription: formData.step1.protoDescription,

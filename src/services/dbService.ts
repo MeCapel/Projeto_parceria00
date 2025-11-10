@@ -1,5 +1,5 @@
 import { db } from '../firebaseConfig/config'
-import { addDoc, deleteDoc, collection, doc, getDoc, getDocs, setDoc, query, where } from 'firebase/firestore'
+import { addDoc, deleteDoc, collection, doc, getDoc, getDocs, setDoc, query, where, updateDoc } from 'firebase/firestore'
 
 export const createProject = async ( projectName: string, description: string ) => {
     try
@@ -58,6 +58,7 @@ export const addPrototypeToProject = async ( projectId: string, prototypeId: str
 interface PrototypeProps {
     prototype: {
         projectId?: string,
+        protoCode: string,
         protoName: string,
         protoStatus: string,
         protoDescription: string,
@@ -75,6 +76,7 @@ export const createPrototype = async (prototype : PrototypeProps["prototype"]) =
 
         const newPrototype = { 
                                 projectId: prototype.projectId, 
+                                code: prototype.protoCode, 
                                 name: prototype.protoName.trim(),
                                 status: prototype.protoStatus,
                                 description: prototype.protoDescription,
@@ -114,10 +116,10 @@ export const getPrototypesForProjectData = async (projectId: string) => {
     }
 }
 
-export const getPrototypeData = async (projectId: string) => {
+export const getPrototypeData = async (prototypeId: string) => {
     try 
     {
-        const docRef = doc(db, "prototypes", projectId);
+        const docRef = doc(db, "prototypes", prototypeId);
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists())
@@ -137,11 +139,63 @@ export const getPrototypeData = async (projectId: string) => {
     }
 }
 
+interface EditPrototypeProps {
+    prototype: {
+        protoCode: string,
+        protoName: string,
+        protoStatus: string,
+        protoDescription: string,
+        protoP: string,
+        state?: string,
+        city?: string,
+        area?: string,
+    }    
+}
+
+export const updatePrototype = async (prototypeId: string, data : EditPrototypeProps["prototype"]) => {
+    try
+    {
+        const docRef = doc(db, "prototypes", prototypeId);
+        const newData = { 
+                                code: data.protoCode,
+                                name: data.protoName.trim(),
+                                status: data.protoStatus,
+                                description: data.protoDescription,
+                                whichP: data.protoP,
+                                state: data.state ?? null,
+                                city: data.city ?? null,
+                                area: data.area ?? null,
+        };
+        
+        await updateDoc(docRef, newData);
+    }
+    catch (err)
+    {
+        console.error(err);;
+    }
+}
+
 export const moveProjectToTrash = async (id: string) => {
     try 
     {
         const projectDoc = doc(db, "projects", id)
         await deleteDoc(projectDoc);
+    }
+    catch (err)
+    {
+        console.error(err);
+    }
+}
+
+export const movePrototypeToTrash = async (projectId: string, prototypeId: string) => {
+    try 
+    {
+        const projectDoc = doc(db, "projects", projectId)
+        const ref = doc(projectDoc, "prototypesIds", prototypeId);
+        const prototypeDoc = doc(db, "prototypes", prototypeId);
+
+        await deleteDoc(ref);
+        await deleteDoc(prototypeDoc);
     }
     catch (err)
     {

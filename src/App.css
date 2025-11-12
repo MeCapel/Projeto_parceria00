@@ -108,7 +108,7 @@
 .btn-custom-secondary:hover {
     background-color: var(--gray01);
     color: var(--white00);
-}
+}z
 
 .btn-custom-success {
     background-color: var(--success00);

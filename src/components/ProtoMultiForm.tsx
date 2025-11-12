@@ -155,11 +155,11 @@ export default function ProtoMultiForm({ projectId } : ProtoMultiFormProps)
 
         const newPrototype = {
                                 projectId: projectId,
-                                protoCode: formData.step1.protoCode,
-                                protoName: formData.step1.protoName,
-                                protoStatus: formData.step2.status,
-                                protoDescription: formData.step1.protoDescription,
-                                protoP: formData.step1.whichP,
+                                code: formData.step1.protoCode,
+                                name: formData.step1.protoName,
+                                status: formData.step2.status,
+                                description: formData.step1.protoDescription,
+                                whichP: formData.step1.whichP,
                                 state: formData.step2.state ?? null,
                                 city: formData.step2.city ?? null,
                                 area: formData.step2.area ?? null,
@@ -361,20 +361,20 @@ function ProtoForm01({ data, update, errors, maxLength } : ProtoForm01Props )
 
                         <div className="d-flex w-100 gap-3 align-items-start justify-content-center position-relative" style={{ top: '-0.75rem' }}>
                             <label htmlFor="preparo" className="d-flex gap-2">
-                                <input type="radio" name="radio" id="preparo" checked={data.whichP === "preparo"} 
-                                       onChange={() => update("whichP", "preparo")}/>
+                                <input type="radio" name="radio" id="preparo" value="Preparo" checked={data.whichP === "Preparo"} 
+                                       onChange={() => update("whichP", "Preparo")}/>
                                 Preparo
                             </label>
 
                             <label htmlFor="plantio" className="d-flex gap-2">
-                                <input type="radio" name="radio" id="plantio" checked={data.whichP === "plantio"} 
-                                       onChange={() => update("whichP", "plantio")}/>
+                                <input type="radio" name="radio" id="plantio" value="Plantio" checked={data.whichP === "Plantio"} 
+                                       onChange={() => update("whichP", "Plantio")}/>
                                 Plantio
                             </label>
 
                             <label htmlFor="pulverizacao" className="d-flex gap-2">
-                                <input type="radio" name="radio" id="pulverizacao" checked={data.whichP === "pulverizacao"} 
-                                       onChange={() => update("whichP", "pulverizacao")}/>
+                                <input type="radio" name="radio" id="pulverizacao" value="Pulverização" checked={data.whichP === "Pulverização"} 
+                                       onChange={() => update("whichP", "Pulverização")}/>
                                 Pulverização
                             </label>
                         </div>
@@ -455,20 +455,20 @@ function ProtoForm02({ data, update, errors, maxLength } : ProtoForm02Props)
 
                         <div className="d-flex w-100 gap-3 align-items-start justify-content-center position-relative" style={{ top: '-0.75rem' }}>
                             <label htmlFor="fabricacao" className="d-flex gap-2">
-                                <input type="radio" value="fabricacao" name="radio" id="fabricacao" checked={data.status === "fabricacao"} 
-                                       onChange={() => update("status", "fabricacao")} />
+                                <input type="radio" value="Fabricação" name="radio" id="fabricacao" checked={data.status === "Fabricação"} 
+                                       onChange={() => update("status", "Fabricação")} />
                                 Fabricação
                             </label>
 
                             <label htmlFor="montagem" className="d-flex gap-2">
-                                <input type="radio" value="montagem" name="radio" id="montagem" checked={data.status === "montagem"} 
-                                       onChange={() => update("status", "montagem")} />
+                                <input type="radio" value="Montagem" name="radio" id="montagem" checked={data.status === "Montagem"} 
+                                       onChange={() => update("status", "Montagem")} />
                                 Montagem
                             </label>
 
                             <label htmlFor="validacao" className="d-flex gap-2">
-                                <input type="radio" value="validacao" name="radio" id="validacao" checked={data.status === "validacao"} 
-                                       onChange={() => update("status", "validacao")} />
+                                <input type="radio" value="Validação de campo" name="radio" id="validacao" checked={data.status === "Validação de campo"} 
+                                       onChange={() => update("status", "Validação de campo")} />
                                 Validação de campo
                             </label>
                         </div>
@@ -482,18 +482,19 @@ function ProtoForm02({ data, update, errors, maxLength } : ProtoForm02Props)
                     }
 
                     {/* --- 🔵 Inputs div --- */}
-                    {data.status === "validacao" && (
+                    {data.status === "Validação de campo" && (
 
-                        <div className="d-flex flex-column my-4 gap-3" style={{ height: '50vh', overflow: "auto"}}>
+                        <div className="d-flex flex-column my-4 gap-3" style={{ overflow: "auto"}}>
 
                             <div className="d-flex justify-content-between gap-3">
-                                <select className="form-select py-1 px-3" style={{ border: '1px solid var(--gray00)', outline: "none" }} 
-                                        name="estado" id="estado" onChange={(e) => update("state", e.target.value)} value={data.state} >
+                                <select className="form-select py-1 px-3" name="estado" id="estado" 
+                                        onChange={(e) => update("state", e.target.value)} value={data.state} >
                                     <option defaultValue={"Estado*"}>Estado*</option>
-                                    <option value="es">ES</option>
-                                    <option value="mg">MG</option>
-                                    <option value="rj">RJ</option>
-                                    <option value="sp">SP</option>
+                                    <option value="">Selecione...</option>
+                                    <option value="ES">ES</option>
+                                    <option value="MG">MG</option>
+                                    <option value="RJ">RJ</option>
+                                    <option value="SP">SP</option>
                                 </select>
 
                                 {errors?.state && 

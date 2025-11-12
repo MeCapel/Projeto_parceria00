@@ -1,26 +1,25 @@
-// import { CalendarEvent } from 'react-bootstrap-icons';
-
 import { useState,  useEffect, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router"
 import { getPrototypeData, updatePrototype } from "../services/dbService";
 import { movePrototypeToTrash } from "../services/dbService";
+import { type EditPrototypeProps } from "../services/dbService";
 
-interface PrototypeDataProps {
-    projectId?: string,
-    code: string,
-    name: string,
-    status: string,
-    description: string,
-    whichP: string,
-    state?: string,
-    city?: string,
-    area?: string,
-}
+// interface PrototypeDataProps {
+//     projectId?: string,
+//     code: string,
+//     name: string,
+//     status: string,
+//     description: string,
+//     whichP: string,
+//     state?: string,
+//     city?: string,
+//     area?: string,
+// }
 
 export default function PrototypeItem()
 {
     // const [ prototypeData, setPrototypeData ] = useState<any>(null);
-    const [ prototypeData, setPrototypeData ] = useState<PrototypeDataProps | null>(null);
+    const [ prototypeData, setPrototypeData ] = useState<EditPrototypeProps | null>(null);
     const [ loading, setLoading ] = useState(true);
     const navigate = useNavigate();
     const { prototypeid } = useParams();
@@ -56,7 +55,6 @@ export default function PrototypeItem()
                     setCity(data.city || "");
                     setArea(data.area || "");
                 }
-
             }
             catch (err)
             {
@@ -81,11 +79,11 @@ export default function PrototypeItem()
 
         
         const formData = { 
-            protoCode: code, 
-            protoName: name, 
-            protoDescription: description, 
-            protoP: whichP, 
-            protoStatus: status, 
+            code: code, 
+            name: name, 
+            description: description, 
+            whichP: whichP, 
+            status: status, 
             state: state, 
             city: city, 
             area: area,
@@ -141,18 +139,18 @@ export default function PrototypeItem()
 
                             <div className="d-flex w-100 gap-3 align-items-start justify-content-center position-relative" style={{ top: '-0.75rem' }}>
                                 <label htmlFor="fabricacao" className="d-flex gap-2 form-check-label">
-                                    <input className='form-check-input' type="radio" name="status" id="fabricacao" value={status}
-                                           checked={status === "fabricacao"} onChange={(e) => setStatus(e.target.value)} />
+                                    <input className='form-check-input' type="radio" name="status" id="fabricacao" value="Fabricação"
+                                           checked={status === "Fabricação"} onChange={(e) => setStatus(e.target.value)} />
                                     Fabricação
                                 </label>
                                 <label htmlFor="montagem" className="d-flex gap-2 form-check-label">
-                                    <input className='form-check-input' type="radio" name="status" id="montagem" value={status}
-                                    checked={status === "montagem"} onChange={(e) => setStatus(e.target.value)} />
+                                    <input className='form-check-input' type="radio" name="status" id="montagem" value="Montagem"
+                                    checked={status === "Montagem"} onChange={(e) => setStatus(e.target.value)} />
                                     Montagem
                                 </label>
                                 <label htmlFor="validacao" className="d-flex gap-2 form-check-label">
-                                    <input className='form-check-input' type="radio" name="status" id="validacao" value={status}
-                                    checked={status === "validacao"} onChange={(e) => setStatus(e.target.value)} />
+                                    <input className='form-check-input' type="radio" name="status" id="validacao" value="Validação de campo"
+                                    checked={status === "Validação de campo"} onChange={(e) => setStatus(e.target.value)} />
                                     Validação de campo
                                 </label>
                             </div>
@@ -169,18 +167,18 @@ export default function PrototypeItem()
 
                             <div className="d-flex w-100 gap-3 align-items-start justify-content-center position-relative" style={{ top: '-0.75rem' }}>
                                 <label htmlFor="preparo" className="d-flex gap-2 form-check-label">
-                                    <input className='form-check-input' type="radio" name="whichP" id="preparo" value={whichP}
-                                    checked={whichP === "preparo"} onChange={(e) => setWhichP(e.target.value)} />
+                                    <input className='form-check-input' type="radio" name="whichP" id="preparo" value="Preparo"
+                                    checked={whichP === "Preparo"} onChange={(e) => setWhichP(e.target.value)} />
                                     Preparo
                                 </label>
                                 <label htmlFor="plantio" className="d-flex gap-2 form-check-label">
-                                    <input className='form-check-input' type="radio" name="whichP" id="plantio" value={whichP}
-                                    checked={whichP === "plantio"} onChange={(e) => setWhichP(e.target.value)} />
+                                    <input className='form-check-input' type="radio" name="whichP" id="plantio" value="Plantio"
+                                    checked={whichP === "Plantio"} onChange={(e) => setWhichP(e.target.value)} />
                                     Plantio
                                 </label>
                                 <label htmlFor="pulverizacao" className="d-flex gap-2 form-check-label">
-                                    <input className='form-check-input' type="radio" name="whichP" id="pulverizacao" value={whichP}
-                                    checked={whichP === "pulverizacao"} onChange={(e) => setWhichP(e.target.value)} />
+                                    <input className='form-check-input' type="radio" name="whichP" id="pulverizacao" value="Pulverização"
+                                    checked={whichP === "Pulverização"} onChange={(e) => setWhichP(e.target.value)} />
                                     Pulverização
                                 </label>
                             </div>
@@ -239,10 +237,10 @@ export default function PrototypeItem()
                         <select name="estado" id="estado" className='form-select'
                                 onChange={(e) => setState(e.target.value)} value={state} >
                             <option value="">Selecione...</option>
-                            <option value="es">ES</option>
-                            <option value="mg">MG</option>
-                            <option value="rj">RJ</option>
-                            <option value="sp">SP</option>
+                            <option value="ES">ES</option>
+                            <option value="MG">MG</option>
+                            <option value="RJ">RJ</option>
+                            <option value="SP">SP</option>
                         </select>
                         <input type="text" placeholder='Cidade' className='text-custom-black py-1 px-3 fs-5 border rounded-2' 
                                 value={city} onChange={(e) => setCity(e.target.value)}/>

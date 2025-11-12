@@ -1,41 +1,125 @@
+import { toast } from "react-toastify";
 import { db } from '../firebaseConfig/config'
 import { addDoc, deleteDoc, collection, doc, getDoc, getDocs, setDoc, query, where, updateDoc } from 'firebase/firestore'
 
-export const createProject = async ( projectName: string, description: string ) => {
-    try
-    {
-        const projectsRef = collection(db, "projects");
-
-        // await setDoc(doc(db, "projects", ), {
+// await setDoc(doc(db, "projects", ), {
         //     projectName: projectName,
         //     rows: rows,
         //     cols: cols,
         // })
 
+// ----- PROJECT RELATED FUNCTIONS -----
+
+// ----- Function to create a new project, that stands for a new machine ----- 
+export const createProject = async ( projectName: string, description: string ) => {
+    try
+    {
+        const projectsRef = collection(db, "projects");
         await addDoc(projectsRef, { projectName: projectName, description: description });
+        
+        // toast.success("✅ Projeto criado com sucesso!");
     }
     catch (err)
     {
-        console.error(err);
+        toast.error(`❌ Erro ao criar um novo projeto: ${err}`);
     }
 }
 
+// ----- Function to get the porject data, like its name and description ----- 
 export const getProjectData = async (id: string) => {
     const docRef = doc(db, "projects", id);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists())
     {
-        // console.log(docSnap.data());x
         return { id: docSnap.id, ...docSnap.data() };
     }
     else
     {
-        console.log("Nothing found");
+        toast.error("❌ Nenhum projeto encontrado.");
         return null;
     }
 }
 
+// ----- Function to delete a project -----
+export const moveProjectToTrash = async (id: string) => {
+    try 
+    {
+        const projectDoc = doc(db, "projects", id)
+        await deleteDoc(projectDoc);
+
+        toast.info("ℹ️ Projeto excluído com sucesso!");
+    }
+    catch (err)
+    {
+        toast.error(`❌ Erro ao excluir projeto: ${err}`);
+    }
+}
+
+// ----- PROTOTYPES RELATED FUNCTIONS -----
+
+export interface PrototypeProps {
+    prototype: {
+        projectId?: string,
+        code: string,
+        name: string,
+        status: string,
+        description: string,
+        whichP: string,
+        state?: string,
+        city?: string,
+        area?: string,
+    }    
+}
+
+export interface EditPrototypeProps {
+    prototype: {
+        code: string,
+        name: string,
+        status: string,
+        description: string,
+        whichP: string,
+        state?: string,
+        city?: string,
+        area?: string,
+    }    
+}
+
+// ----- Function to create a new prototype, that stands for a new tiny machine part test -----
+export const createPrototype = async (prototype : PrototypeProps["prototype"]) => {
+    try
+    {
+        const protypesCollectionRef = collection(db, "prototypes");
+
+        const newPrototype = { 
+                                projectId: prototype.projectId, 
+                                code: prototype.code, 
+                                name: prototype.name.trim(),
+                                status: prototype.status,
+                                description: prototype.description,
+                                whichP: prototype.whichP,
+                                state: prototype.state ?? null,
+                                city: prototype.city ?? null,
+                                area: prototype.area ?? null,
+                                createdAt: new Date()
+        };
+
+        const docRef = await addDoc(protypesCollectionRef, newPrototype);
+
+        console.log("Prototype created with id: " + docRef.id);
+
+        // toast.success("✅ Protótipo criado com sucesso!");
+
+        return docRef.id;
+    }
+    catch (err)
+    {
+        toast.error(`❌ Erro ao criar o protótipo: ${err}`);
+        console.error(err);
+    }
+}
+
+// ----- Function to add a prototype to a list of prototypes inside its parent project -----
 export const addPrototypeToProject = async ( projectId: string, prototypeId: string, prototypeName: string ) => {
     try
     {
@@ -51,54 +135,37 @@ export const addPrototypeToProject = async ( projectId: string, prototypeId: str
     }
     catch (err)
     {
+        toast.error("❌ Erro ao adicionar o protótipo ao seu projeto relativo.");
         console.error(err);
     }
 }
 
-interface PrototypeProps {
-    prototype: {
-        projectId?: string,
-        protoCode: string,
-        protoName: string,
-        protoStatus: string,
-        protoDescription: string,
-        protoP: string,
-        state?: string,
-        city?: string,
-        area?: string,
-    }    
-}
-
-export const createPrototype = async (prototype : PrototypeProps["prototype"]) => {
-    try
+// ----- Function to get prototypes data -----
+export const getPrototypeData = async (prototypeId: string) => {
+    try 
     {
-        const protypesCollectionRef = collection(db, "prototypes");
-
-        const newPrototype = { 
-                                projectId: prototype.projectId, 
-                                code: prototype.protoCode, 
-                                name: prototype.protoName.trim(),
-                                status: prototype.protoStatus,
-                                description: prototype.protoDescription,
-                                whichP: prototype.protoP,
-                                state: prototype.state ?? null,
-                                city: prototype.city ?? null,
-                                area: prototype.area ?? null,
-                                createdAt: new Date()
-        };
-
-        const docRef = await addDoc(protypesCollectionRef, newPrototype);
-
-        console.log("Prototype created with id: " + docRef.id);
-
-        return docRef.id;
+        const docRef = doc(db, "prototypes", prototypeId);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists())
+        {
+            return { id: docSnap.id, ...docSnap.data() };
+        }
+        else
+        {
+            console.log("Nothing found");
+            return null;
+        }
     }
     catch (err)
     {
+        toast.error("❌ Nenhum protótipo encontrado.");
         console.error(err);
+        return null;
     }
 }
 
+// ----- Function to get prototypes from its relative project parent -----
 export const getPrototypesForProjectData = async (projectId: string) => {
     try 
     {
@@ -111,57 +178,23 @@ export const getPrototypesForProjectData = async (projectId: string) => {
     }
     catch (err)
     {
+        toast.error("❌ Nenhum protótipo encontrado.");
         console.error(err);
         return null;
     }
 }
 
-export const getPrototypeData = async (prototypeId: string) => {
-    try 
-    {
-        const docRef = doc(db, "prototypes", prototypeId);
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists())
-        {
-            // console.log(docSnap.data());
-            return { id: docSnap.id, ...docSnap.data() };
-        }
-        else
-        {
-            console.log("Nothing found");
-            return null;
-        }
-    }
-    catch (err)
-    {
-        console.error(err);
-    }
-}
-
-interface EditPrototypeProps {
-    prototype: {
-        protoCode: string,
-        protoName: string,
-        protoStatus: string,
-        protoDescription: string,
-        protoP: string,
-        state?: string,
-        city?: string,
-        area?: string,
-    }    
-}
-
+// ----- Function to update the current prototype -----
 export const updatePrototype = async (prototypeId: string, data : EditPrototypeProps["prototype"]) => {
     try
     {
         const docRef = doc(db, "prototypes", prototypeId);
         const newData = { 
-                                code: data.protoCode,
-                                name: data.protoName.trim(),
-                                status: data.protoStatus,
-                                description: data.protoDescription,
-                                whichP: data.protoP,
+                                code: data.code,
+                                name: data.name.trim(),
+                                status: data.status,
+                                description: data.description,
+                                whichP: data.whichP,
                                 state: data.state ?? null,
                                 city: data.city ?? null,
                                 area: data.area ?? null,
@@ -171,22 +204,12 @@ export const updatePrototype = async (prototypeId: string, data : EditPrototypeP
     }
     catch (err)
     {
+        toast.error("❌ Erro ao editar os dados do protótipo.");
         console.error(err);;
     }
 }
 
-export const moveProjectToTrash = async (id: string) => {
-    try 
-    {
-        const projectDoc = doc(db, "projects", id)
-        await deleteDoc(projectDoc);
-    }
-    catch (err)
-    {
-        console.error(err);
-    }
-}
-
+// ----- Function to delete a prototype ----- 
 export const movePrototypeToTrash = async (projectId: string, prototypeId: string) => {
     try 
     {
@@ -199,6 +222,7 @@ export const movePrototypeToTrash = async (projectId: string, prototypeId: strin
     }
     catch (err)
     {
+        toast.error("❌ Erro ao excluir o protótipo.");
         console.error(err);
     }
 }

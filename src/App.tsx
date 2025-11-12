@@ -13,11 +13,12 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import SignUp from './pages/SignUp'
 import Project from './pages/Project'
+import Profile from './pages/Profile'
 import Projects from './pages/Projects'
 import NotFoundPage from './pages/NotFoundPage'
 import ResetPassword from './pages/ResetPassword'
-import ConfirmResetPassword from './pages/ConfirmResetPassword'
 import PrototypeItem from './components/PrototypeItem'
+import ConfirmResetPassword from './pages/ConfirmResetPassword'
 
 // App.tsx component
 export default function App() {
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="*" element={<NotFoundPage />} />
           <Route path='/home' element={<ProtectedRoute><Home /></ProtectedRoute>}/>
+          <Route path='/profile/:userid' element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
           <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
           <Route path="/projects/:projectid" element={<ProtectedRoute><Project /></ProtectedRoute>} />
           <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><PrototypeItem /></ProtectedRoute>} />

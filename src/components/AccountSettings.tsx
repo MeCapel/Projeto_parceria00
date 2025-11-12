@@ -5,8 +5,7 @@ import { doc, getDoc } from 'firebase/firestore'
 import { Logout } from "../services/authService";
 import { auth, db } from "../firebaseConfig/config";
 
-import { PersonCircle } from "react-bootstrap-icons";
-import { BoxArrowRight } from "react-bootstrap-icons";
+import { PersonCircle, BoxArrowRight, GearFill, PersonAdd } from "react-bootstrap-icons";
 
 interface AccountSettingsProps {
     isOpen: boolean;
@@ -60,7 +59,7 @@ export default function Notifications({ isOpen, onOpen, onClose } : AccountSetti
 
 
         return () => unsubscribe();
-    }, []);
+    }, [navigate, userData?.email]);
 
     return(
         <div className="d-flex justify-content-center">
@@ -71,11 +70,11 @@ export default function Notifications({ isOpen, onOpen, onClose } : AccountSetti
                 createPortal(
                     (
                         /* --- 🔴 Portal div --- */
-                        <div className="position-fixed top-0 end-0 mx-4 mx-md-5 py-2 px-0 bg-light border rounded-2"
-                                style={{ width: '20rem', marginTop: '5rem', zIndex: 999 }}>
+                        <div className="w-auto position-fixed top-0 bg-light border rounded-2"
+                                style={{ marginTop: '5rem', right: '3rem', zIndex: 999 }}>
 
                             {/* --- 🔵 Inner content portal --- */}
-                            <div className="py-3 px-4 row">
+                            <div className="py-3 px-4 row g-0">
 
                                 {/* --- 🔵 Img div - background configs --- */}
                                 <div className="col-3 d-flex  justify-content-center rounded-circle border bg-white"
@@ -90,13 +89,25 @@ export default function Notifications({ isOpen, onOpen, onClose } : AccountSetti
                                 </div>
 
                                 <div className="col d-flex flex-column align-items-end justify-content-center p-0">
-                                    <button className="p-2 btn-custom btn-custom-secondary" onClick={async () => {
-                                                                                                                    Logout();
-                                                                                                                    navigate("/login");
-                                                                                                                 }}>
+                                    <button className="p-2 btn-custom btn-custom-secondary" 
+                                            onClick={async () => {
+                                                                    Logout();
+                                                                    navigate("/login");
+                                                                }}>
                                         <BoxArrowRight size={25}/>
                                     </button>
                                 </div>
+                            </div>
+
+                            <div className="py-3 px-4 row bg-secondary-subtle g-0 d-flex gap-3">
+                                <button className="col btn btn-outline-secondary d-flex gap-2 align-items-center justify-content-center">
+                                    <GearFill color="var(--gray00)" size={25}/>
+                                    <p className="text-custom-black mb-0">Configurações</p>
+                                </button>
+                                <button className="col btn btn-outline-secondary d-flex gap-2 align-items-center justify-content-center">
+                                    <PersonAdd color="var(--gray00)" size={25}/>
+                                    <p className="text-custom-black mb-0">Convidar</p>
+                                </button>
                             </div>
                         </div>
                 ), document.body

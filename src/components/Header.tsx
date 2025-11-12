@@ -2,6 +2,13 @@ import { useState } from "react";
 // import Notifications from "./Notifications";
 import AccountSettings from "./AccountSettings";
 
+// const notificationsList = [{id: 1, imgUrl: '/vite.svg', title: 'Username#1', subtitle: 2, description: 'Descrição'},
+//                            {id: 2, imgUrl: '/vite.svg', title: 'Projeto#1', subtitle: 5, description: 'Descrição'},
+//                            {id: 3, imgUrl: '/vite.svg', title: 'Username#2', subtitle: 3, description: 'Descrição'},
+//                            {id: 4, imgUrl: '/vite.svg', title: 'Username#3', subtitle: 14, description: 'Descrição'},
+//                            {id: 5, imgUrl: '/vite.svg', title: 'Projeto#2', subtitle: 20, description: 'Descrição'},
+// ]
+
 interface HeaderProps {
   sidebarWidth: number;
   hidden?: boolean;
@@ -12,12 +19,6 @@ export default function Header({ sidebarWidth, hidden = false }: HeaderProps) {
 
   if (hidden) return null;
 
-  // const notificationsList = [{id: 1, imgUrl: '/vite.svg', title: 'Username#1', subtitle: 2, description: 'Descrição'},
-  //                            {id: 2, imgUrl: '/vite.svg', title: 'Projeto#1', subtitle: 5, description: 'Descrição'},
-  //                            {id: 3, imgUrl: '/vite.svg', title: 'Username#2', subtitle: 3, description: 'Descrição'},
-  //                            {id: 4, imgUrl: '/vite.svg', title: 'Username#3', subtitle: 14, description: 'Descrição'},
-  //                            {id: 5, imgUrl: '/vite.svg', title: 'Projeto#2', subtitle: 20, description: 'Descrição'},
-  // ]
 
   return (
     <header
@@ -32,6 +33,7 @@ export default function Header({ sidebarWidth, hidden = false }: HeaderProps) {
           onOpen={() => setOpenComponent("notifications")}
           onClose={() => setOpenComponent(null)}
         /> */}
+
         <AccountSettings
           isOpen={openComponent === "account"}
           onOpen={() => setOpenComponent("account")}

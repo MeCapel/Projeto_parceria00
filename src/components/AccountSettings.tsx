@@ -5,7 +5,7 @@ import { doc, getDoc } from 'firebase/firestore'
 import { Logout } from "../services/authService";
 import { auth, db } from "../firebaseConfig/config";
 
-import { PersonCircle, BoxArrowRight, GearFill, PersonAdd } from "react-bootstrap-icons";
+import { PersonCircle, BoxArrowRight, PersonAdd, InfoCircle } from "react-bootstrap-icons";
 
 interface AccountSettingsProps {
     isOpen: boolean;
@@ -77,13 +77,13 @@ export default function Notifications({ isOpen, onOpen, onClose } : AccountSetti
                             <div className="py-3 px-4 row g-0">
 
                                 {/* --- 🔵 Img div - background configs --- */}
-                                <div className="col-3 d-flex  justify-content-center rounded-circle border bg-white"
+                                <div className="col-3 d-flex align-items-center justify-content-center rounded-circle border bg-white"
                                         style={{ width: '60px', height: '60px' }}>
                                         <img src='/vite.svg' alt="Foto de perfil" className="img-fluid"/>
                                 </div>
 
                                 {/* --- 🔵 Text infos div --- */}
-                                <div className="col-7 ps-4">
+                                <div className="col-7 ps-4 d-flex align-items-center justify-content-center">
                                     <p className="fs-4 mb-0 fw-bold text-custom-black overflow-hidden">{userData?.userName}</p>
                                     <p className="mb-0 text-custom-black overflow-hidden">{userData?.email}</p>
                                 </div>
@@ -100,13 +100,14 @@ export default function Notifications({ isOpen, onOpen, onClose } : AccountSetti
                             </div>
 
                             <div className="py-3 px-4 row bg-secondary-subtle g-0 d-flex gap-3">
-                                <button className="col btn btn-outline-secondary d-flex gap-2 align-items-center justify-content-center">
-                                    <GearFill color="var(--gray00)" size={25}/>
-                                    <p className="text-custom-black mb-0">Configurações</p>
+                                <button className="col btn-custom btn-custom-outline-secondary d-flex gap-3 align-items-center justify-content-center"
+                                        onClick={() => navigate("/profile")}>
+                                    <InfoCircle size={25}/>
+                                    <p className="mb-0">Perfil</p>
                                 </button>
-                                <button className="col btn btn-outline-secondary d-flex gap-2 align-items-center justify-content-center">
-                                    <PersonAdd color="var(--gray00)" size={25}/>
-                                    <p className="text-custom-black mb-0">Convidar</p>
+                                <button className="col btn-custom btn-custom-outline-secondary d-flex gap-3 align-items-center justify-content-center">
+                                    <PersonAdd size={25}/>
+                                    <p className="mb-0">Convidar</p>
                                 </button>
                             </div>
                         </div>

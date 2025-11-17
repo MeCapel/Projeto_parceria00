@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import { doc, setDoc } from 'firebase/firestore'
+import { collection, doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore'
 import { auth, db } from '../firebaseConfig/config'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 
@@ -22,6 +22,7 @@ export const getCurrentUser = () => {
 }
 
 // ----- This function checks if the current user is logged in ----- 
+
 export const checkIsLogIn = () => {
     const currentUser = auth.currentUser;
 
@@ -47,7 +48,7 @@ export const createAccount = async (username: string, email: string, password: s
         if (user)
         {
             await setDoc(doc(db, "users", user.uid), {
-                userName: username,                
+                username: username,                
                 email: user.email,
             });
         }
@@ -73,6 +74,32 @@ export const signIn = async (email:string, password: string) => {
     }
 }
 
+export interface EditUserData {
+    userId: string,
+    username: string,
+    email: string,
+}
+
+// ----- This function updates the user data, its username and email ----- 
+export const updateAccount = async ({ userId, username } : EditUserData) => {
+    if (!userId) return null;
+
+    try
+    {
+        const docRef = doc(db, "users", userId);
+        
+        const newUserData = {
+            username,
+        }
+        
+        await updateDoc(docRef, newUserData);
+    }
+    catch (err)
+    {
+        console.error(err);
+    }
+}
+
 // ----- This function logout the current user ----- 
 export const Logout = async () => {
     try{
@@ -84,4 +111,29 @@ export const Logout = async () => {
         toast.error("❌ Erro ao fazer logout!");
         console.error(err);
     }
+}
+
+export const getUsers = (callback: any) => {
+    const docRef = collection(db, "users");
+    
+    return onSnapshot(docRef, (snapshot) => {
+        const usersList = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+
+        callback(usersList);
+    })
+}
+
+export const editUser = () => {
+     
+}
+
+export const deleteUser = () => {
+
+}
+
+export const editUserRole = () => {
+    
 }

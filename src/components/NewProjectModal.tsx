@@ -1,6 +1,6 @@
 import Modal from 'react-bootstrap/Modal';
 import { createProject } from '../services/dbService';
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export default function NewProjectModal()
 {
@@ -9,21 +9,14 @@ export default function NewProjectModal()
     const [ show, setShow ] = useState(false);
 
     const openModal = () => setShow(true);
-    const closeModal = useCallback(() => {setShow(false)}, []);
+    const closeModal = () => {setShow(false)};
 
-    const handleNewProject = useCallback( async (e: React.FormEvent ) => {
+    const handleNewProject = async (e: React.FormEvent ) => {
         e.preventDefault();
         await createProject(newProjectName, description)
             .then(closeModal);
-    }, [newProjectName, description, closeModal]);
+    };
 
-    useEffect(() => {
-        const header = document.querySelector('.showOrHide') as HTMLElement | null;
-
-        if (!header) return;
-
-        header.classList.toggle("hidden-header", show);
-    }, [show, handleNewProject]);
 
     return(
         <>

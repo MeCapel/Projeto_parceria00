@@ -1,11 +1,12 @@
 import { Link } from 'react-router'
 import { useState, useEffect } from 'react'
-import { db } from '../firebaseConfig/config'
-import { collection, onSnapshot } from 'firebase/firestore'
+// import { db } from '../firebaseConfig/config'
+// import { collection, onSnapshot } from 'firebase/firestore'
 
 import ProjectCard from './ProjectCard'
 import MembersCircles from '../components/MembersCircles'
 import NewProjectModal from '../components/NewProjectModal'
+import { getProjectsData } from '../services/dbService'
 
 
 interface RecentProjectsProps {
@@ -15,13 +16,22 @@ interface RecentProjectsProps {
 export default function RecentProjects({ displayAll } : RecentProjectsProps)
 {
     const [ projects, setProjects ] = useState<any>([]);
+    
     // const projectsCollectionRef = collection(db, "projects");
 
+    // useEffect(() => {
+    //     const unsubscribe = onSnapshot(collection(db, "projects"), (snapshot) => {
+    //         const projectsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    //         setProjects(projectsData);
+    //     });
+
+    //     return () => unsubscribe();
+    // }, []);
+
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, "projects"), (snapshot) => {
-            const projectsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setProjects(projectsData);
-        });
+        const unsubscribe = getProjectsData((data: any) => {
+            setProjects(data);
+        })
 
         return () => unsubscribe();
     }, []);
@@ -69,7 +79,7 @@ export default function RecentProjects({ displayAll } : RecentProjectsProps)
                 
             </div>
             <div className="d-flex gap-4 my-5 flex-wrap">
-                {projects.map((project) => (
+                {projects.map((project: any) => (
                     <div key={project.id}>
                         {/* <Link to={`/projects/${project.id}`} style={{ textDecoration: 'none' }}> */}
                             <ProjectCard id={project.id} imgUrl="/vite.svg" title={project.projectName} description={project.description} 

@@ -31,148 +31,6 @@
     display: none;
 }
 
-.text-link-custom {
-    color: var(--red00);
-}
-
-.text-link-custom:hover {
-    color: var(--red01);
-}
-
-/* ===== CUSTOM BACKGROUNDS ===== */
-.bg-custom-red00
-{
-    background-color: var(--red00);
-}
-
-.bg-custom-red01
-{
-    background-color: var(--red01);
-}
-
-.bg-custom-gray00
-{
-    background-color: var(--gray00);
-}
-
-.bg-custom-gray02
-{
-    background-color: var(--gray02);
-}
-
-.bg-custom-success01
-{
-    background-color: var(--success01);
-}
-/* ===== CUSTOM BUTTONS ===== */
-
-.btn-custom {
-    text-align: center;
-    padding: 0.5rem 1rem;
-    border: 1px solid rgba(255, 255, 255, 0);
-    border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0);
-    cursor: pointer;
-    transition: all 0.25s;
-}
-
-.btn-custom-primary {
-    background-color: var(--red00);
-    color: var(--white00);
-}
-
-.btn-custom-primary:hover {
-    background-color: var(--red02);
-    color: var(--white00);
-}
-
-.btn-custom-inside-primary {
-    color: var(--gray00);
-}
-
-.btn-custom-inside-primary:hover {
-    color: var(--red00);
-}
-
-.btn-custom-outline-primary {
-    background-color: var(--red03);
-    border: 1px solid var(--red00);
-    color: var(--red01);
-}
-
-.btn-custom-secondary {
-    background-color: var(--gray00);
-    color: var(--white00);
-}
-
-.btn-custom-secondary:hover {
-    background-color: var(--gray01);
-    color: var(--white00);
-}z
-
-.btn-custom-success {
-    background-color: var(--success00);
-    color: var(--white00);
-}
-
-.btn-custom-success:hover {
-    background-color: var(--success01);
-    color: var(--white00);
-}
-
-.btn-custom-black {
-    background-color: var(--black00);
-    color: var(--white00);
-}
-
-.btn-custom-black:hover {
-    background-color: var(--black01);
-    color: var(--white00);
-}
-
-.btn-custom-outline-black {
-    background-color: var(--white00);
-    border: 1px solid var(--black00);
-    color: var(--black00);
-}
-
-.btn-custom-outline-black:hover {
-    background-color: var(--gray02);
-    border: 1px solid var(--black00);
-    color: var(--black00);
-}
-
-.border-custom-red00 
-{
-    border: 1px solid var(--red00);
-}
-
-/* ===== CUSTOM TEXT COLORS ===== */
-
-.text-custom-black {
-    color: var(--gray00);
-}
-
-.text-custom-white {
-    color: var(--white00);
-}
-
-.text-custom-red {
-    color: var(--red00);
-}
-
-.text-custom-red01 {
-    color: var(--red01);
-}
-
-.text-custom-blue {
-    color: var(--various03);
-}
-
-.text-custom-green {
-    color: var(--success01);
-}
-
 /* ===== POSITION RELATIVE FOR THE PEOPLE CIRCLES AT PROJECT CARDS ===== */
 
 .left-less {
@@ -199,4 +57,9 @@
 .sidebar-title {
   white-space: nowrap;
   font-size: 1rem;
+}
+
+.modal-custom
+{
+    max-width: 75vw;
 }

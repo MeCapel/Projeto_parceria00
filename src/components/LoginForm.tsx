@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { signIn } from '../services/authService'
-import { Microsoft } from 'react-bootstrap-icons'
+// import { Microsoft } from 'react-bootstrap-icons'
 
 export default function LoginForm()
 {
@@ -69,19 +69,19 @@ export default function LoginForm()
                     <p className='mb-0 text-custom-white'>{loading ? "Entrando..." : "Entrar"}</p>
                 </button>
 
-                <div className="d-flex align-items-center justify-content-center gap-4">
+                {/* <div className="d-flex align-items-center justify-content-center gap-4">
                     <hr style={{ width: '10%'}} />
                     <p className="fs-4 mb-0">Ou entre com</p>
                     <hr style={{ width: '10%'}} />
-                </div>
+                </div> */}
 
-                <div className="d-flex flex-column">
+                {/* <div className="d-flex flex-column">
                     <button className="btn-custom btn-custom-outline-black fs-5 d-flex gap-3 align-items-center justify-content-center">
                         <Microsoft />
                         Microsoft
                     </button>
 
-                </div>
+                </div> */}
 
             </form>
         </div>

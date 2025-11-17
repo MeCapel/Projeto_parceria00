@@ -52,16 +52,6 @@ export default function ProtoMultiForm({ projectId } : ProtoMultiFormProps)
         setStep(1);
     };
 
-    // ----- SETUP OF useEffect() REACT HOOK, RENDERS EVERY TIME SHOW CHANGES: -----
-    // This one makes sure that when modal is displaying, header does not render, so it do not hide the modal close button
-    useEffect(() => {
-        const header = document.querySelector('.showOrHide') as HTMLElement | null;
-
-        if (!header) return;
-
-        header.classList.toggle("hidden-header", show);
-    }, [show]);
-
     // ----- FUNCTION TO HANDLE FORM INPUTS -----
     function updateStepFields<T extends keyof FormData>(
         stepKey: T,

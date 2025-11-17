@@ -1,12 +1,6 @@
 import { toast } from "react-toastify";
 import { db } from '../firebaseConfig/config'
-import { addDoc, deleteDoc, collection, doc, getDoc, getDocs, setDoc, query, where, updateDoc } from 'firebase/firestore'
-
-// await setDoc(doc(db, "projects", ), {
-        //     projectName: projectName,
-        //     rows: rows,
-        //     cols: cols,
-        // })
+import { addDoc, deleteDoc, collection, doc, getDoc, getDocs, setDoc, query, where, updateDoc, onSnapshot } from 'firebase/firestore'
 
 // ----- PROJECT RELATED FUNCTIONS -----
 
@@ -17,13 +11,26 @@ export const createProject = async ( projectName: string, description: string ) 
         const projectsRef = collection(db, "projects");
         await addDoc(projectsRef, { projectName: projectName, description: description });
         
-        // toast.success("✅ Projeto criado com sucesso!");
+        toast.success("✅ Projeto criado com sucesso!");
     }
     catch (err)
     {
         toast.error(`❌ Erro ao criar um novo projeto: ${err}`);
     }
 }
+
+export const getProjectsData = (callback: any) => {
+    const docRef = collection(db, "projects");
+
+    return onSnapshot(docRef, (snapshot) => {
+        const projectsData = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            
+            callback(projectsData);
+        });
+} 
 
 // ----- Function to get the porject data, like its name and description ----- 
 export const getProjectData = async (id: string) => {
@@ -38,6 +45,23 @@ export const getProjectData = async (id: string) => {
     {
         toast.error("❌ Nenhum projeto encontrado.");
         return null;
+    }
+}
+
+export const editProject = async (id: string, name: string, description: string) => {
+    const docRef = doc(db, "projects", id);
+    const projectDTO = {
+        name: name,
+        description: description
+    }
+
+    try 
+    {
+        await updateDoc(docRef, projectDTO);
+    }
+    catch (err)
+    {
+        console.error(err);
     }
 }
 
@@ -223,6 +247,129 @@ export const movePrototypeToTrash = async (projectId: string, prototypeId: strin
     catch (err)
     {
         toast.error("❌ Erro ao excluir o protótipo.");
+        console.error(err);
+    }
+}
+
+export interface CheckboxItem {
+    id: number,
+    name: string,
+    checked: boolean,
+}
+
+export interface Checklist {
+    name: string,
+    dueDate?: string,
+    items: CheckboxItem[],
+    // maxLength: number,
+}
+
+// ----- CHECKLIST RELATED FUNCTIONS -----
+export const createChecklist = async ( name: string, 
+                                       items: CheckboxItem[], 
+                                       dueDate?: string ) => {
+    try 
+    {
+        const checklistsRef = collection(db, "checklists");
+        
+        const parentDocRef = await addDoc(checklistsRef, { 
+            name: name, 
+            dueDate: dueDate
+        });
+        
+        const checkboxItemsRef = collection(db, "checklists", parentDocRef.id, "checkboxItems");
+
+        for (const item of items)
+        {
+            // await setDoc(doc(checkboxItemsRef, item.id.toString()), {
+            //     name: item.name,
+            //     checked: item.checked 
+            // })
+
+            await addDoc(checkboxItemsRef, {
+                name: item.name,
+                checked: item.checked 
+            })
+        }
+    }
+    catch (err)
+    {
+        console.error(err);
+    }
+    finally
+    {
+        toast.success("✅ Checklist criada com sucesso!");
+    }
+}
+
+export const getChecklist = async (id: string) => {
+    try 
+    {
+        const docRef = doc(db, "checklists", id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists())
+        {
+            return { id: docSnap.id, ...docSnap.data() };
+        }
+        else 
+        {
+            console.log("Não foi encontrado nada!");
+            return null;
+        }
+    }
+    catch (err)
+    {
+        console.error(err);
+    }
+}
+
+export const getChecklists = (callback: any) => {
+    const docRef = collection(db, "checklists");
+
+    return onSnapshot(docRef, (snapshot) => {
+        const checklistsData = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            
+            callback(checklistsData);
+        });
+}
+
+export interface EditChecklist {
+    name: string,
+    dueDate?: string,
+    items: CheckboxItem[],
+}
+
+export const updateChecklist = async ( id: string, name: string, dueDate: string, items: CheckboxItem[] ) => {
+    try
+    {
+        const doRef = doc(db, "checklists", id);
+        const checklistDTO = {
+            name: name,
+            dueDate: dueDate,
+            items: items
+        }
+
+        await updateDoc(doRef, checklistDTO)
+    }
+    catch (err)
+    {
+        console.error(err);
+    }
+}
+
+export const deleteChecklist = async (id: string) => {
+    try 
+    {
+        const docRef = doc(db, "checklists", id);
+
+        await deleteDoc(docRef);
+    }
+    catch (err)
+    {
         console.error(err);
     }
 }

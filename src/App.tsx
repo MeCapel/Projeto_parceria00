@@ -19,6 +19,7 @@ import NotFoundPage from './pages/NotFoundPage'
 import ResetPassword from './pages/ResetPassword'
 import PrototypeItem from './components/PrototypeItem'
 import ConfirmResetPassword from './pages/ConfirmResetPassword'
+import AddChecklist from './components/AddChecklist';
 
 // App.tsx component
 export default function App() {
@@ -33,15 +34,18 @@ export default function App() {
 
         {/* Route component - inside there are all of the possible routes in this app */}
         <Routes>
+          <Route path="/test" element={<AddChecklist />} />
+
+          
           <Route path="/" element={<Login />} />
           <Route path='/login' element={<Login />}/>
-          <Route path='/resetpassword' element={<ResetPassword />}/>
-          <Route path='/confirmresetpassword' element={<ConfirmResetPassword />}/>
           <Route path="/signup" element={<SignUp />} />
           <Route path="*" element={<NotFoundPage />} />
+          <Route path='/resetpassword' element={<ResetPassword />}/>
+          <Route path='/confirmresetpassword' element={<ConfirmResetPassword />}/>
           <Route path='/home' element={<ProtectedRoute><Home /></ProtectedRoute>}/>
-          <Route path='/profile/:userid' element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
           <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+          <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
           <Route path="/projects/:projectid" element={<ProtectedRoute><Project /></ProtectedRoute>} />
           <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><PrototypeItem /></ProtectedRoute>} />
         </Routes>

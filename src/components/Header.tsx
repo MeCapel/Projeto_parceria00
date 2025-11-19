@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 // import Notifications from "./Notifications";
-import { GearFill, PersonCircle, Sliders2, PersonAdd, ArrowUpRightCircleFill } from "react-bootstrap-icons";
+import { GearFill, PersonCircle, Sliders2, ArrowUpRightCircleFill } from "react-bootstrap-icons";
 import { Modal } from "react-bootstrap";
 import AccountSettings from "./AccountSettings";
 
@@ -103,51 +103,51 @@ function Settings()
   )
 }
 
-function Account()
-{
-  return(
-    <>
-      <div className="">
-      <h4 className="text-custom-black fw-bold">Configurações da conta</h4>
-        <hr/>
-      </div>
+// function Account()
+// {
+//   return(
+//     <>
+//       <div className="">
+//       <h4 className="text-custom-black fw-bold">Configurações da conta</h4>
+//         <hr/>
+//       </div>
 
-      <div className="d-flex gap-4 align-items-center">
-        <div className="rounded-circle bg-custom-red00 d-flex align-items-center justify-content-center"
-              style={{ height: "90px", width: "90px" }}>
-          <img src="/vite.svg" alt="" className="img-fluid" />
-        </div>
-        <div className="d-flex flex-column gap-2">
-          <p className="text-custom-black fs-5 mb-0">Nome do usuário: </p>
-          <input type="text" placeholder="Seu username vai aqui" className="p-2 rounded-2 border bg-body-tertiary"
-                  style={{ outline: "none"}}/>
-        </div>
-      </div>
+//       <div className="d-flex gap-4 align-items-center">
+//         <div className="rounded-circle bg-custom-red00 d-flex align-items-center justify-content-center"
+//               style={{ height: "90px", width: "90px" }}>
+//           <img src="/vite.svg" alt="" className="img-fluid" />
+//         </div>
+//         <div className="d-flex flex-column gap-2">
+//           <p className="text-custom-black fs-5 mb-0">Nome do usuário: </p>
+//           <input type="text" placeholder="Seu username vai aqui" className="p-2 rounded-2 border bg-body-tertiary"
+//                   style={{ outline: "none"}}/>
+//         </div>
+//       </div>
 
-      <div className="d-flex flex-column gap-4 align-items-center my-4">
-          <div className="d-flex align-items-center justify-content-between w-100">
-            <div className="d-flex flex-column gap-2">
-              <p className="mb-0 fs-5 text-custom-black fw-semibold">Email</p>
-              <p className="mb-0 text-custom-black">emaildapessoa@gmail.com</p>
-            </div>
-            <button className="btn-custom btn-custom-outline-secondary d-flex align-items-center">
-              Mudar o Email
-            </button>
-          </div>
+//       <div className="d-flex flex-column gap-4 align-items-center my-4">
+//           <div className="d-flex align-items-center justify-content-between w-100">
+//             <div className="d-flex flex-column gap-2">
+//               <p className="mb-0 fs-5 text-custom-black fw-semibold">Email</p>
+//               <p className="mb-0 text-custom-black">emaildapessoa@gmail.com</p>
+//             </div>
+//             <button className="btn-custom btn-custom-outline-secondary d-flex align-items-center">
+//               Mudar o Email
+//             </button>
+//           </div>
 
-          <div className="d-flex align-items-center justify-content-between w-100">
-            <div className="d-flex flex-column gap-2">
-              <p className="mb-0 fs-5 text-custom-black fw-semibold">Senha</p>
-              <p className="mb-0 text-custom-black">Mude a sua senha atual</p>
-            </div>
-            <button className="btn-custom btn-custom-outline-secondary d-flex align-items-center">
-              Mudar o senha
-            </button>
-          </div>
-      </div>
-    </>
-  )
-}
+//           <div className="d-flex align-items-center justify-content-between w-100">
+//             <div className="d-flex flex-column gap-2">
+//               <p className="mb-0 fs-5 text-custom-black fw-semibold">Senha</p>
+//               <p className="mb-0 text-custom-black">Mude a sua senha atual</p>
+//             </div>
+//             <button className="btn-custom btn-custom-outline-secondary d-flex align-items-center">
+//               Mudar o senha
+//             </button>
+//           </div>
+//       </div>
+//     </>
+//   )
+// }
 
 function Invite()
 {

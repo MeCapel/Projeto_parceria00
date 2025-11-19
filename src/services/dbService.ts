@@ -93,6 +93,7 @@ export interface PrototypeProps {
         state?: string,
         city?: string,
         area?: string,
+        checklistId: string,
     }    
 }
 
@@ -106,6 +107,7 @@ export interface EditPrototypeProps {
         state?: string,
         city?: string,
         area?: string,
+        checklistId?: string
     }    
 }
 
@@ -125,6 +127,7 @@ export const createPrototype = async (prototype : PrototypeProps["prototype"]) =
                                 state: prototype.state ?? null,
                                 city: prototype.city ?? null,
                                 area: prototype.area ?? null,
+                                checklistId: prototype.checklistId ?? null,
                                 createdAt: new Date()
         };
 
@@ -171,15 +174,38 @@ export const getPrototypeData = async (prototypeId: string) => {
         const docRef = doc(db, "prototypes", prototypeId);
         const docSnap = await getDoc(docRef);
         
-        if (docSnap.exists())
+        if (!docSnap.exists())
         {
-            return { id: docSnap.id, ...docSnap.data() };
-        }
-        else
-        {
-            console.log("Nothing found");
+            console.log("Nothing found!");
             return null;
         }
+
+        const prototypeData = { id: docSnap.id, ...docSnap.data() };
+        
+        if(!prototypeData.checklistId) 
+        {
+            return { prototypeData, checklistData: null, itemsData: [] };
+        }
+
+        const checklistRef = doc(db, "checklists", prototypeData.checklistId);
+        const checklistSnap = await getDoc(checklistRef);
+
+        if (!checklistSnap.exists())
+        {
+            return { prototypeData, checklistData: null, itemsData: [] }
+        }
+
+        const checklistData = { id: checklistSnap.id, ...checklistSnap.data() };
+
+        const itemsRef = collection(db, "checklists", prototypeData.checklistId, "checkboxItems");
+        const itemsSnap = await getDocs(itemsRef);
+        
+        const itemsData: any[] = itemsSnap.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+
+        return { prototypeData, checklistData, itemsData};
     }
     catch (err)
     {
@@ -222,6 +248,7 @@ export const updatePrototype = async (prototypeId: string, data : EditPrototypeP
                                 state: data.state ?? null,
                                 city: data.city ?? null,
                                 area: data.area ?? null,
+                                checklistId: data.checklistId ?? null
         };
         
         await updateDoc(docRef, newData);
@@ -252,12 +279,14 @@ export const movePrototypeToTrash = async (projectId: string, prototypeId: strin
 }
 
 export interface CheckboxItem {
-    id: number,
+    id: string,
     name: string,
     checked: boolean,
 }
 
 export interface Checklist {
+    id?: string,
+    whichP: string,
     name: string,
     dueDate?: string,
     items: CheckboxItem[],
@@ -266,6 +295,7 @@ export interface Checklist {
 
 // ----- CHECKLIST RELATED FUNCTIONS -----
 export const createChecklist = async ( name: string, 
+                                       whichP: string,
                                        items: CheckboxItem[], 
                                        dueDate?: string ) => {
     try 
@@ -274,6 +304,7 @@ export const createChecklist = async ( name: string,
         
         const parentDocRef = await addDoc(checklistsRef, { 
             name: name, 
+            whichP: whichP,
             dueDate: dueDate
         });
         
@@ -305,12 +336,33 @@ export const createChecklist = async ( name: string,
 export const getChecklist = async (id: string) => {
     try 
     {
-        const docRef = doc(db, "checklists", id);
-        const docSnap = await getDoc(docRef);
+        const parentDocRef = doc(db, "checklists", id);
+        const parentDocSnap = await getDoc(parentDocRef);
 
-        if (docSnap.exists())
+        const childDocRef = collection(db, "checklists", id, "checkboxItems");
+        const childDocSnap = await getDocs(childDocRef);
+        const items: CheckboxItem[] = [];
+
+        childDocSnap.forEach((doc) => {
+            const item = { id: doc.id, ...doc.data() };
+            items.push(item);
+        })
+
+        if (items.length === 0) return null;
+    
+        if (parentDocSnap.exists())
         {
-            return { id: docSnap.id, ...docSnap.data() };
+            const data = parentDocSnap.data();
+
+            const checklist: Checklist = {
+                id: parentDocSnap.id,
+                name: data.name || "",
+                whichP: data.whichP,
+                dueDate: data.dueDate || "",
+                items: items
+            }
+
+            return checklist;
         }
         else 
         {
@@ -321,6 +373,7 @@ export const getChecklist = async (id: string) => {
     catch (err)
     {
         console.error(err);
+        return null;
     }
 }
 
@@ -335,6 +388,24 @@ export const getChecklists = (callback: any) => {
             
             callback(checklistsData);
         });
+}
+
+export const getChecklistsByP = async (whichP: string) => {
+    try 
+    {
+        const docRef = collection(db, "checklists");
+        const q = query(docRef, where("whichP", "==", whichP));
+        const snapshot = await getDocs(q); 
+
+        const results = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+        return results;
+    }
+    catch (err)
+    {
+        console.error(err);
+        return [];
+    }
 }
 
 export interface EditChecklist {
@@ -358,6 +429,27 @@ export const updateChecklist = async ( id: string, name: string, dueDate: string
     catch (err)
     {
         console.error(err);
+    }
+}
+
+export const updateChecklistItems = async (checklistId: string, items: CheckboxItem[]) => {
+    try
+    {
+        for (const item of items)
+        {
+            const docRef = doc(db, "checklists", checklistId, "checkboxItems", item.id);
+
+            await updateDoc(docRef, {
+                name: item.name,
+                checked: item.checked
+            })
+
+        }
+    }
+    catch (err)
+    {
+        console.error(err);
+        return null;
     }
 }
 

@@ -1,7 +1,8 @@
 import Modal from 'react-bootstrap/Modal';
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { CheckLg } from 'react-bootstrap-icons';
 import { addPrototypeToProject, createPrototype } from '../services/dbService';
+import ChooseChecklists from './ChooseChecklist';
 
 // OBS: Here we got 'ProtoMultiForm' as a parent component, and ProtoForm01, ProtoForm02, ProtoForm03 are its children. By being a parent, 'ProtoMultiForm' handles and keep track of all its children data.
 
@@ -10,7 +11,7 @@ interface Step1DataProps {
     protoCode: string,
     protoName: string,
     protoDescription: string,
-    whichP: string,
+    // whichP: string,
 }
 
 interface Step2DataProps {
@@ -20,9 +21,15 @@ interface Step2DataProps {
     area?: string,
 }
 
+interface Step3DataProps {
+    whichP: string,
+    checklistId: string,
+}
+
 interface FormData {
     step1: Step1DataProps,
     step2: Step2DataProps,
+    step3: Step3DataProps
 }
 
 interface ProtoMultiFormProps {
@@ -32,8 +39,8 @@ interface ProtoMultiFormProps {
 export default function ProtoMultiForm({ projectId } : ProtoMultiFormProps)
 {
     // ----- DECLARING GERAL VARIABLES -----
-    const totalSteps = 2;
-    const labels = ["Geral", "Status"];
+    const totalSteps = 3;
+    const labels = ["Geral", "Status", "Requisitos"];
 
     // ----- SETUP OF useState() REACT HOOKS -----
     const [ show, setShow ] = useState(false);
@@ -41,6 +48,7 @@ export default function ProtoMultiForm({ projectId } : ProtoMultiFormProps)
     const [ formData, setFormData ] = useState({
         step1: { protoCode: "", protoName: "", protoDescription: "", whichP: ""},
         step2: { status: "", state: "", city: "", area: ""},
+        step3: { whichP: "", checklistId: "" },
     });
     const [ stepErrors, setStepErrors ] = useState<Record<number, Record<string, string> | undefined>>({});
     
@@ -76,13 +84,13 @@ export default function ProtoMultiForm({ projectId } : ProtoMultiFormProps)
 
         if (stepKey === 1)
         {
-            const { protoCode, protoName, protoDescription, whichP } = formData.step1;
+            const { protoCode, protoName, protoDescription } = formData.step1;
             const errors: Record<string, string> = {};
 
             if (protoCode.trim().length < min || protoCode.trim().length > max) errors.protoCode = message1;
             if (protoName.length < min || protoName.length > max) errors.protoName = message1;
             if (!protoDescription) errors.protoDescription = message0;
-            if (whichP.length < min || whichP.length > max) errors.whichP = "Campo necerssário!";
+            // if (whichP.length < min || whichP.length > max) errors.whichP = "Campo necerssário!";
 
             return { valid: Object.keys(errors).length === 0, errors: Object.keys(errors).length ? errors : undefined };
         }
@@ -94,12 +102,23 @@ export default function ProtoMultiForm({ projectId } : ProtoMultiFormProps)
 
             if (!status) errors.status = message0;
 
-            if ( status == "validacao")
+            if ( status == "Validação de campo")
             {
                 if (!state) errors.state = message0;
                 if (!city) errors.city = message0;
                 if (!area) errors.area = message0;
             }
+
+            return { valid: Object.keys(errors).length === 0, errors: Object.keys(errors).length ? errors : undefined };
+        }
+
+        if (stepKey === 3)
+        {
+            const { whichP } = formData.step3;
+            const errors: Record<string, string> = {};
+
+            if (!whichP || whichP.length == 0) errors.whichP = message0; 
+            // if (!checklist || checklist.length == 0) errors.checklist = message0; 
 
             return { valid: Object.keys(errors).length === 0, errors: Object.keys(errors).length ? errors : undefined };
         }
@@ -149,10 +168,11 @@ export default function ProtoMultiForm({ projectId } : ProtoMultiFormProps)
                                 name: formData.step1.protoName,
                                 status: formData.step2.status,
                                 description: formData.step1.protoDescription,
-                                whichP: formData.step1.whichP,
                                 state: formData.step2.state ?? null,
                                 city: formData.step2.city ?? null,
                                 area: formData.step2.area ?? null,
+                                whichP: formData.step3.whichP,
+                                checklistId: formData.step3.checklistId ?? null
     }   
 
         const prototype = await createPrototype(newPrototype);
@@ -170,12 +190,19 @@ export default function ProtoMultiForm({ projectId } : ProtoMultiFormProps)
     function cleanAllFields()
     {
         const stepsNFields = {
-            step1: [ "whichP", "protoCode", "protoName", "protoDescription"] as const,
+            step1: [ "protoCode", "protoName", "protoDescription"] as const,
             step2: [ "status", "state", "city", "area" ] as const,
+            step3: [ "whichP", "checklistId"] as const
         }
 
         stepsNFields.step1.forEach((field) => {
             updateStepFields("step1", field, "");
+        })
+        stepsNFields.step2.forEach((field) => {
+            updateStepFields("step2", field, "");
+        })
+        stepsNFields.step3.forEach((field) => {
+            updateStepFields("step3", field, "");
         })
 
     }
@@ -190,8 +217,9 @@ export default function ProtoMultiForm({ projectId } : ProtoMultiFormProps)
             case 2: 
                 return <ProtoForm02 data={formData.step2} update={(field, value) => updateStepFields("step2", field, value)} 
                                     errors={stepErrors[2]} maxLength={25}/>;
-            // case 3: 
-            //     return <ProtoForm03 />;
+            case 3: 
+                return <ProtoForm03 data={formData.step3} update={(field, value) => updateStepFields("step3", field, value)} 
+                                    errors={stepErrors[3]} maxLength={25}/>;
             default:
                 return null;
         }
@@ -286,8 +314,9 @@ export default function ProtoMultiForm({ projectId } : ProtoMultiFormProps)
 
                             closeModal();
                             addPrototypeToProject(projectId, prototypeId, formData.step1.protoName);
-                        }}
-                        >Cadastrar</button>
+                        }}>
+                        Cadastrar
+                        </button>
                     )}
 
                 </div>
@@ -306,20 +335,6 @@ interface ProtoForm01Props {
 
 function ProtoForm01({ data, update, errors, maxLength } : ProtoForm01Props )
 {
-    const [ flag, setFlag ] = useState<boolean>(false);
-
-    const defaultStyle = "d-flex flex-column mt-5 p-3 align-items-start border rounded-2";
-    const blockedStyle = "d-flex flex-column mt-5 p-3 align-items-start border-custom-red00 rounded-2";
-
-    const [ style, setStyle ] = useState<string>(defaultStyle);
-
-    useEffect(() => {
-        if (flag)
-        {
-            if (!data.whichP) setStyle(blockedStyle);   
-            else setStyle(defaultStyle);
-        }
-    }, [flag, data.whichP]);
 
     return(
         <>
@@ -328,7 +343,7 @@ function ProtoForm01({ data, update, errors, maxLength } : ProtoForm01Props )
                 {/* --- 🔴 Inner content div --- */}
                 <form onSubmit={(e) => {
                     e.preventDefault();
-                    setFlag(true);
+                    // setFlag(true);
                 }} 
                     style={{ height: '60vh', overflow: "auto"}}>
 
@@ -338,39 +353,6 @@ function ProtoForm01({ data, update, errors, maxLength } : ProtoForm01Props )
                         <p className='text-custom-black display-6 fw-bold mb-1'>Cadastro do protótipo</p>
                         <p className='text-custom-black'>*Campos obrigatórios</p>
                     </div>
-
-                    {/* 🔵 Radio select div */}
-                    {/* <fieldset className="d-flex flex-column mt-5 p-3 align-items-start border rounded-2"> */}
-                    <fieldset className={style}>
-                        <div className="d-flex py-1 px-3 align-items-start justify-content-center rounded-5 position-relative border bg-custom-gray00" 
-                                style={{ top: '-2.5rem' }}>
-                            <legend className='mb-0 text-white fs-5'>
-                                A qual P pertence?*
-                            </legend>
-                        </div>
-
-                        <div className="d-flex w-100 gap-3 align-items-start justify-content-center position-relative" style={{ top: '-0.75rem' }}>
-                            <label htmlFor="preparo" className="d-flex gap-2">
-                                <input type="radio" name="radio" id="preparo" value="Preparo" checked={data.whichP === "Preparo"} 
-                                       onChange={() => update("whichP", "Preparo")}/>
-                                Preparo
-                            </label>
-
-                            <label htmlFor="plantio" className="d-flex gap-2">
-                                <input type="radio" name="radio" id="plantio" value="Plantio" checked={data.whichP === "Plantio"} 
-                                       onChange={() => update("whichP", "Plantio")}/>
-                                Plantio
-                            </label>
-
-                            <label htmlFor="pulverizacao" className="d-flex gap-2">
-                                <input type="radio" name="radio" id="pulverizacao" value="Pulverização" checked={data.whichP === "Pulverização"} 
-                                       onChange={() => update("whichP", "Pulverização")}/>
-                                Pulverização
-                            </label>
-                        </div>
-                        
-                    </fieldset>
-                        
 
                     {/* --- 🔵 Inputs div --- */}
                     <div className="d-flex flex-column my-4 gap-3">
@@ -401,10 +383,6 @@ function ProtoForm01({ data, update, errors, maxLength } : ProtoForm01Props )
 
                     </div>
 
-                    {/* --- 🔵 Button div --- */}
-                    {/* <div className="d-flex align-items-center justify-content-end">
-                        <button className='btn-custom btn-custom-success rounded-1 px-4' type='submit'>Próximo</button>
-                    </div> */}
                 </form>
             </Modal.Body>
         </>
@@ -541,10 +519,6 @@ function ProtoForm02({ data, update, errors, maxLength } : ProtoForm02Props)
                         </div>
                     )}
 
-                    {/* --- 🔵 Button div --- */}
-                    {/* <div className="d-flex align-items-center justify-content-end">
-                        <button className='btn-custom btn-custom-success rounded-1 px-4' type='submit'>Próximo</button>
-                    </div> */}
                 </form>
             </Modal.Body>
         </>
@@ -613,3 +587,86 @@ function ProtoForm02({ data, update, errors, maxLength } : ProtoForm02Props)
 //         </>
 //     )
 // }
+
+interface ProtoForm03Props {
+    data: Step3DataProps,
+    update: (field: keyof Step3DataProps, value: string) => void,
+    errors?: Record<string, string>,
+    maxLength: number
+}
+
+function ProtoForm03({ data, update, errors } : ProtoForm03Props)
+{
+    const [ localP, setLocalP ] = useState("");
+    // const [ checklistFromChild, setChecklistFromChild ] = useState("");
+
+    return(
+        <>
+            <Modal.Body className="container-fluid d-flex flex-column align-items-center m-auto"> 
+
+                {/* --- 🔴 Inner content div --- */}
+                <form className="d-flex flex-column gap-3">
+
+                    {/* --- Title div --- */}
+                    <div className="">
+                        <p className='fs-5 mb-0 text-custom-red'>Cadastro</p>
+                        <p className='text-custom-black display-6 fw-bold mb-1'>Cadastro do protótipo</p>
+                        <p className='text-custom-black'>*Campos obrigatórios</p>
+                    </div>
+
+                    {/* 🔵 Radio select div */}
+                    <fieldset className='d-flex flex-column mt-3 p-3 align-items-start border rounded-2'>
+                        <div className="d-flex py-1 px-3 align-items-start justify-content-center rounded-5 position-relative border bg-custom-gray00" 
+                                style={{ top: '-2.5rem' }}>
+                            <legend className='mb-0 text-white fs-5'>
+                                A qual P pertence?*
+                            </legend>
+                        </div>
+
+                        <div className="d-flex w-100 gap-3 align-items-start justify-content-center position-relative" style={{ top: '-0.75rem' }}>
+                            <label htmlFor="preparo" className="d-flex gap-2">
+                                <input type="radio" name="radio" id="preparo" value="Preparo" checked={data.whichP === "Preparo"} 
+                                       onChange={() => {
+                                            update("whichP", "Preparo");
+                                            setLocalP("Preparo");
+                                       }}/>
+                                Preparo
+                            </label>
+
+                            <label htmlFor="plantio" className="d-flex gap-2">
+                                <input type="radio" name="radio" id="plantio" value="Plantio" checked={data.whichP === "Plantio"} 
+                                       onChange={() => {
+                                            update("whichP", "Plantio");
+                                            setLocalP("Plantio");
+                                       }}/>
+                                Plantio
+                            </label>
+
+                            <label htmlFor="pulverizacao" className="d-flex gap-2">
+                                <input type="radio" name="radio" id="pulverizacao" value="Pulverização" checked={data.whichP === "Pulverização"} 
+                                       onChange={() => {
+                                            update("whichP", "Pulverização");
+                                            setLocalP("Pulverização");
+                                       }}/>
+                                Pulverização
+                            </label>
+                        </div>
+                        
+                    </fieldset>
+
+                    {errors?.whichP && 
+                        <div className="position-relative z-3 text-custom-red px-3">
+                            {errors.whichP}
+                        </div>
+                    }
+
+                    {/* --- 🔵 Inputs div --- */}
+                    {localP && (
+                        <ChooseChecklists whichP={localP} onValueChange={(value) => update("checklistId", value)} />
+                    )}
+
+                </form>
+            </Modal.Body>
+        </>
+    )
+}

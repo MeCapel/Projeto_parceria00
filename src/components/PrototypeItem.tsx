@@ -1,8 +1,10 @@
 import { useState,  useEffect, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router"
-import { getPrototypeData, updatePrototype } from "../services/dbService";
+import { getPrototypeData, updateChecklistItems, updatePrototype, type CheckboxItem, type Checklist, getChecklistsByP, getChecklist } from "../services/dbService";
 import { movePrototypeToTrash } from "../services/dbService";
 import { type EditPrototypeProps } from "../services/dbService";
+import { Modal } from "react-bootstrap";
+// import DisplayChecklist from "./DisplayChecklist"
 
 // interface PrototypeDataProps {
 //     projectId?: string,
@@ -20,6 +22,9 @@ export default function PrototypeItem()
 {
     // const [ prototypeData, setPrototypeData ] = useState<any>(null);
     const [ prototypeData, setPrototypeData ] = useState<EditPrototypeProps | null>(null);
+    const [ checklistData, setChecklistData] = useState<Checklist | null>(null);
+    const [ checklist, setChecklist] = useState<string | null>(null);
+    const [ itemsData, setItemsData] = useState<CheckboxItem[]>([]);
     const [ loading, setLoading ] = useState(true);
     const navigate = useNavigate();
     const { prototypeid } = useParams();
@@ -43,17 +48,22 @@ export default function PrototypeItem()
                 
                 if (data) 
                 {
-                    setPrototypeData(data);
+                    setPrototypeData(data.prototypeData || null);
+                    setChecklistData(data.checklistData || null);
+                    setItemsData(data.itemsData);
+                    
+                    const p = data.prototypeData;
 
-                    setProjectId(data.projectId);
-                    setCode(data.code || "");
-                    setName(data.name || "");
-                    setStatus(data.status || "");
-                    setDescription(data.description || "");
-                    setWhichP(data.whichP || "");
-                    setState(data.state || "");
-                    setCity(data.city || "");
-                    setArea(data.area || "");
+                    setProjectId(p.projectId);
+                    setCode(p.code || "");
+                    setName(p.name || "");
+                    setStatus(p.status || "");
+                    setDescription(p.description || "");
+                    setWhichP(p.whichP || "");
+                    setState(p.state || "");
+                    setCity(p.city || "");
+                    setArea(p.area || "");
+                    setChecklist(p.checklistId || "");
                 }
             }
             catch (err)
@@ -68,16 +78,32 @@ export default function PrototypeItem()
 
         fetchData();
 
-    }, [prototypeid]);
+    }, []);
 
+    useEffect(() => {
+        if (!checklist) return;
 
-    function handleSubmit(e:FormEvent)
+        const fetchNewChecklist = async () => {
+            try {
+                const data = await getChecklist(checklist);
+                if (data) {
+                    setChecklistData(data);
+                    setItemsData(data.items);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        fetchNewChecklist();
+}, [checklist]);
+
+    async function dropChecklist()
     {
-        e.preventDefault();
+        setChecklist(null);
+        setChecklistData(null);
+        setItemsData([]);
 
-        if (!prototypeid) return;
-
-        
         const formData = { 
             code: code, 
             name: name, 
@@ -87,9 +113,45 @@ export default function PrototypeItem()
             state: state, 
             city: city, 
             area: area,
+            checklistId: null
         };
 
-        updatePrototype(prototypeid, formData)
+        await updatePrototype(prototypeid, formData);
+    }
+
+    function handleItemToggle(itemId: string)
+    {
+        setItemsData(prev => 
+            prev.map(item =>
+                item.id === itemId ? { ...item, checked: !item.checked } : item
+            )
+        )
+    }
+
+    async function handleSubmit(e:FormEvent)
+    {
+        e.preventDefault();
+
+        if (!prototypeid) return;
+
+        const formData = { 
+            code: code, 
+            name: name, 
+            description: description, 
+            whichP: whichP, 
+            status: status, 
+            state: state, 
+            city: city, 
+            area: area,
+            checklistId: checklist
+        };
+
+        await updatePrototype(prototypeid, formData);
+
+        if (checklist)
+        {
+            await updateChecklistItems(checklist, itemsData);
+        }
 
         navigate(`/projects/${projectId}`);
     }
@@ -168,68 +230,32 @@ export default function PrototypeItem()
                             <div className="d-flex w-100 gap-3 align-items-start justify-content-center position-relative" style={{ top: '-0.75rem' }}>
                                 <label htmlFor="preparo" className="d-flex gap-2 form-check-label">
                                     <input className='form-check-input' type="radio" name="whichP" id="preparo" value="Preparo"
-                                    checked={whichP === "Preparo"} onChange={(e) => setWhichP(e.target.value)} />
+                                    checked={whichP === "Preparo"} onChange={(e) => {
+                                            setWhichP(e.target.value);
+                                            dropChecklist();
+                                        }} />
                                     Preparo
                                 </label>
                                 <label htmlFor="plantio" className="d-flex gap-2 form-check-label">
                                     <input className='form-check-input' type="radio" name="whichP" id="plantio" value="Plantio"
-                                    checked={whichP === "Plantio"} onChange={(e) => setWhichP(e.target.value)} />
+                                    checked={whichP === "Plantio"} onChange={(e) => {
+                                            setWhichP(e.target.value);
+                                            dropChecklist();
+                                        }} />
                                     Plantio
                                 </label>
                                 <label htmlFor="pulverizacao" className="d-flex gap-2 form-check-label">
                                     <input className='form-check-input' type="radio" name="whichP" id="pulverizacao" value="Pulverização"
-                                    checked={whichP === "Pulverização"} onChange={(e) => setWhichP(e.target.value)} />
+                                    checked={whichP === "Pulverização"} onChange={(e) => {
+                                            setWhichP(e.target.value);
+                                            dropChecklist();
+                                        }} />
                                     Pulverização
                                 </label>
                             </div>
                         </fieldset>
                     </div>
                 </div>
-
-                {/* <div className="row"> */}
-                    {/* <div className="col">
-                        <fieldset className="col d-flex flex-column mt-5 p-3 align-items-start border rounded-2">
-                            <div className="d-flex py-1 px-3 align-items-start justify-content-center rounded-5 position-relative border bg-custom-gray00" 
-                                    style={{ top: '-2.5rem' }}>
-                                <legend className='mb-0 text-white fs-5'>
-                                    Culturas
-                                </legend>
-                            </div>
-
-                            <div className="d-flex w-100 gap-3 align-items-start justify-content-center position-relative" style={{ top: '-0.75rem' }}>
-                                <label htmlFor="preparo" className="d-flex gap-2 form-check-label">
-                                    <input className='form-check-input' type="radio" name="radio" id="preparo" />
-                                    Preparo
-                                </label>
-                                <label htmlFor="preparo" className="d-flex gap-2 form-check-label">
-                                    <input className='form-check-input' type="radio" name="radio" id="preparo" />
-                                    Preparo
-                                </label>
-                                <label htmlFor="preparo" className="d-flex gap-2 form-check-label">
-                                    <input className='form-check-input' type="radio" name="radio" id="preparo" />
-                                    Preparo
-                                </label>
-                            </div>
-                        </fieldset>
-                    </div> */}
-
-                    {/* <div className="col">
-                        <fieldset className="col d-flex flex-column mt-5 px-3 align-items-start border rounded-2">
-                            <div className="d-flex mt-4 px-3 align-items-start justify-content-center rounded-5 position-relative border bg-custom-gray00" 
-                                    style={{ top: '-2.5rem' }}>
-                                <legend className='mb-0 text-white fs-5'>
-                                    Disponibilidade
-                                </legend>
-                            </div>
-
-                            <div className="row d-flex pb-1 px-2 w-100 gap-3 position-relative" style={{ top: '-1rem' }}>
-                                <input className="col py-1 d-flex align-items-center gap-3 border rounded form-control" value={"00/00/0000"} />
-                                <input className="col py-1 d-flex align-items-center gap-3 border rounded form-control" value={"+1212121212"} />
-                                
-                            </div>
-                        </fieldset>
-                    </div>
-                </div> */}
 
                 {/* --- 🔵 Inputs div --- */}
                 <div className="row mt-4">
@@ -253,16 +279,125 @@ export default function PrototypeItem()
                         <textarea className='form-control' name="descricao" id="decricao" rows={6} 
                                   value={description} onChange={(e) => setDescription(e.target.value)}></textarea>
                     </div>
+
                 </div>
+
+                {checklistData && (
+                    <div className="d-flex flex-column align-items-center justify-content-center">
+                        {/* <DisplayChecklist id={checklistId} /> */}
+                        <div className="my-3">
+                                <p className='text-custom-black fs-4 fw-bold mb-0'>{checklistData.name}</p>
+                                <p className='fs-5 mb-0 text-custom-red'>{whichP}</p>
+                        </div>
+
+                        <ul className="list-unstyled d-flex flex-column gap-2">
+                            {itemsData.map((item) => (
+                                <li key={item.id} className="d-flex gap-3">
+                                    <input className='form-check-input' type="checkbox" id={item.id} value={item.id}
+                                        checked={item.checked} onChange={() => handleItemToggle(item.id)}/>
+                                    <label htmlFor={item.id}>{item.name}</label>
+                                </li>
+                            ))} 
+                        </ul>
+                    </div>
+                )}
 
                 {/* --- 🔵 Button div --- */}
                 <div className="d-flex align-items-center justify-content-between mt-5">
                     <button className='btn-custom btn-custom-outline-primary rounded-1 px-4' type='button' 
                         onClick={() => handleMoveProjectToTrash(projectId, prototypeid)}>Deletar</button>
+
+                    {<ChooseChecklists whichP={whichP} onValueChange={setChecklist} checklistId={checklist} />}
+                    
                     <button className='btn-custom btn-custom-success rounded-1 px-4' type='submit'>Salvar</button>
                 </div>
                 
             </form>
         </div>
+    )
+}
+
+interface Props {
+    checklistId: string,
+    whichP: string,
+    onValueChange: (value: string) => void;
+}
+
+function ChooseChecklists({ whichP, onValueChange, checklistId } : Props)
+{
+    const [ data, setData ] = useState<Checklist[]>([]);
+    const [ checklist, setChecklist ] = useState<string>(checklistId);
+    const [ loading, setLoading ] = useState<boolean>(true);
+    const [ show, setShow ] = useState(false);
+
+    const openModal = () => setShow(true);
+    const closeModal = () => {setShow(false)};
+
+    const handleChange = (e: any) => {
+        const newValue = e.target.value;
+
+        setChecklist(newValue);
+        onValueChange(newValue);
+    }
+
+    useEffect(() => {
+
+        const fetchData = async () => {
+            try 
+            {
+                const data = await getChecklistsByP(whichP);
+                setData(data as any);
+            }
+            catch (err)
+            {
+                console.error(err);
+            }
+            finally
+            {
+                setLoading(false);
+            }
+        }
+
+        fetchData();
+        
+    }, [whichP]);
+
+    if (loading) return <p>Carregando...</p>;
+
+    // if (!data) return <p>Nenhum item encontrado!</p>;
+
+    return(
+        <>
+            <button className='btn-custom btn-custom-secondary' onClick={openModal} type="button">
+                <p className='mb-0 fs-5 text-custom-white'>Gerenciar checklist</p>
+            </button>
+
+            <Modal show={show} onHide={closeModal} dialogClassName="modal-fullscreen" className='p-0'>
+            <Modal.Header closeButton className="mb-0 mx-5 border-0 my-3"></Modal.Header>
+            
+                <Modal.Body className="container-fluid d-flex flex-column align-items-center m-auto gap-3">
+                    <div className="p-3 d-flex flex-column gap-3 border">
+                        <div className="">
+                            <p className='text-custom-black fs-4 fw-bold mb-0'>Adicionar checklist</p>
+                            <p className='fs-5 mb-0 text-custom-red'>{whichP}</p>
+                        </div>
+
+                        <ul className="list-unstyled d-flex flex-column gap-2">
+                            {data.map((item) => (
+                                <li key={item.id} className="d-flex gap-3">
+                                    <input className='form-check-input' type="radio" name="checklist" id={item.id} value={item.id}
+                                        checked={checklist === item.id} onChange={handleChange} />
+                                    <label htmlFor={item.id}>{item.name}</label>
+                                </li>
+                            ))} 
+                        </ul>
+                    </div>
+
+                    <div className="d-flex gap-5">
+                        <button className="btn-custom btn-custom-success" onClick={closeModal}>Adicionar</button>
+                    </div>
+                </Modal.Body>
+            </Modal>
+        </>
     )
 }

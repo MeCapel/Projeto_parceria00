@@ -34,9 +34,6 @@ export default function App() {
 
         {/* Route component - inside there are all of the possible routes in this app */}
         <Routes>
-          <Route path="/test" element={<AddChecklist />} />
-
-          
           <Route path="/" element={<Login />} />
           <Route path='/login' element={<Login />}/>
           <Route path="/signup" element={<SignUp />} />

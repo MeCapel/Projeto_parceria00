@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { signIn } from '../services/authService'
+import { signIn } from '../../services/authService'
 // import { Microsoft } from 'react-bootstrap-icons'
 
 export default function LoginForm()

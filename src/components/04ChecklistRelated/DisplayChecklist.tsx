@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
-import { getChecklist, getChecklists, type Checklist } from "../services/dbService";
+// import { getChecklist, type Checklist } from "../services/dbService";
+import { getChecklist, type Checklist } from "../../services/checklistServices";
 
 interface DisplayChecklistProps {
     id: string
@@ -36,7 +37,7 @@ export default function DisplayChecklist({ id } : DisplayChecklistProps)
         try
         {
 
-            const unsub = getChecklist((data: any) =>{  
+            const unsub = getChecklist((data: any) => {  
                 setData(data);
             });
             

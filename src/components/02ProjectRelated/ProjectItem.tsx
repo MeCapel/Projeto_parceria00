@@ -3,10 +3,10 @@ import React, { useEffect, useState } from "react";
 import { CaretUp } from "react-bootstrap-icons";
 import { CaretDown } from "react-bootstrap-icons";
 
-import Layuot from "./Layout";
-import MainFrame from "./MainFrame";
-import ProtoMultiForm from './ProtoMultiForm'
-import { db } from '../firebaseConfig/config'
+import Layuot from "../00Geral/Layout";
+import MainFrame from "../03PrototypeRelated/MainFrame";
+import ProtoMultiForm from '../03PrototypeRelated/ProtoMultiForm'
+import { db } from '../../firebaseConfig/config'
 // import { getProjectData } from "../services/dbService"
 import { doc, onSnapshot } from 'firebase/firestore'
 

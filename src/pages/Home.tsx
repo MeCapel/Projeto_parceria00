@@ -1,6 +1,6 @@
-import RecentProjects from '../components/RecentProjects'
-import Layout from '../components/Layout'
-import AddChecklist from '../components/AddChecklist'
+import RecentProjects from '../components/02ProjectRelated/RecentProjects'
+import Layout from '../components/00Geral/Layout'
+import AddChecklist from '../components/04ChecklistRelated/AddChecklist'
 
 export default function Home()
 {    

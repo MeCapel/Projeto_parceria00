@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { type Checklist, type CheckboxItem, createChecklist } from "../services/dbService";
-import { useNavigate } from "react-router";
 import { Modal } from "react-bootstrap";
+import { useNavigate } from "react-router";
 import DisplayChecklists from "./DisplayChecklists";
+// import { type Checklist, type CheckboxItem, createChecklist } from "../services/dbService";
+import { type Checklist, type CheckboxItem, createChecklist } from "../../services/checklistServices";
 
 export default function AddChecklist()
 {
@@ -91,7 +92,7 @@ export default function AddChecklist()
         finally
         {
             setLoading(false);
-            navigate("/home")
+            navigate("/home");
         }
     }
 

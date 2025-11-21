@@ -1,6 +1,8 @@
-import Modal from 'react-bootstrap/Modal';
-import { createProject } from '../services/dbService';
 import { useState } from 'react';
+import Modal from 'react-bootstrap/Modal';
+// import { createProject } from '../services/dbService';
+import { AttachProjectToUser, createProject } from '../../services/projectServices';
+import { getCurrentUser } from '../../services/authService';
 
 export default function NewProjectModal()
 {
@@ -13,8 +15,24 @@ export default function NewProjectModal()
 
     const handleNewProject = async (e: React.FormEvent ) => {
         e.preventDefault();
-        await createProject(newProjectName, description)
-            .then(closeModal);
+
+        const projectId = await createProject(newProjectName, description);
+
+        if (!projectId)
+        {
+            console.log("Erro ao puxar informações do projeto!");
+            return null;
+        }
+        
+        const userData = getCurrentUser();
+
+        if (!userData)
+        {
+            console.log("Erro ao puxar informações do usuário!");
+            return null;
+        }
+
+        await AttachProjectToUser(projectId, userData?.uid);
     };
 
 

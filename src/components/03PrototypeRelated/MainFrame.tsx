@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
-import { getPrototypesForProjectData } from "../services/dbService";
 import { useNavigate } from "react-router";
+import { getPrototypesForProjectData } from "../../services/prototypeServices";
 
 interface MainFrameProps {
     projectId?: string;

@@ -1,4 +1,4 @@
-import Layout from '../components/Layout'
+import Layout from '../components/00Geral/Layout'
 
 import { Modal } from 'react-bootstrap'
 import { PencilSquare } from 'react-bootstrap-icons'
@@ -6,8 +6,8 @@ import { PencilSquare } from 'react-bootstrap-icons'
 import { useNavigate } from 'react-router'
 import { useCallback, useEffect, useState } from 'react'
 
-import { db, auth } from '../firebaseConfig/config'
 import { doc, getDoc } from 'firebase/firestore'
+import { db, auth } from '../firebaseConfig/config'
 import { updateAccount, type EditUserData } from '../services/authService'
 
 export default function Profile()

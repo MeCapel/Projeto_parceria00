@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
-import { getChecklistsByP, type Checklist } from "../services/dbService";
+// import { getChecklistsByP, type Checklist } from "../services/dbService";
+import { getChecklistsByP, type Checklist } from "../../services/checklistServices";
 
 // const unsub = getChecklistsByP((data: any) =>{  
         //     setData(data);

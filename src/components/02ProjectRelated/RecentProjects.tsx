@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react'
 // import { collection, onSnapshot } from 'firebase/firestore'
 
 import ProjectCard from './ProjectCard'
-import MembersCircles from '../components/MembersCircles'
-import NewProjectModal from '../components/NewProjectModal'
-import { getProjectsData } from '../services/dbService'
+// import { getProjectsData } from '../services/dbService'
+import { getProjectsData, getUserProjects } from '../../services/projectServices'
+import MembersCircles from './MembersCircles'
+import NewProjectModal from './NewProjectModal'
+import { getCurrentUser } from '../../services/authService'
 
 
 interface RecentProjectsProps {
@@ -15,7 +17,7 @@ interface RecentProjectsProps {
 
 export default function RecentProjects({ displayAll } : RecentProjectsProps)
 {
-    const [ projects, setProjects ] = useState<any>([]);
+    const [ projects, setProjects ] = useState<any | null>([]);
     
     // const projectsCollectionRef = collection(db, "projects");
 
@@ -29,11 +31,20 @@ export default function RecentProjects({ displayAll } : RecentProjectsProps)
     // }, []);
 
     useEffect(() => {
-        const unsubscribe = getProjectsData((data: any) => {
-            setProjects(data);
-        })
+        // const unsubscribe = getProjectsData((data: any) => {
+        //     setProjects(data);
+        // })
 
-        return () => unsubscribe();
+        // return () => unsubscribe();
+        const fetchProjects = async () => {
+            const userData = getCurrentUser();
+            if (!userData) return; 
+
+            const userProjects = await getUserProjects(userData.uid);
+            setProjects(userProjects ?? []);
+        };
+
+        fetchProjects();
     }, []);
 
     const membersList = [{ id: 1, img: '/vite.svg', name: "Maria"},

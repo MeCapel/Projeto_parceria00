@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 // Importing components
 import AuthProvider from './context/AuthProvider'
-import ProtectedRoute from './components/ProtectedRoute'
+import ProtectedRoute from './components/Others/ProtectedRoute'
 
 // Importing full pages
 import Home from './pages/Home'
@@ -17,9 +17,8 @@ import Profile from './pages/Profile'
 import Projects from './pages/Projects'
 import NotFoundPage from './pages/NotFoundPage'
 import ResetPassword from './pages/ResetPassword'
-import PrototypeItem from './components/PrototypeItem'
+import PrototypeItem from './components/03PrototypeRelated/PrototypeItem'
 import ConfirmResetPassword from './pages/ConfirmResetPassword'
-import AddChecklist from './components/AddChecklist';
 
 // App.tsx component
 export default function App() {

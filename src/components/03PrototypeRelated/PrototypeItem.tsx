@@ -1,10 +1,10 @@
-import { useState,  useEffect, type FormEvent } from "react";
-import { useNavigate, useParams } from "react-router"
-import { getPrototypeData, updateChecklistItems, updatePrototype, type CheckboxItem, type Checklist, getChecklistsByP, getChecklist } from "../services/dbService";
-import { movePrototypeToTrash } from "../services/dbService";
-import { type EditPrototypeProps } from "../services/dbService";
 import { Modal } from "react-bootstrap";
 // import DisplayChecklist from "./DisplayChecklist"
+import { useNavigate, useParams } from "react-router"
+import { useState,  useEffect, type FormEvent } from "react";
+import { getPrototypeData, updatePrototype, movePrototypeToTrash, type EditPrototypeProps } from "../../services/prototypeServices";
+import { updateChecklistItems, type CheckboxItem, type Checklist, getChecklistsByP, getChecklist, dropPrototypeChecklist } from "../../services/checklistServices";
+// import { getPrototypeData, updateChecklistItems, updatePrototype, type CheckboxItem, type Checklist, getChecklistsByP, getChecklist } from "../services/dbService";
 
 // interface PrototypeDataProps {
 //     projectId?: string,
@@ -100,23 +100,32 @@ export default function PrototypeItem()
 
     async function dropChecklist()
     {
+        const oldChecklistId = checklist;
+
         setChecklist(null);
         setChecklistData(null);
         setItemsData([]);
 
-        const formData = { 
-            code: code, 
-            name: name, 
-            description: description, 
-            whichP: whichP, 
-            status: status, 
-            state: state, 
-            city: city, 
-            area: area,
-            checklistId: null
-        };
-
-        await updatePrototype(prototypeid, formData);
+        if (oldChecklistId)
+        {
+            await dropPrototypeChecklist(prototypeid!, oldChecklistId);
+        }
+        else
+        {
+            const formData = { 
+                code: code, 
+                name: name, 
+                description: description, 
+                whichP: whichP, 
+                status: status, 
+                state: state, 
+                city: city, 
+                area: area,
+                checklistId: null
+            };
+            
+            await updatePrototype(prototypeid!, formData);
+        }
     }
 
     function handleItemToggle(itemId: string)
@@ -156,7 +165,7 @@ export default function PrototypeItem()
         navigate(`/projects/${projectId}`);
     }
 
-    const handleMoveProjectToTrash = async (projectId: string, prototypeId: string) => {
+    const handleDeletePrototype = async (projectId: string, prototypeId: string) => {
         movePrototypeToTrash(projectId, prototypeId);
         navigate(`/projects/${projectId}`);
     }
@@ -305,9 +314,9 @@ export default function PrototypeItem()
                 {/* --- 🔵 Button div --- */}
                 <div className="d-flex align-items-center justify-content-between mt-5">
                     <button className='btn-custom btn-custom-outline-primary rounded-1 px-4' type='button' 
-                        onClick={() => handleMoveProjectToTrash(projectId, prototypeid)}>Deletar</button>
+                        onClick={() => handleDeletePrototype(projectId, prototypeid!)}>Deletar</button>
 
-                    {<ChooseChecklists whichP={whichP} onValueChange={setChecklist} checklistId={checklist} />}
+                    {<ChooseChecklists whichP={whichP} onValueChange={setChecklist} checklistId={checklist!} prototypeId={prototypeid!} />}
                     
                     <button className='btn-custom btn-custom-success rounded-1 px-4' type='submit'>Salvar</button>
                 </div>
@@ -318,26 +327,39 @@ export default function PrototypeItem()
 }
 
 interface Props {
+    prototypeId: string,
     checklistId: string,
     whichP: string,
     onValueChange: (value: string) => void;
 }
 
-function ChooseChecklists({ whichP, onValueChange, checklistId } : Props)
+function ChooseChecklists({ prototypeId, whichP, onValueChange, checklistId } : Props)
 {
     const [ data, setData ] = useState<Checklist[]>([]);
-    const [ checklist, setChecklist ] = useState<string>(checklistId);
     const [ loading, setLoading ] = useState<boolean>(true);
     const [ show, setShow ] = useState(false);
 
     const openModal = () => setShow(true);
     const closeModal = () => {setShow(false)};
 
-    const handleChange = (e: any) => {
+    const handleChange = async (e: any) => {
         const newValue = e.target.value;
+        const prev = checklistId;
 
-        setChecklist(newValue);
+        if (prev && prev !== newValue)
+        {
+            await dropPrototypeChecklist(prototypeId, prev);
+        }
+
         onValueChange(newValue);
+    }
+
+    const handleDelete = async () => {
+        if (!checklistId) return
+        
+        await dropPrototypeChecklist(prototypeId, checklistId);
+        onValueChange("");
+        closeModal();
     }
 
     useEffect(() => {
@@ -360,7 +382,7 @@ function ChooseChecklists({ whichP, onValueChange, checklistId } : Props)
 
         fetchData();
         
-    }, [whichP]);
+    }, [whichP, checklistId]);
 
     if (loading) return <p>Carregando...</p>;
 
@@ -386,7 +408,7 @@ function ChooseChecklists({ whichP, onValueChange, checklistId } : Props)
                             {data.map((item) => (
                                 <li key={item.id} className="d-flex gap-3">
                                     <input className='form-check-input' type="radio" name="checklist" id={item.id} value={item.id}
-                                        checked={checklist === item.id} onChange={handleChange} />
+                                        checked={checklistId === item.id} onChange={handleChange} />
                                     <label htmlFor={item.id}>{item.name}</label>
                                 </li>
                             ))} 
@@ -394,6 +416,7 @@ function ChooseChecklists({ whichP, onValueChange, checklistId } : Props)
                     </div>
 
                     <div className="d-flex gap-5">
+                        <button className="btn-custom btn-custom-success" onClick={handleDelete}>Excluir</button>
                         <button className="btn-custom btn-custom-success" onClick={closeModal}>Adicionar</button>
                     </div>
                 </Modal.Body>

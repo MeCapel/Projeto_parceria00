@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../firebaseConfig/config';
 import { useNavigate } from 'react-router';
+import { auth } from '../firebaseConfig/config';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 export default function ResetPassword()
 {

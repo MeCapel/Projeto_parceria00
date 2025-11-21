@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
 import { auth } from '../firebaseConfig/config';
+import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router';
+import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
 
 export default function ConfirmResetPassword()
 {

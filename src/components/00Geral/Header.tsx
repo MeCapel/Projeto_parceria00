@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router";
-// import Notifications from "./Notifications";
-import { GearFill, PersonCircle, Sliders2, ArrowUpRightCircleFill } from "react-bootstrap-icons";
 import { Modal } from "react-bootstrap";
-import AccountSettings from "./AccountSettings";
+// import Notifications from "./Notifications";
+import AccountSettings from "../01LoginRelated/AccountSettings";
+import { GearFill, PersonCircle, Sliders2, ArrowUpRightCircleFill } from "react-bootstrap-icons";
 
 // const notificationsList = [{id: 1, imgUrl: '/vite.svg', title: 'Username#1', subtitle: 2, description: 'Descrição'},
 //                            {id: 2, imgUrl: '/vite.svg', title: 'Projeto#1', subtitle: 5, description: 'Descrição'},

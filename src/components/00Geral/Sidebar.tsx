@@ -1,6 +1,6 @@
+import { NavLink } from 'react-router'
 import { useState, useRef, useLayoutEffect } from "react";
 import { LayoutSidebar, LayoutSidebarReverse, HouseFill, CollectionFill } from 'react-bootstrap-icons'
-import { NavLink } from 'react-router'
 
 interface SidebarProps {
     onWidthChange?: (width: number) => void;

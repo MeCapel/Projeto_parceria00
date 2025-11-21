@@ -1,4 +1,4 @@
-import ProjectItem from "../components/ProjectItem";
+import ProjectItem from "../components/02ProjectRelated/ProjectItem";
 
 export default function Project()
 {

@@ -1,7 +1,8 @@
 import type React from "react";
 import { useState } from "react";
 import { useNavigate } from 'react-router'
-import { moveProjectToTrash } from "../services/dbService";
+// import { moveProjectToTrash } from "../services/dbService";
+import { deleteProjectNPrototypes } from "../../services/projectServices";
 import { ThreeDotsVertical, Trash3Fill } from 'react-bootstrap-icons'
 
 // interface ReusableCardsProps {
@@ -34,7 +35,7 @@ export default function ProjectCard({ id, imgUrl, title, subtitle, description, 
     const [ moreOptions, setMoreOptions ] = useState(false);
 
     const handleMoveProjectToTrash = async (id: string) => {
-        moveProjectToTrash(id);
+        deleteProjectNPrototypes(id);
     }
 
     return(

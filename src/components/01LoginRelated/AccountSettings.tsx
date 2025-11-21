@@ -2,9 +2,8 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 import { doc, getDoc } from 'firebase/firestore'
-import { Logout } from "../services/authService";
-import { auth, db } from "../firebaseConfig/config";
-
+import { Logout } from "../../services/authService";
+import { auth, db } from "../../firebaseConfig/config";
 import { PersonCircle, BoxArrowRight, PersonAdd, InfoCircle } from "react-bootstrap-icons";
 
 interface AccountSettingsProps {

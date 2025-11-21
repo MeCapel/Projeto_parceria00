@@ -1,8 +1,8 @@
-import Modal from 'react-bootstrap/Modal';
 import { useState } from "react"
+import Modal from 'react-bootstrap/Modal';
 import { CheckLg } from 'react-bootstrap-icons';
-import { addPrototypeToProject, createPrototype } from '../services/dbService';
-import ChooseChecklists from './ChooseChecklist';
+import ChooseChecklists from '../04ChecklistRelated/ChooseChecklist';
+import { addPrototypeToProject, createPrototype } from '../../services/prototypeServices';
 
 // OBS: Here we got 'ProtoMultiForm' as a parent component, and ProtoForm01, ProtoForm02, ProtoForm03 are its children. By being a parent, 'ProtoMultiForm' handles and keep track of all its children data.
 

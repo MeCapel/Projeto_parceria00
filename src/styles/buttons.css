@@ -98,7 +98,7 @@
 
 .btn-custom-outline-success {
     border: 1px solid var(--success01);
-    color: var(--gray00);
+    color: var(--success00);
 }
 
 .btn-custom-outline-success:hover {

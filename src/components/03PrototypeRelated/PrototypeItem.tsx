@@ -1,4 +1,5 @@
 import { Modal } from "react-bootstrap";
+import { XLg } from "react-bootstrap-icons";
 // import DisplayChecklist from "./DisplayChecklist"
 import { useNavigate, useParams } from "react-router"
 import { useState,  useEffect, type FormEvent } from "react";
@@ -179,9 +180,14 @@ export default function PrototypeItem()
             <form className="" onSubmit={handleSubmit}>
 
                 {/* --- Title div --- */}
-                <div className="mb-5">
-                    <p className='fs-5 mb-0 text-custom-red'>Edição</p>
-                    <p className='text-custom-black display-6 fw-bold mb-1'>{name}</p>
+                <div className="mb-5 d-flex align-items-center justify-content-between">
+                    <div className="">
+                        <p className='fs-5 mb-0 text-custom-red'>Edição</p>
+                        <p className='text-custom-black display-6 fw-bold mb-1'>{name}</p>
+                    </div>
+                    <div className="btn-custom">
+                        <XLg size={25} onClick={() => navigate(`/projects/${projectId}`)}/>
+                    </div>
                 </div>
 
                 <div className="row">

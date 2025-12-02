@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import { db } from '../firebaseConfig/config'
-import { addDoc, deleteDoc, collection, doc, getDoc, getDocs, setDoc, query, where, updateDoc } from 'firebase/firestore'
+import { addDoc, deleteDoc, collection, doc, getDoc, getDocs, setDoc, query, where, updateDoc, onSnapshot } from 'firebase/firestore'
 
 // ----- PROTOTYPES RELATED FUNCTIONS -----
 
@@ -155,6 +155,38 @@ export const getPrototypesForProjectData = async (projectId: string) => {
         return null;
     }
 }
+
+
+export const listenPrototypesForProject = (
+    projectId: string,
+    callback: (data: any[]) => void
+) => {
+    try {
+        const prototypesRef = collection(db, "prototypes");
+        const q = query(prototypesRef, where("projectId", "==", projectId));
+
+        const unsubscribe = onSnapshot(
+            q,
+            (snapshot) => {
+                const results = snapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                callback(results);
+            },
+            (error) => {
+                console.error("Erro ao ouvir protótipos:", error);
+                callback([]);
+            }
+        );
+
+        return unsubscribe; // permite parar o listener
+    } catch (err) {
+        console.error("Erro ao iniciar listener de protótipos:", err);
+        return () => {};
+    }
+};
 
 // ----- Function to update the current prototype -----
 export const updatePrototype = async (prototypeId: string, data : EditPrototypeProps["prototype"]) => {

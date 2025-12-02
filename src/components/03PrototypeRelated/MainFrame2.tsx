@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router";
 import { PencilSquare } from "react-bootstrap-icons";
-import { getPrototypesForProjectData } from "../../services/prototypeServices";
+import { listenPrototypesForProject } from "../../services/prototypeServices2";
 
 interface MainFrameProps {
     projectId?: string;
@@ -18,23 +18,18 @@ export default function MainFrame({ projectId } : MainFrameProps)
     useEffect(() => {
         if (!projectId) return;
 
-        const fetchPrototypes = async () => {
-            try 
-            {
-                const data = await getPrototypesForProjectData(projectId);
-                setPrototypesList(data);
-            }
-            catch (err)
-            {
-                console.error(err);
-            }
-            finally
-            {
-                setLoading(false);
-            }
-        };
+        setLoading(true);
 
-        fetchPrototypes();
+        // Inicia o listener em tempo real
+        const unsubscribe = listenPrototypesForProject(projectId, (data) => {
+            setPrototypesList(data); // sempre atualiza ao mudar no Firestore
+            setLoading(false);
+        });
+
+        // Remove o listener quando mudar de projeto ou desmontar componente
+        return () => {
+            unsubscribe();
+        };
     }, [projectId]);
 
     if (loading)
@@ -69,8 +64,8 @@ export default function MainFrame({ projectId } : MainFrameProps)
                                 {item.name}
                             </td>
                             <td>{item.description}</td>
-                            <td>{item.status}</td>
-                            <td>{item.whichP}</td>
+                            <td>{item.stage}</td>
+                            <td>{item.vertical}</td>
                         </tr>
                     ))}
                 </tbody>

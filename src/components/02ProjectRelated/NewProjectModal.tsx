@@ -3,12 +3,14 @@ import Modal from 'react-bootstrap/Modal';
 // import { createProject } from '../services/dbService';
 import { AttachProjectToUser, createProject } from '../../services/projectServices';
 import { getCurrentUser } from '../../services/authService';
+import { useNavigate } from 'react-router';
 
 export default function NewProjectModal()
 {
     const [ newProjectName, setNewProjectName ] = useState("");
     const [ description, setDescription ] = useState("");
     const [ show, setShow ] = useState(false);
+    const navigate = useNavigate();
 
     const openModal = () => setShow(true);
     const closeModal = () => {setShow(false)};
@@ -33,6 +35,9 @@ export default function NewProjectModal()
         }
 
         await AttachProjectToUser(projectId, userData?.uid);
+
+        closeModal();
+        navigate("/projects");
     };
 
 

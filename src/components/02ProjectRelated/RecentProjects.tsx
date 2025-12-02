@@ -1,11 +1,8 @@
 import { Link } from 'react-router'
 import { useState, useEffect } from 'react'
-// import { db } from '../firebaseConfig/config'
-// import { collection, onSnapshot } from 'firebase/firestore'
 
 import ProjectCard from './ProjectCard'
-// import { getProjectsData } from '../services/dbService'
-import { getProjectsData, getUserProjects } from '../../services/projectServices'
+import { listenUserProjects} from '../../services/projectServices'
 import MembersCircles from './MembersCircles'
 import NewProjectModal from './NewProjectModal'
 import { getCurrentUser } from '../../services/authService'
@@ -19,33 +16,36 @@ export default function RecentProjects({ displayAll } : RecentProjectsProps)
 {
     const [ projects, setProjects ] = useState<any | null>([]);
     
-    // const projectsCollectionRef = collection(db, "projects");
-
     // useEffect(() => {
-    //     const unsubscribe = onSnapshot(collection(db, "projects"), (snapshot) => {
-    //         const projectsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    //         setProjects(projectsData);
-    //     });
+    //     const fetchProjects = async () => {
+    //         const userData = getCurrentUser();
+    //         if (!userData) return; 
 
-    //     return () => unsubscribe();
+    //         const userProjects = await getUserProjects(userData.uid);
+    //         setProjects(userProjects ?? []);
+    //     };
+
+    //     fetchProjects();
     // }, []);
 
     useEffect(() => {
-        // const unsubscribe = getProjectsData((data: any) => {
-        //     setProjects(data);
-        // })
-
-        // return () => unsubscribe();
-        const fetchProjects = async () => {
+        const loadRealtimeProjects = async () => {
             const userData = getCurrentUser();
-            if (!userData) return; 
+            if (!userData) return;
 
-            const userProjects = await getUserProjects(userData.uid);
-            setProjects(userProjects ?? []);
+            const unsubscribe = await listenUserProjects(userData.uid, (projects) => {
+                setProjects(projects ?? []);
+            });
+
+            return unsubscribe;
         };
 
-        fetchProjects();
-    }, []);
+        const unsubPromise = loadRealtimeProjects();
+
+        return () => {
+            unsubPromise.then((unsub) => unsub && unsub());
+        };
+    }, [projects]);
 
     const membersList = [{ id: 1, img: '/vite.svg', name: "Maria"},
                           { id: 2, img: '/vite.svg', name: "Pedro"},

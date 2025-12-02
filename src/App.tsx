@@ -17,7 +17,9 @@ import Profile from './pages/Profile'
 import Projects from './pages/Projects'
 import NotFoundPage from './pages/NotFoundPage'
 import ResetPassword from './pages/ResetPassword'
-import PrototypeItem from './components/03PrototypeRelated/PrototypeItem'
+// import PrototypeItem from './components/03PrototypeRelated/PrototypeItem'
+import PrototypeInner from './components/03PrototypeRelated/PrototypeInner'
+import AddChecklist2 from './components/04ChecklistRelated/AddChecklist2'
 import ConfirmResetPassword from './pages/ConfirmResetPassword'
 
 // App.tsx component
@@ -43,7 +45,9 @@ export default function App() {
           <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
           <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
           <Route path="/projects/:projectid" element={<ProtectedRoute><Project /></ProtectedRoute>} />
-          <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><PrototypeItem /></ProtectedRoute>} />
+          {/* <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><PrototypeItem /></ProtectedRoute>} /> */}
+          <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><PrototypeInner /></ProtectedRoute>} />
+          <Route path="/addchecklist2" element={<AddChecklist2 />}/>
         </Routes>
 
       </main>

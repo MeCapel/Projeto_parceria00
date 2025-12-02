@@ -3,6 +3,7 @@ import Modal from 'react-bootstrap/Modal';
 import { CheckLg } from 'react-bootstrap-icons';
 import ChooseChecklists from '../04ChecklistRelated/ChooseChecklist';
 import { addPrototypeToProject, createPrototype } from '../../services/prototypeServices';
+// import { addChecklistToPrototype, createPrototype } from "../../services/prototypeServices2";
 
 // OBS: Here we got 'ProtoMultiForm' as a parent component, and ProtoForm01, ProtoForm02, ProtoForm03 are its children. By being a parent, 'ProtoMultiForm' handles and keep track of all its children data.
 
@@ -417,7 +418,7 @@ function ProtoForm02({ data, update, errors, maxLength } : ProtoForm02Props)
                         <div className="d-flex py-1 px-3 align-items-start justify-content-center rounded-5 position-relative border bg-custom-gray00" 
                                 style={{ top: '-2.5rem' }}>
                             <legend className='mb-0 text-white fs-5'>
-                                Status atual*
+                                Etapa atual*
                             </legend>
                         </div>
 
@@ -619,7 +620,7 @@ function ProtoForm03({ data, update, errors } : ProtoForm03Props)
                         <div className="d-flex py-1 px-3 align-items-start justify-content-center rounded-5 position-relative border bg-custom-gray00" 
                                 style={{ top: '-2.5rem' }}>
                             <legend className='mb-0 text-white fs-5'>
-                                A qual P pertence?*
+                                Vertical*
                             </legend>
                         </div>
 

@@ -1,13 +1,13 @@
 import RecentProjects from '../components/02ProjectRelated/RecentProjects'
 import Layout from '../components/00Geral/Layout'
-import AddChecklist from '../components/04ChecklistRelated/AddChecklist'
+import AddChecklist2 from '../components/04ChecklistRelated/AddChecklist2'
 
 export default function Home()
 {    
     return(
         <Layout>
             <RecentProjects displayAll={false} />
-            <AddChecklist />
+            <AddChecklist2 />
         </Layout>
     )
 }

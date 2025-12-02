@@ -44,7 +44,7 @@ export const createChecklist = async ( name: string,
 
             await addDoc(checkboxItemsRef, {
                 name: item.name,
-                checked: item.checked 
+                // checked: item.checked,
             })
         }
     }
@@ -232,7 +232,7 @@ export const dropPrototypeChecklist = async (prototypeId: string, checklistId: s
 
         await batch.commit();
         
-        toast.info("ℹ️ Lista de requisitos excluída com sucesso!");
+        // toast.info("ℹ️ Lista de requisitos excluída com sucesso!");
     }
     catch (err)
     {

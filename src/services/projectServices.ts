@@ -84,17 +84,56 @@ export const getUserProjects = async ( userId: string ) => {
         }
 }
 
+export const listenUserProjects = async (userId: string, callback: (projects: any[]) => void) => {
+    try {
+        const userRef = doc(db, "users", userId);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+            callback([]);
+            return () => {};
+        }
+
+        const { projectIds } = userSnap.data();
+
+        if (!projectIds || projectIds.length === 0) {
+            callback([]);
+            return () => {};
+        }
+
+        const projectsRef = collection(db, "projects");
+        const q = query(projectsRef, where('__name__', 'in', projectIds));
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const projects = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            callback(projects);
+        });
+
+        return unsubscribe;
+    } 
+    catch (err) {
+        console.error(err);
+        callback([]);
+        return () => {};
+    }
+};
+
+
 export const getProjectsData = (callback: any) => {
     const docRef = collection(db, "projects");
 
     return onSnapshot(docRef, (snapshot) => {
         const projectsData = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
+            id: doc.id,
+            ...doc.data(),
+        }));
             
-            callback(projectsData);
-        });
+        callback(projectsData);
+    });
 } 
 
 // ----- Function to get the porject data, like its name and description ----- 
@@ -114,14 +153,13 @@ export const getProjectData = async (id: string) => {
 }
 
 export const editProject = async (id: string, name: string, description: string) => {
-    const docRef = doc(db, "projects", id);
-    const projectDTO = {
-        name: name,
-        description: description
-    }
-
     try 
     {
+        const docRef = doc(db, "projects", id);
+            const projectDTO = {
+            name: name,
+            description: description
+        }
         await updateDoc(docRef, projectDTO);
     }
     catch (err)

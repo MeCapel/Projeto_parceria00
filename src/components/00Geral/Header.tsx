@@ -1,16 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { Modal } from "react-bootstrap";
-// import Notifications from "./Notifications";
 import AccountSettings from "../01LoginRelated/AccountSettings";
 import { GearFill, PersonCircle, Sliders2, ArrowUpRightCircleFill } from "react-bootstrap-icons";
-
-// const notificationsList = [{id: 1, imgUrl: '/vite.svg', title: 'Username#1', subtitle: 2, description: 'Descrição'},
-//                            {id: 2, imgUrl: '/vite.svg', title: 'Projeto#1', subtitle: 5, description: 'Descrição'},
-//                            {id: 3, imgUrl: '/vite.svg', title: 'Username#2', subtitle: 3, description: 'Descrição'},
-//                            {id: 4, imgUrl: '/vite.svg', title: 'Username#3', subtitle: 14, description: 'Descrição'},
-//                            {id: 5, imgUrl: '/vite.svg', title: 'Projeto#2', subtitle: 20, description: 'Descrição'},
-// ]
 
 interface HeaderProps {
   sidebarWidth: number;
@@ -32,12 +24,6 @@ export default function Header({ sidebarWidth, hidden = false }: HeaderProps) {
       </Link>
 
       <div className="d-flex align-items-center py-2 gap-1 ms-auto">
-        {/* <Notifications
-          notificationsList={notificationsList}
-          isOpen={openComponent === "notifications"}
-          onOpen={() => setOpenComponent("notifications")}
-          onClose={() => setOpenComponent(null)}
-        /> */}
 
         {<Settings />}
 

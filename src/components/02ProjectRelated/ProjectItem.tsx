@@ -4,8 +4,9 @@ import { CaretUp } from "react-bootstrap-icons";
 import { CaretDown } from "react-bootstrap-icons";
 
 import Layuot from "../00Geral/Layout";
-import MainFrame from "../03PrototypeRelated/MainFrame";
-import ProtoMultiForm from '../03PrototypeRelated/ProtoMultiForm'
+import MainFrame2 from "../03PrototypeRelated/MainFrame2";
+// import ProtoMultiForm from '../03PrototypeRelated/ProtoMultiForm'
+import ProtoMultiForm2 from "../03PrototypeRelated/ProtoMultiForm2";
 import { db } from '../../firebaseConfig/config'
 // import { getProjectData } from "../services/dbService"
 import { doc, onSnapshot } from 'firebase/firestore'
@@ -14,7 +15,7 @@ export default function ProjectItem()
 {
     const { projectid } = useParams();
     const [ projectData, setProjectData ] = useState<any>(null);
-    const [ render, setRender ] = useState<React.ReactNode>(<MainFrame projectId={projectid} />);
+    const [ render, setRender ] = useState<React.ReactNode>(<MainFrame2 projectId={projectid} />);
 
     // console.log("This one is the id: ", projectid);
  
@@ -57,7 +58,7 @@ export default function ProjectItem()
 
     function handleMainFrame()
     {
-        setRender(<MainFrame projectId={projectid} />);
+        setRender(<MainFrame2 projectId={projectid} />);
     } 
 
     function handleProgressFrame()
@@ -95,7 +96,8 @@ export default function ProjectItem()
                     <div className="w-100" style={{ border: "1px solid var(--gray02)" }}></div>
                     <div className="d-flex align-items-start my-2">
                     </div>
-                        <ProtoMultiForm projectId={projectid}/>
+                        {/* <ProtoMultiForm projectId={projectid}/> */}
+                        <ProtoMultiForm2 projectId={projectid}/>
                 </div>
                     
                 <div className="my-3">

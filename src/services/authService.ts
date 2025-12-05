@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
-import { collection, doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore'
 import { auth, db } from '../firebaseConfig/config'
+import { collection, doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 
 // ----- Interface to define UserData types ----- 

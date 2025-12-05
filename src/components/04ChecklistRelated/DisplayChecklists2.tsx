@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { type Checklist, getChecklistsModel } from "../../services/checklistServices2";
+import { useNavigate, useParams } from "react-router";
 
 interface Props {
     inline: boolean;
@@ -9,18 +10,16 @@ export default function DisplayChecklistsModel({ inline }: Props) {
     const [data, setData] = useState<Checklist[]>([]);
     const [selectedModel, setSelectedModel] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
+    const navigate = useNavigate();
+    const { checklistId } = useParams();
 
     useEffect(() => {
-        try {
-            const unsubscribe = getChecklistsModel((items: any) => {
-                setData(items);
-            });
-
-            return () => unsubscribe();
-        } 
-        finally {
+        const unsubscribe = getChecklistsModel((items: Checklist[]) => {
+            setData(items);
             setLoading(false);
-        }
+        });
+
+        return () => unsubscribe();
     }, []);
 
     if (loading) return <p>Carregando...</p>;
@@ -29,24 +28,15 @@ export default function DisplayChecklistsModel({ inline }: Props) {
         <div className="p-3 d-flex flex-column gap-3">
             {inline ? (
                 <>
-                    <div>
-                        <p className="text-custom-black fs-4 fw-bold mb-0">
-                            Selecionar modelo
-                        </p>
-                    </div>
+                    <p className="text-custom-black fs-4 fw-bold mb-0">Selecionar modelo</p>
 
                     <ul className="list-unstyled d-flex flex-column gap-2">
                         {data.length === 0 && <p>Nenhum modelo encontrado.</p>}
 
-                        {data.map((item) => (
+                        {data.map(item => (
                             <li key={item.id} className="d-flex gap-3">
-                                <input
-                                    className="form-check-input"
-                                    type="radio"
-                                    name="checklistModel"
-                                    id={item.id}
-                                    value={item.id}
-                                    checked={selectedModel === item.id}
+                                <input className="form-check-input" type="radio" name="checklistModel"
+                                    id={item.id} value={item.id} checked={selectedModel === item.id}
                                     onChange={(e) => setSelectedModel(e.target.value)}
                                 />
                                 <label htmlFor={item.id}>
@@ -63,12 +53,11 @@ export default function DisplayChecklistsModel({ inline }: Props) {
 
                             {data.length === 0 && <p>Nenhum modelo encontrado.</p>}
 
-                            {data.map((item) => (
-                                <li key={item.id}>
+                            {data.map(item => (
+                                <li key={item.id} onClick={() => navigate(`/checklists/${checklistId}`)}>
                                     <div
                                         className="card bg-custom-gray00 text-custom-white mb-3"
-                                        style={{ maxWidth: "18rem" }}
-                                    >
+                                        style={{ maxWidth: "18rem", cursor: "pointer" }} >
                                         <div className="card-header d-flex gap-3">
                                             <h4>{item.name}</h4>
                                         </div>
@@ -78,10 +67,7 @@ export default function DisplayChecklistsModel({ inline }: Props) {
                                                 {item.vertical || "Vertical não definida"} • v{item.version}
                                             </p>
 
-                                            <div
-                                                className="overflow-hidden"
-                                                style={{ maxHeight: "3rem" }}
-                                            >
+                                            <div className="overflow-hidden" style={{ maxHeight: "3rem" }}>
                                                 <p className="text-truncate">
                                                     {item.categories?.length || 0} categorias
                                                 </p>

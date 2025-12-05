@@ -1,11 +1,11 @@
 import Layout from '../components/00Geral/Layout' 
-import RecentProjects from '../components/02ProjectRelated/RecentProjects'
+import DisplayProjects from '../components/02ProjectRelated/DisplayProjects'
 
 export default function Projects()
 {
     return(
         <Layout>
-            <RecentProjects displayAll={true}/>
+            <DisplayProjects displayAll={true}/>
         </Layout>
     )
 }

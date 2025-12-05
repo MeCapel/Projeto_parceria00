@@ -1,100 +1,266 @@
+// ===== GERAL IMPORTS =====
+
 import type React from "react";
-import { useState } from "react";
+import { Modal } from "react-bootstrap";
 import { useNavigate } from 'react-router'
-// import { moveProjectToTrash } from "../services/dbService";
-import { deleteProjectNPrototypes } from "../../services/projectServices";
-import { ThreeDotsVertical, Trash3Fill } from 'react-bootstrap-icons'
+import { Archive } from "react-bootstrap-icons";
+import { useState, useRef, useEffect } from "react";
+import { ThreeDotsVertical, Trash3Fill, PencilSquare } from 'react-bootstrap-icons'
+import { deleteProjectNPrototypes, updateProject } from "../../services/projectServices";
 
-// interface ReusableCardsProps {
-//     infosList: {id: string | number, 
-//                 imgUrl?: string, 
-//                 title: string, 
-//                 subtitle?: string | number, 
-//                 description?: string, 
-//                 element?: React.ReactNode, 
-//                 hasUpdates?: boolean}[];
-//     border?: boolean;
-// }
+// ===== PROPS =====
 
-interface ProjectCardProps {
+interface Props {
     id: string, 
-    imgUrl?: string, 
-    title: string, 
+    // imgUrl?: string, 
+    projectName: string, 
+    projectDescription: string, 
     subtitle?: string | number, 
-    description?: string, 
     element?: React.ReactNode, 
-    // hasUpdates?: boolean;
-    // border?: boolean;
     location: string;
 }
 
-export default function ProjectCard({ id, imgUrl, title, subtitle, description, element, location } : ProjectCardProps)
-{
-    const navigate = useNavigate();
+// ===== MAIN COMPONENT =====
 
+export default function ProjectCard({ id, projectName, subtitle, projectDescription, element, location } : Props)
+{
+    // ===== Declaring & initializing variables =====
+
+    const navigate = useNavigate();
+    const menuRef = useRef<HTMLDivElement | null>(null);
+
+    const [ show1, setShow1 ] = useState<boolean>(false);
+    const [ show2, setShow2 ] = useState<boolean>(false);
     const [ moreOptions, setMoreOptions ] = useState(false);
 
+    const formRef = useRef<HTMLFormElement | null>(null);
+    
+    const [ name, setName ] = useState(projectName);
+    const [ description, setDescription ] = useState(projectDescription);
+
+    // ===== Modais =====
+
+    const openModal1 = () => setShow1(true);
+    const closeModal1 = () => {
+        if (formRef.current) formRef.current.classList.remove("was-validated");
+        setShow1(false);
+        setName(projectName);
+        setDescription(projectDescription);
+    };
+    const openModal2 = () => setShow2(true);
+    const closeModal2 = () => setShow2(false);
+
+    // ===== UPDATE PROJECT FUNCTION =====
+
+    const handleProjectEdition = async (e: React.FormEvent ,id:string) => {
+        
+        // ===== Form validation =====
+
+        e.preventDefault();
+
+        const form = formRef.current;
+        if (!form) return;
+
+        form.classList.add("was-validated");
+        
+        if (!form.checkValidity()) {
+            const firstInvalid = form.querySelector<HTMLElement>(":invalid");
+            if (firstInvalid) firstInvalid.focus();
+            return;
+        }
+        
+        // ===== Once validated then the project is updated =====
+
+        await updateProject(id, name, description);
+
+        // ===== Finally close the modal and more options div =====
+
+        closeModal1();
+        setMoreOptions(false);
+    }
+
+    // ===== Delete function =====
     const handleMoveProjectToTrash = async (id: string) => {
+        closeModal2();
         deleteProjectNPrototypes(id);
     }
 
-    return(
-        <>
-            {/* {infosList.map((item) => ( */}
-                
-                 {/* --- 🔴 Inner card content div --- */}
-                {/* <div key={id} style={{ maxWidth: '18rem', border: '1px solid var(--gray01)' }} 
-                    className={ border ? (
-                        hasUpdates ? 
-                        "card h-auto w-100 w-sm-50 border border-2 border-danger bg-light" : "card h-auto w-100 w-sm-50 bg-light border border-2 border-secondary-subtle")
-                    : (
-                        "card h-auto w-100 w-sm-50 border-0 bg-light"
-                    )
-                    }> */}
-                <div key={id} style={{ maxWidth: '18rem', border: '1px solid var(--gray01)' }} 
-                     className="card h-auto w-100 w-sm-50 bg-light border border-2 border-secondary-subtle" >
+    // ===== Fechar o more options ao clicar fora =====
 
-                    <div className="row py-3 px-4">
-                        {imgUrl && (
-                            
-                            /* --- 🟠 Img div --- */
-                            
-                            <div className="col-12 col-md-3 d-flex align-items-start justify-content-center" style={{ cursor: "pointer"}} onClick={() => navigate(location)}>
-                                <img src={imgUrl} alt="Ícone do projeto" className="img-fluid" style={{ minWidth: '3rem' }} />
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            const modalOpen = show1 || show2;
+            if (modalOpen) return;
+
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setMoreOptions(false);
+            }
+        }
+
+        if (moreOptions) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [moreOptions, show1, show2]);
+
+    return(
+        <div 
+            key={id}
+            className="card shadow border rounded-3 h-auto" 
+            style={{ width: "18rem", background: "#fff" }}
+        >
+            <div className="row p-4">
+
+                {/* Ícone */}
+                <div 
+                    style={{ cursor: "pointer" }}
+                    onClick={() => navigate(location)}
+                    className="col-12 col-md-3 d-flex align-items-start justify-content-center mb-3 mb-md-0"
+                >
+                    <Archive size={35} color="var(--red00)" />
+                </div>
+
+                {/* Conteúdo */}
+                <div className="col-12 col-md-9 position-relative">
+
+                    {/* Título + menu */}
+                    <div className="d-flex align-items-start justify-content-between">
+
+                    <h5 
+                        className="text-custom-black fw-bold fs-4 mb-1" 
+                        style={{ cursor: "pointer" }}
+                        onClick={() => navigate(location)}
+                    >
+                        {projectName}
+                    </h5>
+
+                    {/* Menu 3 pontinhos */}
+                    <div style={{ position: "relative" }}>
+                        <ThreeDotsVertical 
+                            size={24} 
+                            className="text-secondary" 
+                            style={{ cursor: "pointer" }}
+                            onClick={() => setMoreOptions(!moreOptions)}
+                        />
+
+                        {moreOptions && (
+                            <div 
+                                ref={menuRef}
+                                style={{ top: "2rem", right: 0, minWidth: "12rem" }}
+                                className="position-absolute rounded-3 shadow-sm p-2 bg-white z-3 border"
+                            >
+                                <button onClick={openModal1} className="btn w-100 d-flex gap-2 align-items-center text-start">
+                                    <PencilSquare size={18} className="text-danger"/>
+                                    <span className="text-dark">Editar</span>
+                                </button>
+
+                                <button onClick={openModal2} className="btn w-100 d-flex gap-2 align-items-center text-start">
+                                    <Trash3Fill size={18} className="text-danger"/>
+                                    <span className="text-dark">Excluir</span>
+                                </button>
                             </div>
                         )}
-
-                        {/* --- 🟠 Text infos div ---  */}
-                        <div className="col-12 col-md-9">
-                            <div className="d-flex">
-                                <h3 className="text-custom-black" style={{ cursor: "pointer"}} onClick={() => navigate(location)}>{title}</h3>   
-                                <ThreeDotsVertical size={30} onClick={() => setMoreOptions(!moreOptions) } style={{ cursor: 'pointer' }}/>
-                                { moreOptions && (
-                                    <div className="d-flex position-absolute rounded-2 h-auto w-auto p-2 z-3" 
-                                         style={{ top: "3.5rem", right: "1.5rem", backgroundColor: "var(--gray02)" }}>
-                                        
-                                        <button onClick={() => handleMoveProjectToTrash(id)} className="d-flex gap-2 align-items-center justify-content-center btn-custom btn-custom-inside-primary">
-                                            <Trash3Fill size={20} color="var(--gray00)"/>
-                                            <p className="mb-0 text-custom-black">Mover para lixeira</p>
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                            <div style={{ cursor: "pointer"}} onClick={() => navigate(location)}>
-                                {subtitle && (
-                                    <h4 className="text-custom-black">{subtitle}</h4>
-                                )}
-                                {description && (
-                                    <p className="text-custom-black">{description}</p>
-                                )}
-                                {element && (
-                                    <div className="">{element}</div>
-                                )}
-                            </div>
-                        </div>
                     </div>
+
                 </div>
-            {/* ))} */}
-        </>
+
+                {/* Subtitle e description */}
+                <div 
+                    style={{ cursor: "pointer" }} 
+                    onClick={() => navigate(location)}
+                    className="mt-1"
+                >
+                    {subtitle && (
+                        <h6 className="text-muted mb-1">{subtitle}</h6>
+                    )}
+
+                    <p className="text-secondary fs-5 mb-4">
+                        {projectDescription}
+                    </p>
+
+                    {element && <div>{element}</div>}
+                </div>  
+
+                {/* MODAL EDIT */}
+                <Modal show={show1} onHide={closeModal1} dialogClassName="" centered className='p-0' size="lg">
+                    <Modal.Header closeButton className="mt-3 mx-3 border-0 fs-5 fw-semibold" />
+                    <Modal.Body className="mb-4">
+
+                        <form ref={formRef} className="w-100 mt-0 pt-0 px-5" onSubmit={(e) => handleProjectEdition(e, id)} noValidate>
+
+                            <p className='fs-5 mb-0 text-custom-red'>Edição</p>
+                            <h1 className='text-custom-black fw-bold mb-1'>Editar projeto</h1>
+
+                            <div className="d-flex flex-column my-4 gap-3">
+
+                                <div className="form-floating mb-3">
+                                    <input 
+                                        id='input1'
+                                        required 
+                                        value={name}
+                                        type="text" 
+                                        minLength={3}
+                                        maxLength={25}
+                                        className='form-control' 
+                                        placeholder='Nome do projeto*' 
+                                        onChange={(e) => setName(e.target.value)} 
+                                    />
+                                    <label htmlFor="input1">Nome do projeto</label>
+                                </div>
+                                
+                                <div className="form-floating">
+                                    <textarea 
+                                        required
+                                        id="input2" 
+                                        minLength={3}
+                                        maxLength={150}
+                                        value={description}  
+                                        className='form-control'
+                                        placeholder='Descrição do projeto*'
+                                        style={{ resize: "none", height: "100px" }}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                    />
+                                    <label htmlFor="input2">Descrição do projeto</label>
+                                </div>
+
+                            </div>
+
+                            <div className="d-flex align-items-center justify-content-end">
+                                <button type='submit' className='btn-custom btn-custom-success rounded-1 px-4'>
+                                    Salvar
+                                </button>
+                            </div>
+                        </form>
+
+                    </Modal.Body>
+                </Modal>
+
+                {/* MODAL DELETE */}
+                <Modal show={show2} onHide={closeModal2} centered>
+                    <Modal.Header closeButton className="mt-3 mx-3 fs-5 fw-semibold">Confirmação</Modal.Header>
+                    <Modal.Body className="text-center mb-4">
+                        <p className="mb-5 fs-4">
+                            Tem certeza de que deseja 
+                            <span className="text-danger"> excluir </span> 
+                            este projeto?
+                        </p>
+
+                        <div className="d-flex gap-3 align-items-center justify-content-center">
+                            <button type="button" className="btn-custom btn-custom-outline-secondary" onClick={closeModal2}>Cancelar</button>
+                            <button 
+                                type="button" 
+                                className="btn-custom btn-custom-outline-primary"
+                                onClick={() => handleMoveProjectToTrash(id)}
+                            >
+                                Excluir
+                            </button>
+                        </div>
+                    </Modal.Body>
+                </Modal>
+
+            </div>
+        </div>
+    </div>
     )
 }

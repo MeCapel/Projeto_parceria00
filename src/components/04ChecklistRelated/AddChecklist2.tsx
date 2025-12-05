@@ -1,13 +1,8 @@
 import { useState } from "react";
 import { Modal } from "react-bootstrap";
 import { useNavigate } from "react-router";
-import DisplayChecklistsModel from "./DisplayChechlists2";
-import {
-    createChecklistModel,
-    type Checklist,
-    type Categories,
-    type CheckboxItem
-} from "../../services/checklistServices2";
+import DisplayChecklistsModel from "./DisplayChecklists2";
+import { createChecklistModel, type Checklist, type Categories, type CheckboxItem } from "../../services/checklistServices2";
 
 export default function AddChecklistModel() {
     const navigate = useNavigate();
@@ -21,7 +16,7 @@ export default function AddChecklistModel() {
 
     const [loading, setLoading] = useState(false);
 
-    // CHECKLIST MODEL STATE
+    // ESTADO PRINCIPAL
     const [checklist, setChecklist] = useState<Checklist>({
         name: "",
         vertical: "",
@@ -29,6 +24,12 @@ export default function AddChecklistModel() {
         version: 1,
         createdAt: ""
     });
+
+    // Inputs dos itens separados por índice da categoria
+    const [itemInputs, setItemInputs] = useState<Record<number, string>>({});
+
+    // Nome da categoria a criar
+    const [newCategoryName, setNewCategoryName] = useState("");
 
     const resetForm = () => {
         setChecklist({
@@ -39,20 +40,17 @@ export default function AddChecklistModel() {
             createdAt: ""
         });
 
+        setItemInputs({});
         setNewCategoryName("");
     };
 
-    // Campo de nova categoria
-    const [newCategoryName, setNewCategoryName] = useState("");
-
-    // Adicionar Categoria
+    // Criar categoria
     const handleNewCategory = () => {
         if (!newCategoryName.trim()) return;
 
         const newCat: Categories = {
             name: newCategoryName.trim(),
-            items: [],
-            newItemName: "" // campo local por categoria
+            items: []
         };
 
         setChecklist(prev => ({
@@ -63,54 +61,65 @@ export default function AddChecklistModel() {
         setNewCategoryName("");
     };
 
-    // Adicionar Item dentro da categoria correta
+    // Criar item dentro da categoria certa
     const handleNewItem = (catIndex: number) => {
-        const itemName = checklist.categories[catIndex].newItemName?.trim();
+        const itemName = itemInputs[catIndex]?.trim();
         if (!itemName) return;
 
         const newItem: CheckboxItem = {
-            id: Date.now().toString(),
+            id: crypto.randomUUID(),
             label: itemName,
             checked: false
         };
 
         setChecklist(prev => {
-            const updated = [...prev.categories];
-            updated[catIndex].items.push(newItem);
-            updated[catIndex].newItemName = ""; // limpa input dessa categoria
-            return { ...prev, categories: updated };
+            const updatedCats = [...prev.categories];
+            updatedCats[catIndex].items.push(newItem);
+            return { ...prev, categories: updatedCats };
         });
+
+        // limpar input do item
+        setItemInputs(prev => ({ ...prev, [catIndex]: "" }));
     };
 
-    // Remover Item
+    // Remover item
     const handleDropItem = (catIndex: number, itemId: string) => {
         setChecklist(prev => {
             const updated = [...prev.categories];
-            updated[catIndex].items = updated[catIndex].items.filter(it => it.id !== itemId);
+            updated[catIndex].items = updated[catIndex].items.filter(i => i.id !== itemId);
             return { ...prev, categories: updated };
         });
     };
 
-    // Remover Categoria
+    // Remover categoria
     const handleDropCategory = (catIndex: number) => {
-        setChecklist(prev => ({
-            ...prev,
-            categories: prev.categories.filter((_, i) => i !== catIndex)
-        }));
+        setChecklist(prev => {
+            const updated = prev.categories.filter((_, i) => i !== catIndex);
+
+            // Realinha os itemInputs
+            const newInputs: Record<number, string> = {};
+            updated.forEach((_, newIndex) => {
+                newInputs[newIndex] = itemInputs[newIndex] || "";
+            });
+
+            setItemInputs(newInputs);
+
+            return { ...prev, categories: updated };
+        });
     };
 
     // Submit final
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validações completas:
+        // Validações
         if (
             !checklist.name ||
             !checklist.vertical ||
             checklist.categories.length === 0 ||
             checklist.categories.some(cat => cat.items.length === 0)
         ) {
-            alert("Preencha todos os campos e adicione ao menos uma categoria com ao menos um item.");
+            alert("Preencha todos os campos, categorias e itens.");
             return;
         }
 
@@ -122,6 +131,7 @@ export default function AddChecklistModel() {
                 createdAt: new Date().toISOString()
             });
 
+            closeModal();
             navigate("/home");
         } catch (err) {
             console.error("Erro ao criar checklist modelo:", err);
@@ -147,18 +157,16 @@ export default function AddChecklistModel() {
 
             <DisplayChecklistsModel inline={false} />
 
-            {/* ========= MODAL ========= */}
-            <Modal show={show} onHide={closeModal} dialogClassName="modal-fullscreen" className='p-0'>
+            <Modal show={show} onHide={closeModal} dialogClassName="modal-fullscreen">
                 <Modal.Header closeButton className="mb-0 mx-5 border-0 my-3"></Modal.Header>
 
                 <Modal.Body className="container-fluid d-flex flex-column align-items-center m-auto">
-
                     <div className="d-flex p-5 align-items-center justify-content-center">
                         <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
 
                             <h1 className="text-custom-red00">Adicionar modelo de checklist</h1>
 
-                            {/* NOME DO CHECKLIST */}
+                            {/* Nome */}
                             <input
                                 type="text"
                                 placeholder="Nome do checklist..."
@@ -168,16 +176,17 @@ export default function AddChecklistModel() {
                                 onChange={e => setChecklist(prev => ({ ...prev, name: e.target.value }))}
                             />
 
-                            {/* VERTICAL */}
+                            {/* Vertical */}
                             <fieldset className="col d-flex flex-column mt-4 p-3 align-items-start border rounded-2">
-                                <div className="d-flex py-1 px-3 align-items-start justify-content-center rounded-5 position-relative border bg-custom-gray00" 
-                                    style={{ top: '-2.5rem' }}>
+
+                                <div className="d-flex py-1 px-3 align-items-start justify-content-center rounded-5 border bg-custom-gray00"
+                                    style={{ top: "-2.5rem", position: "relative" }}>
                                     <legend className='mb-0 text-white fs-5'>Vertical</legend>
                                 </div>
 
-                                <div className="d-flex w-100 gap-3 align-items-start justify-content-center position-relative" style={{ top: '-0.75rem' }}>
-                                    
-                                    {["Preparo","Plantio","Pulverização"].map(v => (
+                                <div className="d-flex w-100 gap-3 align-items-start justify-content-center" style={{ position: "relative", top: "-0.75rem" }}>
+
+                                    {["Preparo", "Plantio", "Pulverização"].map(v => (
                                         <label key={v} className="d-flex gap-2 form-check-label">
                                             <input
                                                 className='form-check-input'
@@ -192,15 +201,12 @@ export default function AddChecklistModel() {
                                             {v}
                                         </label>
                                     ))}
-
                                 </div>
                             </fieldset>
 
-                            {/* ADICIONAR CATEGORIA */}
+                            {/* Nova categoria */}
                             <label className="d-flex flex-column gap-3">
-                                <h3 className="mb-0 text-center fw-bold text-custom-black">
-                                    Adicionar categoria
-                                </h3>
+                                <h3 className="mb-0 text-center fw-bold text-custom-black">Adicionar categoria</h3>
 
                                 <input
                                     type="text"
@@ -215,30 +221,30 @@ export default function AddChecklistModel() {
                                 Adicionar categoria
                             </button>
 
-                            {/* LISTA DE CATEGORIAS */}
+                            {/* Lista de categorias */}
                             <div className="d-flex flex-column gap-4 mt-4">
-
                                 {checklist.categories.length === 0 && (
                                     <p>Adicione categorias ao checklist...</p>
                                 )}
 
                                 {checklist.categories.map((cat, catIndex) => (
                                     <div key={catIndex} className="border rounded p-3 mb-3">
-
                                         <h5 className="d-flex justify-content-between">
                                             {cat.name}
-                                            <button type="button" className="btn btn-sm btn-danger"
-                                                onClick={() => handleDropCategory(catIndex)}>
+                                            <button
+                                                type="button"
+                                                className="btn btn-sm btn-danger"
+                                                onClick={() => handleDropCategory(catIndex)}
+                                            >
                                                 Remover
                                             </button>
                                         </h5>
 
-                                        {/* LISTA DE ITENS */}
+                                        {/* Items */}
                                         {cat.items.map(item => (
                                             <div key={item.id} className="d-flex align-items-center gap-2">
                                                 <input type="checkbox" checked={item.checked} readOnly />
                                                 <span>{item.label}</span>
-
                                                 <button
                                                     type="button"
                                                     className="btn btn-sm btn-outline-danger ms-2"
@@ -249,19 +255,18 @@ export default function AddChecklistModel() {
                                             </div>
                                         ))}
 
-                                        {/* INPUT DE ITEM */}
+                                        {/* Input de item */}
                                         <div className="d-flex gap-2 mt-2">
                                             <input
                                                 type="text"
                                                 placeholder="adicione um item..."
                                                 className="form-control"
-                                                value={cat.newItemName || ""}
+                                                value={itemInputs[catIndex] || ""}
                                                 onChange={(e) =>
-                                                    setChecklist(prev => {
-                                                        const updated = [...prev.categories];
-                                                        updated[catIndex].newItemName = e.target.value;
-                                                        return { ...prev, categories: updated };
-                                                    })
+                                                    setItemInputs(prev => ({
+                                                        ...prev,
+                                                        [catIndex]: e.target.value
+                                                    }))
                                                 }
                                             />
 
@@ -273,20 +278,16 @@ export default function AddChecklistModel() {
                                                 Adicionar
                                             </button>
                                         </div>
-
                                     </div>
                                 ))}
-
                             </div>
 
-                            {/* SUBMIT */}
+                            {/* Submit */}
                             <button className="btn-custom btn-custom-success" type="submit" disabled={loading}>
                                 {loading ? "Adicionando..." : "Criar modelo"}
                             </button>
-
                         </form>
                     </div>
-
                 </Modal.Body>
             </Modal>
         </div>

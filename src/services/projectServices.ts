@@ -1,17 +1,45 @@
 import { toast } from "react-toastify";
 import { db } from '../firebaseConfig/config'
-import { addDoc, deleteDoc, collection, doc, getDoc, getDocs, updateDoc, onSnapshot, query, where, arrayUnion } from 'firebase/firestore'
+import { addDoc, deleteDoc, collection, doc, getDoc, getDocs, updateDoc, onSnapshot, setDoc, query, where } from 'firebase/firestore'
+import { getCurrentUser } from "./authService";
+import type { PrototypeProps } from "./prototypeServices2";
 
 // ----- PROJECT RELATED FUNCTIONS -----
 
 // ----- Function to create a new project, that stands for a new machine ----- 
-export const createProject = async ( projectName: string, description: string ) => {
+export const attachProjectToUser = async ( projectId: string, projectName: string, projectsDescription: string, userId: string ) => {
+    try 
+    {
+        const docRef = doc(db, "users", userId, "projects", projectId);
+
+        await setDoc(docRef, {
+            name: projectName,
+            description: projectsDescription,
+            addedToUser: new Date(),
+        });
+
+        return { success: true };
+    }
+    catch (err)
+    {
+        console.error(err);
+        return { success: false };
+    }
+}
+
+export const createProject = async ( projectName: string, projectDescription: string, userId: string ) => {
     try
     {
         const projectsRef = collection(db, "projects");
-        const docRef = await addDoc(projectsRef, { projectName: projectName, description: description });
+        const docRef = await addDoc(projectsRef, { 
+            name: projectName, 
+            description: projectDescription,
+            owner: userId,
+        });
         
-        toast.success("✅ Projeto criado com sucesso!");
+        // toast.success("✅ Projeto criado com sucesso!");
+
+        attachProjectToUser(docRef.id, projectName, projectDescription, userId);
 
         return docRef.id;
     }
@@ -21,31 +49,25 @@ export const createProject = async ( projectName: string, description: string ) 
     }
 }
 
-// export const AttachProjectToUser = async ( projectId: string, userId: string, projectName: string ) => {
-//     try 
-//     {
-//         const userRef = doc(db, "users", userId);
-//         const userProjectsRef = collection(userRef, "userProjects");
-        
-//         await setDoc(doc(userProjectsRef, projectId), {
-//             projectName: projectName,
-//             createdAt: new Date()
-//         });
-//     }
-//     catch (err)
-//     {
-//         console.error(err);
-//     }
-// }
-
-export const AttachProjectToUser = async ( projectId: string, userId: string ) => {
+export const updateProject = async (projectId: string, name: string, description: string) => {
     try 
     {
-        const userRef = doc(db, "users", userId);
+        const userData = getCurrentUser();
         
-        await updateDoc(userRef, {
-            projectIds: arrayUnion(projectId)
-        })
+        if (!userData) return;
+
+        const userId = userData.uid;
+
+        const projectRef = doc(db, "projects", projectId);
+        const userProjectRef = doc(db, "users", userId, "projects", projectId);
+
+        const projectDTO = {
+            name: name,
+            description: description
+        }
+
+        await updateDoc(projectRef, projectDTO);
+        await updateDoc(userProjectRef, projectDTO);
     }
     catch (err)
     {
@@ -53,62 +75,29 @@ export const AttachProjectToUser = async ( projectId: string, userId: string ) =
     }
 }
 
-export const getUserProjects = async ( userId: string ) => {
+export const getProjects = (callback: (projects: PrototypeProps[]) => void) => {
+    const docRef = collection(db, "projects");
+
+    return onSnapshot(docRef, (snapshot) => {
+        const projectsData = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+        }) as PrototypeProps);
+            
+        callback(projectsData);
+    });
+} 
+
+export const getUserProjects = (userId: string, callback: (projects: PrototypeProps[]) => void) => {
     try 
-        {
-            const userRef = doc(db, "users", userId);
-            const userSnap = await getDoc(userRef);
+    {
+        const projectsRef = collection(db, "users", userId, "projects");
 
-            if (!userSnap.exists()) return [];
-
-            const { projectIds } = userSnap.data();
-
-            if (!projectIds || projectIds.length === 0) return [];
-
-            const projectsRef = collection(db, "projects");
-            const q = query(projectsRef, where('__name__', 'in', projectIds));
-
-            const  projectsSnap = await getDocs(q);
-
-            const projects = projectsSnap.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }))
-
-            return projects;
-        }
-        catch (err)
-        {
-            console.error(err);
-            return [];
-        }
-}
-
-export const listenUserProjects = async (userId: string, callback: (projects: any[]) => void) => {
-    try {
-        const userRef = doc(db, "users", userId);
-        const userSnap = await getDoc(userRef);
-
-        if (!userSnap.exists()) {
-            callback([]);
-            return () => {};
-        }
-
-        const { projectIds } = userSnap.data();
-
-        if (!projectIds || projectIds.length === 0) {
-            callback([]);
-            return () => {};
-        }
-
-        const projectsRef = collection(db, "projects");
-        const q = query(projectsRef, where('__name__', 'in', projectIds));
-
-        const unsubscribe = onSnapshot(q, (snapshot) => {
+        const unsubscribe = onSnapshot(projectsRef, (snapshot) => {
             const projects = snapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data()
-            }));
+            }) as PrototypeProps);
 
             callback(projects);
         });
@@ -122,22 +111,7 @@ export const listenUserProjects = async (userId: string, callback: (projects: an
     }
 };
 
-
-export const getProjectsData = (callback: any) => {
-    const docRef = collection(db, "projects");
-
-    return onSnapshot(docRef, (snapshot) => {
-        const projectsData = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
-            
-        callback(projectsData);
-    });
-} 
-
-// ----- Function to get the porject data, like its name and description ----- 
-export const getProjectData = async (id: string) => {
+export const getProject = async (id: string) => {
     const docRef = doc(db, "projects", id);
     const docSnap = await getDoc(docRef);
 
@@ -152,64 +126,48 @@ export const getProjectData = async (id: string) => {
     }
 }
 
-export const editProject = async (id: string, name: string, description: string) => {
-    try 
-    {
-        const docRef = doc(db, "projects", id);
-            const projectDTO = {
-            name: name,
-            description: description
-        }
-        await updateDoc(docRef, projectDTO);
-    }
-    catch (err)
-    {
-        console.error(err);
-    }
-}
-
 export const deleteProjectNPrototypes = async (projectId: string) => {
     try
     {
-        const projectRef = doc(db, "projects", projectId);
+        // ===== Function to return current user id =====
 
-        const subRef = collection(db, "projects", projectId, "prototypesIds");
-        const subSnap = await getDocs(subRef);
+        const user = getCurrentUser();
+        const userId = user?.uid;
+        if (!userId) return;
 
-        if (!subSnap.empty) 
+        // ===== Once gotten the user id, go to "projects" sun collection and drop the project ref =====
+
+        const userProjectRef = doc(db, "users", userId, "projects", projectId);
+        await deleteDoc(userProjectRef);
+
+        // ===== Delete all prototypes that got project id attache to them ===== 
+
+        const prototypesRef = collection(db, "prototypes");
+        const q = query(prototypesRef, where("projectId", "==", projectId))
+        const prototypesSnap = await getDocs(q);
+        
+        if (!prototypesSnap.empty) 
         {
-            const deletePromises = subSnap.docs.map(async (d) => {
+            const deletePromises = prototypesSnap.docs.map(async (d) => {
                 const prototypeId = d.id;
-
+                
                 const prototypeRef = doc(db, "prototypes", prototypeId);
                 await deleteDoc(prototypeRef);
             });
-
+            
             await Promise.all(deletePromises);
         }
+
+        // ===== Once all prototypes were deleted then delete the projects itself =====
+
+        const projectRef = doc(db, "projects", projectId);
             
-            await deleteDoc(projectRef);
+        await deleteDoc(projectRef);
 
-            toast.info("ℹ️ Projeto excluído com sucesso!");
+        toast.info("ℹ️ Projeto e respectivos protótipos excluídos com sucesso!");
     }
     catch (err)
     {
-        toast.error(`❌ Erro ao excluir projeto: ${err}`);
-    }
-}
-
-// ----- Function to delete a project -----
-export const moveProjectToTrash = async (id: string) => {
-    try 
-    {
-        const projectDoc = doc(db, "projects", id)
-        
-        await deleteDoc(projectDoc);
-
-        toast.info("ℹ️ Projeto excluído com sucesso!");
-    }
-    catch (err)
-    {
-        toast.error(`❌ Erro ao excluir projeto: ${err}`);
+        toast.error(`❌ Erro ao excluir projeto e seus protótipos: ${err}`);
     }
 }

@@ -1,23 +1,4 @@
-:root {
-    --red00: #E40D2C;
-    --red01: #8C1A17;
-    --red02: #ff798d;
-    --red03: #fcc4cc;
-    --gray00: #4A4A4A;
-    --gray01: #808080;
-    --gray02: #D6D6D6;
-    --black00: #000000;
-    --black01: #2f2f2f;
-    --white00: #FFFFFE;
-    --success00: #00762E;
-    --success01: #018d37;
-    --various00: #9E3D45;
-    --various01: #EB593B;
-    --various02: #785994;
-    --various03: #334F5C;
-    --various04: #F5A32B    ;
-    --various05: #00762E;
-}
+@import "./colors.css";
 
 /* ===== CUSTOM BUTTONS ===== */
 

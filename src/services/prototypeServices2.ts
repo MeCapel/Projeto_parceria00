@@ -4,6 +4,7 @@ import { getChecklistModel, type Categories, type CheckboxItem } from './checkli
 import type { Checklist } from './checklistServices2';
 
 export interface PrototypeProps {
+    id: string,
     projectId: string,
     code?: string,
     name: string,

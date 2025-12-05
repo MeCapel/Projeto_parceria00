@@ -1,20 +1,19 @@
+// ===== GERAL IMPORTS =====
 import { useParams } from "react-router"
-import React, { useEffect, useState } from "react";
 import { CaretUp } from "react-bootstrap-icons";
 import { CaretDown } from "react-bootstrap-icons";
-
+import React, { useEffect, useState } from "react";
 import Layuot from "../00Geral/Layout";
-import MainFrame2 from "../03PrototypeRelated/MainFrame2";
-// import ProtoMultiForm from '../03PrototypeRelated/ProtoMultiForm'
-import ProtoMultiForm2 from "../03PrototypeRelated/ProtoMultiForm2";
 import { db } from '../../firebaseConfig/config'
-// import { getProjectData } from "../services/dbService"
 import { doc, onSnapshot } from 'firebase/firestore'
+import MainFrame2 from "../03PrototypeRelated/MainFrame2";
+import ProtoMultiForm2 from "../03PrototypeRelated/ProtoMultiForm2";
+import type { PrototypeProps } from "../../services/prototypeServices2";
 
 export default function ProjectItem()
 {
     const { projectid } = useParams();
-    const [ projectData, setProjectData ] = useState<any>(null);
+    const [ projectData, setProjectData ] = useState<PrototypeProps | null>(null);
     const [ render, setRender ] = useState<React.ReactNode>(<MainFrame2 projectId={projectid} />);
 
     // console.log("This one is the id: ", projectid);
@@ -22,18 +21,11 @@ export default function ProjectItem()
     useEffect(() => {
         if (!projectid) return;
 
-        // const fetchData = async () => {
-        //     const data = await getProjectData(projectid);
-        //     setProjectData(data);
-        // }
-
-        // fetchData();
-
         const unsub = onSnapshot(doc(db, "projects", projectid), (docSnap) => {
 
             if (docSnap.exists())
             {
-                setProjectData({ id: docSnap.id, ...docSnap.data() });
+                setProjectData({ id: docSnap.id, ...docSnap.data() } as PrototypeProps);
             }
             else
             {
@@ -68,17 +60,13 @@ export default function ProjectItem()
 
     return(
         <Layuot>
-            {/* <h1>Projeto n°: {projectid}</h1>
-            <h2>Nome do projeto: {projectData.projectName}</h2>
-            <h2>Descrição do projeto: {projectData.description}</h2> */}
-
             <div className='p-5 mx-3'>
                 {/* ----- Title div ----- */}
 
                 <div className="d-flex flex-column mb-3">
                     <p className='mb-0 text-custom-red fs-5'>Projetos/</p>
                     <p className='mb-0 text-custom-black fs-1 fw-bold'>
-                        {projectData.projectName != null ? projectData.projectName : "Nome do projeto"}
+                        {projectData.name != null ? projectData.name : "Nome do projeto"}
                     </p>
                 </div>
 

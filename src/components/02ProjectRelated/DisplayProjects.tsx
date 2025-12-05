@@ -1,51 +1,34 @@
-import { Link } from 'react-router'
-import { useState, useEffect } from 'react'
+// ===== GERAL IMPORTS =====
 
+import { Link } from 'react-router'
 import ProjectCard from './ProjectCard'
-import { listenUserProjects} from '../../services/projectServices'
+import { useState, useEffect } from 'react'
 import MembersCircles from './MembersCircles'
 import NewProjectModal from './NewProjectModal'
 import { getCurrentUser } from '../../services/authService'
+import { getUserProjects } from '../../services/projectServices'
+import type { PrototypeProps } from '../../services/prototypeServices2'
 
+// ===== PROPS =====
 
-interface RecentProjectsProps {
+interface Props {
     displayAll: boolean;
 }
 
-export default function RecentProjects({ displayAll } : RecentProjectsProps)
+export default function DisplayProjects({ displayAll } : Props)
 {
-    const [ projects, setProjects ] = useState<any | null>([]);
-    
-    // useEffect(() => {
-    //     const fetchProjects = async () => {
-    //         const userData = getCurrentUser();
-    //         if (!userData) return; 
-
-    //         const userProjects = await getUserProjects(userData.uid);
-    //         setProjects(userProjects ?? []);
-    //     };
-
-    //     fetchProjects();
-    // }, []);
+    const [ projects, setProjects ] = useState<PrototypeProps[]>([]);
 
     useEffect(() => {
-        const loadRealtimeProjects = async () => {
-            const userData = getCurrentUser();
-            if (!userData) return;
+        const userData = getCurrentUser();
+        if (!userData) return;
+        
+        const unsubscribe = getUserProjects(userData.uid, (projects) => {
+            setProjects(projects ?? []);
+        });
 
-            const unsubscribe = await listenUserProjects(userData.uid, (projects) => {
-                setProjects(projects ?? []);
-            });
-
-            return unsubscribe;
-        };
-
-        const unsubPromise = loadRealtimeProjects();
-
-        return () => {
-            unsubPromise.then((unsub) => unsub && unsub());
-        };
-    }, [projects]);
+        return () => unsubscribe()
+    }, []);
 
     const membersList = [{ id: 1, img: '/vite.svg', name: "Maria"},
                           { id: 2, img: '/vite.svg', name: "Pedro"},
@@ -53,12 +36,6 @@ export default function RecentProjects({ displayAll } : RecentProjectsProps)
                           { id: 4, img: '/vite.svg', name: "Dejair"},
                           { id: 5, img: '/vite.svg', name: "Nicolas"},
                           { id: 6, img: '/vite.svg', name: "Elen"}]
-
-    // const cardsInfos = [{id: 1, imgUrl: '/vite.svg', title: 'Project#1', description: 'Description', element: <MembersCircles membersList={membersList} />, hasUpdates: false },
-    //                     {id: 2, imgUrl: '/vite.svg', title: 'Project#2', description: 'Description', element: <MembersCircles membersList={membersList} />, hasUpdates: false },
-    //                     {id: 3, imgUrl: '/vite.svg', title: 'Project#3', description: 'Description', element: <MembersCircles membersList={membersList} />, hasUpdates: true },
-    // ]
-
 
 
     return(
@@ -90,12 +67,15 @@ export default function RecentProjects({ displayAll } : RecentProjectsProps)
                 
             </div>
             <div className="d-flex gap-4 my-5 flex-wrap">
-                {projects.map((project: any) => (
+                {projects!.map((project: PrototypeProps) => (
                     <div key={project.id}>
-                        {/* <Link to={`/projects/${project.id}`} style={{ textDecoration: 'none' }}> */}
-                            <ProjectCard id={project.id} imgUrl="/vite.svg" title={project.projectName} description={project.description} 
-                                           element={<MembersCircles membersList={membersList} />} location={`/projects/${project.id}`}/>
-                        {/* </Link> */}
+                            <ProjectCard 
+                                id={project.id} 
+                                projectName={project.name} 
+                                location={`/projects/${project.id}`}
+                                projectDescription={project.description} 
+                                element={<MembersCircles membersList={membersList} />} 
+                            />
                     </div>
                 ))}
             </div>

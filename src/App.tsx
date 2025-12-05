@@ -17,17 +17,16 @@ import Profile from './pages/Profile'
 import Projects from './pages/Projects'
 import NotFoundPage from './pages/NotFoundPage'
 import ResetPassword from './pages/ResetPassword'
-// import PrototypeItem from './components/03PrototypeRelated/PrototypeItem'
-import PrototypeInner from './components/03PrototypeRelated/PrototypeInner'
-import AddChecklist2 from './components/04ChecklistRelated/AddChecklist2'
 import ConfirmResetPassword from './pages/ConfirmResetPassword'
+import PrototypeInner from './components/03PrototypeRelated/PrototypeInner'
+import NewChecklistVersion from './components/04ChecklistRelated/NewChecklistVersion'
 
 // App.tsx component
 export default function App() {
 
   return (
 
-    // Wrap all pages inside an AuthProvider component that sets the user variable - it can be null if the user do not exists
+    // Wrap all pages inside an AuthProvider component that sets the user data - it can be null if the user do not exists
     <AuthProvider>
 
       {/* Main div that wrap all those app routes */}
@@ -45,9 +44,8 @@ export default function App() {
           <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
           <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
           <Route path="/projects/:projectid" element={<ProtectedRoute><Project /></ProtectedRoute>} />
-          {/* <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><PrototypeItem /></ProtectedRoute>} /> */}
           <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><PrototypeInner /></ProtectedRoute>} />
-          <Route path="/addchecklist2" element={<AddChecklist2 />}/>
+          <Route path="/checklists/:checklistId" element={<ProtectedRoute><NewChecklistVersion /></ProtectedRoute>} />
         </Routes>
 
       </main>

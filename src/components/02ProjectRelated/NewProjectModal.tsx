@@ -1,31 +1,52 @@
-import { useState } from 'react';
+// ===== GERAL IMPORTS =====
+import { useState, useRef } from 'react';
 import Modal from 'react-bootstrap/Modal';
-// import { createProject } from '../services/dbService';
-import { AttachProjectToUser, createProject } from '../../services/projectServices';
-import { getCurrentUser } from '../../services/authService';
 import { useNavigate } from 'react-router';
+import { getCurrentUser } from '../../services/authService';
+import { createProject } from '../../services/projectServices';
 
+// ===== MAIN COMPONENT =====
 export default function NewProjectModal()
 {
-    const [ newProjectName, setNewProjectName ] = useState("");
-    const [ description, setDescription ] = useState("");
-    const [ show, setShow ] = useState(false);
+    // ===== DECLARING & INITIALIZING VARIABLES =====
     const navigate = useNavigate();
+    const [ show, setShow ] = useState(false);
+    const [ description, setDescription ] = useState("");
+    const [ name, setName ] = useState("");
+    const formRef = useRef<HTMLFormElement | null>(null);
 
+    // ===== DECLARING & INITIALIZING MODAL RELATED FUNCTIONS =====
     const openModal = () => setShow(true);
-    const closeModal = () => {setShow(false)};
+    const closeModal = () => {
+        if (formRef.current) formRef.current.classList.remove("was-validated");
+        setShow(false);
+        setName("");
+        setDescription("");
+    };
 
+    // ===== FUNCTION TO CREATE A NEW PROJECT =====
     const handleNewProject = async (e: React.FormEvent ) => {
+
+        // ===== FORM VALIDATION =====
+
         e.preventDefault();
 
-        const projectId = await createProject(newProjectName, description);
+        const form = formRef.current;
+        if (!form) return;
 
-        if (!projectId)
-        {
-            console.log("Erro ao puxar informações do projeto!");
-            return null;
+        form.classList.add("was-validated");
+        
+        if (!form.checkValidity()) {
+            // foca no primeiro campo inválido
+            const firstInvalid = form.querySelector<HTMLElement>(":invalid");
+            if (firstInvalid) firstInvalid.focus();
+            return; // não prossegue enquanto inválido
         }
         
+        closeModal();
+
+        // ===== ONCE FORM VALIDATED GO ON =====
+
         const userData = getCurrentUser();
 
         if (!userData)
@@ -34,12 +55,18 @@ export default function NewProjectModal()
             return null;
         }
 
-        await AttachProjectToUser(projectId, userData?.uid);
+        const userId = userData.uid;
 
-        closeModal();
+        const projectId = await createProject(name, description, userId);
+
+        if (!projectId)
+        {
+            console.log("Erro ao puxar informações do projeto!");
+            return null;
+        }
+        
         navigate("/projects");
     };
-
 
     return(
         <>
@@ -47,41 +74,60 @@ export default function NewProjectModal()
                 <p className='mb-0 fs-5 text-custom-white'>Novo projeto</p>
             </button>
 
-            <Modal show={show} onHide={closeModal} dialogClassName="modal-fullscreen" className='p-0'>
-                <Modal.Header closeButton className="mb-0 mx-5 border-0 my-3"></Modal.Header>
-                <Modal.Body className="container-fluid d-flex flex-column align-items-center m-auto"> 
+            <Modal show={show} onHide={closeModal} dialogClassName="" centered className='p-0' size="lg">
+                <Modal.Header closeButton className="border-0 mt-3 mx-3"></Modal.Header>
+                <Modal.Body className="d-flex flex-column align-items-center  mb-4"> 
 
                     {/* --- 🔴 Inner content div --- */}
-                    <form className="" onSubmit={handleNewProject}>
+                    <form ref={formRef} className="w-100 mt-0 pt-0 px-5" onSubmit={handleNewProject} noValidate>
 
                         {/* --- Title div --- */}
                         <div className="">
                             <p className='fs-5 mb-0 text-custom-red'>Adicionar</p>
-                            <p className='text-custom-black display-6 fw-bold mb-1'>Novo projeto</p>
-                            <p className='text-custom-black'>*Campos obrigatórios</p>
-                        </div>
-
-                        {/* --- 🔵 Photo div --- */}
-                        <div className="d-flex align-items-center">
-                            <div className="d-flex align-items-center justify-content-center rounded-circle" 
-                                style={{ width: '70px', height: '70px', overflow: 'hidden', backgroundColor: 'var(--red02)' }}>
-                                <img src="/vite.svg" alt="Ícone do projeto" />
-                            </div>
-                            <p className='mb-0 mx-4 text-custom-black'>Adicionar foto</p>
+                            <h1 className='text-custom-black fw-bold mb-1'>Novo projeto</h1>
                         </div>
 
                         {/* --- 🔵 Inputs div --- */}
                         <div className="d-flex flex-column my-4 gap-3">
-                            <input type="text" placeholder='Nome do projeto' className='text-custom-black py-1 px-3 fs-5 border rounded-2' 
-                                   required onChange={(e) => setNewProjectName(e.target.value)}/>
-                            {/* <input type="text" placeholder='Convide alguém' className='text-custom-black py-1 px-3 fs-5 border rounded-2' required/> */}
-                            <input type="text" placeholder='Descrição do projeto' className='text-custom-black py-1 px-3 fs-5 border rounded-2' 
-                                   required onChange={(e) => setDescription(e.target.value)}/>
+                            <div className="form-floating mb-3">
+                                <input 
+                                    id='input1'
+                                    required 
+                                    type="text" 
+                                    minLength={3}
+                                    maxLength={25}
+                                    className='form-control' 
+                                    placeholder='Nome do projeto*' 
+                                    onChange={(e) => setName(e.target.value)} 
+                                    />
+                                <label htmlFor="input1">Nome do projeto</label>
+                            </div>
+                            
+                            <div className="form-floating">
+                                <textarea 
+                                    required
+                                    id="input2" 
+                                    minLength={3}
+                                    maxLength={150} 
+                                    name="textarea" 
+                                    className='form-control'
+                                    placeholder='Descrição do projeto*'  
+                                    style={{ resize: "none", height: "100px" }} 
+                                    onChange={(e) => setDescription(e.target.value)}
+                                ></textarea>
+                                <label htmlFor="input2">Descrição do projeto</label>
+                            </div>
+
+                            
+
                         </div>
 
                         {/* --- 🔵 Button div --- */}
                         <div className="d-flex align-items-center justify-content-end">
-                            <button className='btn-custom btn-custom-success rounded-1 px-4' type='submit'>Adicionar</button>
+                            <button 
+                                type='submit'
+                                className='btn-custom btn-custom-success rounded-1 px-4' 
+                            >Adicionar</button>
                         </div>
                     </form>
                 </Modal.Body>

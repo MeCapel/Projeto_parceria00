@@ -18,10 +18,10 @@ export default function MembersCircles({ membersList } : MembersCirclesProps)
             {firstThree.map((member) => (
 
                 /* --- 🔵 Img content div --- */
-                <div className="container d-flex align-items-center justify-content-center rounded-circle bg-danger-subtle left-less" 
+                <div className="container d-flex align-items-center justify-content-center rounded-circle bg-danger-subtle left-less border border-danger" 
                     key={member.id} style={{ width: '50px', height: '50px', overflow: 'hidden' }}>
-                        <img src={member.img} alt={member.name} className="img-fluid" 
-                            style={{ width: '100%', height: '100%' }}/>
+                        {/* <img src={member.img} alt={member.name} className="img-fluid" 
+                            style={{ width: '100%', height: '100%' }}/> */}
                 </div>
             ))}
             {extraMembers > 0 && (

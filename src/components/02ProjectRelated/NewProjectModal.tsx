@@ -76,7 +76,7 @@ export default function NewProjectModal()
 
             <Modal show={show} onHide={closeModal} dialogClassName="" centered className='p-0' size="lg">
                 <Modal.Header closeButton className="border-0 mt-3 mx-3"></Modal.Header>
-                <Modal.Body className="d-flex flex-column align-items-center  mb-4"> 
+                <Modal.Body className="d-flex flex-column align-items-center mb-4"> 
 
                     {/* --- 🔴 Inner content div --- */}
                     <form ref={formRef} className="w-100 mt-0 pt-0 px-5" onSubmit={handleNewProject} noValidate>

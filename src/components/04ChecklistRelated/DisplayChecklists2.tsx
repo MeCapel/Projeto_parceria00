@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
+import ChecklistCard from "./ChecklistCard";
 import { type Checklist, getChecklistsModel } from "../../services/checklistServices2";
-import { useNavigate, useParams } from "react-router";
 
 interface Props {
     inline: boolean;
@@ -10,8 +10,6 @@ export default function DisplayChecklistsModel({ inline }: Props) {
     const [data, setData] = useState<Checklist[]>([]);
     const [selectedModel, setSelectedModel] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
-    const navigate = useNavigate();
-    const { checklistId } = useParams();
 
     useEffect(() => {
         const unsubscribe = getChecklistsModel((items: Checklist[]) => {
@@ -54,27 +52,11 @@ export default function DisplayChecklistsModel({ inline }: Props) {
                             {data.length === 0 && <p>Nenhum modelo encontrado.</p>}
 
                             {data.map(item => (
-                                <li key={item.id} onClick={() => navigate(`/checklists/${checklistId}`)}>
-                                    <div
-                                        className="card bg-custom-gray00 text-custom-white mb-3"
-                                        style={{ maxWidth: "18rem", cursor: "pointer" }} >
-                                        <div className="card-header d-flex gap-3">
-                                            <h4>{item.name}</h4>
-                                        </div>
-
-                                        <div className="card-body">
-                                            <p className="card-title fs-5">
-                                                {item.vertical || "Vertical não definida"} • v{item.version}
-                                            </p>
-
-                                            <div className="overflow-hidden" style={{ maxHeight: "3rem" }}>
-                                                <p className="text-truncate">
-                                                    {item.categories?.length || 0} categorias
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
+                                <div key={item.id}>
+                                    <ChecklistCard  
+                                        checklistId={item.id!}
+                                    />
+                                </div>
                             ))}
 
                         </ul>

@@ -4,3 +4,15 @@
     border-color: var(--gray00) !important; 
     box-shadow: 0 0 0 0.15rem var(--gray02) !important;
 }
+
+/* .modal-custom-body
+{
+    max-height: 80vh;
+    overflow-y: auto
+}
+
+.modal-custom--inner
+{
+    max-height: 15vh;
+    overflow-y: auto
+} */

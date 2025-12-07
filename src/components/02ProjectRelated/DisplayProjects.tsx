@@ -1,6 +1,6 @@
 // ===== GERAL IMPORTS =====
 
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import ProjectCard from './ProjectCard'
 import { useState, useEffect } from 'react'
 import MembersCircles from './MembersCircles'
@@ -17,6 +17,7 @@ interface Props {
 
 export default function DisplayProjects({ displayAll } : Props)
 {
+    const navigate = useNavigate();
     const [ projects, setProjects ] = useState<PrototypeProps[]>([]);
 
     useEffect(() => {
@@ -44,7 +45,13 @@ export default function DisplayProjects({ displayAll } : Props)
                 {displayAll ? (
                     <>
                         <div className="d-flex flex-column col-12 col-md-10">
-                            <p className='mb-0 text-custom-red fs-5'>Projetos</p>
+                            <p 
+                                style={{ cursor: "pointer" }}
+                                className='mb-0 text-custom-red fs-5'
+                                onClick={() => navigate(`/projects`)}
+                            >
+                                Projetos
+                            </p>
                             <p className='mb-0 text-custom-black fs-1 fw-bold'>Todos os projetos</p>
                         </div>
                         <div className="d-flex align-items-start justify-content-end col-12 col-md-2 my-3 my-md-0">
@@ -54,7 +61,13 @@ export default function DisplayProjects({ displayAll } : Props)
                 ) : (
                     <>
                         <div className="d-flex flex-column col-10">
-                            <p className='mb-0 text-custom-red fs-5'>Projetos</p>
+                            <p 
+                                style={{ cursor: "pointer" }}
+                                className='mb-0 text-custom-red fs-5'
+                                onClick={() => navigate(`/projects`)}
+                            >
+                                Projetos
+                            </p>
                             <p className='mb-0 text-custom-black fs-1 fw-bold'>Visitados recentemente</p>
                         </div>
                         <div className="d-flex align-items-start justify-content-end col-2">
@@ -69,13 +82,13 @@ export default function DisplayProjects({ displayAll } : Props)
             <div className="d-flex gap-4 my-5 flex-wrap">
                 {projects!.map((project: PrototypeProps) => (
                     <div key={project.id}>
-                            <ProjectCard 
-                                id={project.id} 
-                                projectName={project.name} 
-                                location={`/projects/${project.id}`}
-                                projectDescription={project.description} 
-                                element={<MembersCircles membersList={membersList} />} 
-                            />
+                        <ProjectCard 
+                            id={project.id} 
+                            projectName={project.name} 
+                            location={`/projects/${project.id}`}
+                            projectDescription={project.description} 
+                            element={<MembersCircles membersList={membersList} />} 
+                        />
                     </div>
                 ))}
             </div>

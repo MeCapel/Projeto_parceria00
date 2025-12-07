@@ -1,22 +1,28 @@
+// ===== GERAL IMPORTS =====
+
 import { useState } from "react";
 import { Modal } from "react-bootstrap";
 import { useNavigate } from "react-router";
 import DisplayChecklistsModel from "./DisplayChecklists2";
+import { Trash3Fill, PlusLg, Dash } from "react-bootstrap-icons";
 import { createChecklistModel, type Checklist, type Categories, type CheckboxItem } from "../../services/checklistServices2";
 
-export default function AddChecklistModel() {
-    const navigate = useNavigate();
+// ===== MAIN COMPONENT =====
 
+export default function AddChecklistModel() {
+    
+    // ===== DECLARING & INITIALIZING VARIABLES =====
+
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const [show, setShow] = useState(false);
+
     const openModal = () => setShow(true);
     const closeModal = () => {
         resetForm();
         setShow(false);
     };
 
-    const [loading, setLoading] = useState(false);
-
-    // ESTADO PRINCIPAL
     const [checklist, setChecklist] = useState<Checklist>({
         name: "",
         vertical: "",
@@ -25,10 +31,7 @@ export default function AddChecklistModel() {
         createdAt: ""
     });
 
-    // Inputs dos itens separados por índice da categoria
     const [itemInputs, setItemInputs] = useState<Record<number, string>>({});
-
-    // Nome da categoria a criar
     const [newCategoryName, setNewCategoryName] = useState("");
 
     const resetForm = () => {
@@ -143,88 +146,112 @@ export default function AddChecklistModel() {
     return (
         <div className="px-5 mx-3">
             <div className="d-flex row">
-                <div className="d-flex flex-column col-12 col-md-10">
-                    <p className='mb-0 text-custom-red fs-5'>Modelos de Checklist</p>
+                
+                <div className="d-flex flex-column col-12 col-md-10" >
+                    <p 
+                        style={{ cursor: "pointer" }}
+                        className='mb-0 text-custom-red fs-5'
+                        onClick={() => navigate(`/checklists`)}
+                    >
+                        Modelos de Checklist
+                    </p>
                     <p className='mb-0 text-custom-black fs-1 fw-bold'>Gerenciar modelos</p>
                 </div>
 
-                <div className="d-flex align-items-end justify-content-end col-12 col-md-2 my-3 my-md-0">
-                    <button className='btn-custom btn-custom-primary' onClick={openModal}>
-                        <p className='mb-0 fs-5 text-custom-white'>Adicionar</p>
+                <div className="d-flex gap-3 align-items-end justify-content-end col-12 col-md-2 my-3 my-md-0">
+                    <button className='btn-custom btn-custom-success' onClick={openModal}>
+                        <PlusLg size={30}/>
                     </button>
                 </div>
             </div>
 
             <DisplayChecklistsModel inline={false} />
 
-            <Modal show={show} onHide={closeModal} dialogClassName="modal-fullscreen">
-                <Modal.Header closeButton className="mb-0 mx-5 border-0 my-3"></Modal.Header>
+            <Modal show={show} onHide={closeModal} dialogClassName="" centered className='p-0' size="lg">
+                <Modal.Header closeButton className="border-0 mt-3 mx-3"></Modal.Header>
 
-                <Modal.Body className="container-fluid d-flex flex-column align-items-center m-auto">
-                    <div className="d-flex p-5 align-items-center justify-content-center">
-                        <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
+                <Modal.Body className="d-flex flex-column align-items-center mb-4">
+                    <form onSubmit={handleSubmit} className="w-100 mt-0 pt-0 px-5 modal-custom">
 
-                            <h1 className="text-custom-red00">Adicionar modelo de checklist</h1>
+                        {/* --- Title div --- */}
+                        <div className="">
+                            <p className='fs-5 mb-0 text-custom-red'>Adicionar</p>
+                            <h1 className='text-custom-black fw-bold mb-1'>Novo modelo de checklist</h1>
+                        </div>
 
-                            {/* Nome */}
-                            <input
-                                type="text"
-                                placeholder="Nome do checklist..."
-                                required
-                                className="form-control"
-                                value={checklist.name}
-                                onChange={e => setChecklist(prev => ({ ...prev, name: e.target.value }))}
-                            />
+                        <div className="d-flex flex-column my-4 gap-3">
+
+                            <div className="form-floating mb-3">
+
+                                <input
+                                    id="checklistName"
+                                    type="text"
+                                    required
+                                    value={checklist.name}
+                                    className="form-control"
+                                    placeholder="Nome do checklist..."
+                                    onChange={e => setChecklist(prev => ({ ...prev, name: e.target.value }))}
+                                />
+                                <label htmlFor="checklistName">Nome da checklist</label>
+                            </div>
 
                             {/* Vertical */}
-                            <fieldset className="col d-flex flex-column mt-4 p-3 align-items-start border rounded-2">
+                            <fieldset className="col d-flex flex-column mt-3 p-2 align-items-start border rounded-2">
 
                                 <div className="d-flex py-1 px-3 align-items-start justify-content-center rounded-5 border bg-custom-gray00"
-                                    style={{ top: "-2.5rem", position: "relative" }}>
+                                    style={{ top: "-1.75rem", position: "relative" }}>
                                     <legend className='mb-0 text-white fs-5'>Vertical</legend>
                                 </div>
 
-                                <div className="d-flex w-100 gap-3 align-items-start justify-content-center" style={{ position: "relative", top: "-0.75rem" }}>
+                                <div className="d-flex w-100 gap-5 align-items-start justify-content-center" style={{ position: "relative", top: "-1rem" }}>
 
                                     {["Preparo", "Plantio", "Pulverização"].map(v => (
                                         <label key={v} className="d-flex gap-2 form-check-label">
                                             <input
-                                                className='form-check-input'
+                                                value={v}
                                                 type="radio"
                                                 name="vertical"
-                                                value={v}
+                                                className='form-check-input'
                                                 checked={checklist.vertical === v}
-                                                onChange={(e) =>
-                                                    setChecklist(prev => ({ ...prev, vertical: e.target.value }))
-                                                }
+                                                onChange={(e) => setChecklist(prev => ({ ...prev, vertical: e.target.value }))}
                                             />
                                             {v}
                                         </label>
                                     ))}
+
                                 </div>
+
                             </fieldset>
 
                             {/* Nova categoria */}
-                            <label className="d-flex flex-column gap-3">
-                                <h3 className="mb-0 text-center fw-bold text-custom-black">Adicionar categoria</h3>
+                            <h3 className="text-center fw-bold text-custom-black my-3">Adicionar categoria</h3>
+                            
+                            <div className="d-flex gap-3">
+                                <div className="form-floating mb-3 w-100">
+                                        <input
+                                            type="text"
+                                            id="categoryName"
+                                            value={newCategoryName}
+                                            className="form-control"
+                                            placeholder="Nome da categoria..."
+                                            onChange={(e) => setNewCategoryName(e.target.value)}
+                                        />
+                                    <label htmlFor="categoryName" className="d-flex flex-column gap-3">Nome da nova categoria</label>
+                                </div>
 
-                                <input
-                                    type="text"
-                                    placeholder="Nome da categoria..."
-                                    value={newCategoryName}
-                                    onChange={(e) => setNewCategoryName(e.target.value)}
-                                    className="form-control"
-                                />
-                            </label>
-
-                            <button className="btn-custom btn-custom-outline-primary" type="button" onClick={handleNewCategory}>
-                                Adicionar categoria
-                            </button>
+                                <button 
+                                    style={{ height: "3.5rem" }}
+                                    type="button" onClick={handleNewCategory}
+                                    className="btn-custom btn-custom-outline-success d-flex align-items-center justify-content-center" 
+                                >
+                                    <PlusLg size={18}/>
+                                </button>
+                            </div>
 
                             {/* Lista de categorias */}
-                            <div className="d-flex flex-column gap-4 mt-4">
+                            <div className="d-flex flex-column gap-4 mt-4 modal-custom-body-inner">
                                 {checklist.categories.length === 0 && (
-                                    <p>Adicione categorias ao checklist...</p>
+                                    <p className="text-center">Adicione categorias ao checklist...</p>
                                 )}
 
                                 {checklist.categories.map((cat, catIndex) => (
@@ -233,24 +260,26 @@ export default function AddChecklistModel() {
                                             {cat.name}
                                             <button
                                                 type="button"
-                                                className="btn btn-sm btn-danger"
+                                                className="btn btn-danger d-flex align-items-center justify-content-center"
                                                 onClick={() => handleDropCategory(catIndex)}
                                             >
-                                                Remover
+                                                <Trash3Fill size={18}/>
                                             </button>
                                         </h5>
 
                                         {/* Items */}
                                         {cat.items.map(item => (
-                                            <div key={item.id} className="d-flex align-items-center gap-2">
-                                                <input type="checkbox" checked={item.checked} readOnly />
-                                                <span>{item.label}</span>
+                                            <div key={item.id} className="d-flex align-items-center justify-content-between gap-2 py-1 ps-3">
+                                                <div className="d-flex gap-3">
+                                                    <input type="checkbox" checked={item.checked} readOnly />
+                                                    <span>{item.label}</span>
+                                                </div>
                                                 <button
                                                     type="button"
-                                                    className="btn btn-sm btn-outline-danger ms-2"
                                                     onClick={() => handleDropItem(catIndex, item.id)}
+                                                    className="py-2 btn btn-outline-danger d-flex align-items-center justify-content-center"
                                                 >
-                                                    X
+                                                    <Dash size={18}/>
                                                 </button>
                                             </div>
                                         ))}
@@ -271,23 +300,25 @@ export default function AddChecklistModel() {
                                             />
 
                                             <button
-                                                className="btn btn-primary"
                                                 type="button"
                                                 onClick={() => handleNewItem(catIndex)}
+                                                className="btn btn-custom-outline-success d-flex align-items-center justify-content-center"
                                             >
-                                                Adicionar
+                                                <PlusLg size={18}/>
                                             </button>
                                         </div>
                                     </div>
                                 ))}
                             </div>
-
-                            {/* Submit */}
+                        </div>
+                        {/* Submit */}
+                        <div className="d-flex align-items-center justify-content-end">
                             <button className="btn-custom btn-custom-success" type="submit" disabled={loading}>
                                 {loading ? "Adicionando..." : "Criar modelo"}
                             </button>
-                        </form>
-                    </div>
+                        </div>
+                        
+                    </form>
                 </Modal.Body>
             </Modal>
         </div>

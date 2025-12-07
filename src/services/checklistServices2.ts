@@ -79,7 +79,7 @@ const fetchLatestChecklistVersion = async ( checklist: Checklist ) => {
 }
 
 // ----- ESTA FUNÇÃO CRIA UMA NOVA VERSÃO DE UMA CHECKLIST, OU SEJA, O NOME, A VERTICAL E ALGUNS OUTROS ITENS SE MANTEM OS MESMOS, POREM HÁ ALGUMA ALTERAÇÃO DO ESTADO INICIAL -----
-export const createNewChecklistVersion = async ( checklist: Checklist & { id: string} ) => {
+export const createNewChecklistVersion = async ( checklist: Checklist, checklistId: string ) => {
     try
     {
         const docRef = collection(db, "checklistModels");
@@ -92,7 +92,7 @@ export const createNewChecklistVersion = async ( checklist: Checklist & { id: st
             return;
         }
 
-        const originalModel = checklist.originalModel || checklist.id;
+        const originalModel = checklist.originalModel || checklistId;
 
         const checklistDTO = {
             name: checklist.name,
@@ -181,10 +181,10 @@ export const getChecklistsModelByP = async (vertical: string) => {
 }
 
 // ----- ESTA FUNÇÃO EXCLUI UMA CHECLIST MODELO COM TODAS AS SUAS CATEGORIAS E ITEMS/CHECKBOXES
-export const deleteChecklistModel = async ( checklist: Checklist & { id: string } ) => {
+export const deleteChecklistModel = async ( checklistId: string ) => {
     try 
     {
-        const checklistDoc = doc(db, "checklistModels", checklist.id);
+        const checklistDoc = doc(db, "checklistModels", checklistId);
 
         await deleteDoc(checklistDoc);
     }

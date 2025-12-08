@@ -21,9 +21,10 @@ import { Modal } from "react-bootstrap";
 
 interface Props {
     checklistId: string,
+    inline?: boolean,
 }
 
-export default function ChecklistCard({ checklistId } : Props)
+export default function ChecklistCard({ checklistId, inline } : Props)
 {
     const navigate = useNavigate();
     const menuRef = useRef<HTMLDivElement | null>(null);
@@ -212,77 +213,117 @@ export default function ChecklistCard({ checklistId } : Props)
 
     return (
         <>
-            <div
-                className="card shadow border rounded-3 h-auto"
-                style={{
-                    width: "18rem",
-                    maxWidth: "18rem",
-                    background: "#fff",
-                    overflow: "hidden",
-                    padding: "1.2rem"
-                }}
-            >
+            {inline ?
+                (
+                    <div
+                        key={checklist.id}
+                        className="w-100 d-flex align-items-center justify-content-between px-4 py-3 rounded-3 shadow-sm border bg-white"
+                        style={{
+                            // minWidth: "200px",
+                            // maxWidth: "250px",
+                            flex: "1 1 auto",
+                            cursor: "pointer"
+                        }}
 
-                {/* Topo: Título + menu */}
-                <div className="d-flex justify-content-between align-items-start mb-2">
-                    
-                    <h5
-                        className="text-custom-black fw-bold fs-4 m-0"
                     >
-                        {checklist.name}
-                    </h5>
-
-                    <div style={{ position: "relative" }}>
-                        <div 
-                            onClick={() => setMoreOptions(!moreOptions)}
-                            className="d-flex align-items-center justify-content-center"
-                            style={{ padding: "0.5rem", borderRadius: "8px", cursor: "pointer" }}
-                        >
-                            <ThreeDotsVertical size={22} className="text-secondary" />
+                        <div className="d-flex flex-column">
+                            <span className="fw-bold text-custom-black">{checklist.name}</span>
+                            <small className="text-muted">{checklist.categories.length} categoria(as)</small>
                         </div>
 
-                        {moreOptions && (
-                            <div
-                                ref={menuRef}
-                                style={{ top: "1.8rem", right: 0, minWidth: "12rem" }}
-                                className="position-absolute rounded-3 shadow-sm p-2 bg-white z-3 border"
-                            >
-                                <button onClick={openModal1} className="btn w-100 d-flex gap-2 align-items-center text-start">
-                                    <PencilSquare size={18} className="text-danger"/>
-                                    <span className="text-dark">Editar</span>
-                                </button>
+                        <span 
+                            className="badge bg-custom-red00 text-white"
+                            style={{ padding: "0.45rem 0.75rem" }}
+                        >
+                            v{checklist.version}
+                        </span>
 
-                                <button onClick={openModal2} className="btn w-100 d-flex gap-2 align-items-center text-start">
-                                    <Trash3Fill size={18} className="text-danger"/>
-                                    <span className="text-dark">Excluir</span>
-                                </button>
-                            </div>
-                        )}
+                        <div className="d-flex gap-3">
+                            <button onClick={openModal1} className="btn-custom btn-custom-secondary w-100 d-flex gap-2 align-items-center">
+                                <PencilSquare size={18} className=""/>
+                                <span className="">Editar</span>
+                            </button>
+
+                            <button onClick={openModal2} className="btn btn-danger w-100 d-flex gap-2 align-items-center">
+                                <Trash3Fill size={18} className=""/>
+                                <span className="">Excluir</span>
+                            </button>
+                        </div>
                     </div>
+                ) : 
+                (
+                    <div
+                        className="card shadow border rounded-3 h-auto"
+                        style={{
+                            width: "18rem",
+                            maxWidth: "18rem",
+                            background: "#fff",
+                            overflow: "hidden",
+                            padding: "1.2rem"
+                        }}
+                    >
 
-                </div>
+                        {/* Topo: Título + menu */}
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                            
+                            <h5
+                                className="text-custom-black fw-bold fs-4 m-0"
+                            >
+                                {checklist.name} • v{checklist.version}
+                            </h5>
 
-                {/* Subtítulo (vertical + versão) */}
-                <div
-                    className="mb-2"
-                >
-                    <h6 className="text-muted m-0">
-                        {checklist.vertical || "Vertical não definida"} • v{checklist.version}
-                    </h6>
-                </div>
+                            <div style={{ position: "relative" }}>
+                                <div 
+                                    onClick={() => setMoreOptions(!moreOptions)}
+                                    className="d-flex align-items-center justify-content-center"
+                                    style={{ padding: "0.5rem", borderRadius: "8px", cursor: "pointer" }}
+                                >
+                                    <ThreeDotsVertical size={22} className="text-secondary" />
+                                </div>
 
-                {/* Quantidade de categorias */}
-                <div
-                    onClick={() => navigate(location)}
-                    className="mt-1"
-                >
-                    <p className="fs-5 mb-0" style={{ color: "var(--red00)" }}>
-                        {checklist.categories.length} categorias
-                    </p>
-                </div>
+                                {moreOptions && (
+                                    <div
+                                        ref={menuRef}
+                                        style={{ top: "1.8rem", right: 0, minWidth: "12rem" }}
+                                        className="position-absolute rounded-3 shadow-sm p-2 bg-white z-3 border"
+                                    >
+                                        <button onClick={openModal1} className="btn w-100 d-flex gap-2 align-items-center text-start">
+                                            <PencilSquare size={18} className="text-danger"/>
+                                            <span className="text-dark">Editar</span>
+                                        </button>
 
-            </div>
+                                        <button onClick={openModal2} className="btn w-100 d-flex gap-2 align-items-center text-start">
+                                            <Trash3Fill size={18} className="text-danger"/>
+                                            <span className="text-dark">Excluir</span>
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
 
+                        </div>
+
+                        {/* Subtítulo (vertical + versão) */}
+                        <div
+                            className="mb-2"
+                        >
+                            <h6 className="text-muted m-0">
+                                {checklist.vertical || "Vertical não definida"}
+                            </h6>
+                        </div>
+
+                        {/* Quantidade de categorias */}
+                        <div
+                            onClick={() => navigate(location)}
+                            className="mt-1"
+                        >
+                            <p className="fs-5 mb-0" style={{ color: "var(--red00)" }}>
+                                {checklist.categories.length} categorias
+                            </p>
+                        </div>
+
+                    </div>
+                )
+            }
 
             {/* ======================== */}
             {/*   MODAL DE EDIÇÃO        */}
@@ -293,7 +334,7 @@ export default function ChecklistCard({ checklistId } : Props)
                 <Modal.Body className="d-flex flex-column align-items-center mb-4">
 
                 {editChecklist && (
-                    <form onSubmit={handleSubmit} className="w-100 mt-0 pt-0 px-5 d-flex flex-column">
+                    <form onSubmit={handleSubmit} className="w-100 mt-0 py-0 px-5 d-flex flex-column">
 
                         {/* título */}
                         <div className="test-start">
@@ -316,7 +357,7 @@ export default function ChecklistCard({ checklistId } : Props)
                             </div>
 
                             {/* Vertical */}
-                            <fieldset className="col d-flex flex-column mt-3 p-2 align-items-start border rounded-2">
+                            <fieldset className="col d-flex flex-column mt-3 align-items-start border rounded-2">
                                 <div className="d-flex py-1 px-3 align-items-center justify-content-center rounded-5 border bg-custom-gray00"
                                      style={{ top: "-1.75rem", position: "relative" }}>
                                     <legend className='mb-0 text-white fs-5'>Vertical</legend>
@@ -342,7 +383,7 @@ export default function ChecklistCard({ checklistId } : Props)
                             </fieldset>
 
                             {/* Nova categoria */}
-                            <h3 className="text-center fw-bold text-custom-black my-3">Adicionar categoria</h3>
+                            <h3 className="text-center fw-bold text-custom-black mt-2">Adicionar categoria</h3>
 
                             <div className="d-flex gap-3">
                                 <div className="form-floating mb-3 w-100">
@@ -358,6 +399,7 @@ export default function ChecklistCard({ checklistId } : Props)
 
                                 <button
                                     type="button"
+                                    style={{ height: "3.5rem" }}
                                     onClick={handleNewCategory}
                                     className="btn-custom btn-custom-outline-success d-flex align-items-center justify-content-center"
                                 >
@@ -366,7 +408,7 @@ export default function ChecklistCard({ checklistId } : Props)
                             </div>
 
                             {/* Lista de categorias */}
-                            <div className="d-flex flex-column gap-4 mt-4 modal-custom-body-inner">
+                            <div className="d-flex flex-column gap-4 mt-4 scroll-area">
                                 {editChecklist.categories.length === 0 && (
                                     <p className="text-center">Adicione categorias ao checklist...</p>
                                 )}

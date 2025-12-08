@@ -79,7 +79,7 @@ export default function DisplayProjects({ displayAll } : Props)
                 )}
                 
             </div>
-            <div className="d-flex gap-4 my-5 flex-wrap">
+            <div className="d-flex gap-4 my-4 flex-wrap">
                 {projects!.map((project: PrototypeProps) => (
                     <div key={project.id}>
                         <ProjectCard 

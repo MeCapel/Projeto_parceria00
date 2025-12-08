@@ -5,6 +5,12 @@
     box-shadow: 0 0 0 0.15rem var(--gray02) !important;
 }
 
+.scroll-area {
+  max-height: 200px; 
+  overflow-y: auto;
+  padding-right: 6px; 
+}
+
 /* .modal-custom-body
 {
     max-height: 80vh;

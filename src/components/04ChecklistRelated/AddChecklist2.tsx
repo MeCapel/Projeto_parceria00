@@ -168,7 +168,7 @@ export default function AddChecklistModel() {
             <DisplayChecklistsModel inline={false} />
 
             <Modal show={show} onHide={closeModal} dialogClassName="" centered className='p-0' size="lg">
-                <Modal.Header closeButton className="border-0 mt-3 mx-3"></Modal.Header>
+                <Modal.Header closeButton className="border-0 m-2"></Modal.Header>
 
                 <Modal.Body className="d-flex flex-column align-items-center mb-4">
                     <form onSubmit={handleSubmit} className="w-100 mt-0 pt-0 px-5 modal-custom">
@@ -196,7 +196,7 @@ export default function AddChecklistModel() {
                             </div>
 
                             {/* Vertical */}
-                            <fieldset className="col d-flex flex-column mt-3 p-2 align-items-start border rounded-2">
+                            <fieldset className="col d-flex flex-column mt-3 align-items-start border rounded-2">
 
                                 <div className="d-flex py-1 px-3 align-items-start justify-content-center rounded-5 border bg-custom-gray00"
                                     style={{ top: "-1.75rem", position: "relative" }}>
@@ -224,7 +224,7 @@ export default function AddChecklistModel() {
                             </fieldset>
 
                             {/* Nova categoria */}
-                            <h3 className="text-center fw-bold text-custom-black my-3">Adicionar categoria</h3>
+                            <h3 className="text-center fw-bold text-custom-black mt-2">Adicionar categoria</h3>
                             
                             <div className="d-flex gap-3">
                                 <div className="form-floating mb-3 w-100">
@@ -249,7 +249,7 @@ export default function AddChecklistModel() {
                             </div>
 
                             {/* Lista de categorias */}
-                            <div className="d-flex flex-column gap-4 mt-4 modal-custom-body-inner">
+                            <div className="d-flex flex-column gap-4 mt-4 scroll-area">
                                 {checklist.categories.length === 0 && (
                                     <p className="text-center">Adicione categorias ao checklist...</p>
                                 )}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import ChecklistCard from "./ChecklistCard";
 import { type Checklist, getChecklistsModel } from "../../services/checklistServices2";
+import { useNavigate } from "react-router";
 
 interface Props {
     inline: boolean;
@@ -8,8 +9,8 @@ interface Props {
 
 export default function DisplayChecklistsModel({ inline }: Props) {
     const [data, setData] = useState<Checklist[]>([]);
-    const [selectedModel, setSelectedModel] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const unsubscribe = getChecklistsModel((items: Checklist[]) => {
@@ -23,27 +24,37 @@ export default function DisplayChecklistsModel({ inline }: Props) {
     if (loading) return <p>Carregando...</p>;
 
     return (
-        <div className="p-3 d-flex flex-column gap-3">
+        <div className="pt-3 d-flex flex-column gap-3">
             {inline ? (
-                <>
-                    <p className="text-custom-black fs-4 fw-bold mb-0">Selecionar modelo</p>
+                <div className="p-5">
+                    <div className="d-flex flex-column mb-4">
+                        <p 
+                            style={{ cursor: "pointer" }}
+                            className="mb-0 text-custom-red fs-5"
+                            onClick={() => navigate(`/checklists`)}
+                        >
+                            Modelos de Checklist
+                        </p>
+                        <p className="mb-0 text-custom-black fs-1 fw-bold">Gerenciar modelos</p>
+                    </div>
 
-                    <ul className="list-unstyled d-flex flex-column gap-2">
-                        {data.length === 0 && <p>Nenhum modelo encontrado.</p>}
+                    {/* LISTA MODERNA EM LINHA */}
+                    <ul className="list-unstyled d-flex flex-wrap gap-3">
+                        {data.length === 0 && (
+                            <p className="text-muted">Nenhum modelo encontrado.</p>
+                        )}
 
                         {data.map(item => (
-                            <li key={item.id} className="d-flex gap-3">
-                                <input className="form-check-input" type="radio" name="checklistModel"
-                                    id={item.id} value={item.id} checked={selectedModel === item.id}
-                                    onChange={(e) => setSelectedModel(e.target.value)}
+                            <div key={item.id} className="w-100">
+                                <ChecklistCard  
+                                    checklistId={item.id!}
+                                    inline={true}
                                 />
-                                <label htmlFor={item.id}>
-                                    {item.name} — v{item.version}
-                                </label>
-                            </li>
+                            </div>
                         ))}
                     </ul>
-                </>
+                </div>
+
             ) : (
                 <div className="row">
                     <div className="d-flex w-100 gap-3 align-items-start justify-content-center my-3">
@@ -55,6 +66,7 @@ export default function DisplayChecklistsModel({ inline }: Props) {
                                 <div key={item.id}>
                                     <ChecklistCard  
                                         checklistId={item.id!}
+                                        inline={false}
                                     />
                                 </div>
                             ))}

@@ -21,7 +21,6 @@ import ResetPassword from './pages/ResetPassword'
 import ConfirmResetPassword from './pages/ConfirmResetPassword'
 import PrototypeInner from './components/03PrototypeRelated/PrototypeInner'
 // import NewChecklistVersion from './components/04ChecklistRelated/NewChecklistVersion'
-import ChecklistInner from './components/04ChecklistRelated/ChecklistInner'
 
 // App.tsx component
 export default function App() {
@@ -48,8 +47,6 @@ export default function App() {
           <Route path="/projects/:projectid" element={<ProtectedRoute><Project /></ProtectedRoute>} />
           <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><PrototypeInner /></ProtectedRoute>} />
           <Route path="/checklists" element={<ProtectedRoute><Checklists /></ProtectedRoute>} />
-          {/* <Route path="/checklists/:checklistId" element={<ProtectedRoute><NewChecklistVersion /></ProtectedRoute>} /> */}
-          <Route path="/checklists/:checklistId" element={<ProtectedRoute><ChecklistInner /></ProtectedRoute>} />
         </Routes>
 
       </main>

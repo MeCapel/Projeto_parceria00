@@ -1,45 +1,42 @@
-import { useState, useEffect, type FormEvent } from "react";
-import { XLg } from "react-bootstrap-icons";
+// ===== GERAL IMPORTS =====
+
+import { ArrowLeftCircleFill } from "react-bootstrap-icons";
 import { useNavigate, useParams } from "react-router";
-import { getPrototype, type PrototypeProps, updatePrototype, deletePrototype, addChecklistToPrototype, deletePrototypeChecklist,} from '../../services/prototypeServices2';
 import ManageChecklistsModal from "./ManageChecklists";
+import { useState, useEffect, type FormEvent } from "react";
 import { type Checklist } from "../../services/checklistServices2";
 import DisplayPrototypeChecklists from "../04ChecklistRelated/DisplayPrototypeCheklists";
+import { getPrototype, 
+         type PrototypeProps, 
+         updatePrototype, 
+         deletePrototype } from '../../services/prototypeServices2';
+import Layout from "../00Geral/Layout";
+
+// =====  MAIN COMPONENT =====
 
 export default function PrototypeInner() {
-    const { prototypeid } = useParams();
     const navigate = useNavigate();
+    const { prototypeid } = useParams();
 
-    const [prototype, setPrototype] = useState<PrototypeProps & { id?: string; checklists?: Checklist[] }>({
-        projectId: "",
-        code: "",
-        name: "",
-        description: "",
-        stage: "",
-        state: "",
-        city: "",
-        areaSize: "",
-        vertical: "",
-        editedAt: [],
-        createdAt: undefined,
-        checklists: [],
-    });
-
-    const [originalChecklists, setOriginalChecklists] = useState<Checklist[]>([]);
-    const [selectedChecklists, setSelectedChecklists] = useState<Checklist[]>([]);
-    const [cityError, setCityError] = useState("");
     const [loading, setLoading] = useState(true);
+    const [cityError, setCityError] = useState("");
 
+    // const [originalChecklists, setOriginalChecklists] = useState<Checklist[]>([]);
+
+    const [prototype, setPrototype] = useState<PrototypeProps | null>(null);
+
+    // ============================
+    // LOAD PROTOTYPE
+    // ============================
     useEffect(() => {
         if (!prototypeid) return;
 
         async function fetchData() {
-            const data = await getPrototype(prototypeid!);
+            const data: PrototypeProps = await getPrototype(prototypeid!);
+
             if (data) {
-                console.log(data);
-                // garante que todos os campos obrigatórios existem
-                const proto: PrototypeProps & { id?: string; checklists?: Checklist[] } = {
-                    projectId: data.projectId || "",
+                const proto: PrototypeProps = {
+                    id: prototypeid,
                     code: data.code || "",
                     name: data.name || "",
                     description: data.description || "",
@@ -51,193 +48,287 @@ export default function PrototypeInner() {
                     editedAt: data.editedAt || [],
                     createdAt: data.createdAt,
                     checklists: data.checklists || [],
-                    id: prototypeid,
+                    projectId: data.projectId || "",
                 };
+
                 setPrototype(proto);
-                setOriginalChecklists(proto.checklists || []);
-                setSelectedChecklists(proto.checklists || []);
+
+                // setOriginalChecklists(data.checklists || []);
             }
+
             setLoading(false);
         }
 
         fetchData();
     }, [prototypeid]);
 
-    function updateField<K extends keyof PrototypeProps>(name: K, value: PrototypeProps[K]) {
-        setPrototype(prev => ({
-            ...prev,
-            [name]: value
-        }));
+    // ============================
+    // GENERIC FIELD UPDATE
+    // ============================
+    function updateField<K extends keyof PrototypeProps>(key: K, value: PrototypeProps[K]) {
+        if (!prototype) return;
+
+        setPrototype(prev => prev ? { ...prev, [key]: value } : prev);
     }
 
-    const handleChecklistUpdate = (updatedChecklist: Checklist) => {
-        setPrototype(prev => ({
-            ...prev,
-            checklists: prev.checklists!.map(cl => 
-                cl.id === updatedChecklist.id ? updatedChecklist : cl
-            )
-        }));
+    // ============================
+    // UPDATE CHECKLIST AFTER MODAL EDIT
+    // ============================
+    const handleChecklistUpdate = (updated: Checklist) => {
+        if (!prototype) return;
+
+        setPrototype(prev => {
+            if (!prev) return prev;
+
+            return {
+                ...prev,
+                checklists: prev.checklists!.map(cl =>
+                    cl.id === updated.id ? JSON.parse(JSON.stringify(updated)) : cl
+                )
+            };
+        });
     };
 
+    // ============================
+    // SAVE PROTOTYPE
+    // ============================
     async function handleSave(e: FormEvent) {
         e.preventDefault();
-        if (!prototype.id) return;
+        if (!prototype?.id) return;
 
-        // 1️⃣ Salva dados do protótipo
-        const result = await updatePrototype(prototype as PrototypeProps & { id: string });
-        if (!result) return;
-
-        // 2️⃣ Atualiza checklists do protótipo
-        const toAdd = selectedChecklists.filter(sc => !originalChecklists.some(oc => oc.id === sc.id));
-        const toRemove = originalChecklists.filter(oc => !selectedChecklists.some(sc => sc.id === oc.id));
-
-        for (const checklist of toAdd) {
-            await addChecklistToPrototype(prototype.id, checklist.id);
-        }
-        for (const checklist of toRemove) {
-            await deletePrototypeChecklist(prototype.id, checklist.id);
-        }
+        // Não existe mais lógica de toAdd/toRemove 
+        // pois checklists agora são ***embutidas***
+        await updatePrototype(prototype as PrototypeProps & { id: string });
 
         navigate(`/projects/${prototype.projectId}`);
     }
 
+    // ============================
+    // DELETE PROTOTYPE
+    // ============================
     async function handleDelete() {
-        if (!prototype.id) return;
+        if (!prototype?.id) return;
 
-        const confirmDelete = confirm("Tem certeza que deseja deletar este protótipo?");
-        if (!confirmDelete) return;
+        if (!confirm("Tem certeza que deseja deletar este protótipo?")) return;
 
         const result = await deletePrototype(prototype.id);
+
         if (result) {
             alert("Protótipo deletado com sucesso!");
             navigate(`/projects/${prototype.projectId}`);
         }
     }
 
-    if (loading) return <p>Carregando...</p>;
+    // ============================
+    // RENDER
+    // ============================
+    if (loading || !prototype) return <p>Carregando...</p>;
 
     return (
-        <div className="container-fluid d-flex flex-column align-items-center m-auto my-5 pt-5">
+        <Layout>
+
+        <div className="ps-5 pt-5 pb-0 pe-0" onClick={() => navigate(`/projects/${prototype.projectId}`)}>
+            <div className="text-link-custom d-flex gap-3 align-items-center" style={{ cursor: "pointer" }}>
+                <ArrowLeftCircleFill size={30} />
+                <p className="text-custom-black fs-5 mb-0">
+                    voltar
+                </p>
+            </div>
+        </div>
+
+        <div className="container-fluid d-flex flex-column align-items-center m-auto">
             <form onSubmit={handleSave}>
-                {/* --- Título --- */}
+
+                {/* Título */}
                 <div className="mb-5 d-flex align-items-center justify-content-between">
                     <div>
                         <p className='fs-5 mb-0 text-custom-red'>Edição</p>
                         <p className='text-custom-black display-6 fw-bold mb-1'>{prototype.name}</p>
                     </div>
-                    <div className="btn-custom">
-                        <XLg size={25} onClick={() => navigate(`/projects/${prototype.projectId}`)} />
-                    </div>
+                    
                 </div>
 
-                {/* --- Inputs principais --- */}
+                {/* Inputs principais */}
                 <div className="row">
                     <div className="col">
-                        <input type="text" placeholder='N° de série' className='form-control text-custom-black py-1 px-3 fs-5 border rounded-2'
-                            required value={prototype.code} onChange={(e) => updateField("code", e.target.value)} />
+                        <input
+                            type="text"
+                            placeholder='N° de série'
+                            className='form-control text-custom-black py-1 px-3 fs-5 border rounded-2'
+                            required
+                            value={prototype.code}
+                            onChange={e => updateField("code", e.target.value)}
+                        />
                     </div>
+
                     <div className="col">
-                        <input type="text" placeholder='Nome do protótipo' className='form-control text-custom-black py-1 px-3 fs-5 border rounded-2'
-                            required value={prototype.name} onChange={(e) => updateField("name", e.target.value)} />
+                        <input
+                            type="text"
+                            placeholder='Nome do protótipo'
+                            className='form-control text-custom-black py-1 px-3 fs-5 border rounded-2'
+                            required
+                            value={prototype.name}
+                            onChange={e => updateField("name", e.target.value)}
+                        />
                     </div>
                 </div>
 
-                {/* --- Radio status e vertical --- */}
+                {/* Radio etapa + vertical */}
                 <div className="row mt-4">
+
+                    {/* ETAPA */}
                     <div className="col">
                         <fieldset className="d-flex flex-column mt-5 p-3 align-items-start border rounded-2">
-                            <div className="d-flex py-1 px-3 align-items-start justify-content-center rounded-5 position-relative border bg-custom-gray00"
+
+                            <div className="d-flex py-1 px-3 rounded-5 position-relative border bg-custom-gray00"
                                 style={{ top: '-2.5rem' }}>
                                 <legend className='mb-0 text-white fs-5'>Etapa</legend>
                             </div>
-                            <div className="d-flex w-100 gap-3 align-items-start justify-content-center position-relative" style={{ top: '-0.75rem' }}>
+
+                            <div className="d-flex w-100 gap-3 align-items-start justify-content-center"
+                                style={{ top: '-0.75rem' }}>
                                 {["Fabricação", "Montagem", "Validação de campo"].map(s => (
                                     <label key={s} className="d-flex gap-2 form-check-label">
-                                        <input className='form-check-input' type="radio" name="status" value={s}
-                                            checked={prototype.stage === s} onChange={(e) => updateField("stage", e.target.value)} />
+                                        <input
+                                            className='form-check-input'
+                                            type="radio"
+                                            name="step"
+                                            value={s}
+                                            checked={prototype.stage === s}
+                                            onChange={e => updateField("stage", e.target.value)}
+                                        />
                                         {s}
                                     </label>
                                 ))}
                             </div>
+
                         </fieldset>
                     </div>
 
+                    {/* VERTICAL */}
                     <div className="col">
                         <fieldset className="d-flex flex-column mt-5 p-3 align-items-start border rounded-2">
-                            <div className="d-flex py-1 px-3 align-items-start justify-content-center rounded-5 position-relative border bg-custom-gray00"
+
+                            <div className="d-flex py-1 px-3 rounded-5 position-relative border bg-custom-gray00"
                                 style={{ top: '-2.5rem' }}>
                                 <legend className='mb-0 text-white fs-5'>Vertical</legend>
                             </div>
-                            <div className="d-flex w-100 gap-3 align-items-start justify-content-center position-relative" style={{ top: '-0.75rem' }}>
-                                {["Preparo", "Plantio", "Pulverização"].map(p => (
-                                    <label key={p} className="d-flex gap-2 form-check-label">
-                                        <input className='form-check-input' type="radio" name="vertical" value={p}
-                                            checked={prototype.vertical === p} onChange={(e) => updateField("vertical", e.target.value)} />
-                                        {p}
+
+                            <div className="d-flex w-100 gap-3 align-items-start justify-content-center"
+                                style={{ top: '-0.75rem' }}>
+                                {["Preparo", "Plantio", "Pulverização"].map(v => (
+                                    <label key={v} className="d-flex gap-2 form-check-label">
+                                        <input
+                                            className='form-check-input'
+                                            type="radio"
+                                            name="vertical"
+                                            value={v}
+                                            checked={prototype.vertical === v}
+                                            onChange={(e) => {
+                                                updateField("vertical", e.target.value);
+                                                updateField("checklists", []); // reset para não sobrar checklists inválidas
+                                            }}
+                                        />
+                                        {v}
                                     </label>
                                 ))}
                             </div>
+
                         </fieldset>
 
-                        <DisplayPrototypeChecklists checklists={prototype.checklists!} prototypeId={prototypeid!} onUpdate={handleChecklistUpdate} />
+                        <DisplayPrototypeChecklists
+                            prototypeId={prototype.id!}
+                            checklists={prototype.checklists || []}
+                            onUpdate={handleChecklistUpdate}
+                        />
+
                     </div>
 
                 </div>
 
-                {/* --- Inputs adicionais --- */}
+                {/* Inputs adicionais */}
                 <div className="row mt-4">
+
                     <div className="col d-flex flex-column gap-3">
-                        <select name="estado" className='form-select' value={prototype.state} onChange={(e) => updateField("state", e.target.value)}>
+                        <select
+                            className='form-select'
+                            value={prototype.state}
+                            onChange={e => updateField("state", e.target.value)}
+                        >
                             <option value="">Selecione...</option>
                             <option value="ES">ES</option>
                             <option value="MG">MG</option>
                             <option value="RJ">RJ</option>
                             <option value="SP">SP</option>
                         </select>
-                        
-                        <input 
-                            type="text" 
-                            placeholder='Cidade' 
+
+                        <input
+                            type="text"
+                            placeholder='Cidade'
                             className='text-custom-black py-1 px-3 fs-5 border rounded-2'
-                            value={prototype.city} 
-                            onChange={(e) => {
+                            value={prototype.city}
+                            onChange={e => {
                                 if (!prototype.state) {
                                     setCityError("Escolha um estado primeiro");
                                     return;
                                 }
                                 setCityError("");
                                 updateField("city", e.target.value);
-                            }} 
+                            }}
                         />
+
                         {cityError && <p style={{ color: "red" }}>{cityError}</p>}
 
-                        <input type="text" placeholder='Tamanho da área...' className='text-custom-black py-1 px-3 fs-5 border rounded-2'
-                            value={prototype.areaSize} onChange={(e) => updateField("areaSize", e.target.value)} />
+                        <input
+                            type="text"
+                            placeholder='Tamanho da área...'
+                            className='text-custom-black py-1 px-3 fs-5 border rounded-2'
+                            value={prototype.areaSize}
+                            onChange={e => updateField("areaSize", e.target.value)}
+                        />
                     </div>
+
                     <div className="col">
-                        <textarea className='form-control' rows={6} value={prototype.description} onChange={(e) => updateField("description", e.target.value)}></textarea>
+                        <textarea
+                            className='form-control'
+                            rows={6}
+                            value={prototype.description}
+                            onChange={e => updateField("description", e.target.value)}
+                        />
                     </div>
+
                 </div>
 
-                {/* --- Botões --- */}
+                {/* Botões */}
                 <div className="d-flex align-items-center justify-content-between mt-5">
-                    <button type="button" className='btn-custom btn-custom-outline-primary rounded-1 px-4' onClick={handleDelete}>
+
+                    <button
+                        type="button"
+                        className='btn-custom btn-custom-outline-primary rounded-1 px-4'
+                        onClick={handleDelete}
+                    >
                         Deletar
                     </button>
 
                     <ManageChecklistsModal
                         prototypeId={prototype.id!}
                         vertical={prototype.vertical}
-                        selectedChecklists={selectedChecklists}
+                        selectedChecklists={prototype.checklists || []}
+                        onUpdate={newList => updateField("checklists", newList)}
                         onClose={() => {}}
-                        onUpdate={(newList) => setSelectedChecklists(newList)}
                     />
 
-                    <button type="submit" className='btn-custom btn-custom-success rounded-1 px-4'>
+                    <button
+                        type="submit"
+                        className='btn-custom btn-custom-success rounded-1 px-4'
+                    >
                         Salvar
                     </button>
+
                 </div>
+
             </form>
         </div>
+        </Layout>
     );
 }

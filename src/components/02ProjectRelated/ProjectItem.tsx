@@ -1,7 +1,6 @@
 // ===== GERAL IMPORTS =====
-import { useParams } from "react-router"
-import { CaretUp } from "react-bootstrap-icons";
-import { CaretDown } from "react-bootstrap-icons";
+import { useNavigate, useParams } from "react-router"
+import { CaretUp, CaretDown, ArrowLeftCircleFill } from "react-bootstrap-icons";
 import React, { useEffect, useState } from "react";
 import Layuot from "../00Geral/Layout";
 import { db } from '../../firebaseConfig/config'
@@ -13,6 +12,7 @@ import type { PrototypeProps } from "../../services/prototypeServices2";
 export default function ProjectItem()
 {
     const { projectid } = useParams();
+    const navigate = useNavigate();
     const [ projectData, setProjectData ] = useState<PrototypeProps | null>(null);
     const [ render, setRender ] = useState<React.ReactNode>(<MainFrame2 projectId={projectid} />);
 
@@ -60,7 +60,16 @@ export default function ProjectItem()
 
     return(
         <Layuot>
-            <div className='p-5 mx-3'>
+            <div className="ps-5 pt-5 pb-0 pe-0" onClick={() => navigate(`/projects`)}>
+                <div className="text-link-custom d-flex gap-3 align-items-center" style={{ cursor: "pointer" }}>
+                    <ArrowLeftCircleFill size={30} />
+                    <p className="text-custom-black fs-5 mb-0">
+                        voltar
+                    </p>
+                </div>
+            </div>
+
+            <div className='py-3 px-5'>
                 {/* ----- Title div ----- */}
 
                 <div className="d-flex flex-column mb-3">

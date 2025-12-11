@@ -4,37 +4,80 @@ import EditChecklistModal from "./EditChecklistModal";
 import { Check2Circle } from "react-bootstrap-icons";
 
 interface Props {
-    checklists: Checklist[];
     prototypeId: string;
+    checklists: Checklist[];
     onUpdate: (updatedChecklist: Checklist) => void; // para atualizar a checklist no pai
 }
 
+// export default function DisplayPrototypeChecklists({ checklists, prototypeId, onUpdate }: Props) {
+//     const [selectedChecklist, setSelectedChecklist] = useState<Checklist | null>(null);
+
+//     return (
+//         <div className="d-flex flex-column gap-2 mt-2">
+//             {checklists.length === 0 && <p>Nenhuma checklist encontrada para este protótipo.</p>}
+
+//             {checklists.map((cl) => (
+//                 <button 
+//                     key={cl.id} 
+//                     onClick={() => setSelectedChecklist(cl)} type="button"
+//                     className="w-100 text-start py-2 px-3 border rounded-2 bg-light text-custom-black d-flex justify-content-between" 
+//                 >
+//                     {cl.name}
+//                     <Check2Circle size={25}/>
+//                 </button>
+//             ))}
+
+//             {selectedChecklist && (
+//                 <EditChecklistModal
+//                     prototypeId={prototypeId}
+//                     checklist={selectedChecklist}
+//                     onClose={() => setSelectedChecklist(null)}
+//                     onSave={(updatedChecklist) => {
+//                         onUpdate(updatedChecklist);
+//                         setSelectedChecklist(null);
+//                     }}
+//                 />
+//             )}
+//         </div>
+//     );
+// }
+
 export default function DisplayPrototypeChecklists({ checklists, prototypeId, onUpdate }: Props) {
-    const [selectedChecklist, setSelectedChecklist] = useState<Checklist | null>(null);
+  const [selectedChecklist, setSelectedChecklist] = useState<Checklist | null>(null);
 
-    return (
-        <div className="d-flex flex-column gap-2 mt-2">
-            {checklists.length === 0 && <p>Nenhuma checklist encontrada para este protótipo.</p>}
+  // Ao abrir, criamos uma cópia profunda para evitar mutações por referência
+  const openChecklist = (cl: Checklist) => {
+    const copy = JSON.parse(JSON.stringify(cl)) as Checklist;
+    setSelectedChecklist(copy);
+  };
 
-            {checklists.map((cl) => (
-                <button className="w-100 text-start py-2 px-3 border rounded-2 bg-light text-custom-black d-flex justify-content-between" 
-                    key={cl.id} onClick={() => setSelectedChecklist(cl)} type="button">
-                    {cl.name}
-                    <Check2Circle size={25}/>
-                </button>
-            ))}
+  return (
+    <div className="d-flex flex-column gap-2 mt-2">
+      {(!checklists || checklists.length === 0) && <p>Nenhuma checklist encontrada para este protótipo.</p>}
 
-            {selectedChecklist && (
-                <EditChecklistModal
-                    prototypeId={prototypeId}
-                    checklist={selectedChecklist}
-                    onClose={() => setSelectedChecklist(null)}
-                    onSave={(updatedChecklist) => {
-                        onUpdate(updatedChecklist);
-                        setSelectedChecklist(null);
-                    }}
-                />
-            )}
-        </div>
-    );
+      {checklists.map((cl) => (
+        <button
+          key={cl.id}
+          onClick={() => openChecklist(cl)}
+          type="button"
+          className="w-100 text-start py-2 px-3 border rounded-2 bg-light text-custom-black d-flex justify-content-between"
+        >
+          {cl.name}
+          <Check2Circle size={25} />
+        </button>
+      ))}
+
+      {selectedChecklist && (
+        <EditChecklistModal
+          prototypeId={prototypeId}
+          checklist={selectedChecklist}
+          onClose={() => setSelectedChecklist(null)}
+          onSave={(updatedChecklist) => {
+            onUpdate(updatedChecklist);
+            setSelectedChecklist(null);
+          }}
+        />
+      )}
+    </div>
+  );
 }

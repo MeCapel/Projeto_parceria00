@@ -8,6 +8,7 @@ export interface CheckboxItem {
 }
 
 export interface Categories {
+    id?: string,
     name: string,
     items: CheckboxItem[],
     newItemName?: string;
@@ -19,8 +20,8 @@ export interface Checklist {
     vertical: string,
     categories: Categories[],
     version: number,
-    originalModel?: string,
     createdAt: string;
+    originalModel?: string,
 }
 
 // ----- ESTA FUNÇÃO CRIA UM NOVA CHECKLISTS MODELO -----

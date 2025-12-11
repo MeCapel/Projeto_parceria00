@@ -1,10 +1,10 @@
 import { db } from '../firebaseConfig/config'
-import { addDoc, deleteDoc, collection, doc, getDoc, setDoc, serverTimestamp, onSnapshot, updateDoc, query, orderBy, getDocs, writeBatch, arrayUnion, where } from 'firebase/firestore'
+import { addDoc, deleteDoc, collection, doc, getDoc, setDoc, onSnapshot, updateDoc, query, orderBy, getDocs, writeBatch, arrayUnion, where } from 'firebase/firestore'
 import { getChecklistModel, type Categories, type CheckboxItem } from './checklistServices2';
 import type { Checklist } from './checklistServices2';
 
 export interface PrototypeProps {
-    id: string,
+    id?: string,
     projectId: string,
     code?: string,
     name: string,
@@ -14,9 +14,9 @@ export interface PrototypeProps {
     city?: string,
     areaSize?: string,
     vertical: string,
-    editedAt?: Date[],
-    createdAt?: Date,
-    checklistsIds?: string[],
+    editedAt?: string[],
+    createdAt?: string,
+    checklists?: Checklist[],
 }
 
 // ----- ESTA FUNÇÃO ADICIONA UM PROTÓTIPO A UM PROJETO EXISTENTE -----
@@ -28,7 +28,7 @@ export const addPrototypeToProject = async ( prototype: PrototypeProps & { id: s
         const docData = await setDoc(docRef, {
             prototypeName: prototype.name,
             // createdAt: new Date(),
-            createdAt: serverTimestamp(),
+            createdAt: new Date(),
         });
 
         return docData;
@@ -56,7 +56,7 @@ export const createPrototype = async ( prototype: PrototypeProps ) : Promise<str
             areaSize: prototype.areaSize,
             vertical: prototype.vertical,
             // createdAt: new Date(),
-            createdAt: serverTimestamp(),
+            createdAt: new Date(),
         });
 
         addPrototypeToProject({...prototype, id: docRef.id});
@@ -125,7 +125,6 @@ export const getPrototype = async (prototypeId: string) => {
         return null;
     }
 }
-
 
 export const listenPrototypesForProject = (
     projectId: string,
@@ -241,8 +240,10 @@ export const createChecklistInstance = async ( checklistModelId: string ) => {
         }
         
         const newCategories = checklistModel.categories.map((c: Categories) => ({
+            id: c.id,
             name: c.name,
             items: c.items.map((i: CheckboxItem) => ({
+                id: i.id,
                 label: i.label,
                 checked: false
             }))
@@ -306,7 +307,9 @@ export const toggleChecklistItems = async ( prototypeId: string, checklistId: st
             return null;
         }
 
-        await setDoc(docRef, newChecklist);
+        await updateDoc(docRef, {
+            categories: newChecklist.categories
+        });
 
         return true;
     }
@@ -316,6 +319,32 @@ export const toggleChecklistItems = async ( prototypeId: string, checklistId: st
         return null;
     }
 }
+
+export const findChecklistInstance = async (prototypeId: string, modelId: string) => {
+    const checklistsRef = collection(db, "prototypes", prototypeId, "checklists");
+    const q = query(checklistsRef, where("originalModel", "==", modelId));
+    const snap = await getDocs(q);
+
+    if (snap.empty) return null;
+
+    return { id: snap.docs[0].id, ...snap.docs[0].data() };
+}
+
+export const toggleChecklistSelection = async (prototypeId: string, modelId: string, checked: boolean) => {
+    const existing = await findChecklistInstance(prototypeId, modelId);
+
+    if (checked && !existing) {
+        // Adicionar (duplicar)
+        return await addChecklistToPrototype(prototypeId, modelId);
+    }
+
+    if (!checked && existing) {
+        // Remover
+        return await deletePrototypeChecklist(prototypeId, existing.id);
+    }
+
+    return null;
+};
 
 export const getChecklistProgress = async () => {
 

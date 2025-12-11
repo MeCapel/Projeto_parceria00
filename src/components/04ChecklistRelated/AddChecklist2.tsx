@@ -52,6 +52,7 @@ export default function AddChecklistModel() {
         if (!newCategoryName.trim()) return;
 
         const newCat: Categories = {
+            id: crypto.randomUUID(),
             name: newCategoryName.trim(),
             items: []
         };

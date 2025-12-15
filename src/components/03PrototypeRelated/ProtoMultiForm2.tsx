@@ -51,7 +51,7 @@ export default function ProtoMultiForm2({ projectId } : MultiFormProps) {
     const totalSteps = formSteps.length;
 
     const [currentStep, setCurrentStep] = useState(0);
-    const defaultValues: PrototypeProps = {
+    const defaultValues: PrototypeProps & { checklistsIds: string[] } = {
         projectId: projectId,
         code: "",
         name: "",
@@ -65,7 +65,7 @@ export default function ProtoMultiForm2({ projectId } : MultiFormProps) {
         createdAt: undefined,
         checklistsIds: [],
     }
-    const [formValues, setFormValues] = useState<PrototypeProps>(defaultValues);
+    const [formValues, setFormValues] = useState<PrototypeProps& { checklistsIds: string[] }>(defaultValues);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [show, setShow ] = useState(false);
     const openModal = () => setShow(true);

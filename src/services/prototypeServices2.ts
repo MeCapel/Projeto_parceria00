@@ -117,7 +117,7 @@ export const getPrototype = async (prototypeId: string) => {
 
         return {
             ...prototypeData,
-            checklists,   // ← adiciona as checklists ao protótipo
+            checklists,   
         };
     }
     catch (err) {
@@ -197,6 +197,53 @@ export const updatePrototype = async ( editedPrototype: PrototypeProps & { id: s
         return null;
     }
 }
+
+export const updatePrototypeChecklists = async (
+  prototypeId: string,
+  localChecklists: Checklist[]
+) => {
+  try {
+    const batch = writeBatch(db);
+
+    const colRef = collection(db, "prototypes", prototypeId, "checklists");
+    const snapshot = await getDocs(colRef);
+
+    // IDs que EXISTEM no banco
+    const remoteIds = snapshot.docs.map(d => d.id);
+
+    // IDs que DEVEM existir (estado local)
+    const localIds = localChecklists.map(cl => cl.id!).filter(Boolean);
+
+    remoteIds
+      .filter(id => !localIds.includes(id))
+      .forEach(id => {
+        batch.delete(doc(colRef, id));
+      });
+
+    localChecklists.forEach(cl => {
+      const ref = doc(colRef, cl.id!);
+
+      batch.set(
+        ref,
+        {
+          name: cl.name,
+          vertical: cl.vertical,
+          categories: cl.categories,
+          version: cl.version,
+          originalModel: cl.originalModel ?? null,
+          updatedAt: new Date(),
+        },
+        { merge: true }
+      );
+    });
+
+    await batch.commit();
+    return true;
+  } catch (err) {
+    console.error("Erro ao atualizar checklists:", err);
+    return false;
+  }
+};
 
 // ----- ESTA FUNÇÃO EXCLUI UM PROTÓTIPO ----- 
 export const deletePrototype = async ( prototypeId: string ) => {

@@ -5,11 +5,12 @@ import { useNavigate, useParams } from "react-router";
 import ManageChecklistsModal from "./ManageChecklists";
 import { useState, useEffect, type FormEvent } from "react";
 import { type Checklist } from "../../services/checklistServices2";
-import DisplayPrototypeChecklists from "../04ChecklistRelated/DisplayPrototypeCheklists";
+import DisplayPrototypeChecklists from "../04ChecklistRelated/DisplayPrototypeChecklists";
 import { getPrototype, 
          type PrototypeProps, 
          updatePrototype, 
-         deletePrototype } from '../../services/prototypeServices2';
+         deletePrototype, 
+         updatePrototypeChecklists} from '../../services/prototypeServices2';
 import Layout from "../00Geral/Layout";
 
 // =====  MAIN COMPONENT =====
@@ -25,9 +26,8 @@ export default function PrototypeInner() {
 
     const [prototype, setPrototype] = useState<PrototypeProps | null>(null);
 
-    // ============================
-    // LOAD PROTOTYPE
-    // ============================
+    // ===== FETCH PROTOTYPE DATA =====
+
     useEffect(() => {
         if (!prototypeid) return;
 
@@ -62,18 +62,34 @@ export default function PrototypeInner() {
         fetchData();
     }, [prototypeid]);
 
-    // ============================
-    // GENERIC FIELD UPDATE
-    // ============================
+    function resetChecklists()
+    {
+        setPrototype(prev => {
+            if (!prev) return prev;
+
+            return {
+                ...prev,
+                checklists: [], // ou null, mas array vazio é melhor
+            };
+        });
+    }
+
+    // ===== GENERIC FIELD UPDATE =====
+
     function updateField<K extends keyof PrototypeProps>(key: K, value: PrototypeProps[K]) {
         if (!prototype) return;
+        if (key == "id") return;
+
+        if (key == "vertical" && value !== prototype.vertical)
+        {
+            resetChecklists();
+        }
 
         setPrototype(prev => prev ? { ...prev, [key]: value } : prev);
     }
 
-    // ============================
-    // UPDATE CHECKLIST AFTER MODAL EDIT
-    // ============================
+    // ===== UPDATE CHECKLIST AFTER MODAL EDIT =====
+
     const handleChecklistUpdate = (updated: Checklist) => {
         if (!prototype) return;
 
@@ -83,29 +99,39 @@ export default function PrototypeInner() {
             return {
                 ...prev,
                 checklists: prev.checklists!.map(cl =>
-                    cl.id === updated.id ? JSON.parse(JSON.stringify(updated)) : cl
+                    cl.id === updated.id ? updated : cl
                 )
             };
         });
     };
 
-    // ============================
-    // SAVE PROTOTYPE
-    // ============================
+    // ===== SAVE PROTOTYPE =====
+
     async function handleSave(e: FormEvent) {
         e.preventDefault();
         if (!prototype?.id) return;
 
-        // Não existe mais lógica de toAdd/toRemove 
-        // pois checklists agora são ***embutidas***
-        await updatePrototype(prototype as PrototypeProps & { id: string });
+        try
+        {
+            await updatePrototype(prototype as PrototypeProps & { id: string });
 
-        navigate(`/projects/${prototype.projectId}`);
+            await updatePrototypeChecklists(
+                prototype.id,
+                prototype.checklists ?? []
+            );
+
+            navigate(`/projects/${prototype.projectId}`);
+        }
+        catch (err)
+        {
+            console.error("Erro ao salvar o protótipo: " + err);
+            return;
+        }
+
     }
 
-    // ============================
-    // DELETE PROTOTYPE
-    // ============================
+    // ===== DELETE PROTOTYPE =====
+
     async function handleDelete() {
         if (!prototype?.id) return;
 
@@ -119,9 +145,8 @@ export default function PrototypeInner() {
         }
     }
 
-    // ============================
-    // RENDER
-    // ============================
+    // ===== LOADING MESSAGE =====
+
     if (loading || !prototype) return <p>Carregando...</p>;
 
     return (
@@ -236,6 +261,7 @@ export default function PrototypeInner() {
 
                         </fieldset>
 
+                        {/* ====== Show all checklists related to the prototype and let click on them to display its items ===== */}
                         <DisplayPrototypeChecklists
                             prototypeId={prototype.id!}
                             checklists={prototype.checklists || []}
@@ -311,7 +337,6 @@ export default function PrototypeInner() {
                     </button>
 
                     <ManageChecklistsModal
-                        prototypeId={prototype.id!}
                         vertical={prototype.vertical}
                         selectedChecklists={prototype.checklists || []}
                         onUpdate={newList => updateField("checklists", newList)}

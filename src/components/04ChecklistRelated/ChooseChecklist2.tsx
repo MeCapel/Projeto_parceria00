@@ -3,14 +3,14 @@ import { getChecklistsModelByP, type Checklist } from "../../services/checklistS
 
 interface Props {
     vertical: string;
-    onValueChange: (values: string[]) => void;
-    initialSelectedIds?: string[]; // opcional
+    initialSelectedIds?: string[];
+    onValueChange: (ids: string[], checklists: Checklist[]) => void;
 }
 
 export default function ChooseChecklists({ vertical, onValueChange, initialSelectedIds }: Props) {
+    const [loading, setLoading] = useState(true);
     const [data, setData] = useState<Checklist[]>([]);
     const [selectedIds, setSelectedIds] = useState<string[]>(initialSelectedIds || []);
-    const [loading, setLoading] = useState(true);
 
     // Atualiza selectedIds se initialSelectedIds mudar
     useEffect(() => {
@@ -26,8 +26,11 @@ export default function ChooseChecklists({ vertical, onValueChange, initialSelec
 
     // Sincroniza com o componente pai
     useEffect(() => {
-        onValueChange(selectedIds);
-    }, [selectedIds, onValueChange]);
+        onValueChange(
+            selectedIds,
+            data.filter(m => selectedIds.includes(m.id!))
+        );
+    }, [selectedIds, data]);
 
     // Busca checklists sempre que a vertical muda
     useEffect(() => {
@@ -42,6 +45,7 @@ export default function ChooseChecklists({ vertical, onValueChange, initialSelec
                 setLoading(false);
             }
         };
+
         fetchData();
     }, [vertical]);
 
@@ -61,11 +65,11 @@ export default function ChooseChecklists({ vertical, onValueChange, initialSelec
                     {data.map(item => (
                         <li key={item.id} className="d-flex gap-3 align-items-center">
                             <input
-                                className="form-check-input"
-                                type="checkbox"
                                 id={item.id}
-                                checked={selectedIds.includes(item.id!)}
+                                type="checkbox"
+                                className="form-check-input"
                                 onChange={() => handleToggle(item.id!)}
+                                checked={selectedIds.includes(item.id!)}
                             />
                             <label htmlFor={item.id} className="form-check-label">{item.name}</label>
                         </li>

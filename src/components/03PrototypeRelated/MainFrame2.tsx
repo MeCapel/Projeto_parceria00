@@ -4,7 +4,7 @@ import { PencilSquare } from "react-bootstrap-icons";
 import { listenPrototypesForProject } from "../../services/prototypeServices2";
 
 interface MainFrameProps {
-    projectId?: string;
+    projectId: string;
 }
 
 export default function MainFrame({ projectId } : MainFrameProps)
@@ -13,7 +13,7 @@ export default function MainFrame({ projectId } : MainFrameProps)
     const [ loading, setLoading ] = useState(true);
     const navigate = useNavigate();
 
-    const fields = [ "Nome", "Descrição", "Status", "Qual é o P?"];
+    const fields = [ "Nome", "Descrição", "Etapa", "Vertical"];
 
     useEffect(() => {
         if (!projectId) return;
@@ -22,7 +22,7 @@ export default function MainFrame({ projectId } : MainFrameProps)
 
         // Inicia o listener em tempo real
         const unsubscribe = listenPrototypesForProject(projectId, (data) => {
-            setPrototypesList(data); // sempre atualiza ao mudar no Firestore
+            setPrototypesList(data);
             setLoading(false);
         });
 
@@ -69,12 +69,6 @@ export default function MainFrame({ projectId } : MainFrameProps)
                         </tr>
                     ))}
                 </tbody>
-                {/* {prototypesList.map((item) => (
-                    <li key={item.id}>
-                        <strong>{item.name}</strong> - {item.status}
-                        <p>{item.description}</p>
-                    </li>
-                ))} */}
             </table>
         </>
     )

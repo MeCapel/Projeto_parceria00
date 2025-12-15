@@ -20,7 +20,7 @@ export default function DisplayPrototypeChecklists({ checklists, prototypeId, on
 
   return (
     <div className="d-flex flex-column gap-2 mt-2">
-      {(!checklists || checklists.length === 0) && <p>Nenhuma checklist encontrada para este protótipo.</p>}
+      {(!checklists || checklists.length === 0) && <p>Nenhuma checklist encontrada.</p>}
 
       {/* ===== Card to navigate inner prototype checklists and display all items to check or uncheck ===== */}
       {checklists.map((cl) => (

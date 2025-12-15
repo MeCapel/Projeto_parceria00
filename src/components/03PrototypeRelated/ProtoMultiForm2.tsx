@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { useState, type FormEvent } from "react";
 import type { PrototypeProps } from '../../services/prototypeServices2';
 import { createPrototype, addChecklistToPrototype  } from "../../services/prototypeServices2";
+import StepTracker from './Steps/StepTracker';
 
 import Step1 from "./Steps/Step1";
 import Step2 from "./Steps/Step2";
@@ -29,7 +30,7 @@ export default function ProtoMultiForm2({ projectId } : MultiFormProps) {
             { name: "name", label: "Nome", required: true },
             { name: "description", label: "Descrição", required: true },
         ],
-        component: Step1
+        component: Step1,
         },
         {
         fields: [
@@ -38,16 +39,17 @@ export default function ProtoMultiForm2({ projectId } : MultiFormProps) {
             { name: "city", label: "Cidade", required: false },
             { name: "areaSize", label: "Tamanho da área", required: false },
         ],
-        component: Step2
+        component: Step2,
         },
         {
         fields: [
             { name: "vertical", label: "Vertical", required: true },
         ],
-        component: Step3
+        component: Step3,
         }
     ];
 
+    const stepsLabels = [ "Geral", "Local", "Requisitos"];
     const totalSteps = formSteps.length;
 
     const [currentStep, setCurrentStep] = useState(0);
@@ -167,12 +169,14 @@ export default function ProtoMultiForm2({ projectId } : MultiFormProps) {
     return (
         <>
             <button className="btn-custom btn-custom-primary" onClick={openModal}>
-                        <p className="mb-0 fs-5 text-custom-white">Novo protótipo 2</p>
+                        <p className="mb-0 fs-5 text-custom-white">Novo protótipo</p>
             </button>
 
             <Modal show={show} onHide={closeModal} dialogClassName="modal-fullscreen" className="p-0">
                 <Modal.Header closeButton className="mb-0 mx-5 border-0 my-3" />
                 <Modal.Body className="d-flex flex-column align-items-center justify-content-center">
+
+                    <StepTracker currentStep={currentStep} stepsList={stepsLabels} totalSteps={totalSteps}/>
 
                     <form onSubmit={handleSubmit}>
 

@@ -141,7 +141,7 @@ export const listenPrototypesForProject = (
                 ...doc.data()
             }));
 
-            callback(results); // envia os dados atualizados
+            callback(results);
         },
         (error) => {
             console.error("Erro ao ouvir protótipos:", error);
@@ -149,7 +149,60 @@ export const listenPrototypesForProject = (
         }
     );
 
-    return unsubscribe; // necessário para parar o listener
+    return unsubscribe;
+};
+
+export const listenPrototypesForProjectWProgress = (
+    projectId: string,
+    callback: (data: PrototypeProps[]) => void
+) => {
+    const prototypesRef = collection(db, "prototypes");
+    const q = query(prototypesRef, where("projectId", "==", projectId));
+
+    const unsubscribes: (() => void)[] = [];
+
+    const unsubscribePrototypes = onSnapshot(q, async (snapshot) => {
+        const prototypes: PrototypeProps[] = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...(doc.data() as PrototypeProps),
+            checklists: [],
+        }));
+
+        // limpa listeners antigos
+        unsubscribes.forEach(unsub => unsub());
+        unsubscribes.length = 0;
+
+        prototypes.forEach((prototype, index) => {
+            const checklistsRef = collection(
+                db,
+                "prototypes",
+                prototype.id!,
+                "checklists"
+            );
+
+            const unsubscribeChecklists = onSnapshot(checklistsRef, (snap) => {
+                const checklists = snap.docs.map(doc => ({
+                    id: doc.id,
+                    ...(doc.data() as Checklist),
+                }));
+
+                prototypes[index] = {
+                    ...prototype,
+                    checklists,
+                };
+
+                // 🔥 força nova referência
+                callback([...prototypes]);
+            });
+
+            unsubscribes.push(unsubscribeChecklists);
+        });
+    });
+
+    return () => {
+        unsubscribePrototypes();
+        unsubscribes.forEach(unsub => unsub());
+    };
 };
 
 // ----- ESTA FUNÇÃO PEGA OS DADOS DE TODOS OS PROTÓTIPOS -----

@@ -29,10 +29,13 @@ export default function PrototypeInner() {
     // ===== FETCH PROTOTYPE DATA =====
 
     useEffect(() => {
-        if (!prototypeid) return;
+        if (!prototypeid) 
+        {
+            return;
+        }
 
         async function fetchData() {
-            const data: PrototypeProps = await getPrototype(prototypeid!);
+            const data: any = await getPrototype(prototypeid!);
 
             if (data) {
                 const proto: PrototypeProps = {

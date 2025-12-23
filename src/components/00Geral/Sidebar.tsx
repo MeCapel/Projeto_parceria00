@@ -9,7 +9,7 @@ interface SidebarProps {
 export default function Sidebar({ onWidthChange } : SidebarProps)
 {
     const [ isCollapsed, setIsCollapsed ] = useState(false); 
-    const [ isHovered, setIsHovered ] = useState(false); 
+    // const [ isHovered, setIsHovered ] = useState(false); 
 
     const navRef = useRef<HTMLElement | null>(null);
 
@@ -53,10 +53,9 @@ export default function Sidebar({ onWidthChange } : SidebarProps)
 
     return(
         <nav ref={navRef} className="position-fixed border-end border-secondary-subtle vh-100 d-flex flex-column" 
-            style={{ transition: 'width 0.3s ease', width: isCollapsed ? '275px' : '100px'}}
-            onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+            style={{ transition: 'width 0.3s ease', width: isCollapsed ? '275px' : '100px'}}>
 
-            <ul className="d-flex flex-column gap-3 px-3 list-unstyled py-0 m-0 flex-grow-1">
+            <ul className="d-flex flex-column gap-3 px-3 list-unstyled py-0 m-0 grow">
 
                 {/* Header Logo */}
                 <div style={{ width: '100%', transition: 'all 0.5s ease' }} className={`d-flex align-items-center gap-4 pt-3

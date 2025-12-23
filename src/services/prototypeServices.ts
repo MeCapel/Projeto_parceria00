@@ -104,7 +104,7 @@ export const getPrototype = async (prototypeId: string) => {
         }
 
         // Dados principais do protótipo
-        const prototypeData = { id: prototypeSnap.id, ...prototypeSnap.data() };
+        const prototypeData = { id: prototypeSnap.id, ...prototypeSnap.data() } as PrototypeProps;
 
         // Agora busca a subcoleção "checklists"
         const checklistRef = collection(db, "prototypes", prototypeId, "checklists");

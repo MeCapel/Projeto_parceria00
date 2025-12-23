@@ -61,7 +61,7 @@ export default function Step2({ values, errors, onChange }: StepProps) {
                 </div>
 
                 <input type="number" placeholder='Tamanho da área (em km²)' className='text-custom-black py-1 px-3 fs-5 border rounded-2' 
-                        onChange={e => onChange("areaSize", e.target.value)} value={values.area} maxLength={10} />
+                        onChange={e => onChange("areaSize", e.target.value)} value={values.areaSize} maxLength={10} />
                 {errors.areaSize && <p style={{ color: "red" }}>{errors.areaSize}</p>}
             </div>
         )}

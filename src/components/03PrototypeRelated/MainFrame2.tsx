@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router";
 import { PencilSquare } from "react-bootstrap-icons";
-import { listenPrototypesForProject } from "../../services/prototypeServices2";
+import { listenPrototypesForProject } from "../../services/prototypeServices";
 
 interface MainFrameProps {
     projectId: string;

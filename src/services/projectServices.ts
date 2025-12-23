@@ -2,7 +2,7 @@ import { toast } from "react-toastify";
 import { db } from '../firebaseConfig/config'
 import { addDoc, deleteDoc, collection, doc, getDoc, getDocs, updateDoc, onSnapshot, setDoc, query, where } from 'firebase/firestore'
 import { getCurrentUser } from "./authService";
-import type { PrototypeProps } from "./prototypeServices2";
+import { deletePrototype, type PrototypeProps } from "./prototypeServices";
 
 // ----- PROJECT RELATED FUNCTIONS -----
 
@@ -150,9 +150,11 @@ export const deleteProjectNPrototypes = async (projectId: string) => {
         {
             const deletePromises = prototypesSnap.docs.map(async (d) => {
                 const prototypeId = d.id;
-                
-                const prototypeRef = doc(db, "prototypes", prototypeId);
-                await deleteDoc(prototypeRef);
+
+                // const prototypeRef = doc(db, "prototypes", prototypeId);
+                // await deleteDoc(prototypeRef);
+
+                await deletePrototype(prototypeId);
             });
             
             await Promise.all(deletePromises);

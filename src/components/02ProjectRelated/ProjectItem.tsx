@@ -7,7 +7,7 @@ import { db } from '../../firebaseConfig/config'
 import { doc, onSnapshot } from 'firebase/firestore'
 import MainFrame2 from "../03PrototypeRelated/MainFrame2";
 import ProtoMultiForm2 from "../03PrototypeRelated/ProtoMultiForm2";
-import { type PrototypeProps } from "../../services/prototypeServices2";
+import { type PrototypeProps } from "../../services/prototypeServices";
 import DividedByProgress from "./DividedByProgress";
 
 export default function ProjectItem()

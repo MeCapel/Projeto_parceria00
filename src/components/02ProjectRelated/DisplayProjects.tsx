@@ -7,7 +7,7 @@ import MembersCircles from './MembersCircles'
 import NewProjectModal from './NewProjectModal'
 import { getCurrentUser } from '../../services/authService'
 import { getUserProjects } from '../../services/projectServices'
-import type { PrototypeProps } from '../../services/prototypeServices2'
+import type { PrototypeProps } from '../../services/prototypeServices'
 
 // ===== PROPS =====
 

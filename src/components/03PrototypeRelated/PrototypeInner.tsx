@@ -10,7 +10,7 @@ import { getPrototype,
          type PrototypeProps, 
          updatePrototype, 
          deletePrototype, 
-         updatePrototypeChecklists} from '../../services/prototypeServices2';
+         updatePrototypeChecklists} from '../../services/prototypeServices';
 import Layout from "../00Geral/Layout";
 
 // =====  MAIN COMPONENT =====

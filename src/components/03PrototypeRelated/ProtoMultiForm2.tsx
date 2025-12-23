@@ -1,8 +1,8 @@
 import Modal from 'react-bootstrap/Modal';
 import { useNavigate } from "react-router";
 import { useState, type FormEvent } from "react";
-import type { PrototypeProps } from '../../services/prototypeServices2';
-import { createPrototype, addChecklistToPrototype  } from "../../services/prototypeServices2";
+import type { PrototypeProps } from '../../services/prototypeServices';
+import { createPrototype, addChecklistToPrototype  } from "../../services/prototypeServices";
 import StepTracker from './Steps/StepTracker';
 
 import Step1 from "./Steps/Step1";

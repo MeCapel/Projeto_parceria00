@@ -62,7 +62,7 @@ export default function DisplayChecklistsModel({ inline }: Props) {
 
                             {data.length === 0 && <p>Nenhum modelo encontrado.</p>}
 
-                            {data.map(item => (
+                            {data.slice(0, 5).map(item => (
                                 <div key={item.id}>
                                     <ChecklistCard  
                                         checklistId={item.id!}

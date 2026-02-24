@@ -70,9 +70,10 @@ export default function DisplayProjects({ displayAll } : Props)
                             </p>
                             <p className='mb-0 text-custom-black fs-1 fw-bold'>Visitados recentemente</p>
                         </div>
-                        <div className="d-flex align-items-start justify-content-end col-2">
-                            <Link to={"/projects"} >
-                                <p className='mb-0 fs-5 text-custom-black'><u>Ver todos</u></p>
+                        <div className="d-flex align-items-start justify-content-end col-2 gap-3">
+                            <NewProjectModal />
+                            <Link to={"/projects"} className='btn-custom btn-custom-primary text-decoration-none'>
+                                <p className='mb-0 text-custom-white p-1'>Ver todos</p>
                             </Link>
                         </div>
                     </>

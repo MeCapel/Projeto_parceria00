@@ -2,6 +2,7 @@
 import { useState, useRef } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import { useNavigate } from 'react-router';
+import { PlusLg } from "react-bootstrap-icons";
 import { getCurrentUser } from '../../services/authService';
 import { createProject } from '../../services/projectServices';
 
@@ -71,7 +72,9 @@ export default function NewProjectModal()
     return(
         <>
             <button className='btn-custom btn-custom-primary' onClick={openModal} >
-                <p className='mb-0 fs-5 text-custom-white'>Novo projeto</p>
+                <p className='mb-0 fs-5 text-custom-white'>
+                    <PlusLg size={30} />
+                </p>
             </button>
 
             <Modal show={show} onHide={closeModal} dialogClassName="" centered className='p-0' size="lg">

@@ -1,153 +1,171 @@
-import Layout from '../components/00Geral/Layout'
-
 import { Modal } from 'react-bootstrap'
 import { PencilSquare } from 'react-bootstrap-icons'
+import { toast } from 'react-toastify'
 
 import { useNavigate } from 'react-router'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useContext } from 'react'
 
 import { doc, getDoc } from 'firebase/firestore'
-import { db, auth } from '../firebaseConfig/config'
+import { db } from '../firebaseConfig/config'
 import { updateAccount, type EditUserData } from '../services/authService'
+import { AuthContext } from '../context/AuthContext'
 
 export default function Profile()
 {
+    const { user, loading } = useContext(AuthContext);
     const [ userData, setUserData ] = useState<EditUserData | null>(null);
     const [ show, setShow ] = useState<boolean>(false);
     const [ newUsername, setNewUsername ] = useState("");
     
     const navigate = useNavigate();
 
-    const openModal = () => setShow(true);
+    const openModal = () => {
+        setNewUsername(userData?.username || "");
+        setShow(true);
+    };
     const closeModal = useCallback(() => {setShow(false)}, []);
 
     const handleSubmit = async (e: React.FormEvent ) => {
         e.preventDefault();
 
-        if (!userData) return;
-        if (!newUsername) return;
+        // Se não tiver usuário logado ou nome vazio, não faz nada
+        if (!user || !newUsername.trim()) {
+            toast.error("❌ Dados inválidos para atualização.");
+            return;
+        }
 
         try
         {
-            await updateAccount( {
-                userId: userData.userId, 
+            // Usamos o UID direto do contexto para garantir o salvamento no documento certo
+            await updateAccount({
+                userId: user.uid, 
                 username: newUsername, 
-                email: userData.email 
+                email: user.email || "" 
             });
+            
+            // Atualiza o estado local para a UI refletir a mudança
+            if (userData) {
+                setUserData({ ...userData, username: newUsername });
+            } else {
+                setUserData({ userId: user.uid, username: newUsername, email: user.email || "" });
+            }
+
+            toast.success("✅ Perfil atualizado com sucesso!");
             closeModal();
         }
         catch (err)
         {
             console.error(err);
+            toast.error("❌ Erro ao salvar alterações.");
         }
     };
 
+    // Busca os dados do Firestore baseados no usuário do contexto
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(async (user) => {
-            
-            if (userData?.email === user?.email) return;
+        if (loading) return;
 
-            if (!user)
-            {
-                console.log("User not logged in!");
-                navigate("/login");
-                return;
+        if (!user) {
+            navigate("/login");
+            return;
+        }
+
+        const fetchUserData = async () => {
+            try {
+                const docRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    setUserData({ 
+                        userId: user.uid,
+                        username: data.username || "",
+                        email: data.email || user.email || ""
+                    });
+                    setNewUsername(data.username || "");
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
             }
+        };
 
-            const docRef = doc(db, "users", user.uid);
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-                const data = docSnap.data() as EditUserData;
-                setUserData({ ...data, userId: user.uid });
-                setNewUsername(data.username);
-}
-            else 
-            {
-                console.log("No user document found!");
-            }
-            
-        });
-
-
-        return () => unsubscribe();
-    }, [navigate, userData]);
+        fetchUserData();
+    }, [user, loading, navigate]);
 
     useEffect(() => {
         const header = document.querySelector('.showOrHide') as HTMLElement | null;
-
         if (!header) return;
-
         header.classList.toggle("hidden-header", show);
     }, [show]);
 
+    if (loading) return <div className="p-5">Carregando perfil...</div>;
 
     return(
-        <Layout>
-            <div className="container-fluid d-flex justify-content-center my-5" style={{ }}>
-                <div className="bg-light rounded-3 border">
-                    <div className="rounded-3" style={{ backgroundImage: 'url(/fromBrand/background-pattern.png)', height: "15rem" }}></div>
-                    <div className="d-flex align-items-center justify-content-center rounded-circle position-relative ms-5" 
-                            style={{ height: "150px", width: "150px", top: "-80px", background: "var(--gray02)" }}>
-                        {/* <img src="/vite.svg" alt="" className='img-fluid'/> */}
-                    </div>
-                    <div className="my-4 mx-5 d-flex flex-column gap-3 position-relative" style={{ top: "-75px" }}>
-                        <div className="d-flex gap-3 align-items-center justify-content-between">
-                            <h2 className='text-cusstom-black mb-2'>{userData?.username}</h2>
-                            <span className="fs-3 text-custom-black">-</span>
-                            <p className="mb-0 text-custom-black fs-5">Papel da pessoa</p>
-
-                            <button className="ms-5 btn-custom btn-custom-primary d-flex gap-3 align-items-center justify-content-between"
-                                    onClick={openModal}>
-                                <PencilSquare size={20}/>
-                                <p className="mb-0">Editar perfil</p>
-                            </button>
+        <>
+            <div className="container-fluid d-flex justify-content-center my-5">
+                <div className="bg-light rounded-3 border w-100" style={{ maxWidth: "800px" }}>
+                    <div className="rounded-top-3" style={{ backgroundImage: 'url(/fromBrand/background-pattern.png)', height: "15rem", backgroundSize: "cover" }}></div>
+                    
+                    <div className="px-5 pb-5">
+                        <div className="d-flex align-items-center justify-content-center rounded-circle shadow-sm border bg-white position-relative" 
+                                style={{ height: "150px", width: "150px", top: "-75px" }}>
+                             <PencilSquare size={40} className="text-muted" />
                         </div>
-                        <div className="">
-                            <p className="text-custom-black fs-5">{userData?.email}</p>
+                        
+                        <div className="position-relative" style={{ top: "-50px" }}>
+                            <div className="d-flex flex-wrap gap-3 align-items-center justify-content-between mb-4">
+                                <div>
+                                    <h2 className='text-custom-black fw-bold mb-0'>{userData?.username || "Usuário"}</h2>
+                                    <p className="text-muted fs-5 mb-0">Colaborador</p>
+                                </div>
+
+                                <button className="btn-custom btn-custom-primary d-flex gap-2 align-items-center px-4"
+                                        onClick={openModal}>
+                                    <PencilSquare size={18}/>
+                                    <span>Editar perfil</span>
+                                </button>
+                            </div>
+                            
+                            <div className="border-top pt-4">
+                                <p className="text-custom-black fs-5">
+                                    <strong>Email:</strong> {user?.email}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <Modal show={show} onHide={closeModal} className='p-0'>
-                    <Modal.Header closeButton className="mb-0 mx-5 border-0 my-3"></Modal.Header>
-                    <Modal.Body className="mx-5">
-
-                        <form className='' onSubmit={handleSubmit}>
-
-                            {/* --- Title div --- */}
-                            <div className="">
-                                <p className='fs-5 mb-0 text-custom-red'>Editar</p>
-                                <p className='text-custom-black display-6 fw-bold mb-1'>Perfil: {userData?.username}</p>
-                                <p className='text-custom-black'>*Campos obrigatórios</p>
+                <Modal show={show} onHide={closeModal} centered>
+                    <Modal.Header closeButton className="border-0 px-4 pt-4"></Modal.Header>
+                    <Modal.Body className="px-5 pb-5 pt-0">
+                        <form onSubmit={handleSubmit}>
+                            <div className="mb-4">
+                                <p className='fs-6 mb-1 text-custom-red fw-bold'>GERENCIAMENTO</p>
+                                <h2 className='text-custom-black fw-bold'>Editar Perfil</h2>
+                                <p className='text-muted small'>Atualize suas informações de conta.</p>
                             </div>
 
-                            {/* --- 🔵 Photo div --- */}
-                            <div className="d-flex align-items-center">
-                                <div className="d-flex align-items-center justify-content-center rounded-circle" 
-                                    style={{ width: '70px', height: '70px', overflow: 'hidden', backgroundColor: 'var(--red02)' }}>
-                                    <img src="/vite.svg" alt="Ícone do projeto" />
+                            <div className="d-flex flex-column gap-3 mb-4">
+                                <div className="form-group">
+                                    <label className="mb-2 text-custom-black fw-semibold">Nome de usuário</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder='Insira seu nome...' 
+                                        className='form-control py-2 px-3 border' 
+                                        required 
+                                        onChange={(e) => setNewUsername(e.target.value)} 
+                                        value={newUsername} 
+                                    />
                                 </div>
-                                <p className='mb-0 mx-4 text-custom-black'>Adicionar foto</p>
                             </div>
 
-                            {/* --- 🔵 Inputs div --- */}
-                            <div className="d-flex flex-column my-4 gap-3">
-                                <input type="text" placeholder='Insira o seu novo nome...' className='form-control text-custom-black py-1 px-3 fs-5 border rounded-2' 
-                                    required onChange={(e) => setNewUsername(e.target.value)} value={newUsername} />
-                                {/* <input type="text" placeholder='Insira o seu email...' className='form-control text-custom-black py-1 px-3 fs-5 border rounded-2' 
-                                    required onChange={(e) => setNewEmail(e.target.value)} value={userData?.email} /> */}
+                            <div className="d-flex align-items-center justify-content-end gap-2 mt-5">
+                                <button className='btn btn-light px-4' type='button' onClick={closeModal}>Cancelar</button>
+                                <button className='btn btn-danger px-4' type='submit'>Salvar Alterações</button>
                             </div>
-
-                            {/* --- 🔵 Button div --- */}
-                            <div className="d-flex align-items-center justify-content-between my-5">
-                                <button className='btn-custom btn-custom-secondary rounded-1 px-4' type='button' onClick={() => navigate("/profile")}>Voltar</button>
-                                <button className='btn-custom btn-custom-success rounded-1 px-4' type='submit'>Salvar</button>
-                            </div>
-                            </form>
+                        </form>
                     </Modal.Body>
                 </Modal>
             </div>
-        </Layout>
+        </>
     )
 }

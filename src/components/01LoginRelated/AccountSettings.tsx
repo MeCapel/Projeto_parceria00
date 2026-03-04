@@ -1,10 +1,11 @@
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { doc, getDoc } from 'firebase/firestore'
 import { Logout } from "../../services/authService";
-import { auth, db } from "../../firebaseConfig/config";
+import { db } from "../../firebaseConfig/config";
 import { PersonCircle, BoxArrowRight, PersonAdd, InfoCircle } from "react-bootstrap-icons";
+import { AuthContext } from "../../context/AuthContext";
 
 interface AccountSettingsProps {
     isOpen: boolean;
@@ -13,28 +14,20 @@ interface AccountSettingsProps {
 }
 
 interface UserData {
-    userName: string;
+    username: string; // Corrigido para bater com o Firestore
     email: string;
 }
 
-export default function Notifications({ isOpen, onOpen, onClose } : AccountSettingsProps)
+export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSettingsProps)
 {
+    const { user, loading } = useContext(AuthContext);
     const [ userData, setUserData ] = useState<UserData | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(async (user) => {
-            
-            if (userData?.email === user?.email) return;
+        if (loading || !user) return;
 
-            if (!user)
-            {
-                console.log("User not logged in!");
-                setUserData(null);
-                navigate("/login");
-                return;
-            }
-
+        const fetchUserData = async () => {
             try 
             {
                 const docRef = doc(db, "users", user.uid);
@@ -42,76 +35,108 @@ export default function Notifications({ isOpen, onOpen, onClose } : AccountSetti
                 
                 if (docSnap.exists())
                 {
-                    setUserData(docSnap.data() as UserData);
-                    console.log("Fetched user data: ", docSnap.data());
-                }
-                else 
-                {
-                    console.log("No user document found!");
+                    const data = docSnap.data();
+                    setUserData({
+                        username: data.username || "",
+                        email: data.email || user.email || ""
+                    });
                 }
             }
             catch (error)
             {
                 console.error("Error fetching user: ", error);
             }
-        });
+        };
 
-
-        return () => unsubscribe();
-    }, [navigate, userData?.email]);
+        fetchUserData();
+    }, [user, loading, isOpen]); // Busca sempre que abrir o menu ou mudar o usuário
 
     return(
         <div className="d-flex justify-content-center">
-            <button className={ isOpen ? "d-flex align-items-center btn-custom btn-custom-outline-primary" : "d-flex align-items-center text-custom-black btn-custom" } 
-                    onClick={ () => (isOpen ? onClose() : onOpen() ) }>{<PersonCircle size={25} />}</button>
+            <button className={ isOpen ? "d-flex align-items-center btn-custom btn-custom-outline-primary shadow-sm" : "d-flex align-items-center text-custom-black btn-custom" } 
+                    style={{ borderRadius: "50%", padding: "8px" }}
+                    onClick={ () => (isOpen ? onClose() : onOpen() ) }>
+                <PersonCircle size={28} />
+            </button>
 
             { isOpen &&
                 createPortal(
                     (
                         /* --- 🔴 Portal div --- */
-                        <div className="w-auto position-fixed top-0 bg-light border rounded-2"
-                                style={{ marginTop: '5rem', right: '3rem', zIndex: 999 }}>
+                        <div className="shadow-lg border rounded-3 bg-white"
+                                style={{ 
+                                    position: "fixed",
+                                    top: '70px', 
+                                    right: '20px', 
+                                    zIndex: 2000,
+                                    width: "320px",
+                                    animation: "fadeIn 0.2s ease-out"
+                                }}>
 
                             {/* --- 🔵 Inner content portal --- */}
-                            <div className="py-3 px-4 row g-0">
+                            <div className="p-4">
+                                <div className="d-flex align-items-center gap-3 mb-4">
+                                    {/* --- 🔵 Img div --- */}
+                                    <div className="d-flex align-items-center justify-content-center rounded-circle border bg-light shadow-sm"
+                                            style={{ width: '60px', height: '60px', flexShrink: 0 }}>
+                                            <PersonCircle size={40} className="text-secondary" />
+                                    </div>
 
-                                {/* --- 🔵 Img div - background configs --- */}
-                                <div className="col-3 d-flex align-items-center justify-content-center rounded-circle border bg-white"
-                                        style={{ width: '60px', height: '60px' }}>
-                                        <img src='/vite.svg' alt="Foto de perfil" className="img-fluid"/>
+                                    {/* --- 🔵 Text infos div --- */}
+                                    <div className="overflow-hidden">
+                                        <p className="fs-5 mb-0 fw-bold text-dark text-truncate">{userData?.username || "Usuário"}</p>
+                                        <p className="small mb-0 text-muted text-truncate">{user?.email}</p>
+                                    </div>
                                 </div>
 
-                                {/* --- 🔵 Text infos div --- */}
-                                <div className="col-7 ps-4 d-flex align-items-center justify-content-center">
-                                    <p className="fs-4 mb-0 fw-bold text-custom-black overflow-hidden">{userData?.userName}</p>
-                                    <p className="mb-0 text-custom-black overflow-hidden">{userData?.email}</p>
-                                </div>
+                                <div className="d-flex flex-column gap-2">
+                                    <button 
+                                        className="btn btn-outline-danger d-flex gap-3 align-items-center w-100 justify-content-start py-2 border-0"
+                                        onClick={() => {
+                                            onClose();
+                                            navigate("/profile");
+                                        }}
+                                    >
+                                        <InfoCircle size={20}/>
+                                        <span className="fw-semibold">Meu Perfil</span>
+                                    </button>
 
-                                <div className="col d-flex flex-column align-items-end justify-content-center p-0">
-                                    <button className="p-2 btn-custom btn-custom-secondary" 
-                                            onClick={async () => {
-                                                                    Logout();
-                                                                    navigate("/login");
-                                                                }}>
-                                        <BoxArrowRight size={25}/>
+                                    <button 
+                                        className="btn btn-outline-secondary d-flex gap-3 align-items-center w-100 justify-content-start py-2 border-0 text-dark"
+                                        onClick={() => {
+                                            onClose();
+                                            // Lógica de convite aqui se houver
+                                        }}
+                                    >
+                                        <PersonAdd size={20}/>
+                                        <span className="fw-semibold">Convidar Colegas</span>
+                                    </button>
+                                    
+                                    <hr className="my-2" />
+
+                                    <button 
+                                        className="btn btn-danger d-flex gap-3 align-items-center w-100 justify-content-center py-2 mt-2 shadow-sm"
+                                        onClick={async () => {
+                                            onClose();
+                                            await Logout();
+                                            navigate("/login");
+                                        }}
+                                    >
+                                        <BoxArrowRight size={20}/>
+                                        <span className="fw-bold">Sair da Conta</span>
                                     </button>
                                 </div>
-                            </div>
-
-                            <div className="py-3 px-4 row bg-secondary-subtle g-0 d-flex gap-3">
-                                <button className="col btn-custom btn-custom-outline-secondary d-flex gap-3 align-items-center justify-content-center"
-                                        onClick={() => navigate("/profile")}>
-                                    <InfoCircle size={25}/>
-                                    <p className="mb-0">Perfil</p>
-                                </button>
-                                <button className="col btn-custom btn-custom-outline-secondary d-flex gap-3 align-items-center justify-content-center">
-                                    <PersonAdd size={25}/>
-                                    <p className="mb-0">Convidar</p>
-                                </button>
                             </div>
                         </div>
                 ), document.body
             )}
+
+            <style>{`
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            `}</style>
         </div>
     )
 }

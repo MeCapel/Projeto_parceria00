@@ -2,7 +2,7 @@
 import { useNavigate, useParams } from "react-router"
 import { ArrowLeftCircleFill } from "react-bootstrap-icons";
 import { useEffect, useState } from "react";
-import Layout from "../00Geral/Layout";
+import Layuot from "../00Geral/Layout";
 import { db } from '../../firebaseConfig/config'
 import { doc, onSnapshot } from 'firebase/firestore'
 import MainFrame2 from "../03PrototypeRelated/MainFrame2";
@@ -65,7 +65,7 @@ export default function ProjectItem()
     }
 
     return(
-        <Layout>
+        <Layuot>
             <div className="ps-5 pt-5 pb-0 pe-0" onClick={() => navigate(`/projects`)}>
                 <div className="text-link-custom d-flex gap-3 align-items-center" style={{ cursor: "pointer" }}>
                     <ArrowLeftCircleFill size={30} />
@@ -113,8 +113,6 @@ export default function ProjectItem()
                     {renderView(currentView)}
                 </div>
             </div>
-              <ChatPopup projectId={projectid!} />
-
-        </Layout>
+        </Layuot>
     )
 }

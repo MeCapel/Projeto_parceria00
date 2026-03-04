@@ -9,6 +9,10 @@ import MainFrame2 from "../03PrototypeRelated/MainFrame2";
 import ProtoMultiForm2 from "../03PrototypeRelated/ProtoMultiForm2";
 import { type PrototypeProps } from "../../services/prototypeServices";
 import DividedByProgress from "./DividedByProgress";
+import ChatPopup from "../05ChatRelated/ChatPopup";
+
+
+
 
 export default function ProjectItem()
 {
@@ -109,6 +113,8 @@ export default function ProjectItem()
                     {renderView(currentView)}
                 </div>
             </div>
+              <ChatPopup projectId={projectid!} />
+
         </Layout>
     )
 }

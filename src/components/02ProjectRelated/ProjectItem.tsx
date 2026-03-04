@@ -2,14 +2,12 @@
 import { useNavigate, useParams } from "react-router"
 import { ArrowLeftCircleFill } from "react-bootstrap-icons";
 import { useEffect, useState } from "react";
-import Layuot from "../00Geral/Layout";
 import { db } from '../../firebaseConfig/config'
 import { doc, onSnapshot } from 'firebase/firestore'
 import MainFrame2 from "../03PrototypeRelated/MainFrame2";
 import ProtoMultiForm2 from "../03PrototypeRelated/ProtoMultiForm2";
 import { type PrototypeProps } from "../../services/prototypeServices";
 import DividedByProgress from "./DividedByProgress";
-import ChatPopup from "../05ChatRelated/ChatPopup";
 
 
 

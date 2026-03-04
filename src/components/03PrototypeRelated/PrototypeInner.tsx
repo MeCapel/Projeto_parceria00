@@ -11,7 +11,6 @@ import { getPrototype,
          updatePrototype, 
          deletePrototype, 
          updatePrototypeChecklists} from '../../services/prototypeServices';
-import Layout from "../00Geral/Layout";
 
 // =====  MAIN COMPONENT =====
 
@@ -357,6 +356,6 @@ export default function PrototypeInner() {
 
             </form>
         </div>
-        </Layout>
+        </>
     );
 }

@@ -12,6 +12,7 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
     const [messages, setMessages] = useState<MessageProps[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
     const scrollRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -20,6 +21,10 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
         if (!projectId) return;
         const unsubscribe = subscribeToMessages(projectId, (data) => {
             setMessages(data);
+            // Delay artificial para visualização do Skeleton
+            setTimeout(() => {
+                setLoading(false);
+            }, 1000);
         });
         return () => unsubscribe();
     }, [projectId]);
@@ -29,7 +34,7 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-    }, [messages]);
+    }, [messages, loading]);
 
     // Converter imagem para Base64
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,7 +74,23 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
                 className="overflow-auto p-3 flex-grow-1" 
                 style={{ scrollBehavior: "smooth" }}
             >
-                {messages.length === 0 ? (
+                {loading ? (
+                    /* SKELETON SCREEN */
+                    <div className="d-flex flex-column h-100 gap-3">
+                        <div className="d-flex flex-column align-items-start">
+                             <div className="skeleton skeleton-title" />
+                             <div className="skeleton skeleton-bubble" />
+                        </div>
+                        <div className="d-flex flex-column align-items-end">
+                             <div className="skeleton skeleton-title text-end" style={{ alignSelf: 'flex-end' }} />
+                             <div className="skeleton skeleton-bubble" />
+                        </div>
+                        <div className="d-flex flex-column align-items-start">
+                             <div className="skeleton skeleton-title" />
+                             <div className="skeleton skeleton-bubble" style={{ width: '60%' }} />
+                        </div>
+                    </div>
+                ) : messages.length === 0 ? (
                     <div className="d-flex h-100 align-items-center justify-content-center text-muted">
                         <small>Inicie uma conversa!</small>
                     </div>

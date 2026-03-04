@@ -1,69 +1,82 @@
 import { Modal } from 'react-bootstrap'
-import { PencilSquare } from 'react-bootstrap-icons'
+import { PencilSquare, CameraFill, PersonCircle } from 'react-bootstrap-icons'
 import { toast } from 'react-toastify'
-
 import { useNavigate } from 'react-router'
-import { useCallback, useEffect, useState, useContext } from 'react'
-
+import { useCallback, useEffect, useState, useContext, useRef } from 'react'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../firebaseConfig/config'
-import { updateAccount, type EditUserData } from '../services/authService'
+import { updateAccount } from '../services/authService'
 import { AuthContext } from '../context/AuthContext'
 
-export default function Profile()
-{
+interface UserProfileData {
+    userId: string;
+    username: string;
+    email: string;
+    profileImage?: string;
+}
+
+export default function Profile() {
     const { user, loading } = useContext(AuthContext);
-    const [ userData, setUserData ] = useState<EditUserData | null>(null);
-    const [ show, setShow ] = useState<boolean>(false);
-    const [ newUsername, setNewUsername ] = useState("");
+    const [userData, setUserData] = useState<UserProfileData | null>(null);
+    const [show, setShow] = useState<boolean>(false);
+    const [newUsername, setNewUsername] = useState("");
+    const [newProfileImage, setNewProfileImage] = useState<string | null>(null);
     
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
 
     const openModal = () => {
         setNewUsername(userData?.username || "");
+        setNewProfileImage(userData?.profileImage || null);
         setShow(true);
     };
-    const closeModal = useCallback(() => {setShow(false)}, []);
+    const closeModal = useCallback(() => { setShow(false) }, []);
 
-    const handleSubmit = async (e: React.FormEvent ) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (file.size > 500 * 1024) { // Limite de 500KB para o perfil
+                toast.warn("Imagem muito grande! Escolha uma de até 500KB.");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setNewProfileImage(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Se não tiver usuário logado ou nome vazio, não faz nada
         if (!user || !newUsername.trim()) {
-            toast.error("❌ Dados inválidos para atualização.");
+            toast.error("Dados inválidos para atualização.");
             return;
         }
 
-        try
-        {
-            // Usamos o UID direto do contexto para garantir o salvamento no documento certo
+        try {
             await updateAccount({
-                userId: user.uid, 
-                username: newUsername, 
-                email: user.email || "" 
+                userId: user.uid,
+                username: newUsername,
+                profileImage: newProfileImage || undefined
             });
-            
-            // Atualiza o estado local para a UI refletir a mudança
-            if (userData) {
-                setUserData({ ...userData, username: newUsername });
-            } else {
-                setUserData({ userId: user.uid, username: newUsername, email: user.email || "" });
-            }
 
-            toast.success("✅ Perfil atualizado com sucesso!");
+            setUserData(prev => prev ? { 
+                ...prev, 
+                username: newUsername, 
+                profileImage: newProfileImage || prev.profileImage 
+            } : null);
+
             closeModal();
-        }
-        catch (err)
-        {
+        } catch (err) {
             console.error(err);
-            toast.error("❌ Erro ao salvar alterações.");
+            toast.error("Erro ao salvar alterações.");
         }
     };
 
-    // Busca os dados do Firestore baseados no usuário do contexto
     useEffect(() => {
         if (loading) return;
-
         if (!user) {
             navigate("/login");
             return;
@@ -76,10 +89,11 @@ export default function Profile()
 
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    setUserData({ 
+                    setUserData({
                         userId: user.uid,
                         username: data.username || "",
-                        email: data.email || user.email || ""
+                        email: data.email || user.email || "",
+                        profileImage: data.profileImage || undefined
                     });
                     setNewUsername(data.username || "");
                 }
@@ -91,44 +105,55 @@ export default function Profile()
         fetchUserData();
     }, [user, loading, navigate]);
 
-    useEffect(() => {
-        const header = document.querySelector('.showOrHide') as HTMLElement | null;
-        if (!header) return;
-        header.classList.toggle("hidden-header", show);
-    }, [show]);
+    if (loading) return <div className="p-5 text-center"><div className="spinner-border text-danger"></div></div>;
 
-    if (loading) return <div className="p-5">Carregando perfil...</div>;
-
-    return(
+    return (
         <>
             <div className="container-fluid d-flex justify-content-center my-5">
-                <div className="bg-light rounded-3 border w-100" style={{ maxWidth: "800px" }}>
-                    <div className="rounded-top-3" style={{ backgroundImage: 'url(/fromBrand/background-pattern.png)', height: "15rem", backgroundSize: "cover" }}></div>
-                    
+                <div className="bg-light rounded-3 border w-100 shadow-sm" style={{ maxWidth: "800px" }}>
+                    {/* Banner de Fundo */}
+                    <div className="rounded-top-3" style={{ 
+                        backgroundImage: 'linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url(/fromBrand/background-pattern.png)', 
+                        height: "12rem", 
+                        backgroundSize: "cover" 
+                    }}></div>
+
                     <div className="px-5 pb-5">
-                        <div className="d-flex align-items-center justify-content-center rounded-circle shadow-sm border bg-white position-relative" 
-                                style={{ height: "150px", width: "150px", top: "-75px" }}>
-                             <PencilSquare size={40} className="text-muted" />
+                        {/* Foto de Perfil Grande */}
+                        <div className="d-flex align-items-center justify-content-center rounded-circle shadow border bg-white position-relative overflow-hidden"
+                            style={{ height: "160px", width: "150px", top: "-80px", border: "5px solid white !important" }}>
+                            {userData?.profileImage ? (
+                                <img src={userData.profileImage} alt="Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                                <PersonCircle size={80} className="text-secondary opacity-50" />
+                            )}
                         </div>
-                        
-                        <div className="position-relative" style={{ top: "-50px" }}>
+
+                        <div className="position-relative" style={{ top: "-60px" }}>
                             <div className="d-flex flex-wrap gap-3 align-items-center justify-content-between mb-4">
                                 <div>
-                                    <h2 className='text-custom-black fw-bold mb-0'>{userData?.username || "Usuário"}</h2>
-                                    <p className="text-muted fs-5 mb-0">Colaborador</p>
+                                    <h2 className='text-custom-black fw-bold mb-1'>{userData?.username || "Usuário"}</h2>
+                                    <p className="text-muted fs-6 mb-0">Colaborador Baldan</p>
                                 </div>
 
-                                <button className="btn-custom btn-custom-primary d-flex gap-2 align-items-center px-4"
-                                        onClick={openModal}>
-                                    <PencilSquare size={18}/>
+                                <button className="btn btn-danger d-flex gap-2 align-items-center px-4 rounded-pill shadow-sm"
+                                    onClick={openModal}>
+                                    <PencilSquare size={18} />
                                     <span>Editar perfil</span>
                                 </button>
                             </div>
-                            
-                            <div className="border-top pt-4">
-                                <p className="text-custom-black fs-5">
-                                    <strong>Email:</strong> {user?.email}
-                                </p>
+
+                            <div className="border-top pt-4 mt-2">
+                                <div className="row">
+                                    <div className="col-md-6 mb-3">
+                                        <label className="text-muted small fw-bold text-uppercase">E-mail Institucional</label>
+                                        <p className="text-custom-black fs-5 mb-0">{userData?.email}</p>
+                                    </div>
+                                    <div className="col-md-6 mb-3">
+                                        <label className="text-muted small fw-bold text-uppercase">Status da Conta</label>
+                                        <p className="text-success fs-5 mb-0 fw-semibold">Ativo</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -138,29 +163,48 @@ export default function Profile()
                     <Modal.Header closeButton className="border-0 px-4 pt-4"></Modal.Header>
                     <Modal.Body className="px-5 pb-5 pt-0">
                         <form onSubmit={handleSubmit}>
-                            <div className="mb-4">
-                                <p className='fs-6 mb-1 text-custom-red fw-bold'>GERENCIAMENTO</p>
-                                <h2 className='text-custom-black fw-bold'>Editar Perfil</h2>
-                                <p className='text-muted small'>Atualize suas informações de conta.</p>
-                            </div>
-
-                            <div className="d-flex flex-column gap-3 mb-4">
-                                <div className="form-group">
-                                    <label className="mb-2 text-custom-black fw-semibold">Nome de usuário</label>
+                            <div className="text-center mb-4">
+                                <div className="position-relative d-inline-block">
+                                    <div className="rounded-circle border shadow-sm bg-light overflow-hidden" style={{ width: '120px', height: '120px' }}>
+                                        {newProfileImage ? (
+                                            <img src={newProfileImage} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        ) : (
+                                            <PersonCircle size={60} className="text-secondary mt-4 opacity-50" />
+                                        )}
+                                    </div>
+                                    <button 
+                                        type="button"
+                                        className="btn btn-danger btn-sm rounded-circle position-absolute bottom-0 end-0 p-2 shadow"
+                                        onClick={() => fileInputRef.current?.click()}
+                                    >
+                                        <CameraFill size={16} />
+                                    </button>
                                     <input 
-                                        type="text" 
-                                        placeholder='Insira seu nome...' 
-                                        className='form-control py-2 px-3 border' 
-                                        required 
-                                        onChange={(e) => setNewUsername(e.target.value)} 
-                                        value={newUsername} 
+                                        type="file" 
+                                        ref={fileInputRef} 
+                                        style={{ display: 'none' }} 
+                                        accept="image/*" 
+                                        onChange={handleFileChange} 
                                     />
                                 </div>
+                                <h4 className="mt-3 fw-bold text-dark">Editar Informações</h4>
                             </div>
 
-                            <div className="d-flex align-items-center justify-content-end gap-2 mt-5">
-                                <button className='btn btn-light px-4' type='button' onClick={closeModal}>Cancelar</button>
-                                <button className='btn btn-danger px-4' type='submit'>Salvar Alterações</button>
+                            <div className="form-group mb-4">
+                                <label className="mb-2 text-muted small fw-bold text-uppercase">Nome de usuário</label>
+                                <input
+                                    type="text"
+                                    className='form-control form-control-lg border shadow-sm'
+                                    placeholder='Seu nome...'
+                                    required
+                                    onChange={(e) => setNewUsername(e.target.value)}
+                                    value={newUsername}
+                                />
+                            </div>
+
+                            <div className="d-grid gap-2">
+                                <button className='btn btn-danger btn-lg shadow-sm rounded-pill fw-bold' type='submit'>Salvar Alterações</button>
+                                <button className='btn btn-link text-muted' type='button' onClick={closeModal}>Cancelar</button>
                             </div>
                         </form>
                     </Modal.Body>

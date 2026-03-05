@@ -1,16 +1,15 @@
 // ===== GERAL IMPORTS =====
-
 import { Link, useNavigate } from 'react-router'
 import ProjectCard from './ProjectCard'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import MembersCircles from './MembersCircles'
 import NewProjectModal from './NewProjectModal'
-import { getCurrentUser } from '../../services/authService'
+import { AuthContext } from '../../context/AuthContext'
 import { getUserProjects } from '../../services/projectServices'
+import { getUsers } from '../../services/authService'
 import type { PrototypeProps } from '../../services/prototypeServices'
 
 // ===== PROPS =====
-
 interface Props {
     displayAll: boolean;
 }
@@ -18,101 +17,92 @@ interface Props {
 export default function DisplayProjects({ displayAll } : Props)
 {
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
     const [ projects, setProjects ] = useState<PrototypeProps[]>([]);
+    const [ allUsers, setAllUsers ] = useState<any[]>([]);
+    const [ loading, setLoading ] = useState(true);
 
     useEffect(() => {
-        const userData = getCurrentUser();
-        if (!userData) return;
-        
-        const unsubscribe = getUserProjects(userData.uid, (projects) => {
-            setProjects(projects ?? []);
+        if (!user) return;
+
+        // 1. Carrega todos os usuários para pegar as fotos
+        const unsubUsers = getUsers((users: any[]) => {
+            setAllUsers(users);
         });
 
-        return () => unsubscribe()
-    }, []);
+        // 2. Carrega os projetos
+        const unsubProjects = getUserProjects(user.uid, (projectsList) => {
+            setProjects(projectsList || []);
+            setLoading(false);
+        });
 
-    const membersList = [{ id: 1, img: '/vite.svg', name: "Maria"},
-                          { id: 2, img: '/vite.svg', name: "Pedro"},
-                          { id: 3, img: '/vite.svg', name: "Irene"},
-                          { id: 4, img: '/vite.svg', name: "Dejair"},
-                          { id: 5, img: '/vite.svg', name: "Nicolas"},
-                          { id: 6, img: '/vite.svg', name: "Elen"}]
+        return () => {
+            unsubUsers();
+            unsubProjects();
+        };
+    }, [user]);
 
+    if (loading && user) {
+        return <div className="p-5 text-center"><div className="spinner-border text-danger"></div></div>;
+    }
 
     return(
         <div className='p-5 mx-3'>
-            <div className="d-flex row">
-                {displayAll ? (
-                    <>
-                        <div className="d-flex flex-column col-12 col-md-10">
-                            <p 
-                                style={{ cursor: "pointer" }}
-                                className='mb-0 text-custom-red fs-5'
-                                onClick={() => navigate(`/projects`)}
-                            >
-                                Projetos
-                            </p>
-                            <p className='mb-0 text-custom-black fs-1 fw-bold'>Todos os projetos</p>
-                        </div>
-                        <div className="d-flex align-items-start justify-content-end col-12 col-md-2 my-3 my-md-0">
-                            <NewProjectModal />
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <div className="d-flex flex-column col-10">
-                            <p 
-                                style={{ cursor: "pointer" }}
-                                className='mb-0 text-custom-red fs-5'
-                                onClick={() => navigate(`/projects`)}
-                            >
-                                Projetos
-                            </p>
-                            <p className='mb-0 text-custom-black fs-1 fw-bold'>Visitados recentemente</p>
-                        </div>
-                        <div className="d-flex align-items-start justify-content-end col-2 gap-3">
-                            <NewProjectModal />
-                            <Link to={"/projects"} className='btn-custom btn-custom-primary text-decoration-none'>
-                                <p className='mb-0 text-custom-white p-1'>Ver todos</p>
-                            </Link>
-                        </div>
-                    </>
-                )}
-                
+            <div className="d-flex row align-items-center mb-4">
+                <div className="col-10">
+                    <p className='mb-0 text-custom-red fs-5' style={{ cursor: "pointer" }} onClick={() => navigate(`/projects`)}>
+                        Projetos
+                    </p>
+                    <h1 className='mb-0 text-custom-black fw-bold'>
+                        {displayAll ? "Todos os projetos" : "Visitados recentemente"}
+                    </h1>
+                </div>
+                <div className="col-2 d-flex justify-content-end gap-3">
+                    <NewProjectModal />
+                    {!displayAll && (
+                        <Link to={"/projects"} className='btn-custom btn-custom-primary text-decoration-none'>
+                            <p className='mb-0 text-custom-white p-1'>Ver todos</p>
+                        </Link>
+                    )}
+                </div>
             </div>
-            <div className="d-flex gap-4 my-4 flex-wrap">
-                {displayAll ? 
-                    (
-                        <>
-                            {projects!.map((project: PrototypeProps) => (
-                                <div key={project.id}>
-                                    <ProjectCard 
-                                        id={project.id!} 
-                                        projectName={project.name} 
-                                        location={`/projects/${project.id}`}
-                                        projectDescription={project.description} 
-                                        element={<MembersCircles membersList={membersList} />} 
-                                    />
-                                </div>
-                            ))}
-                        </>
-                    ) : 
-                    (
-                        <>
-                            {projects!.slice(0, 5).map((project: PrototypeProps) => (
-                                <div key={project.id}>
-                                    <ProjectCard 
-                                        id={project.id!} 
-                                        projectName={project.name} 
-                                        location={`/projects/${project.id}`}
-                                        projectDescription={project.description} 
-                                        element={<MembersCircles membersList={membersList} />} 
-                                    />
-                                </div>
-                            ))}
-                        </>
-                    )
-                }
+
+            <div className="d-flex gap-4 flex-wrap">
+                {projects.length === 0 ? (
+                    <div className="w-100 py-5 text-center border rounded bg-light">
+                        <p className="text-muted mb-0">Nenhum projeto encontrado.</p>
+                    </div>
+                ) : (
+                    (displayAll ? projects : projects.slice(0, 5)).map((project: PrototypeProps) => {
+                        
+                        // Lista de IDs de membros (ou apenas o dono se members não existir)
+                        const rawMembers = project.members || (project.owner ? [project.owner] : [user?.uid]);
+
+                        // Mapeia para objetos detalhados com FOTOS
+                        const projectMembers = rawMembers.map(memberId => {
+                            // Busca o usuário na lista global carregada, forçando comparação de string
+                            const foundUser = allUsers.find(u => String(u.id) === String(memberId));
+                            
+                            return {
+                                id: memberId,
+                                name: foundUser?.username || "Colaborador",
+                                img: foundUser?.profileImage || undefined // Aqui está a foto em Base64
+                            };
+                        });
+
+                        return (
+                            <div key={project.id}>
+                                <ProjectCard
+                                    id={project.id!}
+                                    projectName={project.name}
+                                    location={`/projects/${project.id}`}
+                                    projectDescription={project.description}
+                                    element={<MembersCircles membersList={projectMembers} />}
+                                />
+                            </div>
+                        );
+                    })
+                )}
             </div>
         </div>
     )

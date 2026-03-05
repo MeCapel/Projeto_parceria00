@@ -14,8 +14,9 @@ interface AccountSettingsProps {
 }
 
 interface UserData {
-    username: string; // Corrigido para bater com o Firestore
+    username: string;
     email: string;
+    profileImage?: string; // Adicionado campo de imagem
 }
 
 export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSettingsProps)
@@ -28,17 +29,18 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
         if (loading || !user) return;
 
         const fetchUserData = async () => {
-            try 
+            try
             {
                 const docRef = doc(db, "users", user.uid);
                 const docSnap = await getDoc(docRef);
-                
+
                 if (docSnap.exists())
                 {
                     const data = docSnap.data();
                     setUserData({
                         username: data.username || "",
-                        email: data.email || user.email || ""
+                        email: data.email || user.email || "",
+                        profileImage: data.profileImage || undefined
                     });
                 }
             }
@@ -49,40 +51,46 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
         };
 
         fetchUserData();
-    }, [user, loading, isOpen]); // Busca sempre que abrir o menu ou mudar o usuário
+    }, [user, loading, isOpen]);
 
     return(
         <div className="d-flex justify-content-center">
-            <button className={ isOpen ? "d-flex align-items-center btn-custom btn-custom-outline-primary shadow-sm" : "d-flex align-items-center text-custom-black btn-custom" } 
-                    style={{ borderRadius: "50%", padding: "8px" }}
+            {/* Botão do Header */}
+            <button className={ isOpen ? "d-flex align-items-center btn-custom btn-custom-outline-primary shadow-sm overflow-hidden" : "d-flex align-items-center text-custom-black btn-custom overflow-hidden" }
+                    style={{ borderRadius: "50%", padding: userData?.profileImage ? "0px" : "8px", width: "45px", height: "45px" }}
                     onClick={ () => (isOpen ? onClose() : onOpen() ) }>
-                <PersonCircle size={28} />
+                {userData?.profileImage ? (
+                    <img src={userData.profileImage} alt="Me" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                    <PersonCircle size={28} />
+                )}
             </button>
 
             { isOpen &&
                 createPortal(
                     (
-                        /* --- 🔴 Portal div --- */
                         <div className="shadow-lg border rounded-3 bg-white"
-                                style={{ 
+                                style={{
                                     position: "fixed",
-                                    top: '70px', 
-                                    right: '20px', 
+                                    top: '70px',
+                                    right: '20px',
                                     zIndex: 2000,
                                     width: "320px",
                                     animation: "fadeIn 0.2s ease-out"
                                 }}>
 
-                            {/* --- 🔵 Inner content portal --- */}
                             <div className="p-4">
                                 <div className="d-flex align-items-center gap-3 mb-4">
-                                    {/* --- 🔵 Img div --- */}
-                                    <div className="d-flex align-items-center justify-content-center rounded-circle border bg-light shadow-sm"
+                                    {/* Foto no Card que desce */}
+                                    <div className="d-flex align-items-center justify-content-center rounded-circle border bg-light shadow-sm overflow-hidden"
                                             style={{ width: '60px', height: '60px', flexShrink: 0 }}>
-                                            <PersonCircle size={40} className="text-secondary" />
+                                            {userData?.profileImage ? (
+                                                <img src={userData.profileImage} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            ) : (
+                                                <PersonCircle size={40} className="text-secondary" />
+                                            )}
                                     </div>
 
-                                    {/* --- 🔵 Text infos div --- */}
                                     <div className="overflow-hidden">
                                         <p className="fs-5 mb-0 fw-bold text-dark text-truncate">{userData?.username || "Usuário"}</p>
                                         <p className="small mb-0 text-muted text-truncate">{user?.email}</p>
@@ -90,7 +98,7 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
                                 </div>
 
                                 <div className="d-flex flex-column gap-2">
-                                    <button 
+                                    <button
                                         className="btn btn-outline-danger d-flex gap-3 align-items-center w-100 justify-content-start py-2 border-0"
                                         onClick={() => {
                                             onClose();
@@ -101,20 +109,9 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
                                         <span className="fw-semibold">Meu Perfil</span>
                                     </button>
 
-                                    <button 
-                                        className="btn btn-outline-secondary d-flex gap-3 align-items-center w-100 justify-content-start py-2 border-0 text-dark"
-                                        onClick={() => {
-                                            onClose();
-                                            // Lógica de convite aqui se houver
-                                        }}
-                                    >
-                                        <PersonAdd size={20}/>
-                                        <span className="fw-semibold">Convidar Colegas</span>
-                                    </button>
-                                    
                                     <hr className="my-2" />
 
-                                    <button 
+                                    <button
                                         className="btn btn-danger d-flex gap-3 align-items-center w-100 justify-content-center py-2 mt-2 shadow-sm"
                                         onClick={async () => {
                                             onClose();

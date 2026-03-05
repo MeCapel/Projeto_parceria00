@@ -26,7 +26,7 @@ export const getCurrentUser = () => {
 export const checkIsLogIn = () => {
     const currentUser = auth.currentUser;
     if (currentUser == null) {
-        toast.warn("⚠️ Você precisa estar logado.");
+        toast.warn("Você precisa estar logado.");
         return false;
     }
     return true;
@@ -44,9 +44,9 @@ export const createAccount = async (username: string, email: string, password: s
                 uid: user.uid
             });
         }
-        toast.success("✅ Conta criada com sucesso!");
+        toast.success("Conta criada com sucesso!");
     } catch (err) {
-        toast.error(`❌ Erro ao criar conta: ${err}`);
+        toast.error(`Erro ao criar conta: ${err}`);
     }
 };
 
@@ -62,9 +62,9 @@ export const signIn = async (email:string, password: string) => {
                 uid: user.uid
             }, { merge: true });
         }
-        toast.success("✅ Login realizado com sucesso!");
+        toast.success("Login realizado com sucesso!");
     } catch (err) {
-        toast.error("❌ E-mail ou senha incorretos!");
+        toast.error("E-mail ou senha incorretos!");
     }
 }
 
@@ -83,10 +83,10 @@ export const updateAccount = async ({ userId, username, profileImage } : EditUse
         if (profileImage) updateData.profileImage = profileImage;
 
         await updateDoc(docRef, updateData);
-        toast.success("✅ Perfil atualizado com sucesso!");
+        toast.success("Perfil atualizado com sucesso!");
     } catch (err) {
         console.error(err);
-        toast.error("❌ Erro ao atualizar perfil.");
+        toast.error("Erro ao atualizar perfil.");
     }
 }
 
@@ -94,9 +94,9 @@ export const updateAccount = async ({ userId, username, profileImage } : EditUse
 export const Logout = async () => {
     try {
         await signOut(auth);
-        toast.info("👋 Logout realizado com sucesso!");
+        toast.info("Logout realizado com sucesso!");
     } catch (err) {
-        toast.error("❌ Erro ao fazer logout!");
+        toast.error("Erro ao fazer logout!");
     }
 }
 

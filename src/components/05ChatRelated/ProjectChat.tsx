@@ -10,6 +10,7 @@ import {
   serverTimestamp,
   Timestamp 
 } from 'firebase/firestore';
+import { getCurrentUser } from '../../services/authService';
 
 interface ChatMessage {
   id: string;
@@ -24,7 +25,7 @@ interface ChatProps {
 }
 
 const ProjectChat: React.FC<ChatProps> = ({ projectId }) => {
-  const { user } = useAuth();
+  const user = getCurrentUser();
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);

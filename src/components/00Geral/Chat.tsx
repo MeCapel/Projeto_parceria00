@@ -44,7 +44,7 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
                 );
                 
                 if (msg.id && !isViewed && msg.senderId !== userId) {
-                    markMessageAsRead(projectId, msg.id, userId, userName);
+                    markMessageAsRead(projectId, msg.id, userId);
                 }
             });
         });
@@ -92,7 +92,7 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
             {/* Área de Mensagens */}
             <div
                 ref={scrollRef}
-                className="overflow-auto p-3 flex-grow-1 d-flex flex-column gap-2"
+                className="overflow-auto p-3 d-flex flex-column gap-2"
                 style={{ scrollBehavior: "smooth" }}
             >
                 {loading ? (
@@ -203,13 +203,13 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
                     {selectedImage ? (
                         <>
                             <img src={selectedImage} alt="Preview" style={{ height: "40px", width: "40px", objectFit: "cover" }} className="rounded" />
-                            <small className="text-muted flex-grow-1">Imagem selecionada</small>
+                            <small className="text-muted grow">Imagem selecionada</small>
                             <XCircleFill className="text-danger" style={{ cursor: "pointer" }} onClick={() => setSelectedImage(null)} />
                         </>
                     ) : (
                         <>
                             <PencilFill size={12} className="text-danger" />
-                            <small className="text-muted flex-grow-1">Editando mensagem</small>
+                            <small className="text-muted grow">Editando mensagem</small>
                             <XCircleFill className="text-danger" style={{ cursor: "pointer" }} onClick={() => { setEditingId(null); setNewMessage(""); }} />
                         </>
                     )}

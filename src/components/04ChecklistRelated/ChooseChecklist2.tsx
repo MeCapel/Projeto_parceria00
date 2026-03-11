@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getChecklistsModelByP, type Checklist } from "../../services/checklistServices2";
+import { getChecklistsModelByP, type Checklist } from "../../services/checklistServices";
 
 interface Props {
     vertical: string;

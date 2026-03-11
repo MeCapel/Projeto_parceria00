@@ -1,4 +1,4 @@
-import { type StepProps } from "../ProtoMultiForm2";
+import { type StepProps } from "../ProtoMultiForm";
 
 export default function Step2({ values, errors, onChange }: StepProps) {
   return (
@@ -11,7 +11,7 @@ export default function Step2({ values, errors, onChange }: StepProps) {
                 <legend className='mb-0 text-white fs-5'>
                     Etapa atual*
                 </legend>
-            </div>
+            </div> 
 
             <div className="d-flex w-100 gap-3 align-items-start justify-content-center position-relative" style={{ top: '-0.75rem' }}>
                 <label htmlFor="fabricacao" className="d-flex gap-2">

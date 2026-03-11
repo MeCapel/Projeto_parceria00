@@ -7,7 +7,7 @@ import {
     type Categories, 
     type CheckboxItem, 
     type Checklist 
-} from "../../services/checklistServices2";
+} from "../../services/checklistServices";
 
 import { 
     ThreeDotsVertical, 

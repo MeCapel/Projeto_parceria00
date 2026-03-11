@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import { useNavigate } from 'react-router';
 import { PlusLg } from "react-bootstrap-icons";
-import { getCurrentUser } from '../../services/authService';
+import { getCurrentUser } from '../../services/authServices';
 import { createProject } from '../../services/projectServices';
 
 // ===== MAIN COMPONENT =====

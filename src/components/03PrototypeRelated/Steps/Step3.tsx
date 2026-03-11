@@ -1,4 +1,4 @@
-    import { type StepProps } from "../ProtoMultiForm2";
+    import { type StepProps } from "../ProtoMultiForm";
     import ChooseChecklists from '../../04ChecklistRelated/ChooseChecklist2';
     import { useState, useEffect } from "react";
 

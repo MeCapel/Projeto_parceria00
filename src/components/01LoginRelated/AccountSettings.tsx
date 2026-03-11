@@ -2,7 +2,7 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 import { doc, getDoc } from 'firebase/firestore'
-import { Logout } from "../../services/authService";
+import { Logout, type UserProps } from "../../services/authServices";
 import { auth, db } from "../../firebaseConfig/config";
 import { PersonCircle, BoxArrowRight, PersonAdd, InfoCircle } from "react-bootstrap-icons";
 
@@ -11,15 +11,9 @@ interface AccountSettingsProps {
     onOpen: () => void;
     onClose: () => void;
 }
-
-interface UserData {
-    userName: string;
-    email: string;
-}
-
 export default function Notifications({ isOpen, onOpen, onClose } : AccountSettingsProps)
 {
-    const [ userData, setUserData ] = useState<UserData | null>(null);
+    const [ userData, setUserData ] = useState<UserProps | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -42,7 +36,7 @@ export default function Notifications({ isOpen, onOpen, onClose } : AccountSetti
                 
                 if (docSnap.exists())
                 {
-                    setUserData(docSnap.data() as UserData);
+                    setUserData(docSnap.data() as UserProps);
                     console.log("Fetched user data: ", docSnap.data());
                 }
                 else 
@@ -83,7 +77,7 @@ export default function Notifications({ isOpen, onOpen, onClose } : AccountSetti
 
                                 {/* --- 🔵 Text infos div --- */}
                                 <div className="col-7 ps-4 d-flex align-items-center justify-content-center">
-                                    <p className="fs-4 mb-0 fw-bold text-custom-black overflow-hidden">{userData?.userName}</p>
+                                    <p className="fs-4 mb-0 fw-bold text-custom-black overflow-hidden">{userData?.username}</p>
                                     <p className="mb-0 text-custom-black overflow-hidden">{userData?.email}</p>
                                 </div>
 

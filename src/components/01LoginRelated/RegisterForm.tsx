@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { useNavigate } from "react-router"
-import { createAccount } from "../../services/authService"
+import { createAccount } from "../../services/authServices"
 
 export default function SignInForm()
 {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
-import { type Checklist } from "../../services/checklistServices2";
+import { type Checklist } from "../../services/checklistServices";
 // import { toggleChecklistItems } from "../../services/prototypeServices2";
 
 interface Props {

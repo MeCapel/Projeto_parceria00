@@ -1,22 +1,22 @@
 import { db } from '../firebaseConfig/config'
 import { addDoc, deleteDoc, collection, doc, getDoc, setDoc, onSnapshot, updateDoc, query, orderBy, getDocs, writeBatch, arrayUnion, where } from 'firebase/firestore'
-import { getChecklistModel, type Categories, type CheckboxItem } from './checklistServices2';
-import type { Checklist } from './checklistServices2';
+import { getChecklistModel, type Categories, type CheckboxItem } from './checklistServices';
+import type { Checklist } from './checklistServices';
 
 export interface PrototypeProps {
-    id?: string,
-    projectId: string,
+    id?: string, 
     code?: string,
     name: string,
     description: string,
     stage: string,
+    vertical: string,
     state?: string,
     city?: string,
     areaSize?: string,
-    vertical: string,
     editedAt?: string[],
     createdAt?: string,
     checklists?: Checklist[],
+    projectId: string,
 }
 
 // ----- ESTA FUNÇÃO ADICIONA UM PROTÓTIPO A UM PROJETO EXISTENTE -----
@@ -128,7 +128,7 @@ export const getPrototype = async (prototypeId: string) => {
 
 export const listenPrototypesForProject = (
     projectId: string,
-    callback: (data: any[]) => void
+    callback: (data: PrototypeProps[]) => void
 ) => {
     const prototypesRef = collection(db, "prototypes");
     const q = query(prototypesRef, where("projectId", "==", projectId));
@@ -139,7 +139,7 @@ export const listenPrototypesForProject = (
             const results = snapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data()
-            }));
+            }) as PrototypeProps);
 
             callback(results);
         },
@@ -206,7 +206,7 @@ export const listenPrototypesForProjectWProgress = (
 };
 
 // ----- ESTA FUNÇÃO PEGA OS DADOS DE TODOS OS PROTÓTIPOS -----
-export const getPrototypes = (callback: any) => {
+export const getPrototypes = (callback: (prototypes: PrototypeProps[]) => void) => {
     const collectionRef = collection(db, "prototypes");
     const q = query(
         collectionRef,
@@ -217,7 +217,7 @@ export const getPrototypes = (callback: any) => {
         const prototypesData = snapshot.docs.map((d) => ({
             id: d.id,
             ...d.data()
-        }));
+        }) as PrototypeProps);
 
         callback(prototypesData);
     });

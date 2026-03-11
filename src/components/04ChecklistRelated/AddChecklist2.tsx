@@ -5,7 +5,7 @@ import { Modal } from "react-bootstrap";
 import { useNavigate } from "react-router";
 import DisplayChecklistsModel from "./DisplayChecklists2";
 import { Trash3Fill, PlusLg, Dash } from "react-bootstrap-icons";
-import { createChecklistModel, type Checklist, type Categories, type CheckboxItem } from "../../services/checklistServices2";
+import { createChecklistModel, type Checklist, type Categories, type CheckboxItem } from "../../services/checklistServices";
 
 // ===== MAIN COMPONENT =====
 

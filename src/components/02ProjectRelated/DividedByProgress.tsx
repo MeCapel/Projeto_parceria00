@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { listenPrototypesForProjectWProgress, type PrototypeProps } from "../../services/prototypeServices";
 import { CaretDown, CaretUp, PencilSquare } from "react-bootstrap-icons";
 import { useNavigate } from "react-router";
-import type { Checklist } from "../../services/checklistServices2";
+import type { Checklist } from "../../services/checklistServices";
 
 interface Props {
     projectId: string,

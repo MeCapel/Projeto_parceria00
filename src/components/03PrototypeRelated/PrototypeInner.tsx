@@ -4,7 +4,7 @@ import { ArrowLeftCircleFill } from "react-bootstrap-icons";
 import { useNavigate, useParams } from "react-router";
 import ManageChecklistsModal from "./ManageChecklists";
 import { useState, useEffect, type FormEvent } from "react";
-import { type Checklist } from "../../services/checklistServices2";
+import { type Checklist } from "../../services/checklistServices";
 import DisplayPrototypeChecklists from "../04ChecklistRelated/DisplayPrototypeChecklists";
 import { getPrototype, 
          type PrototypeProps, 
@@ -35,7 +35,7 @@ export default function PrototypeInner() {
         }
 
         async function fetchData() {
-            const data: any = await getPrototype(prototypeid!);
+            const data: PrototypeProps | null = await getPrototype(prototypeid!);
 
             if (data) {
                 const proto: PrototypeProps = {

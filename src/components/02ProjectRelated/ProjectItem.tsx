@@ -5,16 +5,17 @@ import { useEffect, useState } from "react";
 import Layuot from "../00Geral/Layout";
 import { db } from '../../firebaseConfig/config'
 import { doc, onSnapshot } from 'firebase/firestore'
-import MainFrame2 from "../03PrototypeRelated/MainFrame2";
-import ProtoMultiForm2 from "../03PrototypeRelated/ProtoMultiForm2";
-import { type PrototypeProps } from "../../services/prototypeServices";
+import MainFrame2 from "../03PrototypeRelated/MainFrame";
+import ProtoMultiForm2 from "../03PrototypeRelated/ProtoMultiForm";
 import DividedByProgress from "./DividedByProgress";
+import NewMemberModal from "./NewMemberModal";
+import type { ProjectProps } from "../../services/projectServices";
 
 export default function ProjectItem()
 {
     const { projectid } = useParams();
     const navigate = useNavigate();
-    const [ projectData, setProjectData ] = useState<PrototypeProps | null>(null);
+    const [ projectData, setProjectData ] = useState<ProjectProps | null>(null);
     const [ currentView, setCurrentView ] = useState<number>(0);
 
     // console.log("This one is the id: ", projectid);
@@ -26,7 +27,7 @@ export default function ProjectItem()
 
             if (docSnap.exists())
             {
-                setProjectData({ id: docSnap.id, ...docSnap.data() } as PrototypeProps);
+                setProjectData({ id: docSnap.id, ...docSnap.data() } as ProjectProps);
             }
             else
             {
@@ -79,6 +80,9 @@ export default function ProjectItem()
                     <p className='mb-0 text-custom-black fs-1 fw-bold'>
                         {projectData.name != null ? projectData.name : "Nome do projeto"}
                     </p>
+                    <div className="">
+                        <NewMemberModal projectId={projectid} projectName={projectData.name} projectDescription={projectData.description}/>
+                    </div>
                 </div>
 
                 {/* ----- Navigation between inner project pages ----- */}

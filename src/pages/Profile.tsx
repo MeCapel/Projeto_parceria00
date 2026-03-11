@@ -8,11 +8,11 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { doc, getDoc } from 'firebase/firestore'
 import { db, auth } from '../firebaseConfig/config'
-import { updateAccount, type EditUserData } from '../services/authService'
+import { updateAccount, type UserProps } from '../services/authServices'
 
 export default function Profile()
 {
-    const [ userData, setUserData ] = useState<EditUserData | null>(null);
+    const [ userData, setUserData ] = useState<UserProps | null>(null);
     const [ show, setShow ] = useState<boolean>(false);
     const [ newUsername, setNewUsername ] = useState("");
     
@@ -30,7 +30,7 @@ export default function Profile()
         try
         {
             await updateAccount( {
-                userId: userData.userId, 
+                userId: userData.id!, 
                 username: newUsername, 
                 email: userData.email 
             });
@@ -58,8 +58,8 @@ export default function Profile()
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
-                const data = docSnap.data() as EditUserData;
-                setUserData({ ...data, userId: user.uid });
+                const data = docSnap.data() as UserProps;
+                setUserData({ ...data, id: user.uid });
                 setNewUsername(data.username);
 }
             else 

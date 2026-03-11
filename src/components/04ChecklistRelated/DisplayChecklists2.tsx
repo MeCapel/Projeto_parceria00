@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import ChecklistCard from "./ChecklistCard";
-import { type Checklist, getChecklistsModel } from "../../services/checklistServices2";
+import { type Checklist, getChecklistsModel } from "../../services/checklistServices";
 import { useNavigate } from "react-router";
 
 interface Props {

@@ -5,9 +5,8 @@ import ProjectCard from './ProjectCard'
 import { useState, useEffect } from 'react'
 import MembersCircles from './MembersCircles'
 import NewProjectModal from './NewProjectModal'
-import { getCurrentUser } from '../../services/authService'
-import { getUserProjects } from '../../services/projectServices'
-import type { PrototypeProps } from '../../services/prototypeServices'
+import { getCurrentUser } from '../../services/authServices'
+import { getUserProjects, type ProjectProps } from '../../services/projectServices'
 
 // ===== PROPS =====
 
@@ -18,7 +17,7 @@ interface Props {
 export default function DisplayProjects({ displayAll } : Props)
 {
     const navigate = useNavigate();
-    const [ projects, setProjects ] = useState<PrototypeProps[]>([]);
+    const [ projects, setProjects ] = useState<ProjectProps[]>([]);
 
     useEffect(() => {
         const userData = getCurrentUser();
@@ -28,7 +27,7 @@ export default function DisplayProjects({ displayAll } : Props)
             setProjects(projects ?? []);
         });
 
-        return () => unsubscribe()
+        return () => unsubscribe();
     }, []);
 
     const membersList = [{ id: 1, img: '/vite.svg', name: "Maria"},
@@ -84,7 +83,7 @@ export default function DisplayProjects({ displayAll } : Props)
                 {displayAll ? 
                     (
                         <>
-                            {projects!.map((project: PrototypeProps) => (
+                            {projects!.map((project: ProjectProps) => (
                                 <div key={project.id}>
                                     <ProjectCard 
                                         id={project.id!} 
@@ -99,7 +98,7 @@ export default function DisplayProjects({ displayAll } : Props)
                     ) : 
                     (
                         <>
-                            {projects!.slice(0, 5).map((project: PrototypeProps) => (
+                            {projects!.slice(0, 5).map((project: ProjectProps) => (
                                 <div key={project.id}>
                                     <ProjectCard 
                                         id={project.id!} 

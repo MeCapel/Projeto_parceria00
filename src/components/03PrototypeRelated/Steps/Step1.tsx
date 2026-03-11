@@ -1,4 +1,4 @@
-import { type StepProps } from "../ProtoMultiForm2";
+import { type StepProps } from "../ProtoMultiForm";
 
 export default function Step1({ values, errors, onChange }: StepProps) {
   return (

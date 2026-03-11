@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { type Checklist } from "../../services/checklistServices2";
+import { type Checklist } from "../../services/checklistServices";
 import EditChecklistModal from "./EditChecklistModal";
 import { Check2Circle } from "react-bootstrap-icons";
 

@@ -1,87 +1,165 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { type UserProps } from "../../services/authServices";
 import { getUsersNotInProject, linkProjectUser } from "../../services/projectServices";
+import { CaretDown, CaretUp } from "react-bootstrap-icons";
 
 interface Props {
     projectId: string;
 }
 
-export default function AddNewMember({ projectId } : Props)
-{
-    const [ users, setUsers ] = useState<UserProps[]>([]);
-
-    // const [ selectedUsers, setSelectedUsers ] = useState<string[]>([]);
-    
-    // const handleToggle = (id: string) => {
-    //     setSelectedUsers(prev =>
-    //         prev.includes(id) ? prev.filter(user => user !== id) : [...prev, id]
-    //     );
-    // }; 
-
-    const handleAddNewMember = async (projectId: string, userId: string, role: string) => {
-        const x = await linkProjectUser(projectId, userId, role);
-
-        if(x.success == false)
-        {
-            console.error("Erro na tentativa de adicionar um novo membro ao prrojeto!");
-            return;
-        }
-    }
+export default function AddNewMember({ projectId }: Props) {
+    const [users, setUsers] = useState<UserProps[]>([]);
+    const [openUserId, setOpenUserId] = useState<string | null>(null);
+    const dropdownRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
-        const unsubscribe = getUsersNotInProject(projectId, (users) => {
-            setUsers(users ?? []);
+        const unsubscribe = getUsersNotInProject(projectId, (usersData) => {
+
+            const formatted = (usersData ?? []).map(user => ({
+                ...user,
+                role: "Membro" as UserProps["role"], // default role
+            }));
+
+            setUsers(formatted);
         });
 
         return () => unsubscribe();
-    }, [projectId]); 
+    }, [projectId]);
 
-    return(
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if(dropdownRef.current && !dropdownRef.current.contains(event.target as Node))
+            {
+                setOpenUserId(null);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
+    }, [])
+
+    const handleNewMember = async (user: UserProps) => {
+
+        if (!user.id) return;
+
+        const result = await linkProjectUser(projectId, user.id, user.role);
+
+        if (!result.success) {
+            console.error("Erro ao adicionar um novo membro ao projeto!");
+        }
+    };
+
+    const toggleDropdown = (userId: string) => {
+        setOpenUserId(prev => (prev === userId ? null : userId));
+    };
+
+    const handleRoleChange = (userId: string, role: UserProps["role"]) => {
+        setUsers(prev =>
+            prev.map(user =>
+                user.id === userId ? { ...user, role } : user
+            )
+        );
+    };
+
+    return (
         <div className="d-flex flex-column overflow-auto" style={{ maxHeight: "50vh" }}>
             <ul className="list-unstyled d-flex flex-column gap-2">
-                {users.map((user: UserProps) => (
-                    <li key={user.id} className="d-flex gap-3 align-items-center justify-content-between">
-                        {/* <p>{user.username}</p> */}
-                        <label htmlFor={user.id} className="form-check-label">{user.email}</label>
-                        {/* <input 
-                            id={user.id}
-                            type="checkbox" 
-                            className="form-check-input"
-                            onChange={() => handleToggle(user.id!)}
-                            checked={selectedUsers.includes(user.id!)}
-                        /> */}
 
-                        <div 
-                            className="d-flex align-items-center justify-content-center gap-3"
+                {users.map(user => {
+
+                    if (!user.id) return null;
+
+                    return (
+                        <li
+                            key={user.id}
+                            className="d-flex align-items-center justify-content-between gap-3"
                         >
-                                {/* <div className="d-flex w-100 gap-3 align-items-start justify-content-center"
-                                style={{ top: '-0.75rem' }}>
-                                {["Viwer", "Membro", "Admin"].map(s => (
-                                    <label key={s} className="d-flex gap-2 form-check-label">
-                                        <input
-                                            className='form-check-input'
-                                            type="radio"
-                                            name="radio"
-                                            value={s}
-                                            checked={user.role === s}
-                                            onChange={e => user.role = e.target.value}
-                                            />
-                                        {s}
-                                    </label>
-                                ))}
-                                </div> */}
 
-                            <button 
-                                type='button' onClick={() => handleAddNewMember(projectId, user.id!, "member")}
-                                className='btn-custom btn-custom-outline-success d-flex align-items-center justify-content-center gap-3'>
-                                Adicionar
-                            </button>
-                        </div>
+                            <label className="form-check-label">
+                                {user.email}
+                            </label>
 
-                    </li>
-                ))}
+                            <div className="d-flex align-items-center gap-3 bg-custom-outline-secondary position-relative" ref={openUserId === user.id ?  dropdownRef : null}>
+
+                                {/* caret button */}
+                                <div
+                                    className="pointer p-2"
+                                    onClick={() => toggleDropdown(user.id!)}
+                                >
+                                    {openUserId === user.id
+                                        ? <CaretUp size={20} />
+                                        : <CaretDown size={20} />
+                                    }
+
+                                </div>
+
+                                {/* dropdown */}
+                                {openUserId === user.id && (
+
+                                    <div
+                                        className="d-flex flex-column gap-2 p-2 border rounded shadow-sm bg-white"
+                                        style={{
+                                            position: "absolute",
+                                            top: "2.2rem",
+                                            left: "0",
+                                            zIndex: 100,
+                                            minWidth: "120px"
+                                        }}
+                                    >
+
+                                        {["Membro", "Admin"].map(role => (
+
+                                            <label
+                                                key={role}
+                                                className="d-flex gap-2 align-items-center form-check-label"
+                                            >
+
+                                                <input
+                                                    type="radio"
+                                                    value={role}
+                                                    name={`role-${user.id}`}
+                                                    checked={user.role === role}
+                                                    onChange={() =>
+                                                        handleRoleChange(
+                                                            user.id!,
+                                                            role as UserProps["role"]
+                                                        )
+                                                    }
+                                                    className="form-check-input"
+                                                />
+
+                                                {role}
+
+                                            </label>
+
+                                        ))}
+
+                                    </div>
+
+                                )}
+
+                                <p className="mb-0">Como {user.role}</p>
+                                
+                                {/* add button */}
+                                <button
+                                    type="button"
+                                    onClick={() => handleNewMember(user)}
+                                    className="btn-custom btn-custom-outline-success d-flex align-items-center justify-content-center gap-2"
+                                >
+                                    Adicionar
+                                </button>
+
+                            </div>
+
+                        </li>
+                    );
+
+                })}
+
             </ul>
         </div>
-
-    )
+    );
 }

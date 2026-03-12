@@ -6,7 +6,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } f
 
 // ===== INTERFACE to define type ===== 
 export interface UserProps {
-    id?: string;
+    id: string;
     username: string;
     email: string;
     role: string;

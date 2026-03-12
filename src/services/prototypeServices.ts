@@ -70,29 +70,6 @@ export const createPrototype = async ( prototype: PrototypeProps ) : Promise<str
     }
 }
 
-// ----- ESTA FUNÇÃO PEGA AS DADOS DE UM ÚNICO PROTÓTIPO -----
-// export const getPrototype = async ( prototypeId: string ) => {
-//     try
-//     { 
-//         const prototypeRef = doc(db, "prototypes", prototypeId);
-//         const prototypeSnap = await getDoc(prototypeRef);
-
-//         if (!prototypeSnap.exists())
-//         {
-//             console.error("Protótipo não encontrado! Id: " + prototypeId);
-//             return null;
-//         }
-
-//         const prototypeData = { id: prototypeSnap.id, ...prototypeSnap.data() };
-
-//         return prototypeData;
-//     }
-//     catch (err)
-//     {
-//         console.error("Erro na tentativa de pegar os dados do protótipo: " + err);
-//         return null;
-//     }
-// }
 export const getPrototype = async (prototypeId: string) => {
     try {
         const prototypeRef = doc(db, "prototypes", prototypeId);

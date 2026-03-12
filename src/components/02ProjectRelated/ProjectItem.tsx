@@ -81,7 +81,7 @@ export default function ProjectItem()
                         {projectData.name != null ? projectData.name : "Nome do projeto"}
                     </p>
                     <div className="">
-                        <NewMemberModal projectId={projectid} projectName={projectData.name} projectDescription={projectData.description}/>
+                        <NewMemberModal projectId={projectid} />
                     </div>
                 </div>
 

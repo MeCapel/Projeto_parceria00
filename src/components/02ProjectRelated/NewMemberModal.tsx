@@ -5,21 +5,19 @@ import AddNewMember from "./AddNewMember";
 
 interface Props {
     projectId: string;
-    projectName: string;
-    projectDescription: string;
 }
 
-export default function NewMemberModal({ projectId, projectName, projectDescription } : Props)
+export default function NewMemberModal({ projectId } : Props)
 {
     const [ isOpen, setIsOpen ] = useState<boolean>(false);
-    const [ username, setUsername ] = useState<string>("");
+    // const [ username, setUsername ] = useState<string>(""); // falta finalizar, FUNÇÃO PARA PODER PESQUISAR USERS  
     const formRef = useRef<HTMLFormElement | null>(null);
 
     const openModal = () => setIsOpen(true);
     const closeModal = () => {
         if(formRef.current) formRef.current.classList.remove("was-validated");
         setIsOpen(false);
-        setUsername("");
+        //setUsername("");
     }
     
     const handleNewProjectMember = async ( e: React.FormEvent ) => {
@@ -38,8 +36,6 @@ export default function NewMemberModal({ projectId, projectName, projectDescript
         }
 
         closeModal();
-
-        // const userId = 
     }
 
     return(
@@ -71,7 +67,7 @@ export default function NewMemberModal({ projectId, projectName, projectDescript
                                     maxLength={25}
                                     className='form-control' 
                                     placeholder='Nome do projeto*' 
-                                    onChange={(e) => setUsername(e.target.value)} 
+                                    // onChange={(e) => setUsername(e.target.value)} 
                                     />
                                 <label htmlFor="input1" className="d-flex flex-column gap-3">Email do usuário</label>
                             </div>
@@ -86,7 +82,7 @@ export default function NewMemberModal({ projectId, projectName, projectDescript
 
                         </div>
 
-                        <AddNewMember projectId={projectId} projectName={projectName} projectDescription={projectDescription} />
+                        <AddNewMember projectId={projectId} />
                         
                     </form>
 

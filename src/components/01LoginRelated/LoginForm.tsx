@@ -27,9 +27,13 @@ export default function LoginForm()
             await signIn(email, password);
             navigate('/home');
         }
-        catch (error: any)
+        catch (error: unknown)
         {
-            alert(error.message);
+            if (error instanceof Error) {
+                alert(error.message);
+            } else {
+                alert("Ocorreu um erro desconhecido.");
+            }
         }
         finally
         {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router";
 import { PencilSquare } from "react-bootstrap-icons";
-import { listenPrototypesForProject } from "../../services/prototypeServices";
+import { listenPrototypesForProject, type PrototypeProps } from "../../services/prototypeServices";
 
 interface MainFrameProps {
     projectId: string;
@@ -9,7 +9,7 @@ interface MainFrameProps {
 
 export default function MainFrame({ projectId } : MainFrameProps)
 {
-    const [ prototypesList, setPrototypesList ] = useState<any[] | null>(null);
+    const [ prototypesList, setPrototypesList ] = useState<PrototypeProps[] | null>(null);
     const [ loading, setLoading ] = useState(true);
     const navigate = useNavigate();
 

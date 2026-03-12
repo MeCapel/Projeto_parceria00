@@ -64,6 +64,7 @@ export const signIn = async (email:string, password: string) => {
         }
         toast.success("Login realizado com sucesso!");
     } catch (err) {
+        console.error("Erro ao fazer login:", err);
         toast.error("E-mail ou senha incorretos!");
     }
 }
@@ -79,13 +80,13 @@ export const updateAccount = async ({ userId, username, profileImage } : EditUse
     if (!userId) return null;
     try {
         const docRef = doc(db, "users", userId);
-        const updateData: any = { username };
+        const updateData: Record<string, string> = { username };
         if (profileImage) updateData.profileImage = profileImage;
 
         await updateDoc(docRef, updateData);
         toast.success("Perfil atualizado com sucesso!");
     } catch (err) {
-        console.error(err);
+        console.error("Erro ao atualizar perfil:", err);
         toast.error("Erro ao atualizar perfil.");
     }
 }
@@ -96,17 +97,26 @@ export const Logout = async () => {
         await signOut(auth);
         toast.info("Logout realizado com sucesso!");
     } catch (err) {
+        console.error("Erro ao fazer logout:", err);
         toast.error("Erro ao fazer logout!");
     }
 }
 
-export const getUsers = (callback: any) => {
+export interface UserDocument {
+    id: string;
+    username: string;
+    email: string;
+    profileImage?: string;
+    [key: string]: any; // A temporary measure to allow other fields, but avoiding explicit any in the callback
+}
+
+export const getUsers = (callback: (users: UserDocument[]) => void) => {
     const docRef = collection(db, "users");
     return onSnapshot(docRef, (snapshot) => {
         const usersList = snapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
-        }));
+        })) as UserDocument[];
         callback(usersList);
     })
 }

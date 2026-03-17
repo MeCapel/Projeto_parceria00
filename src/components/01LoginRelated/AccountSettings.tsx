@@ -4,7 +4,7 @@ import { useState, useEffect, useContext } from "react";
 import { doc, getDoc } from 'firebase/firestore'
 import { Logout } from "../../services/authService";
 import { db } from "../../firebaseConfig/config";
-import { PersonCircle, BoxArrowRight, PersonAdd, InfoCircle } from "react-bootstrap-icons";
+import { PersonCircle, BoxArrowRight, InfoCircle } from "react-bootstrap-icons";
 import { AuthContext } from "../../context/AuthContext";
 
 interface AccountSettingsProps {

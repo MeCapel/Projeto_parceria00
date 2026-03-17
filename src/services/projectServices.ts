@@ -2,7 +2,16 @@ import { toast } from "react-toastify";
 import { db } from '../firebaseConfig/config'
 import { addDoc, deleteDoc, collection, doc, getDoc, getDocs, updateDoc, onSnapshot, setDoc, query, where } from 'firebase/firestore'
 import { getCurrentUser } from "./authService";
-import { deletePrototype, type PrototypeProps } from "./prototypeServices";
+import { deletePrototype } from "./prototypeServices";
+
+export interface ProjectProps {
+    id: string;
+    name: string;
+    description: string;
+    owner?: string;
+    members?: string[];
+    addedToUser?: unknown;
+}
 
 // ----- PROJECT RELATED FUNCTIONS -----
 
@@ -35,6 +44,7 @@ export const createProject = async ( projectName: string, projectDescription: st
             name: projectName, 
             description: projectDescription,
             owner: userId,
+            members: [userId] // Initialize with owner as member
         });
         
         // toast.success("✅ Projeto criado com sucesso!");
@@ -75,20 +85,20 @@ export const updateProject = async (projectId: string, name: string, description
     }
 }
 
-export const getProjects = (callback: (projects: PrototypeProps[]) => void) => {
+export const getProjects = (callback: (projects: ProjectProps[]) => void) => {
     const docRef = collection(db, "projects");
 
     return onSnapshot(docRef, (snapshot) => {
         const projectsData = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
-        }) as PrototypeProps);
+        }) as ProjectProps);
             
         callback(projectsData);
     });
 } 
 
-export const getUserProjects = (userId: string, callback: (projects: PrototypeProps[]) => void) => {
+export const getUserProjects = (userId: string, callback: (projects: ProjectProps[]) => void) => {
     try 
     {
         const projectsRef = collection(db, "users", userId, "projects");
@@ -97,7 +107,7 @@ export const getUserProjects = (userId: string, callback: (projects: PrototypePr
             const projects = snapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data()
-            }) as PrototypeProps);
+            }) as ProjectProps);
 
             callback(projects);
         });

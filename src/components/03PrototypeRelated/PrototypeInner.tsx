@@ -34,7 +34,7 @@ export default function PrototypeInner() {
         }
 
         async function fetchData() {
-            const data: any = await getPrototype(prototypeid!);
+            const data = await getPrototype(prototypeid!) as PrototypeProps | null;
 
             if (data) {
                 const proto: PrototypeProps = {

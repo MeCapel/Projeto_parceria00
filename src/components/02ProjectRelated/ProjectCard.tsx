@@ -17,7 +17,7 @@ interface Props {
 }
 
 // ===== MAIN COMPONENT =====
-export default function ProjectCard({ id, projectName, subtitle, projectDescription, element, location } : Props)
+export default function ProjectCard({ id, projectName, projectDescription, element, location } : Props)
 {
     const navigate = useNavigate();
     const menuRef = useRef<HTMLDivElement | null>(null);

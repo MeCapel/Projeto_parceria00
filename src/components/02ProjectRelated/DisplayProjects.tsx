@@ -5,9 +5,8 @@ import { useState, useEffect, useContext } from 'react'
 import MembersCircles from './MembersCircles'
 import NewProjectModal from './NewProjectModal'
 import { AuthContext } from '../../context/AuthContext'
-import { getUserProjects } from '../../services/projectServices'
-import { getUsers } from '../../services/authService'
-import type { PrototypeProps } from '../../services/prototypeServices'
+import { getUserProjects, type ProjectProps } from '../../services/projectServices'
+import { getUsers, type UserDocument } from '../../services/authService'
 
 // ===== PROPS =====
 interface Props {
@@ -18,15 +17,15 @@ export default function DisplayProjects({ displayAll } : Props)
 {
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
-    const [ projects, setProjects ] = useState<PrototypeProps[]>([]);
-    const [ allUsers, setAllUsers ] = useState<any[]>([]);
+    const [ projects, setProjects ] = useState<ProjectProps[]>([]);
+    const [ allUsers, setAllUsers ] = useState<UserDocument[]>([]);
     const [ loading, setLoading ] = useState(true);
 
     useEffect(() => {
         if (!user) return;
 
         // 1. Carrega todos os usuários para pegar as fotos
-        const unsubUsers = getUsers((users: any[]) => {
+        const unsubUsers = getUsers((users: UserDocument[]) => {
             setAllUsers(users);
         });
 
@@ -73,18 +72,18 @@ export default function DisplayProjects({ displayAll } : Props)
                         <p className="text-muted mb-0">Nenhum projeto encontrado.</p>
                     </div>
                 ) : (
-                    (displayAll ? projects : projects.slice(0, 5)).map((project: PrototypeProps) => {
+                    (displayAll ? projects : projects.slice(0, 5)).map((project: ProjectProps) => {
                         
                         // Lista de IDs de membros (ou apenas o dono se members não existir)
                         const rawMembers = project.members || (project.owner ? [project.owner] : [user?.uid]);
 
                         // Mapeia para objetos detalhados com FOTOS
-                        const projectMembers = rawMembers.map(memberId => {
+                        const projectMembers = rawMembers.map((memberId: string | undefined) => {
                             // Busca o usuário na lista global carregada, forçando comparação de string
                             const foundUser = allUsers.find(u => String(u.id) === String(memberId));
                             
                             return {
-                                id: memberId,
+                                id: memberId || "",
                                 name: foundUser?.username || "Colaborador",
                                 img: foundUser?.profileImage || undefined // Aqui está a foto em Base64
                             };

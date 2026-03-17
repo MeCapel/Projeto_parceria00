@@ -12,7 +12,7 @@ import Step3 from "./Steps/Step3";
 export interface StepProps {
   values: PrototypeProps;
   errors: Record<string, string>;
-  onChange: (name: string, value: any) => void;
+  onChange: (name: string, value: string | string[]) => void;
 }
 
 interface MultiFormProps {
@@ -103,7 +103,7 @@ export default function ProtoMultiForm2({ projectId } : MultiFormProps) {
 
 
     // 🔥 troca de inputs
-    function handleInputChange(name: string, value: any) 
+    function handleInputChange(name: string, value: string | string[]) 
     {
         setFormValues(prev => ({
         ...prev,

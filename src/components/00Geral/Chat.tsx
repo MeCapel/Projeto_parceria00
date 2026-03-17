@@ -39,9 +39,7 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
             setTimeout(() => setLoading(false), 1000);
 
             data.forEach((msg) => {
-                const isViewed = msg.viewedBy && msg.viewedBy.some(v => 
-                    typeof v === 'string' ? v === userId : v.id === userId
-                );
+                const isViewed = msg.viewedBy && msg.viewedBy.includes(userId);
                 
                 if (msg.id && !isViewed && msg.senderId !== userId) {
                     markMessageAsRead(projectId, msg.id, userId);
@@ -58,9 +56,18 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
         }
     }, [messages, loading]);
 
-    const formatTime = (timestamp: any) => {
+    const formatTime = (timestamp: unknown) => {
         if (!timestamp) return "";
-        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        
+        let date: Date;
+        if (timestamp instanceof Date) {
+            date = timestamp;
+        } else if (typeof timestamp === 'object' && timestamp !== null && 'toDate' in timestamp && typeof (timestamp as any).toDate === 'function') {
+            date = (timestamp as any).toDate();
+        } else {
+            date = new Date(timestamp as string | number);
+        }
+        
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
@@ -92,7 +99,7 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
             {/* Área de Mensagens */}
             <div
                 ref={scrollRef}
-                className="overflow-auto p-3 d-flex flex-column gap-2"
+                className="overflow-auto p-3 grow d-flex flex-column gap-2"
                 style={{ scrollBehavior: "smooth" }}
             >
                 {loading ? (
@@ -107,9 +114,7 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
                 ) : (
                     messages.map((msg) => {
                         const isMyMessage = String(msg.senderId) === String(userId);
-                        const viewers = msg.viewedBy ? msg.viewedBy.filter(v => 
-                            typeof v === 'string' ? v !== msg.senderId : v.id !== msg.senderId
-                        ) : [];
+                        const viewers = msg.viewedBy ? msg.viewedBy.filter(v => v !== msg.senderId) : [];
                         const isReadByOthers = viewers.length > 0;
 
                         return (
@@ -182,9 +187,9 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
                                                 }}
                                             >
                                                 <p className="mb-1 border-bottom fw-bold text-dark" style={{ fontSize: '0.65rem' }}>Lido por:</p>
-                                                {viewers.map((v, i) => (
+                                                {viewers.map((_, i) => (
                                                     <div key={i} className="text-dark" style={{ fontSize: '0.6rem', whiteSpace: 'nowrap' }}>
-                                                        • {typeof v === 'string' ? 'Usuário' : v.name}
+                                                        • Usuário
                                                     </div>
                                                 ))}
                                             </div>

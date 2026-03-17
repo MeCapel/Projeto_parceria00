@@ -3,12 +3,11 @@
 import { useState } from "react";
 import { Modal } from "react-bootstrap";
 import { useNavigate } from "react-router";
-import DisplayChecklistsModel from "./DisplayChecklists2";
 import { Trash3Fill, PlusLg, Dash } from "react-bootstrap-icons";
-import { createChecklistModel, type Checklist, type Categories, type CheckboxItem } from "../../services/checklistServices";
+import { createChecklistModel, type CategoriesProps, type CheckboxItemProps, type ChecklistProps } from "../../../services/checklistServices";
 
 // ===== MAIN COMPONENT =====
-
+// ----- This component is a model and let us create a new checklist model -----
 export default function AddChecklistModel() {
     
     // ===== DECLARING & INITIALIZING VARIABLES =====
@@ -23,7 +22,7 @@ export default function AddChecklistModel() {
         setShow(false);
     };
 
-    const [checklist, setChecklist] = useState<Checklist>({
+    const [checklist, setChecklist] = useState<ChecklistProps>({
         name: "",
         vertical: "",
         categories: [],
@@ -51,7 +50,7 @@ export default function AddChecklistModel() {
     const handleNewCategory = () => {
         if (!newCategoryName.trim()) return;
 
-        const newCat: Categories = {
+        const newCat: CategoriesProps = {
             id: crypto.randomUUID(),
             name: newCategoryName.trim(),
             items: []
@@ -70,7 +69,7 @@ export default function AddChecklistModel() {
         const itemName = itemInputs[catIndex]?.trim();
         if (!itemName) return;
 
-        const newItem: CheckboxItem = {
+        const newItem: CheckboxItemProps = {
             id: crypto.randomUUID(),
             label: itemName,
             checked: false
@@ -145,28 +144,10 @@ export default function AddChecklistModel() {
     };
 
     return (
-        <div className="px-5 mx-3">
-            <div className="d-flex row">
-                
-                <div className="d-flex flex-column col-12 col-md-10" >
-                    <p 
-                        style={{ cursor: "pointer" }}
-                        className='mb-0 text-custom-red fs-5'
-                        onClick={() => navigate(`/checklists`)}
-                    >
-                        Modelos de Checklist
-                    </p>
-                    <p className='mb-0 text-custom-black fs-1 fw-bold'>Gerenciar modelos</p>
-                </div>
-
-                <div className="d-flex gap-3 align-items-end justify-content-end col-12 col-md-2 my-3 my-md-0">
-                    <button className='btn-custom btn-custom-success' onClick={openModal}>
-                        <PlusLg size={30}/>
-                    </button>
-                </div>
-            </div>
-
-            <DisplayChecklistsModel inline={false} />
+        <div className="">
+            <button className='btn-custom btn-custom-outline-black' onClick={openModal}>
+                <PlusLg size={30}/>
+            </button>
 
             <Modal show={show} onHide={closeModal} dialogClassName="" centered className='p-0' size="lg">
                 <Modal.Header closeButton className="border-0 m-2"></Modal.Header>
@@ -200,7 +181,7 @@ export default function AddChecklistModel() {
                             <fieldset className="col d-flex flex-column mt-3 align-items-start border rounded-2">
 
                                 <div className="d-flex py-1 px-3 align-items-start justify-content-center rounded-5 border bg-custom-gray00"
-                                    style={{ top: "-1.75rem", position: "relative" }}>
+                                    style={{ top: "-25px", position: "relative" }}>
                                     <legend className='mb-0 text-white fs-5'>Vertical</legend>
                                 </div>
 

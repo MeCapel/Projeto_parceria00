@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-import { getChecklistsModelByP, type Checklist } from "../../services/checklistServices";
+import { getChecklistsModelByP, type ChecklistProps } from "../../../services/checklistServices";
 
 interface Props {
     vertical: string;
     initialSelectedIds?: string[];
-    onValueChange: (ids: string[], checklists: Checklist[]) => void;
+    onValueChange: (ids: string[], checklists: ChecklistProps[]) => void;
 }
 
 export default function ChooseChecklists({ vertical, onValueChange, initialSelectedIds }: Props) {
     const [loading, setLoading] = useState(true);
-    const [data, setData] = useState<Checklist[]>([]);
+    const [data, setData] = useState<ChecklistProps[]>([]);
     const [selectedIds, setSelectedIds] = useState<string[]>(initialSelectedIds || []);
 
     // Atualiza selectedIds se initialSelectedIds mudar

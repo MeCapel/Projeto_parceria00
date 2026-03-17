@@ -104,9 +104,9 @@
 }
 
 .btn-custom-outline-black:hover {
-    background-color: var(--gray02);
+    background-color: var(--black00);
     border: 1px solid var(--black00);
-    color: var(--black00);
+    color: var(--white00);
 }
 
 .border-custom-red00 

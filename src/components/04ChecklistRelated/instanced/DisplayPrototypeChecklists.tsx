@@ -1,20 +1,20 @@
 import { useState } from "react";
-import { type Checklist } from "../../services/checklistServices";
 import EditChecklistModal from "./EditChecklistModal";
 import { Check2Circle } from "react-bootstrap-icons";
+import type { ChecklistProps } from "../../../services/checklistServices";
 
 interface Props {
     prototypeId: string;
-    checklists: Checklist[];
-    onUpdate: (updatedChecklist: Checklist) => void; // para atualizar a checklist no pai
+    checklists: ChecklistProps[];
+    onUpdate: (updatedChecklist: ChecklistProps) => void; // para atualizar a checklist no pai
 }
 
 export default function DisplayPrototypeChecklists({ checklists, prototypeId, onUpdate }: Props) {
-  const [selectedChecklist, setSelectedChecklist] = useState<Checklist | null>(null);
+  const [selectedChecklist, setSelectedChecklist] = useState<ChecklistProps | null>(null);
 
   // Ao abrir, criamos uma cópia para evitar mutações por referência
-  const openChecklist = (cl: Checklist) => {
-    const copy = structuredClone(cl) as Checklist;
+  const openChecklist = (cl: ChecklistProps) => {
+    const copy = structuredClone(cl) as ChecklistProps;
     setSelectedChecklist(copy);
   };
 

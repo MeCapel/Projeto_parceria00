@@ -37,7 +37,6 @@ export default function Notifications({ isOpen, onOpen, onClose } : AccountSetti
                 if (docSnap.exists())
                 {
                     setUserData(docSnap.data() as UserProps);
-                    console.log("Fetched user data: ", docSnap.data());
                 }
                 else 
                 {

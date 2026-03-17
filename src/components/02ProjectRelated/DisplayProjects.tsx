@@ -71,8 +71,8 @@ export default function DisplayProjects({ displayAll } : Props)
                         </div>
                         <div className="d-flex align-items-start justify-content-end col-2 gap-3">
                             <NewProjectModal />
-                            <Link to={"/projects"} className='btn-custom btn-custom-primary text-decoration-none'>
-                                <p className='mb-0 text-custom-white p-1'>Ver todos</p>
+                            <Link to={"/projects"} className='btn-custom btn-custom-outline-black text-decoration-none'>
+                                <p className='mb-0 p-1'>Ver todos</p>
                             </Link>
                         </div>
                     </>

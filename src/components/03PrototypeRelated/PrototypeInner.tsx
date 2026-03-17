@@ -11,7 +11,6 @@ import { getPrototype,
          updatePrototype, 
          deletePrototype, 
          updatePrototypeChecklists} from '../../services/prototypeServices';
-import Layout from "../00Geral/Layout";
 
 // =====  MAIN COMPONENT =====
 
@@ -35,7 +34,7 @@ export default function PrototypeInner() {
         }
 
         async function fetchData() {
-            const data: PrototypeProps | null = await getPrototype(prototypeid!);
+            const data = await getPrototype(prototypeid!) as PrototypeProps | null;
 
             if (data) {
                 const proto: PrototypeProps = {
@@ -153,7 +152,7 @@ export default function PrototypeInner() {
     if (loading || !prototype) return <p>Carregando...</p>;
 
     return (
-        <Layout>
+        <>
 
         <div className="ps-5 pt-5 pb-0 pe-0" onClick={() => navigate(`/projects/${prototype.projectId}`)}>
             <div className="text-link-custom d-flex gap-3 align-items-center" style={{ cursor: "pointer" }}>
@@ -357,6 +356,6 @@ export default function PrototypeInner() {
 
             </form>
         </div>
-        </Layout>
+        </>
     );
 }

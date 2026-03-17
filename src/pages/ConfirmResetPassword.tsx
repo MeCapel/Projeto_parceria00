@@ -51,10 +51,11 @@ export default function ConfirmResetPassword()
             alert("Senha redefinida com sucesso!");
             navigate("/login");
         }
-        catch (err: any)
+        catch (err: unknown)
         {
             console.error(err);
-            alert("Erro ao redefinir a nova senha. Tente novamente.");
+            const error = err as { message?: string };
+            alert(error.message || "Erro ao redefinir a nova senha. Tente novamente.");
         }
     };
 

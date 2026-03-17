@@ -2,6 +2,7 @@ import React,{ useState } from "react";
 
 import Header from './Header'
 import Sidebar from './Sidebar'
+import FloatingChat from "./FloatingChat";
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -18,6 +19,7 @@ export default function Layout({ children } : LayoutProps)
                 <Header sidebarWidth={sidebarWidth}/>
                 {children}
             </div>
+            <FloatingChat />
         </>
     )
 }

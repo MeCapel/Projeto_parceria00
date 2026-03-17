@@ -116,7 +116,7 @@ export const listenPrototypesForProject = (
             const results = snapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data()
-            }) as PrototypeProps);
+            })) as PrototypeProps[];
 
             callback(results);
         },
@@ -183,7 +183,7 @@ export const listenPrototypesForProjectWProgress = (
 };
 
 // ----- ESTA FUNÇÃO PEGA OS DADOS DE TODOS OS PROTÓTIPOS -----
-export const getPrototypes = (callback: (prototypes: PrototypeProps[]) => void) => {
+export const getPrototypes = (callback: (data: PrototypeProps[]) => void) => {
     const collectionRef = collection(db, "prototypes");
     const q = query(
         collectionRef,
@@ -194,7 +194,7 @@ export const getPrototypes = (callback: (prototypes: PrototypeProps[]) => void) 
         const prototypesData = snapshot.docs.map((d) => ({
             id: d.id,
             ...d.data()
-        }) as PrototypeProps);
+        })) as PrototypeProps[];
 
         callback(prototypesData);
     });

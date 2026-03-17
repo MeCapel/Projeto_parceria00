@@ -1,25 +1,109 @@
 @import "./colors.css";
 
 .form-control:focus {
-    border-color: var(--gray00) !important; 
+    border-color: var(--gray00) !important;
     box-shadow: 0 0 0 0.15rem var(--gray02) !important;
 }
 
 .scroll-area {
-  max-height: 200px; 
+  max-height: 200px;
   overflow-y: auto;
-  padding-right: 6px; 
+  padding-right: 6px;
 }
 
-
-/* .modal-custom-body
-{
-    max-height: 80vh;
-    overflow-y: auto
+/* Skeleton Screen Animation */
+.skeleton {
+    background-color: #e2e5e7;
+    background-image: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 0.5),
+        rgba(255, 255, 255, 0)
+    );
+    background-size: 200px 100%;
+    background-repeat: no-repeat;
+    display: inline-block;
+    line-height: 1;
+    width: 100%;
+    animation: skeleton-loading 1.5s infinite linear;
+    border-radius: 4px;
 }
 
-.modal-custom--inner
-{
-    max-height: 15vh;
-    overflow-y: auto
-} */
+@keyframes skeleton-loading {
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
+}
+
+.skeleton-text { height: 1.2rem; margin-bottom: 0.5rem; }
+.skeleton-title { height: 0.8rem; width: 40%; margin-bottom: 0.3rem; }
+.skeleton-bubble { height: 3rem; width: 80%; border-radius: 15px; }
+
+/* REFINED CHAT STYLES */
+.chat-container {
+    background-color: #f0f2f5;
+    background-image: linear-gradient(rgba(240, 242, 245, 0.9), rgba(240, 242, 245, 0.9)), url('/fromBrand/baldan-bgchat.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.msg-bubble {
+    position: relative;
+    padding: 10px 15px; /* Aumentado para o texto não ficar apertado */
+    max-width: 80%;
+    font-size: 0.92rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    word-wrap: break-word; /* Evita que o texto saia pra fora */
+    overflow-wrap: break-word;
+}
+
+.msg-bubble-sent {
+    background-color: #fdeef1 !important; /* Vermelho suave Baldan */
+    color: #444 !important;
+    border: 1px solid #fcc4cc;
+    border-radius: 18px 18px 2px 18px !important; /* Pontinha no canto inferior direito */
+}
+
+.msg-bubble-received {
+    background-color: #ffffff !important;
+    color: #333 !important;
+    border: 1px solid #e1dfdd;
+    border-radius: 18px 18px 18px 2px !important; /* Pontinha no canto inferior esquerdo */
+}
+
+.msg-meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    font-size: 0.65rem;
+    margin-top: 4px;
+}
+
+.msg-sent-meta {
+    color: #a35a5a;
+}
+
+.msg-received-meta {
+    color: #8a8a8a;
+}
+
+.edit-btn-trigger {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.msg-group:hover .edit-btn-trigger {
+    opacity: 1;
+}
+
+.chat-input-area {
+    background: #ffffff;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+
+.viewed-by-list {
+    font-size: 0.6rem;
+    color: #8a8a8a;
+    margin-top: 2px;
+    margin-left: 5px;
+}

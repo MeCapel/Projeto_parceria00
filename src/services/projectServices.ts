@@ -151,9 +151,11 @@ export const deleteProjectNPrototypes = async ( projectId: string ) => {
         if (!userId) return;
 
         const userRole = await getUserRole(projectId);
-        if(userRole !== "owner" || userRole !== "admin")
+        if(userRole !== "owner" || userRole !== "admin" || userRole !== "Owner" || userRole !== "Admin")
         {
             console.error(`Você não tem permissão!`);
+            console.error(`${userRole}`);
+
             return;
         }
 

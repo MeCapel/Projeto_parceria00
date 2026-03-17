@@ -2,7 +2,6 @@
 import { useNavigate, useParams } from "react-router"
 import { ArrowLeftCircleFill } from "react-bootstrap-icons";
 import { useEffect, useState } from "react";
-import Layuot from "../00Geral/Layout";
 import { db } from '../../firebaseConfig/config'
 import { doc, onSnapshot } from 'firebase/firestore'
 import MainFrame2 from "../03PrototypeRelated/MainFrame";
@@ -10,6 +9,9 @@ import ProtoMultiForm2 from "../03PrototypeRelated/ProtoMultiForm";
 import DividedByProgress from "./DividedByProgress";
 import NewMemberModal from "./NewMemberModal";
 import type { ProjectProps } from "../../services/projectServices";
+
+
+
 
 export default function ProjectItem()
 {
@@ -19,7 +21,7 @@ export default function ProjectItem()
     const [ currentView, setCurrentView ] = useState<number>(0);
 
     // console.log("This one is the id: ", projectid);
- 
+
     useEffect(() => {
         if (!projectid) return;
 
@@ -36,7 +38,7 @@ export default function ProjectItem()
         });
 
         return () => unsub();
-        
+
     }, [projectid]);
 
     if (!projectData)
@@ -48,7 +50,7 @@ export default function ProjectItem()
     {
         window.alert("Id do projeto invalido!")
         return;
-    } 
+    }
 
     function renderView(current: number)
     {
@@ -62,7 +64,7 @@ export default function ProjectItem()
     }
 
     return(
-        <Layuot>
+        <>
             <div className="ps-5 pt-5 pb-0 pe-0" onClick={() => navigate(`/projects`)}>
                 <div className="text-link-custom d-flex gap-3 align-items-center" style={{ cursor: "pointer" }}>
                     <ArrowLeftCircleFill size={30} />
@@ -89,13 +91,13 @@ export default function ProjectItem()
 
                 <div className="d-flex flex-column align-items-start">
                     <div className="d-flex">
-                        <div 
+                        <div
                             className={currentView == 0 ? `d-flex justify-content-center border-bottom border-danger` : `d-flex justify-content-center`}
                             style={{ width: "200px", position: 'relative', bottom: "-2px", cursor: "pointer" }}
                         >
                             <p className='px-3 mb-1 fs-5 text-custom-black' onClick={() => setCurrentView(0)}>Quadro principal</p>
                         </div>
-                        <div 
+                        <div
                             className={currentView == 1 ? `d-flex justify-content-center border-bottom border-danger` : `d-flex justify-content-center`}
                             style={{ width: "200px", position: 'relative', bottom: "-2px", cursor: "pointer" }}
                         >
@@ -108,11 +110,11 @@ export default function ProjectItem()
                         {/* <ProtoMultiForm projectId={projectid}/> */}
                         <ProtoMultiForm2 projectId={projectid}/>
                 </div>
-                    
+
                 <div className="my-3">
                     {renderView(currentView)}
                 </div>
             </div>
-        </Layuot>
+        </>
     )
 }

@@ -42,24 +42,21 @@ export default function SignInForm()
             alert("User created successfully!");
             navigate("/home");
         }
-        catch (error: any)
+        catch (error: unknown)
         {
-            switch (error.code) {
+            const err = error as { code?: string, message?: string };
+            switch (err.code) {
                 case "auth/email-already-in-use":
                     alert("Este email já está em uso.");
                     break;
-
                 case "auth/invalid-email":
-                    alert("Formato de email inválido.");
+                    alert("O formato do email é inválido.");
                     break;
-
                 case "auth/weak-password":
                     alert("A senha deve ter pelo menos 6 caracteres.");
                     break;
-            
                 default:
-                    alert("Erro ao criar usuário: " + error.message);
-                    break;
+                    alert("Ocorreu um erro ao criar a conta: " + (err.message || "Erro desconhecido"));
             }
         }
         finally

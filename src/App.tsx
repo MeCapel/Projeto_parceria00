@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 // Importing components
 import AuthProvider from './context/AuthProvider'
 import ProtectedRoute from './components/Others/ProtectedRoute'
+import Layout from './components/00Geral/Layout'
 
 // Importing full pages
 import Home from './pages/Home'
@@ -41,12 +42,14 @@ export default function App() {
           <Route path="*" element={<NotFoundPage />} />
           <Route path='/resetpassword' element={<ResetPassword />}/>
           <Route path='/confirmresetpassword' element={<ConfirmResetPassword />}/>
-          <Route path='/home' element={<ProtectedRoute><Home /></ProtectedRoute>}/>
-          <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
-          <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
-          <Route path="/projects/:projectid" element={<ProtectedRoute><Project /></ProtectedRoute>} />
-          <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><PrototypeInner /></ProtectedRoute>} />
-          <Route path="/checklists" element={<ProtectedRoute><Checklists /></ProtectedRoute>} />
+          
+          {/* Rotas Protegidas que usam o Layout do sistema */}
+          <Route path='/home' element={<ProtectedRoute><Layout><Home /></Layout></ProtectedRoute>}/>
+          <Route path="/projects" element={<ProtectedRoute><Layout><Projects /></Layout></ProtectedRoute>} />
+          <Route path='/profile' element={<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>}/>
+          <Route path="/projects/:projectid" element={<ProtectedRoute><Layout><Project /></Layout></ProtectedRoute>} />
+          <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><Layout><PrototypeInner /></Layout></ProtectedRoute>} />
+          <Route path="/checklists" element={<ProtectedRoute><Layout><Checklists /></Layout></ProtectedRoute>} />
         </Routes>
 
       </main>

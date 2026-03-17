@@ -16,12 +16,10 @@ import SignUp from './pages/SignUp'
 import Project from './pages/Project'
 import Profile from './pages/Profile'
 import Projects from './pages/Projects'
-import Checklists from './pages/Checklists'
 import NotFoundPage from './pages/NotFoundPage'
 import ResetPassword from './pages/ResetPassword'
 import ConfirmResetPassword from './pages/ConfirmResetPassword'
 import PrototypeInner from './components/03PrototypeRelated/PrototypeInner'
-// import NewChecklistVersion from './components/04ChecklistRelated/NewChecklistVersion'
 
 // App.tsx component
 export default function App() {
@@ -49,7 +47,6 @@ export default function App() {
           <Route path='/profile' element={<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>}/>
           <Route path="/projects/:projectid" element={<ProtectedRoute><Layout><Project /></Layout></ProtectedRoute>} />
           <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><Layout><PrototypeInner /></Layout></ProtectedRoute>} />
-          <Route path="/checklists" element={<ProtectedRoute><Layout><Checklists /></Layout></ProtectedRoute>} />
         </Routes>
 
       </main>

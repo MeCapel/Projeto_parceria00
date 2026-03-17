@@ -1,19 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
 import { Modal } from "react-bootstrap";
-import ChooseChecklists from "../04ChecklistRelated/ChooseChecklist2"
-import { type Checklist } from "../../services/checklistServices"; 
+import ChooseChecklists from "./ChooseChecklist2";
+import { type ChecklistProps } from "../../../services/checklistServices";
 
 interface ManageChecklistModalProps {
     vertical: string;
-    selectedChecklists: Checklist[];
+    selectedChecklists: ChecklistProps[];
     onClose: () => void;
-    onUpdate: (newChecklists: Checklist[]) => void;
+    onUpdate: (newChecklists: ChecklistProps[]) => void;
 }
 
 export default function ManageChecklistsModal({ vertical, selectedChecklists, onClose, onUpdate }: ManageChecklistModalProps) {
   const [show, setShow] = useState(false);
   const [selectedModelIds, setSelectedModelIds] = useState<string[]>([]);
-  const [avaliableModels, setAvaliableModels] = useState<Checklist[]>([]);
+  const [avaliableModels, setAvaliableModels] = useState<ChecklistProps[]>([]);
 
   // re-sincroniza sempre que prop mudar
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function ManageChecklistsModal({ vertical, selectedChecklists, on
   const closeModal = () => { setShow(false); onClose(); };
 
   const handleValueChange = useCallback(
-    (ids: string[], checklists: Checklist[]) => {
+    (ids: string[], checklists: ChecklistProps[]) => {
       setSelectedModelIds(ids);
       setAvaliableModels(checklists);
     },
@@ -46,7 +46,7 @@ export default function ManageChecklistsModal({ vertical, selectedChecklists, on
         !kept.some(cl => cl.originalModel === model.id)
     );
 
-    const created: Checklist[] = toCreate.map(model => ({
+    const created: ChecklistProps[] = toCreate.map(model => ({
       id: crypto.randomUUID(),
       name: model.name,
       vertical: model.vertical,

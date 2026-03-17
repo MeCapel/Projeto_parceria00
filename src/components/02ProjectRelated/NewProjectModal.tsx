@@ -71,8 +71,8 @@ export default function NewProjectModal()
 
     return(
         <>
-            <button className='btn-custom btn-custom-primary' onClick={openModal} >
-                <p className='mb-0 fs-5 text-custom-white'>
+            <button className='btn-custom btn-custom-outline-black' onClick={openModal} >
+                <p className='mb-0 fs-5'>
                     <PlusLg size={30} />
                 </p>
             </button>

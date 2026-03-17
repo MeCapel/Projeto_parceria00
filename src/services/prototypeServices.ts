@@ -1,7 +1,6 @@
 import { db } from '../firebaseConfig/config'
 import { addDoc, deleteDoc, collection, doc, getDoc, setDoc, onSnapshot, updateDoc, query, orderBy, getDocs, writeBatch, arrayUnion, where } from 'firebase/firestore'
-import { getChecklistModel, type Categories, type CheckboxItem } from './checklistServices';
-import type { Checklist } from './checklistServices';
+import { getChecklistModel, type CategoriesProps, type CheckboxItemProps, type ChecklistProps } from './checklistServices';
 
 export interface PrototypeProps {
     id?: string, 
@@ -15,7 +14,7 @@ export interface PrototypeProps {
     areaSize?: string,
     editedAt?: string[],
     createdAt?: string,
-    checklists?: Checklist[],
+    checklists?: ChecklistProps[],
     projectId: string,
 }
 
@@ -70,6 +69,7 @@ export const createPrototype = async ( prototype: PrototypeProps ) : Promise<str
     }
 }
 
+// ----- ESTA FUNÇÃO PEGA AS DADOS DE UM ÚNICO PROTÓTIPO -----
 export const getPrototype = async (prototypeId: string) => {
     try {
         const prototypeRef = doc(db, "prototypes", prototypeId);
@@ -160,7 +160,7 @@ export const listenPrototypesForProjectWProgress = (
             const unsubscribeChecklists = onSnapshot(checklistsRef, (snap) => {
                 const checklists = snap.docs.map(doc => ({
                     id: doc.id,
-                    ...(doc.data() as Checklist),
+                    ...(doc.data() as ChecklistProps),
                 }));
 
                 prototypes[index] = {
@@ -230,7 +230,7 @@ export const updatePrototype = async ( editedPrototype: PrototypeProps & { id: s
 
 export const updatePrototypeChecklists = async (
   prototypeId: string,
-  localChecklists: Checklist[]
+  localChecklists: ChecklistProps[]
 ) => {
   try {
     const batch = writeBatch(db);
@@ -316,10 +316,10 @@ export const createChecklistInstance = async ( checklistModelId: string ) => {
             return null;
         }
         
-        const newCategories = checklistModel.categories.map((c: Categories) => ({
+        const newCategories = checklistModel.categories.map((c: CategoriesProps) => ({
             id: c.id,
             name: c.name,
-            items: c.items.map((i: CheckboxItem) => ({
+            items: c.items.map((i: CheckboxItemProps) => ({
                 id: i.id,
                 label: i.label,
                 checked: false
@@ -372,7 +372,7 @@ export const addChecklistToPrototype = async ( prototypeId: string, checklistMod
 }
 
 // ----- ESTA FUNÇÃO ATUALIZA OS CAMPOS CHECKED DAS CHECKLISTS DO PROTÓTIPO -----
-export const toggleChecklistItems = async ( prototypeId: string, checklistId: string, newChecklist: Checklist ) => {
+export const toggleChecklistItems = async ( prototypeId: string, checklistId: string, newChecklist: ChecklistProps ) => {
     try 
     {
         const docRef = doc(db, "prototypes", prototypeId, "checklists", checklistId);

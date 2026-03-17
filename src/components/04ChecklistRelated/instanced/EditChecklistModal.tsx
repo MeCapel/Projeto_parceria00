@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
-import { type Checklist } from "../../services/checklistServices";
+import { type ChecklistProps } from "../../../services/checklistServices";
 // import { toggleChecklistItems } from "../../services/prototypeServices2";
 
 interface Props {
     prototypeId: string;
-    checklist: Checklist;
+    checklist: ChecklistProps;
     onClose: () => void;
-    onSave: (updatedChecklist: Checklist) => void;
+    onSave: (updatedChecklist: ChecklistProps) => void;
 }
 
 export default function EditChecklistModal({ prototypeId, checklist, onClose, onSave }: Props) {
     // estado local inicializado com cópia do prop checklist
-    const [localChecklist, setLocalChecklist] = useState<Checklist>(checklist);
+    const [localChecklist, setLocalChecklist] = useState<ChecklistProps>(checklist);
     const [saving, setSaving] = useState(false);
 
     // sempre que a prop checklist mudar, atualiza o estado local (deep copy)
@@ -38,7 +38,7 @@ export default function EditChecklistModal({ prototypeId, checklist, onClose, on
     };
 
     // Função que garante que todos os itens possuem id (validação leve)
-    const validateIds = (cl: Checklist) => {
+    const validateIds = (cl: ChecklistProps) => {
         if (!cl.id) return false;
         for (const cat of cl.categories || []) {
             // se category tem id opcional, aceitamos, mas itens devem ter id

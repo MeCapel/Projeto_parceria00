@@ -1,31 +1,31 @@
 import { db } from '../firebaseConfig/config'
 import { addDoc, deleteDoc, collection, doc, getDocs, query, where, onSnapshot, orderBy, limit, getDoc } from 'firebase/firestore'
 
-export interface CheckboxItem {
+export interface CheckboxItemProps {
     id: string,
     label: string,
     checked: boolean,
 }
 
-export interface Categories {
+export interface CategoriesProps {
     id?: string,
     name: string,
-    items: CheckboxItem[],
+    items: CheckboxItemProps[],
     newItemName?: string;
 }
 
-export interface Checklist {
+export interface ChecklistProps {
     id?: string,
     name: string,
     vertical: string,
-    categories: Categories[],
+    categories: CategoriesProps[],
     version: number,
     createdAt: string;
     originalModel?: string,
 }
 
 // ----- ESTA FUNÇÃO CRIA UM NOVA CHECKLISTS MODELO -----
-export const createChecklistModel = async ( checklist: Checklist ) => {
+export const createChecklistModel = async ( checklist: ChecklistProps ) => {
     try 
     {
         const checklistRef = collection(db, "checklistModels");
@@ -50,7 +50,7 @@ export const createChecklistModel = async ( checklist: Checklist ) => {
 }
 
 // ----- ESTA FUNÇÃO PEGA A ÚLTIMA VERSÃO DA CHECKLIST MODELO QUE O USUÁRIO SOLICITAR -----
-const fetchLatestChecklistVersion = async ( checklist: Checklist ) => {
+const fetchLatestChecklistVersion = async ( checklist: ChecklistProps ) => {
     try 
     {
         const checklistRef = collection(db, "checklistModels");
@@ -80,7 +80,7 @@ const fetchLatestChecklistVersion = async ( checklist: Checklist ) => {
 }
 
 // ----- ESTA FUNÇÃO CRIA UMA NOVA VERSÃO DE UMA CHECKLIST, OU SEJA, O NOME, A VERTICAL E ALGUNS OUTROS ITENS SE MANTEM OS MESMOS, POREM HÁ ALGUMA ALTERAÇÃO DO ESTADO INICIAL -----
-export const createNewChecklistVersion = async ( checklist: Checklist, checklistId: string ) => {
+export const createNewChecklistVersion = async ( checklist: ChecklistProps, checklistId: string ) => {
     try
     {
         const docRef = collection(db, "checklistModels");
@@ -114,7 +114,7 @@ export const createNewChecklistVersion = async ( checklist: Checklist, checklist
 }
 
 // ----- ESTA FUNÇÃO PEGA UM ÚNICO MODELE DE CHECKLIST -----
-export const getChecklistModel = async ( checklistModelId: string ) : Promise<(Checklist & { id: string }) | null> => {
+export const getChecklistModel = async ( checklistModelId: string ) : Promise<(ChecklistProps & { id: string }) | null> => {
     try 
     {
         const docRef = doc(db, "checklistModels", checklistModelId);
@@ -126,7 +126,7 @@ export const getChecklistModel = async ( checklistModelId: string ) : Promise<(C
             return null;
         }
 
-        return { id: docSnap.id, ...(docSnap.data() as Checklist) };
+        return { id: docSnap.id, ...(docSnap.data() as ChecklistProps) };
     }
     catch (err)
     {
@@ -136,7 +136,7 @@ export const getChecklistModel = async ( checklistModelId: string ) : Promise<(C
 }
 
 // ----- ESTA FUNÇÃO PEGA TODOS OS MODELOS DE CHECKLIST -----
-export const getChecklistsModel = (callback: (items: (Checklist & { id: string })[]) => void) => {
+export const getChecklistsModel = (callback: (items: (ChecklistProps & { id: string })[]) => void) => {
     const docRef = collection(db, "checklistModels");
     const q = query(
         docRef,
@@ -147,7 +147,7 @@ export const getChecklistsModel = (callback: (items: (Checklist & { id: string }
         const data = snapshot.docs.map((d) => ({
             id: d.id,
             ...d.data(),
-        })) as (Checklist & { id: string })[];
+        })) as (ChecklistProps & { id: string })[];
 
         callback(data);
     });
@@ -170,7 +170,7 @@ export const getChecklistsModelByP = async (vertical: string) => {
         const results = snapshot.docs.map((d) => ({
             id: d.id,
             ...d.data()
-        })) as (Checklist & { id: string })[];
+        })) as (ChecklistProps & { id: string })[];
 
         return results;
     }

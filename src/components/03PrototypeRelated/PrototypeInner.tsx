@@ -2,15 +2,15 @@
 
 import { ArrowLeftCircleFill } from "react-bootstrap-icons";
 import { useNavigate, useParams } from "react-router";
-import ManageChecklistsModal from "./ManageChecklists";
 import { useState, useEffect, type FormEvent } from "react";
-import { type Checklist } from "../../services/checklistServices";
-import DisplayPrototypeChecklists from "../04ChecklistRelated/DisplayPrototypeChecklists";
 import { getPrototype, 
          type PrototypeProps, 
          updatePrototype, 
          deletePrototype, 
          updatePrototypeChecklists} from '../../services/prototypeServices';
+import type { ChecklistProps } from "../../services/checklistServices";
+import DisplayPrototypeChecklists from "../04ChecklistRelated/instanced/DisplayPrototypeChecklists";
+import ManageChecklistsModal from "../04ChecklistRelated/instanced/ManageChecklists";
 
 // =====  MAIN COMPONENT =====
 
@@ -92,7 +92,7 @@ export default function PrototypeInner() {
 
     // ===== UPDATE CHECKLIST AFTER MODAL EDIT =====
 
-    const handleChecklistUpdate = (updated: Checklist) => {
+    const handleChecklistUpdate = (updated: ChecklistProps) => {
         if (!prototype) return;
 
         setPrototype(prev => {

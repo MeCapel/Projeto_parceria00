@@ -1,6 +1,6 @@
 // ===== GERAL IMPORTS =====
 import type { OccurrenceProps } from "../../../services/occurrenceServices"
-import OccurenceGrid from "../../OccurrenceRelated/OccurrenceGrid"
+import OccurenceGrid from "../../06OccurrenceRelated/OccurrenceGrid"
 
 // ===== TYPE INTERFACES =====
 

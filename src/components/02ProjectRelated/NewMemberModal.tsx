@@ -41,7 +41,8 @@ export default function NewMemberModal({ projectId } : Props)
     return(
         <>
             <button className="btn-custom btn-custom-secondary" onClick={openModal}>
-                <p className="mb-0 fs-5 text-custom-white">
+                <p className="mb-0 fs-5 text-custom-white d-flex gap-3 align-items-center">
+                    Adicionar membro
                     <PlusLg size={30} />
                 </p>
             </button>

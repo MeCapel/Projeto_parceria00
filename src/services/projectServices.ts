@@ -151,7 +151,7 @@ export const deleteProjectNPrototypes = async ( projectId: string ) => {
         if (!userId) return;
 
         const userRole = await getUserRole(projectId);
-        if(userRole !== "owner" || userRole !== "admin" || userRole !== "Owner" || userRole !== "Admin")
+        if (userRole !== "owner" && userRole !== "admin")
         {
             console.error(`Você não tem permissão!`);
             console.error(`${userRole}`);
@@ -202,37 +202,49 @@ export const deleteProjectNPrototypes = async ( projectId: string ) => {
 }
 
 // ----- This function links an user with a project -----
-export const linkProjectUser = async ( projectId: string, userId: string, role: string ) => {
-    try 
-    {
-        const docRef = doc(db, "projectMembers", `${projectId}_${userId}`);
+export const linkProjectUser = async (
+    projectId: string,
+    user: { id: string, username: string, email: string, image?: string },
+    role: "owner" | "admin" | "membro"
+) => {
+    try {
+        const docRef = doc(db, "projectMembers", `${projectId}_${user.id}`);
 
         await setDoc(docRef, {
             projectId,
-            userId,
-            role: role,
+            userId: user.id,
+            role,
+            username: user.username,
+            email: user.email,
+            image: user.image ?? null,
             joinedAt: serverTimestamp(),
         });
 
-        toast.success(`✅ Usuário adicionado com sucesso ao projeto!`);
+        toast.success(`✅ Usuário adicionado ao projeto!`);
         return { success: true };
-    }
-    catch (err)
-    {
-        console.error(`${err}`);
+
+    } catch (err) {
+        console.error(err);
         return { success: false };
     }
 }
 
 // ---- This function returns a list of the members the current project got -----  
-export const getProjectMembers = ( projectId: string, callback: ( users: UserProps[] ) => void ) => {
-    const q = query(collection(db, "projectMembers"), where("projectId", "==", projectId));
+export const getProjectMembers = (
+    projectId: string,
+    callback: (users: any[]) => void
+) => {
+
+    const q = query(
+        collection(db, "projectMembers"),
+        where("projectId", "==", projectId)
+    );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
         const membersList = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
-        }) as UserProps);;
+        }));
 
         callback(membersList);
     });
@@ -288,59 +300,65 @@ export const getUserRole = async ( projectId: string ) => {
 }
 
 // ----- This function changes the role of a project member -----
-export const changeMemberRole = async ( projectId: string, userId: string, role: string ) => {
-    try 
-    {
-        const userRole = await getUserRole(projectId);
-        if(userRole !== "owner" || userRole !== "admin")
-        {
-            console.error(`Você não tem permissão!`);
+export const changeMemberRole = async (
+    projectId: string,
+    userId: string,
+    role: "admin" | "editor" | "viewer" // ❌ não pode virar owner
+) => {
+    try {
+        const currentUserRole = await getUserRole(projectId);
+
+        if (currentUserRole !== "owner" && currentUserRole !== "admin") {
+            console.error("Você não tem permissão!");
             return;
         }
 
-        const q = query(collection(db, "projectMembers"), where("projectId", "==", projectId), where("userId", "==", userId));
-        const querySnapshot = await getDocs(q);
+        const docRef = doc(db, "projectMembers", `${projectId}_${userId}`);
+        const docSnap = await getDoc(docRef);
 
-        if(!querySnapshot.empty)
-        {
-            const docSnap = querySnapshot.docs[0];
-            const docRef = docSnap.ref;
+        if (!docSnap.exists()) return;
 
-            await updateDoc(docRef, {
-                role: role
-            });
+        const memberData = docSnap.data();
+
+        // 🔒 não mexer no owner
+        if (memberData.role === "owner") {
+            console.error("Não é possível alterar o owner");
+            return;
         }
-    }
-    catch(err)
-    {
-        console.error(`${err}`);
+
+        await updateDoc(docRef, { role });
+
+    } catch (err) {
+        console.error(err);
     }
 }
 
 // ----- This function drops out a member from a project -----
-export const dropMember = async ( projectId: string, userId: string ) => {
-    try 
-    {
-        const userRole = await getUserRole(projectId);
-        if(userRole !== "owner" || userRole !== "admin")
-        {
-            console.error(`Você não tem permissão!`);
+export const dropMember = async (projectId: string, userId: string) => {
+    try {
+        const currentUserRole = await getUserRole(projectId);
+
+        if (currentUserRole !== "owner" && currentUserRole !== "admin") {
+            console.error("Você não tem permissão!");
             return;
         }
 
-        const q = query(collection(db, "projectMembers"), where("projectId", "==", projectId), where("userId", "==", userId));
-        const querySnapshot = await getDocs(q);
+        const docRef = doc(db, "projectMembers", `${projectId}_${userId}`);
+        const docSnap = await getDoc(docRef);
 
-        if(!querySnapshot.empty)
-        {
-            const docSnap = querySnapshot.docs[0];
-            const docRef = docSnap.ref;
+        if (!docSnap.exists()) return;
 
-            await deleteDoc(docRef);
+        const memberData = docSnap.data();
+
+        // 🔒 impedir remover owner
+        if (memberData.role === "owner") {
+            console.error("Não é possível remover o owner");
+            return;
         }
-    }
-    catch(err)
-    {
-        console.error(`${err}`);
+
+        await deleteDoc(docRef);
+
+    } catch (err) {
+        console.error(err);
     }
 }

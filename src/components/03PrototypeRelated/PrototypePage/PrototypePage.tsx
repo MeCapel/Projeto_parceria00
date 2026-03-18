@@ -6,9 +6,9 @@ import { TrashFill, Floppy2Fill } from "react-bootstrap-icons";
 import type { ChecklistProps } from "../../../services/checklistServices";
 import PrototypeOccurrencesTab from "./PrototypeOccurrencesTab";
 import { deleteOccorrence, listOccourenciesByPrototype, type OccurrenceProps } from "../../../services/occurrenceServices";
-import NewOccurenceModal from "../../OccurrenceRelated/NewOccurrenceModal";
+import NewOccurenceModal from "../../06OccurrenceRelated/NewOccurrenceModal";
 import { useParams } from "react-router";
-import EditOccurrenceModal from "../../OccurrenceRelated/EditOccurrenceModal";
+import EditOccurrenceModal from "../../06OccurrenceRelated/EditOccurrenceModal";
 
 export default function PrototypePage() {
     const { prototypeid } = useParams();

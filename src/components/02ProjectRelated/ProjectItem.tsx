@@ -9,9 +9,7 @@ import ProtoMultiForm2 from "../03PrototypeRelated/ProtoMultiForm";
 import DividedByProgress from "./DividedByProgress";
 import NewMemberModal from "./NewMemberModal";
 import type { ProjectProps } from "../../services/projectServices";
-
-
-
+import DisplayProjectMembers from "../07UsersRelated/DisplayProjectMembers";
 
 export default function ProjectItem()
 {
@@ -84,6 +82,10 @@ export default function ProjectItem()
                     </p>
                     <div className="">
                         <NewMemberModal projectId={projectid} />
+                    </div>
+
+                    <div className="">
+                        <DisplayProjectMembers projectId={projectid} />
                     </div>
                 </div>
 

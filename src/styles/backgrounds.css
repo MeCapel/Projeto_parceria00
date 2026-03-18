@@ -12,6 +12,11 @@
     background-color: var(--red01);
 }
 
+.bg-custom-red02
+{
+    background-color: var(--red02);
+}
+
 .bg-custom-gray00
 {
     background-color: var(--gray00);
@@ -25,4 +30,9 @@
 .bg-custom-success01
 {
     background-color: var(--success01);
+}
+
+.bg-custom-black00
+{
+    background-color: var(--black00);
 }

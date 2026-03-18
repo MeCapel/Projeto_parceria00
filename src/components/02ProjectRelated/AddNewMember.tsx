@@ -45,7 +45,12 @@ export default function AddNewMember({ projectId }: Props) {
 
         if (!user.id) return;
 
-        const result = await linkProjectUser(projectId, user.id, user.role!);
+        const result = await linkProjectUser(projectId, {
+            id: user.id,
+            username: user.username || "Sem nome",
+            email: user.email || "",
+            image: user.profileImage
+        }, user.role as "admin" | "membro" | "owner"); 
 
         if (!result.success) {
             console.error("Erro ao adicionar um novo membro ao projeto!");

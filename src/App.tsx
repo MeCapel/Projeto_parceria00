@@ -43,7 +43,7 @@ export default function App() {
           
           {/* Rotas Protegidas que usam o Layout do sistema */}
           <Route path='/home' element={<ProtectedRoute><Layout><Home /></Layout></ProtectedRoute>}/>
-          <Route path='/proto' element={<ProtectedRoute><Layout><PrototypePage /></Layout></ProtectedRoute>}/>
+          <Route path='/home' element={<ProtectedRoute><Layout><Home /></Layout></ProtectedRoute>}/>
           <Route path="/projects" element={<ProtectedRoute><Layout><Projects /></Layout></ProtectedRoute>} />
           <Route path='/profile' element={<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>}/>
           <Route path="/projects/:projectid" element={<ProtectedRoute><Layout><Project /></Layout></ProtectedRoute>} />

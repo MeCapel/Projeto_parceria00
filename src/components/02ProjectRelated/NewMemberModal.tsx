@@ -40,11 +40,11 @@ export default function NewMemberModal({ projectId } : Props)
 
     return(
         <>
-            <button className="btn-custom btn-custom-secondary" onClick={openModal}>
-                <p className="mb-0 fs-5 text-custom-white d-flex gap-3 align-items-center">
+            <button className="btn-custom btn-custom-primary px-4 shadow-sm" onClick={openModal}>
+                <div className="mb-0 fs-6 d-flex gap-2 align-items-center fw-bold">
                     Adicionar membro
-                    <PlusLg size={30} />
-                </p>
+                    <PlusLg size={20} />
+                </div>
             </button>
 
             <Modal show={isOpen} onHide={closeModal} dialogClassName="" centered className="p-0" size="lg">

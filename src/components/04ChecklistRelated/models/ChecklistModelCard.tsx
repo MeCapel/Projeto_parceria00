@@ -22,7 +22,7 @@ export default function ChecklistCard({ checklist, inline }: Props) {
     <>
       {inline ? (
         <div
-          className="w-100 d-flex align-items-center justify-content-between px-4 py-3 rounded-3 shadow-sm border bg-white"
+          className="card-custom w-100 d-flex flex-row align-items-center justify-content-between px-4 py-3"
         >
           <div className="d-flex flex-column">
             <span className="fw-bold text-custom-black">
@@ -34,20 +34,20 @@ export default function ChecklistCard({ checklist, inline }: Props) {
             </small>
           </div>
 
-          <span className="badge bg-custom-red00 text-white">
+          <span className="badge bg-custom-red00 text-white rounded-pill px-3">
             v{checklist.version}
           </span>
 
-          <div className="d-flex gap-3">
+          <div className="d-flex gap-2">
             <button
-              className="btn-custom btn-custom-secondary"
+              className="btn-custom btn-custom-outline-secondary btn-sm rounded-pill px-3"
               onClick={() => setShowEdit(true)}
             >
               Editar
             </button>
 
             <button
-              className="btn btn-danger"
+              className="btn-custom btn-custom-primary btn-sm rounded-pill px-3"
               onClick={() => setShowDelete(true)}
             >
               Excluir
@@ -56,14 +56,17 @@ export default function ChecklistCard({ checklist, inline }: Props) {
         </div>
       ) : (
         <div
-          className="card shadow border rounded-3"
-          style={{ width: "18rem", padding: "1.2rem" }}
+          className="card-custom card-custom-hover"
         >
-          <div className="d-flex justify-content-between">
-
-            <h5 className="fw-bold">
-              {checklist.name} • v{checklist.version}
-            </h5>
+          <div className="d-flex justify-content-between align-items-start mb-2">
+            <div>
+               <h6 className="fw-bold mb-0">
+                {checklist.name}
+              </h6>
+              <span className="badge bg-light text-danger border border-danger-subtle rounded-pill mt-1" style={{ fontSize: '0.7rem' }}>
+                v{checklist.version}
+              </span>
+            </div>
 
             <ChecklistCardMenu
               onEdit={() => setShowEdit(true)}
@@ -72,11 +75,11 @@ export default function ChecklistCard({ checklist, inline }: Props) {
 
           </div>
 
-          <p className="text-muted">
+          <p className="text-muted small mb-2">
             {checklist.vertical || "Vertical não definida"}
           </p>
 
-          <p style={{ color: "var(--red00)" }}>
+          <p className="mt-auto mb-0 fw-semibold" style={{ color: "var(--red00)", fontSize: '0.85rem' }}>
             {checklist.categories.length} categorias
           </p>
 

@@ -1,5 +1,5 @@
 import { db } from '../firebaseConfig/config'
-import { addDoc, deleteDoc, collection, doc, getDoc, setDoc, onSnapshot, updateDoc, query, orderBy, getDocs, writeBatch, arrayUnion, where, serverTimestamp } from 'firebase/firestore'
+import { addDoc, deleteDoc, collection, doc, getDoc, setDoc, onSnapshot, updateDoc, query, orderBy, getDocs, writeBatch, arrayUnion, where, serverTimestamp, Timestamp } from 'firebase/firestore'
 import { getChecklistModel, type CategoriesProps, type CheckboxItemProps, type ChecklistProps } from './checklistServices';
 
 export interface PrototypeProps {
@@ -134,49 +134,66 @@ export const listenPrototypesForProjectWProgress = (
     const prototypesRef = collection(db, "prototypes");
     const q = query(prototypesRef, where("projectId", "==", projectId));
 
-    const unsubscribes: (() => void)[] = [];
+    // Usaremos um Map para rastrear os unsubscribes das checklists de cada protótipo
+    const checklistUnsubscribes = new Map<string, () => void>();
+    let currentPrototypes: PrototypeProps[] = [];
 
-    const unsubscribePrototypes = onSnapshot(q, async (snapshot) => {
-        const prototypes: PrototypeProps[] = snapshot.docs.map(doc => ({
+    const unsubscribePrototypes = onSnapshot(q, (snapshot) => {
+        const newPrototypesData = snapshot.docs.map(doc => ({
             id: doc.id,
             ...(doc.data() as PrototypeProps),
             checklists: [],
         }));
 
-        // limpa listeners antigos
-        unsubscribes.forEach(unsub => unsub());
-        unsubscribes.length = 0;
-
-        prototypes.forEach((prototype, index) => {
-            const checklistsRef = collection(
-                db,
-                "prototypes",
-                prototype.id!,
-                "checklists"
-            );
-
-            const unsubscribeChecklists = onSnapshot(checklistsRef, (snap) => {
-                const checklists = snap.docs.map(doc => ({
-                    id: doc.id,
-                    ...(doc.data() as ChecklistProps),
-                }));
-
-                const updated = [...prototypes];
-                updated[index] = {
-                    ...updated[index],
-                    checklists
-                };
-
-                callback(updated);
-            });
-
-            unsubscribes.push(unsubscribeChecklists);
+        // Identificar protótipos removidos para limpar listeners
+        const newIds = new Set(newPrototypesData.map(p => p.id));
+        checklistUnsubscribes.forEach((unsub, id) => {
+            if (!newIds.has(id)) {
+                unsub();
+                checklistUnsubscribes.delete(id);
+            }
         });
+
+        currentPrototypes = newPrototypesData;
+
+        // Para cada protótipo novo ou existente, garante que há um listener para as checklists
+        currentPrototypes.forEach((prototype, index) => {
+            if (!checklistUnsubscribes.has(prototype.id!)) {
+                const checklistsRef = collection(
+                    db,
+                    "prototypes",
+                    prototype.id!,
+                    "checklists"
+                );
+
+                const unsub = onSnapshot(checklistsRef, (snap) => {
+                    const checklists = snap.docs.map(doc => ({
+                        id: doc.id,
+                        ...(doc.data() as ChecklistProps),
+                    }));
+
+                    // Atualiza apenas o protótipo específico na lista mantida em memória
+                    const protoIndex = currentPrototypes.findIndex(p => p.id === prototype.id);
+                    if (protoIndex !== -1) {
+                        currentPrototypes[protoIndex] = {
+                            ...currentPrototypes[protoIndex],
+                            checklists
+                        };
+                        callback([...currentPrototypes]);
+                    }
+                });
+                checklistUnsubscribes.set(prototype.id!, unsub);
+            }
+        });
+
+        // Envia a lista inicial (ou atualizada)
+        callback([...currentPrototypes]);
     });
 
     return () => {
         unsubscribePrototypes();
-        unsubscribes.forEach(unsub => unsub());
+        checklistUnsubscribes.forEach(unsub => unsub());
+        checklistUnsubscribes.clear();
     };
 };
 
@@ -213,7 +230,7 @@ export const updatePrototype = async (editedPrototype: PrototypeProps) => {
             city: editedPrototype.city ?? "",
             areaSize: editedPrototype.areaSize ?? "",
             vertical: editedPrototype.vertical,
-            editedAt: arrayUnion(serverTimestamp()),
+            editedAt: arrayUnion(Timestamp.now()),
         });
 
         return editedPrototype.id;
@@ -285,7 +302,7 @@ export const deletePrototype = async (prototypeId: string) => {
         const projectId = prototypeSnap.data().projectId;
 
         // deleta ocorrências
-        const occRef = collection(db, "occourrencies");
+        const occRef = collection(db, "occurrences");
         const q = query(occRef, where("prototypeId", "==", prototypeId));
         const snap = await getDocs(q);
 

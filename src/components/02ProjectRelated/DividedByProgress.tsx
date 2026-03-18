@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { listenPrototypesForProjectWProgress, type PrototypeProps } from "../../services/prototypeServices";
 import { CaretDown, CaretUp, PencilSquare } from "react-bootstrap-icons";
 import { useNavigate } from "react-router";
-import type { Checklist } from "../../services/checklistServices";
+import type { ChecklistProps, CategoriesProps, CheckboxItemProps } from "../../services/checklistServices";
 
 interface Props {
     projectId: string,
@@ -106,17 +106,17 @@ export default function DividedByProgress({ projectId }: Props) {
 }
 
 function calculatePrototypeProgressWeighted(
-    checklists?: Checklist[]
+    checklists?: ChecklistProps[]
 ): number {
     if (!checklists || checklists.length === 0) return 0;
 
     let totalItems = 0;
     let checkedItems = 0;
 
-    checklists.forEach(checklist => {
-        checklist.categories.forEach(category => {
+    checklists.forEach((checklist: ChecklistProps) => {
+        checklist.categories.forEach((category: CategoriesProps) => {
             totalItems += category.items.length;
-            checkedItems += category.items.filter(item => item.checked).length;
+            checkedItems += category.items.filter((item: CheckboxItemProps) => item.checked).length;
         });
     });
 

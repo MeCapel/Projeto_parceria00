@@ -40,14 +40,14 @@ export default function DeleteChecklistModal({ checklistId, onClose }: Props) {
         <div className="d-flex gap-3 justify-content-center">
 
           <button
-            className="btn btn-secondary"
+            className="btn-custom btn-custom-secondary rounded-pill"
             onClick={onClose}
           >
             Cancelar
           </button>
 
           <button
-            className="btn btn-danger"
+            className="btn-custom btn-custom-primary rounded-pill"
             onClick={handleDelete}
           >
             Excluir

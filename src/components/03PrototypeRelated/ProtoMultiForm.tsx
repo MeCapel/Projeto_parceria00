@@ -191,15 +191,15 @@ export default function ProtoMultiForm2({ projectId } : MultiFormProps) {
 
                         <div className="mt-5 d-flex align-items-center justify-content-center gap-5">
                             {currentStep > 0 && (
-                                <button type="button" className="btn btn-secondary ml-auto" onClick={HandlePrev}>Voltar</button>
+                                <button type="button" className="btn-custom btn-custom-secondary rounded-pill ml-auto" onClick={HandlePrev}>Voltar</button>
                             )}
 
                             {currentStep < totalSteps - 1 && (
-                                <button type="button" className="btn btn-success" onClick={HandleNext}>Próximo</button>
+                                <button type="button" className="btn-custom btn-custom-success rounded-pill" onClick={HandleNext}>Próximo</button>
                             )}
 
                             {currentStep === totalSteps - 1 && (
-                                <button type="submit" className="btn btn-success">Finalizar</button>
+                                <button type="submit" className="btn-custom btn-custom-success rounded-pill">Finalizar</button>
                             )}
                         </div>
                     </form>

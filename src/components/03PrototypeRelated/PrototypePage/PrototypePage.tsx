@@ -2,16 +2,17 @@ import { useEffect, useState } from "react";
 import PrototypeGeralInfosTab from "./PrototypeGeralInfosTab";
 import PrototypeChecklistsTab from "./PrototypeChecklistsTab";
 import { deletePrototype, getPrototype, getPrototypeChecklists, updatePrototype, type PrototypeProps } from "../../../services/prototypeServices";
-import { TrashFill, Floppy2Fill } from "react-bootstrap-icons";
+import { TrashFill, Floppy2Fill, ArrowLeftCircleFill } from "react-bootstrap-icons";
 import type { ChecklistProps } from "../../../services/checklistServices";
 import PrototypeOccurrencesTab from "./PrototypeOccurrencesTab";
 import { deleteOccorrence, listOccourenciesByPrototype, type OccurrenceProps } from "../../../services/occurrenceServices";
 import NewOccurenceModal from "../../06OccurrenceRelated/NewOccurrenceModal";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import EditOccurrenceModal from "../../06OccurrenceRelated/EditOccurrenceModal";
 
 export default function PrototypePage() {
-    const { prototypeid } = useParams();
+    const { prototypeid, projectid } = useParams();
+    const navigate = useNavigate();
     const [currentView, setCurrentView] = useState<number>(0);
     const [loading, setLoading] = useState(true);
     const [prototype, setPrototype] = useState<PrototypeProps | null>(null);
@@ -20,10 +21,7 @@ export default function PrototypePage() {
     const [showEditModal, setShowEditModal] = useState(false);
 
     useEffect(() => {
-        if (!prototypeid) 
-        {
-            return;
-        }
+        if (!prototypeid) return;
 
         async function fetchData() {
             const data = await getPrototype(prototypeid!);
@@ -33,7 +31,7 @@ export default function PrototypePage() {
                 setPrototype({
                     ...data,
                     id: prototypeid,
-                    checklists: checklists // AGORA CORRETO
+                    checklists: checklists
                 });
             }
 
@@ -58,7 +56,6 @@ export default function PrototypePage() {
         setPrototype(prev => prev ? { ...prev, ...updatedData } : prev);
     }
 
-    // UPDATE CHECKLIST ITEM (edição dentro do modal)
     function handleChecklistUpdate(updatedChecklist: ChecklistProps) {
         setPrototype(prev => {
             if (!prev) return prev;
@@ -72,7 +69,6 @@ export default function PrototypePage() {
         });
     }
 
-    // UPDATE LIST (gerenciar checklists)
     function handleChecklistListUpdate(newChecklists: ChecklistProps[]) {
         setPrototype(prev => prev ? {
             ...prev,
@@ -80,7 +76,6 @@ export default function PrototypePage() {
         } : prev);
     }
 
-    // SALVAR (COM LIMPEZA)
     async function handleSave() {
         if (!prototype?.id) return;
 
@@ -101,10 +96,7 @@ export default function PrototypePage() {
                 }))
             };
 
-            console.log("SALVANDO:", payload);
-
             await updatePrototype(payload);
-
         } catch (err) {
             console.error(err);
         }
@@ -112,9 +104,10 @@ export default function PrototypePage() {
 
     async function handleDelete() {
         if (!prototype?.id) return;
-        if (!confirm("Tem certeza?")) return;
+        if (!confirm("Tem certeza que deseja excluir este protótipo?")) return;
 
         await deletePrototype(prototype.id);
+        navigate(`/projects/${projectid}`);
     }
 
     const handleEditOccurrence = (id: string) => {
@@ -126,97 +119,106 @@ export default function PrototypePage() {
         await deleteOccorrence(id);
     };
 
-    if (loading || !prototype) return <p>Carregando...</p>;
+    if (loading || !prototype) return <div className="p-5 text-center"><div className="spinner-border text-danger"></div></div>;
 
-    const componentsMap = [
-        {
-            label: "Informações gerais",
-            component: (
-                <PrototypeGeralInfosTab
-                    prototype={prototype}
-                    onChange={handleChange}
-                />
-            ),
-            i: 0,
-        },
-        {
-            label: "Checklists",
-            component: (
-                <PrototypeChecklistsTab
-                    prototypeId={prototype.id!}
-                    vertical={prototype.vertical}
-                    checklists={prototype.checklists || []}
-                    onUpdate={handleChecklistUpdate}
-                    onListUpdate={handleChecklistListUpdate}
-                />
-            ),
-            i: 1,
-        },
-        {
-            label: "Ocorrências",
-            component: (
-                <PrototypeOccurrencesTab 
-                    occurrences={occurrences}
-                    onDelete={handleDeleteOccurrence}
-                    onEdit={handleEditOccurrence}
-                >
-                    <NewOccurenceModal prototypeId={prototype.id!} />
-                 </PrototypeOccurrencesTab>
-            ),
-            i: 2,
-        },
+    const tabs = [
+        { label: "Informações gerais", i: 0 },
+        { label: "Checklists", i: 1 },
+        { label: "Ocorrências", i: 2 },
     ];
 
+    function renderView() {
+        switch (currentView) {
+            case 0:
+                return <PrototypeGeralInfosTab prototype={prototype} onChange={handleChange} />;
+            case 1:
+                return (
+                    <PrototypeChecklistsTab
+                        prototypeId={prototype.id!}
+                        vertical={prototype.vertical}
+                        checklists={prototype.checklists || []}
+                        onUpdate={handleChecklistUpdate}
+                        onListUpdate={handleChecklistListUpdate}
+                    />
+                );
+            case 2:
+                return (
+                    <PrototypeOccurrencesTab 
+                        occurrences={occurrences}
+                        onDelete={handleDeleteOccurrence}
+                        onEdit={handleEditOccurrence}
+                    >
+                        <NewOccurenceModal prototypeId={prototype.id!} />
+                    </PrototypeOccurrencesTab>
+                );
+            default:
+                return null;
+        }
+    }
+
     return (
-        <div className="p-3 p-md-5 d-flex flex-column gap-4 gap-md-5">
+        <>
+            <div className="ps-5 pt-5 pb-0 pe-0">
+                <button 
+                    className="btn-custom btn-custom-link d-flex gap-3 align-items-center border-0 bg-transparent p-0" 
+                    onClick={() => navigate(`/projects/${projectid}`)}
+                >
+                    <ArrowLeftCircleFill size={30} className="text-custom-black" />
+                    <p className="text-custom-black fs-5 mb-0 fw-semibold">
+                        voltar ao projeto
+                    </p>
+                </button>
+            </div>
 
-            <header className="d-flex align-items-center justify-content-between">
+            <div className="py-3 px-5 d-flex flex-column gap-4">
+                <header className="d-flex align-items-center justify-content-between mb-2">
+                    <div>
+                        <p className="fs-6 text-custom-red mb-0 fw-bold text-uppercase">Protótipo</p>
+                        <h1 className="text-custom-black fw-bold mb-0">{prototype.name}</h1>
+                    </div>
 
-                <div>
-                    <p className="fs-6 text-custom-red mb-0">Edição</p>
-                    <p className="fs-3 fw-bold mb-0">{prototype.name}</p>
-                </div>
-
-                <div className="d-flex flex-wrap gap-2">
-                    {componentsMap.map(c => (
-                        <button
-                            key={c.i}
-                            onClick={() => setCurrentView(c.i)}
-                            className={`btn-custom rounded-5 px-3 ${
-                                currentView === c.i
-                                    ? "btn-custom-black text-white"
-                                    : "btn-custom-outline-black"
-                            }`}
-                        >
-                            {c.label}
+                    <div className="d-flex gap-3">
+                        <button onClick={handleDelete} className="btn-custom btn-custom-outline-primary px-4 d-flex gap-2 align-items-center fw-bold" >
+                            <TrashFill size={18} />
+                            Excluir
                         </button>
-                    ))}
+
+                        <button onClick={handleSave} className="btn-custom btn-custom-success px-4 d-flex gap-2 align-items-center fw-bold shadow-sm" >
+                            <Floppy2Fill size={18} />
+                            Salvar
+                        </button>
+                    </div>
+                </header>
+
+                <div className="d-flex flex-column align-items-start mb-2">
+                    <div className="d-flex gap-2">
+                        {tabs.map(tab => (
+                            <button
+                                key={tab.i}
+                                className={`btn-custom px-4 py-2 border-0 rounded-0 border-bottom ${currentView === tab.i ? 'border-danger text-danger fw-bold' : 'border-transparent text-muted'}`}
+                                style={{ transition: 'all 0.3s' }}
+                                onClick={() => setCurrentView(tab.i)}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="w-100" style={{ borderBottom: "1px solid var(--gray02)", marginTop: "-1px" }}></div>
                 </div>
 
-                <div className="d-flex gap-2">
-                    <button onClick={handleDelete} className="btn-custom btn-custom-outline-primary d-flex gap-2 align-items-center" >
-                        <TrashFill size={20} />
-                        Deletar
-                    </button>
-
-                    <button onClick={handleSave} className="btn-custom btn-custom-success d-flex gap-2 align-items-center" >
-                        <Floppy2Fill size={20} />
-                        Salvar
-                    </button>
+                <div className="mt-2">
+                    {renderView()}
                 </div>
-            </header>
 
-            {componentsMap.find(c => c.i === currentView)?.component}
-
-            <EditOccurrenceModal
-                occurrenceId={selectedOccurrenceId}
-                show={showEditModal}
-                onClose={() => {
-                    setShowEditModal(false);
-                    setSelectedOccurrenceId(null);
-                }}
-            />
-        </div>
+                <EditOccurrenceModal
+                    occurrenceId={selectedOccurrenceId}
+                    show={showEditModal}
+                    onClose={() => {
+                        setShowEditModal(false);
+                        setSelectedOccurrenceId(null);
+                    }}
+                />
+            </div>
+        </>
     );
 }
-

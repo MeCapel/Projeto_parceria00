@@ -8,13 +8,13 @@
         // Sincroniza os IDs selecionados com o pai sempre que mudar
         useEffect(() => {
             onChange("checklistsIds", checklistsIds);
-        }, [checklistsIds]);
+        }, [checklistsIds, onChange]);
 
         // Limpa a seleção de checklists quando a vertical muda
         useEffect(() => {
             setChecklistsIds([]);
             onChange("checklistsIds", []); // opcional, garante sincronização imediata
-        }, [values.vertical]);
+        }, [values.vertical, onChange]);
 
         return (
             <div>

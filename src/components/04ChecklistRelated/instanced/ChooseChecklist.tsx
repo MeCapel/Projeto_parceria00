@@ -30,7 +30,7 @@ export default function ChooseChecklists({ vertical, onValueChange, initialSelec
             selectedIds,
             data.filter(m => selectedIds.includes(m.id!))
         );
-    }, [selectedIds, data]);
+    }, [selectedIds, data, onValueChange]);
 
     // Busca checklists sempre que a vertical muda
     useEffect(() => {

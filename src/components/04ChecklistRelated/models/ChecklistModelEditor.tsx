@@ -232,7 +232,7 @@ export default function ChecklistModelEditor({
 
               <button
                   type="button"
-                  className="btn btn-danger d-flex align-items-center justify-content-center"
+                  className="btn-custom btn-custom-primary d-flex align-items-center justify-content-center"
                   onClick={() => handleDropCategory(catIndex)}
               >
                   <Trash3Fill size={18}/>
@@ -254,7 +254,7 @@ export default function ChecklistModelEditor({
                   <button
                       type="button"
                       onClick={() => handleDropItem(catIndex, item.id)}
-                      className="py-2 btn btn-outline-danger d-flex align-items-center justify-content-center"
+                      className="py-2 btn-custom btn-custom-outline-primary d-flex align-items-center justify-content-center"
                   >
                       <Dash size={18}/>
                   </button>
@@ -281,7 +281,7 @@ export default function ChecklistModelEditor({
               <button
                   type="button"
                   onClick={() => handleNewItem(catIndex)}
-                  className="btn btn-custom-outline-success d-flex align-items-center justify-content-center"
+                  className="btn-custom btn-custom-outline-success d-flex align-items-center justify-content-center"
               >
                   <PlusLg size={18}/>
               </button>
@@ -298,14 +298,14 @@ export default function ChecklistModelEditor({
 
         <button
           type="button"
-          className="btn-custom btn-custom-outline-primary"
+          className="btn-custom btn-custom-outline-primary rounded-pill"
           onClick={onCancel}
         >
           Cancelar
         </button>
 
         <button
-          className="btn-custom btn-custom-success"
+          className="btn-custom btn-custom-success rounded-pill"
           type="submit"
           disabled={loading}
         >

@@ -6,7 +6,7 @@ import MembersCircles from './MembersCircles'
 import NewProjectModal from './NewProjectModal'
 import { AuthContext } from '../../context/AuthContext'
 import { getUserProjects, type ProjectProps } from '../../services/projectServices'
-import { getUsers, type UserDocument } from '../../services/authServices'
+import { getUsersByIds, type UserDocument } from '../../services/authServices'
 
 // ===== PROPS =====
 interface Props {
@@ -24,19 +24,40 @@ export default function DisplayProjects({ displayAll } : Props)
     useEffect(() => {
         if (!user) return;
 
-        // 1. Carrega todos os usuários para pegar as fotos
-        const unsubUsers = getUsers((users: UserDocument[]) => {
-            setAllUsers(users);
-        });
+        setLoading(true);
 
-        // 2. Carrega os projetos
+        // 1. Carrega os projetos do usuário
         const unsubProjects = getUserProjects(user.uid, (projectsList) => {
-            setProjects(projectsList || []);
-            setLoading(false);
+            const list = projectsList || [];
+            setProjects(list);
+            
+            // 2. Identifica IDs únicos de membros para buscar apenas esses usuários
+            const memberIds = new Set<string>();
+            list.forEach(p => {
+                if (p.ownerId) memberIds.add(p.ownerId);
+                if (p.members) p.members.forEach(m => memberIds.add(m));
+            });
+            
+            // Adiciona o próprio usuário se necessário
+            memberIds.add(user.uid);
+
+            const idsArray = Array.from(memberIds);
+            
+            // 3. Busca apenas os usuários necessários
+            const unsubUsers = getUsersByIds(idsArray, (users) => {
+                setAllUsers(prev => {
+                    // Mescla usuários novos com os que já temos para evitar flickering
+                    const newMap = new Map(prev.map(u => [u.id, u]));
+                    users.forEach(u => newMap.set(u.id, u));
+                    return Array.from(newMap.values());
+                });
+                setLoading(false);
+            });
+
+            return unsubUsers;
         });
 
         return () => {
-            unsubUsers();
             unsubProjects();
         };
     }, [user]);

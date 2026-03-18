@@ -17,37 +17,42 @@ export default function ProjectItem()
     const navigate = useNavigate();
     const [ projectData, setProjectData ] = useState<ProjectProps | null>(null);
     const [ currentView, setCurrentView ] = useState<number>(0);
-
-    // console.log("This one is the id: ", projectid);
+    const [ loading, setLoading ] = useState(true);
 
     useEffect(() => {
-        if (!projectid) return;
+        if (!projectid) {
+            setLoading(false);
+            return;
+        }
 
         const unsub = onSnapshot(doc(db, "projects", projectid), (docSnap) => {
-
-            if (docSnap.exists())
-            {
+            if (docSnap.exists()) {
                 setProjectData({ id: docSnap.id, ...docSnap.data() } as ProjectProps);
-            }
-            else
-            {
+            } else {
                 setProjectData(null);
             }
+            setLoading(false);
+        }, (error) => {
+            console.error("Erro ao carregar projeto:", error);
+            setLoading(false);
         });
 
         return () => unsub();
-
     }, [projectid]);
 
-    if (!projectData)
-    {
-        return <p>Carregando o projeto...</p>;
+    if (loading) {
+        return <div className="p-5 text-center"><div className="spinner-border text-danger"></div></div>;
     }
 
-    if (!projectid)
-    {
-        window.alert("Id do projeto invalido!")
-        return;
+    if (!projectid || !projectData) {
+        return (
+            <div className="p-5 text-center">
+                <h3>Projeto não encontrado</h3>
+                <button className="btn btn-danger mt-3" onClick={() => navigate('/projects')}>
+                    Voltar para Projetos
+                </button>
+            </div>
+        );
     }
 
     function renderView(current: number)
@@ -58,59 +63,62 @@ export default function ProjectItem()
                 return <MainFrame2 projectId={projectid!}/>
             case 1:
                 return <DividedByProgress projectId={projectid!}/>
+            default:
+                return <MainFrame2 projectId={projectid!}/>
         }
     }
 
     return(
         <>
-            <div className="ps-5 pt-5 pb-0 pe-0" onClick={() => navigate(`/projects`)}>
-                <div className="text-link-custom d-flex gap-3 align-items-center" style={{ cursor: "pointer" }}>
-                    <ArrowLeftCircleFill size={30} />
-                    <p className="text-custom-black fs-5 mb-0">
+            <div className="ps-5 pt-5 pb-0 pe-0">
+                <button 
+                    className="btn-custom btn-custom-link d-flex gap-3 align-items-center border-0 bg-transparent p-0" 
+                    onClick={() => navigate(`/projects`)}
+                >
+                    <ArrowLeftCircleFill size={30} className="text-custom-black" />
+                    <p className="text-custom-black fs-5 mb-0 fw-semibold">
                         voltar
                     </p>
-                    {/* <p className='mb-0 text-custom-red fs-5' style={{ cursor: "pointer"}} onClick={() => navigate("/projects")}>Projetos/</p> */}
-                </div>
+                </button>
             </div>
 
             <div className='py-3 px-5'>
                 {/* ----- Title div ----- */}
 
-                <div className="d-flex flex-column mb-3">
+                <div className="d-flex justify-content-between align-items-center mb-4">
                     <p className='mb-0 text-custom-black fs-1 fw-bold'>
-                        {projectData.name != null ? projectData.name : "Nome do projeto"}
+                        {projectData.name || "Nome do projeto"}
                     </p>
-                    <div className="">
-                        <NewMemberModal projectId={projectid} />
-                    </div>
-
-                    <div className="">
-                        <DisplayProjectMembers projectId={projectid} />
+                    <div className="d-flex gap-3">
+                        <NewMemberModal projectId={projectid!} />
+                        <DisplayProjectMembers projectId={projectid!} />
                     </div>
                 </div>
 
                 {/* ----- Navigation between inner project pages ----- */}
 
-                <div className="d-flex flex-column align-items-start">
-                    <div className="d-flex">
-                        <div
-                            className={currentView == 0 ? `d-flex justify-content-center border-bottom border-danger` : `d-flex justify-content-center`}
-                            style={{ width: "200px", position: 'relative', bottom: "-2px", cursor: "pointer" }}
+                <div className="d-flex flex-column align-items-start mb-4">
+                    <div className="d-flex gap-2">
+                        <button
+                            className={`btn-custom px-4 py-2 border-0 rounded-0 border-bottom ${currentView === 0 ? 'border-danger text-danger fw-bold' : 'border-transparent text-muted'}`}
+                            style={{ transition: 'all 0.3s' }}
+                            onClick={() => setCurrentView(0)}
                         >
-                            <p className='px-3 mb-1 fs-5 text-custom-black' onClick={() => setCurrentView(0)}>Quadro principal</p>
-                        </div>
-                        <div
-                            className={currentView == 1 ? `d-flex justify-content-center border-bottom border-danger` : `d-flex justify-content-center`}
-                            style={{ width: "200px", position: 'relative', bottom: "-2px", cursor: "pointer" }}
+                            Quadro principal
+                        </button>
+                        <button
+                            className={`btn-custom px-4 py-2 border-0 rounded-0 border-bottom ${currentView === 1 ? 'border-danger text-danger fw-bold' : 'border-transparent text-muted'}`}
+                            style={{ transition: 'all 0.3s' }}
+                            onClick={() => setCurrentView(1)}
                         >
-                            <p className='px-3 mb-1 fs-5 text-custom-black' onClick={() => setCurrentView(1)}>Por progresso</p>
-                        </div>
-                        </div>
-                    <div className="w-100" style={{ border: "1px solid var(--gray02)" }}></div>
-                    <div className="d-flex align-items-start my-2">
+                            Por progresso
+                        </button>
                     </div>
-                        {/* <ProtoMultiForm projectId={projectid}/> */}
-                        <ProtoMultiForm2 projectId={projectid}/>
+                    <div className="w-100" style={{ borderBottom: "1px solid var(--gray02)", marginTop: "-1px" }}></div>
+                    
+                    <div className="mt-4 w-100">
+                         <ProtoMultiForm2 projectId={projectid}/>
+                    </div>
                 </div>
 
                 <div className="my-3">

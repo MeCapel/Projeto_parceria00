@@ -1,5 +1,5 @@
     import { type StepProps } from "../ProtoMultiForm";
-    import ChooseChecklists from '../../04ChecklistRelated/instanced/ChooseChecklist2';
+    import ChooseChecklists from '../../04ChecklistRelated/instanced/ChooseChecklist';
     import { useState, useEffect } from "react";
 
     export default function Step3({ values, errors, onChange }: StepProps) {

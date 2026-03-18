@@ -1,5 +1,5 @@
 import { db } from '../firebaseConfig/config'
-import { addDoc, deleteDoc, collection, doc, getDoc, setDoc, onSnapshot, updateDoc, query, orderBy, getDocs, writeBatch, arrayUnion, where } from 'firebase/firestore'
+import { addDoc, deleteDoc, collection, doc, getDoc, setDoc, onSnapshot, updateDoc, query, orderBy, getDocs, writeBatch, arrayUnion, where, serverTimestamp } from 'firebase/firestore'
 import { getChecklistModel, type CategoriesProps, type CheckboxItemProps, type ChecklistProps } from './checklistServices';
 
 export interface PrototypeProps {
@@ -26,8 +26,7 @@ export const addPrototypeToProject = async ( prototype: PrototypeProps & { id: s
         const docRef = doc(prototypesIdsRef, prototype.id);
         const docData = await setDoc(docRef, {
             prototypeName: prototype.name,
-            // createdAt: new Date(),
-            createdAt: new Date(),
+            createdAt: serverTimestamp(),
         });
 
         return docData;
@@ -46,19 +45,18 @@ export const createPrototype = async ( prototype: PrototypeProps ) : Promise<str
         const collectionRef = collection(db, "prototypes");
         const docRef = await addDoc(collectionRef, {
             projectId: prototype.projectId,
-            code: prototype.code,
+            code: prototype.code ?? "",
             name: prototype.name,
             description: prototype.description,
             stage: prototype.stage,
-            state: prototype.state,
-            city: prototype.city,
-            areaSize: prototype.areaSize,
+            state: prototype.state ?? "",
+            city: prototype.city ?? "",
+            areaSize: prototype.areaSize ?? "",
             vertical: prototype.vertical,
-            // createdAt: new Date(),
-            createdAt: new Date(),
+            createdAt: serverTimestamp(),
         });
 
-        addPrototypeToProject({...prototype, id: docRef.id});
+        await addPrototypeToProject({...prototype, id: docRef.id});
 
         return docRef.id;
     }
@@ -163,13 +161,13 @@ export const listenPrototypesForProjectWProgress = (
                     ...(doc.data() as ChecklistProps),
                 }));
 
-                prototypes[index] = {
-                    ...prototype,
-                    checklists,
+                const updated = [...prototypes];
+                updated[index] = {
+                    ...updated[index],
+                    checklists
                 };
 
-                // 🔥 força nova referência
-                callback([...prototypes]);
+                callback(updated);
             });
 
             unsubscribes.push(unsubscribeChecklists);
@@ -202,10 +200,9 @@ export const getPrototypes = (callback: (data: PrototypeProps[]) => void) => {
 
 
 // ----- ESTA FUNÇÃO ATUALIZA AS INFORMAÇÕES DO PROTÓTIPO ----- 
-export const updatePrototype = async ( editedPrototype: PrototypeProps & { id: string } ) => {
-    try 
-    {
-        const docRef = doc(db, "prototypes", editedPrototype.id);
+export const updatePrototype = async (editedPrototype: PrototypeProps) => {
+    try {
+        const docRef = doc(db, "prototypes", editedPrototype.id!);
 
         await updateDoc(docRef, {
             code: editedPrototype.code ?? "",
@@ -216,17 +213,15 @@ export const updatePrototype = async ( editedPrototype: PrototypeProps & { id: s
             city: editedPrototype.city ?? "",
             areaSize: editedPrototype.areaSize ?? "",
             vertical: editedPrototype.vertical,
-            editedAt: arrayUnion(new Date()),
+            editedAt: arrayUnion(serverTimestamp()),
         });
 
         return editedPrototype.id;
-    }
-    catch (err)
-    {
-        console.error("Erro na tentativa de editar as informações do portótipo: " + err);
+    } catch (err) {
+        console.error("Erro ao editar protótipo:", err);
         return null;
     }
-}
+};
 
 export const updatePrototypeChecklists = async (
   prototypeId: string,
@@ -261,7 +256,7 @@ export const updatePrototypeChecklists = async (
           categories: cl.categories,
           version: cl.version,
           originalModel: cl.originalModel ?? null,
-          updatedAt: new Date(),
+          updatedAt: serverTimestamp(),
         },
         { merge: true }
       );
@@ -276,31 +271,51 @@ export const updatePrototypeChecklists = async (
 };
 
 // ----- ESTA FUNÇÃO EXCLUI UM PROTÓTIPO ----- 
-export const deletePrototype = async ( prototypeId: string ) => {
-    try 
-    {
+export const deletePrototype = async (prototypeId: string) => {
+    try {
+        // 1. Buscar o protótipo para pegar o projectId
+        const prototypeRef = doc(db, "prototypes", prototypeId);
+        const prototypeSnap = await getDoc(prototypeRef);
+
+        if (!prototypeSnap.exists()) {
+            console.error("Protótipo não encontrado!");
+            return null;
+        }
+
+        const projectId = prototypeSnap.data().projectId;
+
+        // deleta ocorrências
+        const occRef = collection(db, "occourrencies");
+        const q = query(occRef, where("prototypeId", "==", prototypeId));
+        const snap = await getDocs(q);
+
+        await Promise.all(snap.docs.map(doc => deleteDoc(doc.ref)));
+
+        // 2. Deletar subcollection (checklists)
         const checklistsRef = collection(db, "prototypes", prototypeId, "checklists");
-        const checklistsSnap = await getDocs(checklistsRef);
+        const snapshot = await getDocs(checklistsRef);
 
-        const batch = writeBatch(db);
-        checklistsSnap.forEach((d) => {
-            batch.delete(doc(db, "prototypes", prototypeId, "checklists", d.id));
-        });
+        for (const docSnap of snapshot.docs) {
+            await deleteDoc(docSnap.ref);
+        }
 
-        await batch.commit();
+        // 3. Deletar vínculo com projeto
+        if (projectId) {
+            await deleteDoc(
+                doc(db, "projects", projectId, "prototypesIds", prototypeId)
+            );
+        }
 
-        const prototypeDoc = doc(db, "prototypes", prototypeId);
-
-        await deleteDoc(prototypeDoc);
+        // 4. Deletar protótipo
+        await deleteDoc(prototypeRef);
 
         return true;
-    }
-    catch (err)
-    {
-        console.error("Erro na tentativa de excluir o protótipo: " + err);
+
+    } catch (err) {
+        console.error("Erro ao excluir protótipo:", err);
         return null;
     }
-}
+};
 
 // ================================================================================
 
@@ -317,7 +332,7 @@ export const createChecklistInstance = async ( checklistModelId: string ) => {
         }
         
         const newCategories = checklistModel.categories.map((c: CategoriesProps) => ({
-            id: c.id,
+            id: c.id ?? crypto.randomUUID(),
             name: c.name,
             items: c.items.map((i: CheckboxItemProps) => ({
                 id: i.id,
@@ -332,7 +347,7 @@ export const createChecklistInstance = async ( checklistModelId: string ) => {
             categories: newCategories,
             version: checklistModel?.version,
             originalModel: checklistModelId,
-            createdAt: new Date(),
+            createdAt: serverTimestamp(),
         };
 
         return newDoc;
@@ -371,18 +386,21 @@ export const addChecklistToPrototype = async ( prototypeId: string, checklistMod
     }
 }
 
+export const getPrototypeChecklists = async (prototypeId: string) => {
+    const colRef = collection(db, "prototypes", prototypeId, "checklists");
+    const snapshot = await getDocs(colRef);
+
+    return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    })) as ChecklistProps[];
+};
+
 // ----- ESTA FUNÇÃO ATUALIZA OS CAMPOS CHECKED DAS CHECKLISTS DO PROTÓTIPO -----
 export const toggleChecklistItems = async ( prototypeId: string, checklistId: string, newChecklist: ChecklistProps ) => {
     try 
     {
         const docRef = doc(db, "prototypes", prototypeId, "checklists", checklistId);
-        const docSnap = await getDoc(docRef);
-
-        if (!docSnap.exists())
-        {
-            console.error("Erro ao pegar os dados da checklist do protótipo!");
-            return null;
-        }
 
         await updateDoc(docRef, {
             categories: newChecklist.categories

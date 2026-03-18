@@ -1,26 +1,26 @@
 import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, query, serverTimestamp, updateDoc, where } from "firebase/firestore";
 import { db } from "../firebaseConfig/config";
-import { toast } from "react-toastify";
 
-interface OccourrenceProps {
-    id?: string,
+export interface OccurrenceProps {
+    id: string,
     name: string,
     description: string,
     criticity: string,
     prototypeId: string,
-    createdAt: string,
+    createdAt?: string,
+    image?: string
 }
 
-export const createOccourrence = async ( name: string, description: string, criticity: string, prototypeId: string ) => {
+export const createOccurrence = async ( occurrence: OccurrenceProps ) => {
     try 
     {
         const collectionRef = collection(db, "occourrencies");
 
         const docRef = await addDoc(collectionRef, {
-            name,
-            description,
-            criticity,
-            prototypeId,
+            name: occurrence.name,
+            description: occurrence.description,
+            criticity: occurrence.criticity,
+            prototypeId: occurrence.prototypeId,
             createdAt: serverTimestamp(),
         });
 
@@ -32,68 +32,65 @@ export const createOccourrence = async ( name: string, description: string, crit
     }
 }
 
-export const listOccourrences = ( callback: (occourrencies: OccourrenceProps[] ) => void ) => {
+export const listOccurrences = ( callback: (occourrencies: OccurrenceProps[] ) => void ) => {
     const collectionRef = collection(db, "occourrencies");
 
     return onSnapshot(collectionRef, (snapshot) => {
         const occourrenciesData = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
-        }) as OccourrenceProps);
+        }) as OccurrenceProps);
 
         callback(occourrenciesData);
     });
 }
 
-export const listOccourenciesByPrototype = ( proptotypeId: string, callback: (occourrencies: OccourrenceProps[]) => void ) => {
+export const listOccourenciesByPrototype = ( proptotypeId: string, callback: (occourrencies: OccurrenceProps[]) => void ) => {
     const q = query(collection(db, "occourrencies"), where("prototypeId", "==", proptotypeId));
 
     return onSnapshot(q, (snapshot) => {
         const occourrenciesData = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
-        }) as OccourrenceProps);
+        }) as OccurrenceProps);
         
         callback(occourrenciesData);
     });
 
 }
 
-export const getOccourrence = async ( occourrenceId: string ) => {
-    try
-    {
-        const docRef = doc(db, "occourrencies", occourrenceId);
-        const docSnap = await getDoc(docRef);
+export const getOccurrence = async (id: string): Promise<OccurrenceProps | null> => {
+    try {
+        const docRef = doc(db, "occurrences", id);
+        const snap = await getDoc(docRef);
 
-        if (docSnap.exists())
-        {
-            return { id: docSnap.id, ...docSnap.data() };
-        }
-        else
-        {
-            toast.error("❌ Nenhuma ocorrencia encontrada.");
-            return null;
-        }
-    }
-    catch(err)
-    {
-        console.error(`${err}`);
-    }
-}
+        if (!snap.exists()) return null;
 
-export const updateOccourrence = async ( name: string, description: string, criticity: string, prototypeId: string, occourrenceId: string ) => {
+        return {
+            id: snap.id,
+            ...(snap.data() as Omit<OccurrenceProps, "id">)
+        };
+    } catch (err) {
+        console.error(err);
+        return null;
+    }
+};
+
+export const updateOccurrence = async ( occurrence: OccurrenceProps ) => {
     try 
     {
-        const docRef = doc(db, "occourrencies", occourrenceId);
+        if(!occurrence.id) return;
 
-        const occourrenceDTO = {
-            name: name,
-            description: description,
-            criticity: criticity,
-            prototypeId:prototypeId
+        const docRef = doc(db, "occourrencies", occurrence.id);
+
+        const occurrenceDTO = {
+            name: occurrence.name,
+            description: occurrence.description,
+            criticity: occurrence.criticity,
+            prototypeId: occurrence.prototypeId,
         };
 
-        await updateDoc(docRef, occourrenceDTO);
+        await updateDoc(docRef, occurrenceDTO);
     }
     catch(err)
     {
@@ -101,10 +98,10 @@ export const updateOccourrence = async ( name: string, description: string, crit
     }
 }
 
-export const deleteOccorrence = async ( occourrenceId: string ) => {
+export const deleteOccorrence = async ( occurrenceId: string ) => {
     try 
     {
-        const docRef = doc(db, "occourrencies", occourrenceId);
+        const docRef = doc(db, "occourrencies", occurrenceId);
 
         await deleteDoc(docRef);
     }

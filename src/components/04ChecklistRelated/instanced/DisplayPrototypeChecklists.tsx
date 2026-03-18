@@ -1,6 +1,5 @@
 import { useState } from "react";
 import EditChecklistModal from "./EditChecklistModal";
-import { Check2Circle } from "react-bootstrap-icons";
 import type { ChecklistProps } from "../../../services/checklistServices";
 
 interface Props {
@@ -10,43 +9,46 @@ interface Props {
 }
 
 export default function DisplayPrototypeChecklists({ checklists, prototypeId, onUpdate }: Props) {
-  const [selectedChecklist, setSelectedChecklist] = useState<ChecklistProps | null>(null);
+    const [selectedChecklist, setSelectedChecklist] = useState<ChecklistProps | null>(null);
 
-  // Ao abrir, criamos uma cópia para evitar mutações por referência
-  const openChecklist = (cl: ChecklistProps) => {
-    const copy = structuredClone(cl) as ChecklistProps;
-    setSelectedChecklist(copy);
-  };
+    const openChecklist = (cl: ChecklistProps) => {
+        const copy = structuredClone(cl);
+        setSelectedChecklist(copy);
+    };
 
-  return (
-    <div className="d-flex flex-column gap-2 mt-2">
-      {(!checklists || checklists.length === 0) && <p>Nenhuma checklist encontrada.</p>}
+    return (
+        <div className="d-flex flex-column gap-2 mt-2">
 
-      {/* ===== Card to navigate inner prototype checklists and display all items to check or uncheck ===== */}
-      {checklists.map((cl) => (
-        <button
-          key={cl.id}
-          onClick={() => openChecklist(cl)}
-          type="button"
-          className="w-100 text-start py-2 px-3 border rounded-2 bg-light text-custom-black d-flex justify-content-between"
-        >
-          {cl.name}
-          <Check2Circle size={25} />
-        </button>
-      ))}
+            <div className="d-flex flex-wrap gap-3">
 
-      {selectedChecklist && (
-        <EditChecklistModal
-          prototypeId={prototypeId}
-          checklist={selectedChecklist}
-          onClose={() => setSelectedChecklist(null)}
-          onSave={(updatedChecklist) => {
-            onUpdate(updatedChecklist);
-            setSelectedChecklist(null);
-          }}
-        />
-      )}
-    </div>
-  );
+                {checklists.length === 0 && <p>Nenhuma checklist encontrada.</p>}
+
+                {checklists.map((cl) => (
+                    <div
+                        key={cl.id}
+                        onClick={() => openChecklist(cl)}
+                        className="card p-3 shadow"
+                        style={{ width: "18rem", cursor: "pointer" }}
+                    >
+                        <h5>{cl.name} • v{cl.version}</h5>
+                        <p>{cl.vertical}</p>
+                        <p>{cl.categories.length} categorias</p>
+                    </div>
+                ))}
+            </div>
+
+            {selectedChecklist && (
+                <EditChecklistModal
+                    prototypeId={prototypeId}
+                    checklist={selectedChecklist}
+                    onClose={() => setSelectedChecklist(null)}
+                    onSave={(updatedChecklist) => {
+                        onUpdate(updatedChecklist);
+                        setSelectedChecklist(null);
+                    }}
+                />
+            )}
+        </div>
+    );
 }
  

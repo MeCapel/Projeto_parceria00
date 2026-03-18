@@ -19,7 +19,7 @@ import Projects from './pages/Projects'
 import NotFoundPage from './pages/NotFoundPage'
 import ResetPassword from './pages/ResetPassword'
 import ConfirmResetPassword from './pages/ConfirmResetPassword'
-import PrototypeInner from './components/03PrototypeRelated/PrototypeInner'
+import PrototypePage from './components/03PrototypeRelated/PrototypePage/PrototypePage';
 
 // App.tsx component
 export default function App() {
@@ -43,10 +43,11 @@ export default function App() {
           
           {/* Rotas Protegidas que usam o Layout do sistema */}
           <Route path='/home' element={<ProtectedRoute><Layout><Home /></Layout></ProtectedRoute>}/>
+          <Route path='/proto' element={<ProtectedRoute><Layout><PrototypePage /></Layout></ProtectedRoute>}/>
           <Route path="/projects" element={<ProtectedRoute><Layout><Projects /></Layout></ProtectedRoute>} />
           <Route path='/profile' element={<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>}/>
           <Route path="/projects/:projectid" element={<ProtectedRoute><Layout><Project /></Layout></ProtectedRoute>} />
-          <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><Layout><PrototypeInner /></Layout></ProtectedRoute>} />
+          <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><Layout><PrototypePage /></Layout></ProtectedRoute>} />
         </Routes>
 
       </main>

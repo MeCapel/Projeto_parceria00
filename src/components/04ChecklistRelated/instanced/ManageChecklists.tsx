@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Modal } from "react-bootstrap";
-import ChooseChecklists from "./ChooseChecklist2";
+import ChooseChecklists from "./ChooseChecklist";
 import { type ChecklistProps } from "../../../services/checklistServices";
 
 interface ManageChecklistModalProps {
@@ -56,7 +56,7 @@ export default function ManageChecklistsModal({ vertical, selectedChecklists, on
       originalModel: model.id,
     }));
 
-    // 🔥 ESTE array é a VERDADE ABSOLUTA
+    //  Array que realmente sobre para o pai
     const finalChecklists = [...kept, ...created];
 
     onUpdate(finalChecklists);

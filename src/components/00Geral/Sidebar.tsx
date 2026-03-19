@@ -1,11 +1,15 @@
+// ===== GERAL IMPORTS =====
 import { NavLink } from 'react-router'
 import { useState, useRef, useLayoutEffect } from "react";
 import { LayoutSidebar, LayoutSidebarReverse, HouseFill, CollectionFill } from 'react-bootstrap-icons'
 
+// ===== TYPE INTERFACE =====
 interface SidebarProps {
     onWidthChange?: (width: number) => void;
 }
 
+// ===== MAIN COMPONENT =====
+// ----- Componente responsável pela sidebar e sua contração ou expansão -----
 export default function Sidebar({ onWidthChange } : SidebarProps)
 {
     const [ isCollapsed, setIsCollapsed ] = useState(false); 

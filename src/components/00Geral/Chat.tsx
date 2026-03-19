@@ -1,25 +1,17 @@
+// ===== GERAL IMPORTS =====
 import React, { useState, useEffect, useRef } from "react";
-import {
-    sendMessage,
-    subscribeToMessages,
-    updateMessage,
-    markMessageAsRead,
-    type MessageProps
-} from "../../services/chatService";
-import {
-    SendFill,
-    Paperclip,
-    XCircleFill,
-    PencilFill,
-    Check2All
-} from "react-bootstrap-icons";
+import { sendMessage, subscribeToMessages, updateMessage, markMessageAsRead, type MessageProps } from "../../services/chatService";
+import { SendFill, Paperclip, XCircleFill, PencilFill, Check2All } from "react-bootstrap-icons";
 
+// ===== TYPE INTERFACE =====
 interface ChatProps {
     projectId: string;
     userId: string;
     userName: string;
 }
 
+// ===== MAIN COMPONENT =====
+// ----- Componente responsável pelo chat -----
 export default function Chat({ projectId, userId, userName }: ChatProps) {
     const [messages, setMessages] = useState<MessageProps[]>([]);
     const [newMessage, setNewMessage] = useState("");

@@ -1,14 +1,18 @@
+// ===== GERAL IMPORTS =====
 import { useState } from "react";
 import { Link } from "react-router";
 import { Modal } from "react-bootstrap";
 import AccountSettings from "../01LoginRelated/AccountSettings";
 import { GearFill, PersonCircle, Sliders2, ArrowUpRightCircleFill } from "react-bootstrap-icons";
 
+// ===== TYPE INTERFACE =====
 interface HeaderProps {
   sidebarWidth: number;
   hidden?: boolean;
 }
 
+// ===== MAIN COMPONENT =====
+// ----- Componente responsável pelo header que é exibido pelo app -----
 export default function Header({ sidebarWidth, hidden = false }: HeaderProps) {
   const [openComponent, setOpenComponent] = useState<string | null>(null);
 

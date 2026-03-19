@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "../../hooks/useForm";
-import { getOccurrence, updateOccurrence } from "../../services/occurrenceServices";
+import { getOccurrence, updateOccurrence, type OccurrenceProps } from "../../services/occurrenceServices";
 import { Modal } from "react-bootstrap";
 import FormInput from "../forms/FormInput";
 import FormTextarea from "../forms/FormTextarea";
 import FormRadioGroup from "../forms/FormRadioGroup";
 
 interface EditOccurrenceModalProps {
-    occurrenceId: string | null
-    show: boolean
-    onClose: () => void
+    occurrenceId: string | null;
+    show: boolean;
+    onClose: () => void;
+    onUpdate: (updated: OccurrenceProps) => void; // NOVO
 }
 
-export default function EditOccurrenceModal({ occurrenceId, show, onClose }: EditOccurrenceModalProps)
+export default function EditOccurrenceModal({ occurrenceId, show, onClose, onUpdate }: EditOccurrenceModalProps)
 {
     const [loading, setLoading] = useState(false);
     const formRef = useRef<HTMLFormElement | null>(null);
@@ -27,9 +28,15 @@ export default function EditOccurrenceModal({ occurrenceId, show, onClose }: Edi
 
     const { values, setValues, handleChange, reset } = useForm(emptyObj);
 
+    useEffect(() => {
+        if (!show) {
+            reset();
+        }
+    }, [show]);
+
     // carregar dados da ocorrência
     useEffect(() => {
-        if (!occurrenceId) return;
+        if (!occurrenceId || !show) return;
 
         const load = async () => {
             setLoading(true);
@@ -39,10 +46,10 @@ export default function EditOccurrenceModal({ occurrenceId, show, onClose }: Edi
             if (data) {
                 setValues({
                     id: data.id,
-                    name: data.name,
-                    description: data.description,
-                    criticity: data.criticity as "A" | "B" | "C",
-                    prototypeId: data.prototypeId,
+                    name: data.name || "",
+                    description: data.description || "",
+                    criticity: (data.criticity as "A" | "B" | "C") || "A",
+                    prototypeId: data.prototypeId || "",
                 });
             }
 
@@ -50,7 +57,7 @@ export default function EditOccurrenceModal({ occurrenceId, show, onClose }: Edi
         };
 
         load();
-    }, [occurrenceId]);
+    }, [occurrenceId, show]);
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -62,10 +69,14 @@ export default function EditOccurrenceModal({ occurrenceId, show, onClose }: Edi
 
         if (!form.checkValidity()) return;
 
-        await updateOccurrence(values);
-
-        onClose();
-        reset();
+        try {
+            await updateOccurrence(values); // salva no Firebase
+            onUpdate(values);               // atualiza local
+            onClose();
+            reset();
+        } catch (err) {
+            console.error(err);
+}
     };
 
     return (
@@ -84,6 +95,7 @@ export default function EditOccurrenceModal({ occurrenceId, show, onClose }: Edi
                             <h1 className='text-custom-black fw-bold mb-3'>
                                 Ocorrência
                             </h1>
+
                         </div>
 
                         <div className="d-flex flex-column gap-3">
@@ -113,6 +125,7 @@ export default function EditOccurrenceModal({ occurrenceId, show, onClose }: Edi
                         </div>
 
                         <div className="d-flex justify-content-end mt-4">
+
                             <button className="btn-custom btn-custom-success px-4">
                                 Salvar
                             </button>

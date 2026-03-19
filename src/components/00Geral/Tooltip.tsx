@@ -1,13 +1,17 @@
+// ===== GERAL IMPORTS =====
 import type React from "react";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 
+// ===== TYPE INTERFACE =====
 interface TooltipProps {
     text: string;
     top: string | number;
     children: React.ReactElement;
 }
 
+// ===== MAIN COMPONENT =====
+// ----- Componente responsável exibir uma pequena tooltip (modal de descrição) acima do item em questão -----
 export default function Tooltip({ text, top, children } : TooltipProps)
 {
     const [ isVisible, setIsVisible ] = useState(false);

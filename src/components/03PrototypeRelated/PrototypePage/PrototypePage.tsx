@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import PrototypeGeralInfosTab from "./PrototypeGeralInfosTab";
 import PrototypeChecklistsTab from "./PrototypeChecklistsTab";
-import { deletePrototype, getPrototype, getPrototypeChecklists, updatePrototype, type PrototypeProps } from "../../../services/prototypeServices";
-import { TrashFill, Floppy2Fill } from "react-bootstrap-icons";
+import { deletePrototype, getPrototype, getPrototypeChecklists, updatePrototype, updatePrototypeChecklists, type PrototypeProps } from "../../../services/prototypeServices";
+import { TrashFill, Floppy2Fill, Trash3Fill } from "react-bootstrap-icons";
 import type { ChecklistProps } from "../../../services/checklistServices";
 import PrototypeOccurrencesTab from "./PrototypeOccurrencesTab";
 import { deleteOccorrence, listOccourenciesByPrototype, type OccurrenceProps } from "../../../services/occurrenceServices";
 import NewOccurenceModal from "../../06OccurrenceRelated/NewOccurrenceModal";
 import { useParams } from "react-router";
 import EditOccurrenceModal from "../../06OccurrenceRelated/EditOccurrenceModal";
+import { Modal } from "react-bootstrap";
 
 export default function PrototypePage() {
     const { prototypeid } = useParams();
@@ -18,6 +19,10 @@ export default function PrototypePage() {
     const [occurrences, setOccurrences] = useState<OccurrenceProps[]>([]);
     const [selectedOccurrenceId, setSelectedOccurrenceId] = useState<string | null>(null);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
+
+    const openModal = () => setOpenDeleteModal(true);
+    const closeModal = () => setOpenDeleteModal(false);
 
     useEffect(() => {
         if (!prototypeid) 
@@ -80,30 +85,45 @@ export default function PrototypePage() {
         } : prev);
     }
 
-    // SALVAR (COM LIMPEZA)
-    async function handleSave() {
+    const handleOccurrenceUpdated = (updatedOccurrence: OccurrenceProps) => {
+            setOccurrences(prev =>
+                prev.map(o => (o.id === updatedOccurrence.id ? updatedOccurrence : o))
+            );
+        };
+
+        // SALVAR (COM LIMPEZA)
+        async function handleSave() {
         if (!prototype?.id) return;
 
         try {
+            const cleanedChecklists = (prototype.checklists || []).map(cl => ({
+                ...cl,
+                categories: (cl.categories || []).map(cat => ({
+                    ...cat,
+                    items: (cat.items || []).map(item => ({
+                        id: item.id,
+                        label: item.label,
+                        checked: item.checked
+                    }))
+                }))
+            }));
+
             const payload = {
                 ...prototype,
                 createdAt: prototype.createdAt || undefined,
-                checklists: (prototype.checklists || []).map(cl => ({
-                    ...cl,
-                    categories: (cl.categories || []).map(cat => ({
-                        ...cat,
-                        items: (cat.items || []).map(item => ({
-                            id: item.id,
-                            label: item.label,
-                            checked: item.checked
-                        }))
-                    }))
-                }))
+                checklists: cleanedChecklists
             };
 
-            console.log("SALVANDO:", payload);
+            console.log("SALVANDO PROTOTYPE:", payload);
 
+            // ✅ salva dados do protótipo
             await updatePrototype(payload);
+
+            // ✅🔥 salva SUBCOLLECTION de checklists (ESSENCIAL)
+            await updatePrototypeChecklists(
+                prototype.id,
+                cleanedChecklists
+            );
 
         } catch (err) {
             console.error(err);
@@ -194,7 +214,7 @@ export default function PrototypePage() {
                 </div>
 
                 <div className="d-flex gap-2">
-                    <button onClick={handleDelete} className="btn-custom btn-custom-outline-primary d-flex gap-2 align-items-center" >
+                    <button onClick={openModal} className="btn-custom btn-custom-outline-primary d-flex gap-2 align-items-center" >
                         <TrashFill size={20} />
                         Deletar
                     </button>
@@ -208,14 +228,30 @@ export default function PrototypePage() {
 
             {componentsMap.find(c => c.i === currentView)?.component}
 
-            <EditOccurrenceModal
-                occurrenceId={selectedOccurrenceId}
-                show={showEditModal}
-                onClose={() => {
-                    setShowEditModal(false);
-                    setSelectedOccurrenceId(null);
-                }}
-            />
+            {/* // Certifique-se de renderizar o modal apenas quando existir ID e showModal = true */}
+            {selectedOccurrenceId && showEditModal && (
+                <EditOccurrenceModal
+                    occurrenceId={selectedOccurrenceId}
+                    show={showEditModal}
+                    onClose={() => {
+                        setShowEditModal(false);
+                        setSelectedOccurrenceId(null);
+                    }}
+                    onUpdate={handleOccurrenceUpdated} 
+                />
+            )}
+
+            <Modal show={openDeleteModal} onHide={closeModal} centered>
+                <Modal.Body className="text-center p-5">
+                    <Trash3Fill size={50} className="text-danger mb-4" />
+                    <h4 className="fw-bold mb-3">Excluir protótipo?</h4>
+                    <p className="text-muted mb-5">Esta ação não pode ser desfeita.</p>
+                    <div className="d-flex gap-2 justify-content-center">
+                        <button className="btn btn-light px-4 rounded-pill" onClick={closeModal}>Cancelar</button>
+                        <button className="btn btn-danger px-4 rounded-pill shadow-sm" onClick={handleDelete}>Excluir</button>
+                    </div>
+                </Modal.Body>
+            </Modal>
         </div>
     );
 }

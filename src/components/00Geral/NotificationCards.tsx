@@ -1,3 +1,4 @@
+// ===== TYPE INTERFACE =====
 interface NotificationCardsProps {
     infosList: {id: string | number, 
                 imgUrl?: string, 
@@ -6,6 +7,8 @@ interface NotificationCardsProps {
                 description?: string}[];
 }
 
+// ===== MAIN COMPONENT =====
+// ----- Componente card da notificação -----
 export default function NotificationCards({ infosList } : NotificationCardsProps)
 {
 

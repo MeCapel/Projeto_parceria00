@@ -1,9 +1,12 @@
+// ===== GERAL IMPORTS =====
 import { useState, useContext, useEffect } from "react";
 import { useParams } from "react-router";
 import { ChatDotsFill, XCircleFill } from "react-bootstrap-icons";
 import Chat from "./Chat";
 import { AuthContext } from "../../context/AuthContext";
 
+// ===== MAIN COMPONENT =====
+// ----- Componente responsável pelo botão flutuante do chat -----
 export default function FloatingChat() {
     const { projectid } = useParams();
     const { user } = useContext(AuthContext);

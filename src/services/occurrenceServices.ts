@@ -14,7 +14,7 @@ export interface OccurrenceProps {
 export const createOccurrence = async ( occurrence: OccurrenceProps ) => {
     try 
     {
-        const collectionRef = collection(db, "occourrencies");
+        const collectionRef = collection(db, "occurrences");
 
         const docRef = await addDoc(collectionRef, {
             name: occurrence.name,
@@ -32,29 +32,29 @@ export const createOccurrence = async ( occurrence: OccurrenceProps ) => {
     }
 }
 
-export const listOccurrences = ( callback: (occourrencies: OccurrenceProps[] ) => void ) => {
-    const collectionRef = collection(db, "occourrencies");
+export const listOccurrences = ( callback: (occurrences: OccurrenceProps[] ) => void ) => {
+    const collectionRef = collection(db, "occurrences");
 
     return onSnapshot(collectionRef, (snapshot) => {
-        const occourrenciesData = snapshot.docs.map(doc => ({
+        const occurrencesData = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
         }) as OccurrenceProps);
 
-        callback(occourrenciesData);
+        callback(occurrencesData);
     });
 }
 
-export const listOccourenciesByPrototype = ( proptotypeId: string, callback: (occourrencies: OccurrenceProps[]) => void ) => {
-    const q = query(collection(db, "occourrencies"), where("prototypeId", "==", proptotypeId));
+export const listOccourenciesByPrototype = ( proptotypeId: string, callback: (occurrences: OccurrenceProps[]) => void ) => {
+    const q = query(collection(db, "occurrences"), where("prototypeId", "==", proptotypeId));
 
     return onSnapshot(q, (snapshot) => {
-        const occourrenciesData = snapshot.docs.map(doc => ({
+        const occurrencesData = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
         }) as OccurrenceProps);
         
-        callback(occourrenciesData);
+        callback(occurrencesData);
     });
 
 }
@@ -62,14 +62,19 @@ export const listOccourenciesByPrototype = ( proptotypeId: string, callback: (oc
 export const getOccurrence = async (id: string): Promise<OccurrenceProps | null> => {
     try {
         const docRef = doc(db, "occurrences", id);
-        const snap = await getDoc(docRef);
+        const docSnap = await getDoc(docRef);
 
-        if (!snap.exists()) return null;
+        if (!docSnap.exists()) return null;
+
+        const data = docSnap.data();
 
         return {
-            id: snap.id,
-            ...(snap.data() as Omit<OccurrenceProps, "id">)
-        };
+            id: docSnap.id,
+            name: data.name || "",
+            description: data.description || "",
+            criticity: data.criticity || "A",
+            prototypeId: data.prototypeId || "",
+        } as OccurrenceProps;
     } catch (err) {
         console.error(err);
         return null;
@@ -81,7 +86,7 @@ export const updateOccurrence = async ( occurrence: OccurrenceProps ) => {
     {
         if(!occurrence.id) return;
 
-        const docRef = doc(db, "occourrencies", occurrence.id);
+        const docRef = doc(db, "occurrences", occurrence.id);
 
         const occurrenceDTO = {
             name: occurrence.name,
@@ -101,7 +106,7 @@ export const updateOccurrence = async ( occurrence: OccurrenceProps ) => {
 export const deleteOccorrence = async ( occurrenceId: string ) => {
     try 
     {
-        const docRef = doc(db, "occourrencies", occurrenceId);
+        const docRef = doc(db, "occurrences", occurrenceId);
 
         await deleteDoc(docRef);
     }

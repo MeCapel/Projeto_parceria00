@@ -40,14 +40,20 @@ export default function EditChecklistModal({ prototypeId, checklist, onClose, on
 
     const handleSave = async () => {
         setSaving(true);
+
         try {
+            // 1. Atualiza a checklist individual (itens checked)
             await toggleChecklistItems(
                 prototypeId,
                 localChecklist.id!,
                 localChecklist
             );
 
+            // 2. Atualiza estado no componente pai
             onSave(localChecklist);
+
+        } catch (err) {
+            console.error(err);
         } finally {
             setSaving(false);
         }

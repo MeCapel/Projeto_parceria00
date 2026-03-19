@@ -1,7 +1,9 @@
+// ===== GERAL IMPORTS =====
 import { createPortal } from "react-dom";
 import { Bell } from "react-bootstrap-icons";
 import NotificationCards from '../00Geral/NotificationCards'
 
+// ===== TYPE INTERFACE =====
 interface NotificationsProps {
     isOpen: boolean;
     onOpen: () => void;
@@ -9,6 +11,8 @@ interface NotificationsProps {
     notificationsList: {id: string | number, imgUrl?: string, title: string, subtitle?: string | number, description?: string}[] 
 }
 
+// ===== MAIN COMPONENT =====
+// ----- Componente responsável pelo modal de notificações -----
 export default function Notifications({ isOpen, onOpen, onClose, notificationsList } : NotificationsProps)
 {
     return(

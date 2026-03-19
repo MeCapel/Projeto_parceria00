@@ -1,5 +1,5 @@
 import { db } from '../firebaseConfig/config'
-import { addDoc, deleteDoc, collection, doc, getDoc, setDoc, onSnapshot, updateDoc, query, orderBy, getDocs, writeBatch, arrayUnion, where, serverTimestamp } from 'firebase/firestore'
+import { addDoc, deleteDoc, collection, doc, getDoc, setDoc, onSnapshot, updateDoc, query, orderBy, getDocs, writeBatch, arrayUnion, where, serverTimestamp, Timestamp } from 'firebase/firestore'
 import { getChecklistModel, type CategoriesProps, type CheckboxItemProps, type ChecklistProps } from './checklistServices';
 
 export interface PrototypeProps {
@@ -213,7 +213,7 @@ export const updatePrototype = async (editedPrototype: PrototypeProps) => {
             city: editedPrototype.city ?? "",
             areaSize: editedPrototype.areaSize ?? "",
             vertical: editedPrototype.vertical,
-            editedAt: arrayUnion(serverTimestamp()),
+            editedAt: arrayUnion(Timestamp.now()),
         });
 
         return editedPrototype.id;

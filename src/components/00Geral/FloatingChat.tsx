@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { useParams } from "react-router";
 import { ChatDotsFill, XCircleFill } from "react-bootstrap-icons";
 import Chat from "./Chat";
@@ -12,6 +12,26 @@ export default function FloatingChat() {
     const [isOpen, setIsOpen] = useState(false);
     const [displayUserName, setDisplayUserName] = useState<string>("Usuário");
     const [unreadCount, setUnreadCount] = useState(0);
+    const chatWindowRef = useRef<HTMLDivElement>(null);
+
+    // Fecha o chat ao clicar fora
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (chatWindowRef.current && !chatWindowRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        }
+
+        if (isOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        } else {
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isOpen]);
 
     // Busca o nome real do usuário no Firestore
     useEffect(() => {
@@ -54,6 +74,7 @@ export default function FloatingChat() {
 
     return (
         <div 
+            ref={chatWindowRef}
             style={{ 
                 position: "fixed", 
                 bottom: "30px", 

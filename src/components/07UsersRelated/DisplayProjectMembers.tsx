@@ -50,11 +50,11 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
                 id: member.userId,
                 username: member.username || "Sem nome",
                 email: member.email || "",
-                image: member.image || undefined,
+                profileImage: member.image || undefined, // Nome correto esperado pelo UserCard
                 role: member.role
             }))
 
-            setMembers(fullMembers)
+            setMembers(fullMembers as any)
         })
 
         return () => unsubscribe()
@@ -96,26 +96,19 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
                 show={isOpen}
                 onHide={closeModal}
                 centered
-                size="lg"
-                className="p-0"
             >
-                <Modal.Header
-                    closeButton
-                    className="border-0 mt-3 mx-3"
-                />
+                <Modal.Body className="p-4">
 
-                <Modal.Body>
-
-                    <div className="px-5 pb-4">
+                    <div className="w-100">
 
                         {/* HEADER */}
-                        <div>
-                            <p className="fs-5 mb-0 text-custom-red">
+                        <div className="mb-4">
+                            <p className="fs-6 mb-0 text-custom-red">
                                 Projeto
                             </p>
-                            <h1 className="text-custom-black fw-bold mb-3">
+                            <h2 className="text-custom-black fw-bold mb-1 h4">
                                 Membros
-                            </h1>
+                            </h2>
                         </div>
 
                         {/* LISTA */}

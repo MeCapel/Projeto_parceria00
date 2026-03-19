@@ -11,6 +11,8 @@ import { useNavigate, useParams } from "react-router";
 import EditOccurrenceModal from "../../06OccurrenceRelated/EditOccurrenceModal";
 import { Modal } from "react-bootstrap";
 
+import { toast } from "react-toastify";
+
 export default function PrototypePage() {
     const navigate = useNavigate();
     const { prototypeid } = useParams();
@@ -26,24 +28,30 @@ export default function PrototypePage() {
     const closeModal = () => setOpenDeleteModal(false);
 
     useEffect(() => {
-        if (!prototypeid) 
-        {
-            return;
-        }
+        if (!prototypeid) return;
 
         async function fetchData() {
-            const data = await getPrototype(prototypeid!);
-            const checklists = await getPrototypeChecklists(prototypeid!);
+            setLoading(true);
+            try {
+                const data = await getPrototype(prototypeid!);
+                const checklists = await getPrototypeChecklists(prototypeid!);
 
-            if (data) {
-                setPrototype({
-                    ...data,
-                    id: prototypeid,
-                    checklists: checklists // AGORA CORRETO
-                });
+                if (data) {
+                    setPrototype({
+                        ...data,
+                        id: prototypeid,
+                        checklists: checklists
+                    });
+                } else {
+                    toast.error("Protótipo não encontrado!");
+                    navigate(`/projects/${prototype?.projectId}`);
+                }
+            } catch (err) {
+                console.error("Erro ao carregar protótipo:", err);
+                toast.error("Erro ao carregar dados do protótipo");
+            } finally {
+                setLoading(false);
             }
-
-            setLoading(false);
         }
 
         fetchData();

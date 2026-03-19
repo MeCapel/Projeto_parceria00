@@ -56,8 +56,6 @@ export const updateProject = async ( projectId: string, name: string, descriptio
         
         if (!userData) return;
 
-        const userId = userData.uid;
-
         const projectRef = doc(db, "projects", projectId);
 
         const projectDTO = {
@@ -212,7 +210,7 @@ export const linkProjectUser = async (
             joinedAt: serverTimestamp(),
         });
 
-        toast.success(`✅ Usuário adicionado ao projeto!`);
+        toast.success(`Usuário adicionado ao projeto!`);
         return { success: true };
 
     } catch (err) {
@@ -224,7 +222,7 @@ export const linkProjectUser = async (
 // ---- This function returns a list of the members the current project got -----  
 export const getProjectMembers = (
     projectId: string,
-    callback: (users: any[]) => void
+    callback: (users: { id: string; userId: string; role: string; username?: string; image?: string; email?: string }[]) => void
 ) => {
 
     const q = query(
@@ -232,13 +230,40 @@ export const getProjectMembers = (
         where("projectId", "==", projectId)
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-        const membersList = snapshot.docs.map(doc => ({
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+        const memberRelationships = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
-        }));
+        })) as { id: string; userId: string; role: string; username?: string; image?: string; email?: string }[];
 
-        callback(membersList);
+        if (memberRelationships.length === 0) {
+            callback([]);
+            return;
+        }
+
+        // Buscar detalhes dos usuários para ter nome e foto atualizados
+        const userIds = memberRelationships.map(m => m.userId);
+        
+        // O Firestore limita 'in' a 30 IDs
+        const usersQuery = query(
+            collection(db, "users"),
+            where("uid", "in", userIds.slice(0, 30))
+        );
+
+        const usersSnap = await getDocs(usersQuery);
+        const usersDataMap = new Map(usersSnap.docs.map(doc => [doc.data().uid, doc.data()]));
+
+        const fullMembersList = memberRelationships.map(rel => {
+            const userData = usersDataMap.get(rel.userId);
+            return {
+                ...rel,
+                username: userData?.username || rel.username || "Sem nome",
+                image: userData?.profileImage || rel.image || undefined, // Prioriza foto do perfil real
+                email: userData?.email || rel.email || ""
+            };
+        });
+
+        callback(fullMembersList);
     });
 
     return unsubscribe;

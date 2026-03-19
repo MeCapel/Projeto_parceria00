@@ -1,17 +1,18 @@
 // ===== GERAL IMPORTS =====
+import type { Timestamp } from "firebase/firestore";
 import { useState } from "react";
 import { Modal } from "react-bootstrap";
 import { Trash3Fill } from "react-bootstrap-icons";
 
 // ===== TYPE INTERFACE =====
 interface Props {
-    name: string
-    description: string
-    criticity: "A" | "B" | "C"
-    createdAt: string
-    image?: string
-    onDelete?: () => void
-    onEdit?: () => void
+  name: string
+  description: string
+  criticity: "A" | "B" | "C"
+  createdAt: string | Timestamp
+  image?: string
+  onDelete?: () => void
+  onEdit?: () => void
 }
 
 // ===== MAIN COMPONENT =====
@@ -28,6 +29,10 @@ export default function OccurrenceCard({ name, description, criticity, image, cr
         B: "border border-warning bg-warning-subtle",
         C: "border border-info bg-info-subtle"
     }
+    const formattedDate =
+        typeof createdAt === "string"
+            ? createdAt
+            : createdAt.toDate().toLocaleDateString("pt-BR");
 
     return(
         <>
@@ -44,6 +49,7 @@ export default function OccurrenceCard({ name, description, criticity, image, cr
                 )}
 
                 <div className="p-3 d-flex flex-column grow justify-content-between">
+
                     
                     <div className="d-flex flex-column gap-1">
                         <div className="d-flex align-items-center justify-content-between mb-1">
@@ -62,9 +68,7 @@ export default function OccurrenceCard({ name, description, criticity, image, cr
 
                         {/* // ----- Here goes the date that the occurence was created ----- */}
                         <small className="text-muted mb-2" style={{ fontSize: '0.7rem' }}>
-                            {typeof createdAt === "string"
-                                ? createdAt
-                                : createdAt?.toDate?.().toLocaleDateString()}
+                            {formattedDate}
                         </small>
                         
                         {/* // ----- Here goes the description */}
@@ -75,8 +79,8 @@ export default function OccurrenceCard({ name, description, criticity, image, cr
 
                     {/* // ----- Buttons delete and edit ----- */}
                     <div className="d-flex justify-content-between gap-2 mt-2">
-                        <button className="btn-custom btn-custom-outline-secondary btn-sm rounded-pill grow" onClick={onEdit}>Editar</button>
-                        <button className="btn-custom btn-custom-primary btn-sm rounded-pill grow" onClick={openModal}>Deletar</button>
+                        <button className="btn-custom btn-custom-outline-secondary btn-sm grow" onClick={onEdit}>Editar</button>
+                        <button className="btn-custom btn-custom-primary btn-sm grow" onClick={openModal}>Deletar</button>
                     </div>
                 </div>
             </div>

@@ -66,24 +66,23 @@ export default function ManageChecklistsModal({ vertical, selectedChecklists, on
   return (
     <>
       <button className="btn-custom btn-custom-secondary" onClick={openModal} type="button">
-        <p className="mb-0 fs-5 text-custom-white">Gerenciar Checklists</p>
+        Gerenciar Checklists
       </button>
 
-      <Modal show={show} onHide={closeModal} dialogClassName="" centered className="p-0">
-        <Modal.Header closeButton className="mb-0 mx-3 border-0 my-3" />
-        <Modal.Body className="d-flex flex-column align-items-center justify-content-center gap-3 my-3">
+      <Modal show={show} onHide={closeModal} centered>
+        <Modal.Body className="p-4">
           <ChooseChecklists
             vertical={vertical}
             onValueChange={handleValueChange}
             initialSelectedIds={selectedModelIds}
           />
 
-          <div className="d-flex gap-3">
-            <button className="btn-custom btn-custom-secondary mt-3" onClick={closeModal} type="button">
-              Voltar
+          <div className="d-flex justify-content-center gap-2 mt-4">
+            <button className="btn-custom btn-custom-outline-secondary" onClick={closeModal} type="button">
+              Cancelar
             </button>
-            <button className="btn-custom btn-custom-success mt-3" onClick={handleSave} type="button">
-              Salvar alterações
+            <button className="btn-custom btn-custom-success" onClick={handleSave} type="button">
+              Salvar
             </button>
           </div>
         </Modal.Body>

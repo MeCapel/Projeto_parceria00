@@ -1,13 +1,13 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, query, serverTimestamp, updateDoc, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, query, serverTimestamp, Timestamp, updateDoc, where } from "firebase/firestore";
 import { db } from "../firebaseConfig/config";
 
 export interface OccurrenceProps {
-    id: string,
-    name: string,
-    description: string,
-    criticity: string,
-    prototypeId: string,
-    createdAt?: string,
+    id: string
+    name: string
+    description: string
+    criticity: string
+    prototypeId: string
+    createdAt?: string | Timestamp
     image?: string
 }
 
@@ -16,11 +16,26 @@ export const createOccurrence = async ( occurrence: OccurrenceProps ) => {
     {
         const collectionRef = collection(db, "occurrences");
 
+        // --- Verificação de duplicidade por nome no mesmo protótipo ---
+        const q = query(
+            collectionRef, 
+            where("prototypeId", "==", occurrence.prototypeId),
+            where("name", "==", occurrence.name)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+            console.warn("Já existe uma ocorrência com este nome para este protótipo.");
+            return "duplicate"; // Retorna um identificador de erro específico
+        }
+
         const docRef = await addDoc(collectionRef, {
             name: occurrence.name,
             description: occurrence.description,
             criticity: occurrence.criticity,
             prototypeId: occurrence.prototypeId,
+            image: occurrence.image || null,
             createdAt: serverTimestamp(),
         });
 
@@ -28,7 +43,8 @@ export const createOccurrence = async ( occurrence: OccurrenceProps ) => {
     }
     catch(err)
     {
-        console.error(`${err}`);
+        console.error("Erro detalhado no Firestore ao criar ocorrência:", err);
+        return null;
     }
 }
 
@@ -93,6 +109,7 @@ export const updateOccurrence = async ( occurrence: OccurrenceProps ) => {
             description: occurrence.description,
             criticity: occurrence.criticity,
             prototypeId: occurrence.prototypeId,
+            image: occurrence.image || null,
         };
 
         await updateDoc(docRef, occurrenceDTO);

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "../../hooks/useForm";
 import { getOccurrence, updateOccurrence, type OccurrenceProps } from "../../services/occurrenceServices";
 import { Modal } from "react-bootstrap";
+import { Paperclip, XCircleFill } from "react-bootstrap-icons";
 import FormInput from "../forms/FormInput";
 import FormTextarea from "../forms/FormTextarea";
 import FormRadioGroup from "../forms/FormRadioGroup";
@@ -16,7 +17,9 @@ interface EditOccurrenceModalProps {
 export default function EditOccurrenceModal({ occurrenceId, show, onClose, onUpdate }: EditOccurrenceModalProps)
 {
     const [loading, setLoading] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const formRef = useRef<HTMLFormElement | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const emptyObj = {
         id: "",
@@ -24,6 +27,8 @@ export default function EditOccurrenceModal({ occurrenceId, show, onClose, onUpd
         description: "",
         criticity: "" ,
         prototypeId: "",
+        createdAt: "",
+        image: ""
     };
 
     const { values, setValues, handleChange, reset } = useForm(emptyObj);
@@ -46,11 +51,14 @@ export default function EditOccurrenceModal({ occurrenceId, show, onClose, onUpd
             if (data) {
                 setValues({
                     id: data.id,
-                    name: data.name || "",
-                    description: data.description || "",
-                    criticity: (data.criticity as "A" | "B" | "C") || "A",
-                    prototypeId: data.prototypeId || "",
+                    name: data.name,
+                    description: data.description,
+                    criticity: data.criticity as "A" | "B" | "C",
+                    prototypeId: data.prototypeId,
+                    createdAt: "",
+                    image: data.image || ""
                 });
+                setSelectedImage(data.image || null);
             }
 
             setLoading(false);
@@ -58,6 +66,47 @@ export default function EditOccurrenceModal({ occurrenceId, show, onClose, onUpd
 
         load();
     }, [occurrenceId, show]);
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const img = new Image();
+                img.src = reader.result as string;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 600;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx?.drawImage(img, 0, 0, width, height);
+                    
+                    // Comprime para JPEG com qualidade 0.7 (70%) para garantir que fique abaixo de 1MB
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    setSelectedImage(compressedBase64);
+                    setValues({ ...values, image: compressedBase64 });
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -77,25 +126,21 @@ export default function EditOccurrenceModal({ occurrenceId, show, onClose, onUpd
         } catch (err) {
             console.error(err);
 }
+
     };
 
     return (
-        <Modal show={show} onHide={onClose} centered size="lg">
-            <Modal.Header closeButton className="border-0 mt-3 mx-3" />
-
-            <Modal.Body className="px-5 pb-4">
+        <Modal show={show} onHide={onClose} centered>
+            <Modal.Body className="p-4 m-3">
 
                 {loading ? (
                     <p>Carregando...</p>
                 ) : (
                     <form ref={formRef} onSubmit={handleSave} noValidate>
 
-                        <div>
-                            <p className='fs-5 mb-0 text-custom-red'>Editar</p>
-                            <h1 className='text-custom-black fw-bold mb-3'>
-                                Ocorrência
-                            </h1>
-
+                        <div className="mb-4">
+                            <p className='fs-6 mb-0 text-custom-red'>Editar</p>
+                            <h2 className='text-custom-black fw-bold mb-1 h4'>Ocorrência</h2>
                         </div>
 
                         <div className="d-flex flex-column gap-3">
@@ -122,11 +167,54 @@ export default function EditOccurrenceModal({ occurrenceId, show, onClose, onUpd
                                 options={["A", "B", "C"]}
                             />
 
+                            {/* --- Image Edit --- */}
+                            <div className="d-flex flex-column gap-2">
+                                <label className="text-custom-black fw-semibold small">Imagem da Ocorrência</label>
+                                <div className="d-flex align-items-center gap-3">
+                                    <button 
+                                        type="button" 
+                                        className="btn-custom btn-custom-outline-secondary d-flex align-items-center gap-2"
+                                        onClick={() => fileInputRef.current?.click()}
+                                    >
+                                        <Paperclip size={18} />
+                                        Alterar Foto
+                                    </button>
+                                    <input 
+                                        type="file" 
+                                        ref={fileInputRef} 
+                                        className="d-none" 
+                                        accept="image/*" 
+                                        onChange={handleImageChange}
+                                    />
+                                    {selectedImage && (
+                                        <div className="position-relative">
+                                            <img 
+                                                src={selectedImage} 
+                                                alt="Preview" 
+                                                className="rounded border" 
+                                                style={{ width: "60px", height: "60px", objectFit: "cover" }} 
+                                            />
+                                            <XCircleFill 
+                                                className="position-absolute text-danger bg-white rounded-circle" 
+                                                style={{ top: "-8px", right: "-8px", cursor: "pointer" }}
+                                                onClick={() => {
+                                                    setSelectedImage(null);
+                                                    setValues({ ...values, image: "" });
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
                         </div>
 
-                        <div className="d-flex justify-content-end mt-4">
+                        <div className="d-flex justify-content-between mt-4">
 
-                            <button className="btn-custom btn-custom-success px-4">
+                            <button className="btn-custom btn-custom-outline-primary px-4" type="button" onClick={onClose}>
+                                Cancelar
+                            </button>
+                            <button className="btn-custom btn-custom-success px-4" type="submit">
                                 Salvar
                             </button>
                         </div>

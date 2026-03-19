@@ -4,6 +4,7 @@ import { useParams } from "react-router";
 import { ChatDotsFill, XCircleFill } from "react-bootstrap-icons";
 import Chat from "./Chat";
 import { AuthContext } from "../../context/AuthContext";
+import { getUserById } from "../../services/authServices";
 
 // ===== MAIN COMPONENT =====
 // ----- Componente responsável pelo botão flutuante do chat -----
@@ -11,6 +12,26 @@ export default function FloatingChat() {
     const { projectid } = useParams();
     const { user } = useContext(AuthContext);
     const [isOpen, setIsOpen] = useState(false);
+    const [displayUserName, setDisplayUserName] = useState<string>("Usuário");
+
+    // Busca o nome real do usuário no Firestore
+    useEffect(() => {
+        if (!user?.uid) return;
+
+        const fetchName = async () => {
+            const data = await getUserById(user.uid);
+            if (data?.username) {
+                console.log("Chat: Usando username do Firestore:", data.username);
+                setDisplayUserName(data.username);
+            } else {
+                const fallback = user.displayName || user.email?.split('@')[0] || "Usuário";
+                console.log("Chat: Fallback para nome:", fallback);
+                setDisplayUserName(fallback);
+            }
+        };
+
+        fetchName();
+    }, [user]);
 
     // Efeito para fechar o chat automaticamente ao trocar de projeto ou sair da tela de projeto
     useEffect(() => {
@@ -64,7 +85,7 @@ export default function FloatingChat() {
                         <Chat 
                             projectId={projectid} 
                             userId={user.uid} 
-                            userName={user.displayName || user.email || "Usuário"} 
+                            userName={displayUserName} 
                         />
                     </div>
                 </div>

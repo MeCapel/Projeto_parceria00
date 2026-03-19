@@ -26,26 +26,20 @@ export default function OccurenceGrid({ occurrences, onDelete, onEdit }: Props)
   );
 
   return(
-      <div
-        className="my-5"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(18rem, 1fr))",
-          justifyItems: "start"
-        }}
-      >
+      <div className="d-flex flex-wrap gap-4 my-5 justify-content-start align-items-stretch">
 
         {sortedOccurrences.map((occ) => (
-          <OccurrenceCard
-            key={occ.id}
-            name={occ.name}
-            description={occ.description}
-            criticity={occ.criticity as "A" | "B" | "C"}
-            createdAt={occ.createdAt ?? ""}
-            image={occ.image}
-            onDelete={() => onDelete?.(occ.id!)}
-            onEdit={() => onEdit?.(occ.id!)}
-          />
+          <div key={occ.id} style={{ width: "18rem" }}>
+            <OccurrenceCard
+              name={occ.name}
+              description={occ.description}
+              criticity={occ.criticity as "A" | "B" | "C"}
+              createdAt={occ.createdAt ?? ""}
+              image={occ.image}
+              onDelete={() => onDelete?.(occ.id!)}
+              onEdit={() => onEdit?.(occ.id!)}
+            />
+          </div>
         ))}
 
     </div>

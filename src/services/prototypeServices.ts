@@ -136,18 +136,23 @@ export const listenPrototypesForProjectWProgress = (
 
     const unsubscribes: (() => void)[] = [];
 
-    const unsubscribePrototypes = onSnapshot(q, async (snapshot) => {
-        const prototypes: PrototypeProps[] = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...(doc.data() as PrototypeProps),
-            checklists: [],
-        }));
+    const unsubscribePrototypes = onSnapshot(q, (snapshot) => {
 
-        // limpa listeners antigos
+        const prototypesMap: Record<string, PrototypeProps> = {};
+
+        snapshot.docs.forEach(docSnap => {
+            prototypesMap[docSnap.id] = {
+                id: docSnap.id,
+                ...(docSnap.data() as PrototypeProps),
+                checklists: [],
+            };
+        });
+
         unsubscribes.forEach(unsub => unsub());
         unsubscribes.length = 0;
 
-        prototypes.forEach((prototype, index) => {
+        Object.values(prototypesMap).forEach((prototype) => {
+
             const checklistsRef = collection(
                 db,
                 "prototypes",
@@ -156,18 +161,18 @@ export const listenPrototypesForProjectWProgress = (
             );
 
             const unsubscribeChecklists = onSnapshot(checklistsRef, (snap) => {
+
                 const checklists = snap.docs.map(doc => ({
                     id: doc.id,
                     ...(doc.data() as ChecklistProps),
                 }));
 
-                const updated = [...prototypes];
-                updated[index] = {
-                    ...updated[index],
+                prototypesMap[prototype.id!] = {
+                    ...prototypesMap[prototype.id!],
                     checklists
                 };
 
-                callback(updated);
+                callback(Object.values(prototypesMap));
             });
 
             unsubscribes.push(unsubscribeChecklists);
@@ -202,8 +207,10 @@ export const getPrototypes = (callback: (data: PrototypeProps[]) => void) => {
 // ----- ESTA FUNÇÃO ATUALIZA AS INFORMAÇÕES DO PROTÓTIPO ----- 
 export const updatePrototype = async (editedPrototype: PrototypeProps) => {
     try {
-        const docRef = doc(db, "prototypes", editedPrototype.id!);
+        const id = editedPrototype.id!;
+        const docRef = doc(db, "prototypes", id);
 
+        // 1. Atualiza dados básicos
         await updateDoc(docRef, {
             code: editedPrototype.code ?? "",
             name: editedPrototype.name,
@@ -216,7 +223,36 @@ export const updatePrototype = async (editedPrototype: PrototypeProps) => {
             editedAt: arrayUnion(Timestamp.now()),
         });
 
-        return editedPrototype.id;
+        // 2. Sincroniza checklists se estiverem presentes no objeto
+        if (editedPrototype.checklists) {
+            const batch = writeBatch(db);
+            
+            // Buscar checklists atuais para saber o que deletar
+            const currentChecklistsSnap = await getDocs(collection(db, "prototypes", id, "checklists"));
+            const currentIds = currentChecklistsSnap.docs.map(d => d.id);
+            const newIds = editedPrototype.checklists.map(c => c.id!);
+
+            // Deletar as que saíram
+            currentIds.forEach(currId => {
+                if (!newIds.includes(currId)) {
+                    batch.delete(doc(db, "prototypes", id, "checklists", currId));
+                }
+            });
+
+            // Adicionar/Atualizar as que ficaram
+            editedPrototype.checklists.forEach(cl => {
+                const clRef = doc(db, "prototypes", id, "checklists", cl.id!);
+                const { id: _, ...data } = cl; // não salva o ID dentro do documento
+                batch.set(clRef, {
+                    ...data,
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+            });
+
+            await batch.commit();
+        }
+
+        return id;
     } catch (err) {
         console.error("Erro ao editar protótipo:", err);
         return null;

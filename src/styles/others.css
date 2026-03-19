@@ -69,12 +69,21 @@
 
 .msg-bubble {
     position: relative;
-    padding: 8px 12px;
-    max-width: 85%; /* Aumentado levemente */
-    width: fit-content; /* Força a bolha a se ajustar ao texto */
+    padding: 8px 15px;
+    max-width: 85%;
+    min-width: 60px; /* Impede bolhas verticais minúsculas */
+    width: fit-content;
     font-size: 0.92rem;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.msg-text {
+    white-space: pre-wrap;
     word-break: break-word;
+    display: block;
+    width: 100%;
 }
 
 .msg-bubble-sent {

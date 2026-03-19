@@ -4,12 +4,14 @@ import { ChatDotsFill, XCircleFill } from "react-bootstrap-icons";
 import Chat from "./Chat";
 import { AuthContext } from "../../context/AuthContext";
 import { getUserById } from "../../services/authServices";
+import { subscribeToMessages } from "../../services/chatService";
 
 export default function FloatingChat() {
     const { projectid } = useParams();
     const { user } = useContext(AuthContext);
     const [isOpen, setIsOpen] = useState(false);
     const [displayUserName, setDisplayUserName] = useState<string>("Usuário");
+    const [unreadCount, setUnreadCount] = useState(0);
 
     // Busca o nome real do usuário no Firestore
     useEffect(() => {
@@ -18,17 +20,29 @@ export default function FloatingChat() {
         const fetchName = async () => {
             const data = await getUserById(user.uid);
             if (data?.username) {
-                console.log("Chat: Usando username do Firestore:", data.username);
                 setDisplayUserName(data.username);
             } else {
-                const fallback = user.displayName || user.email?.split('@')[0] || "Usuário";
-                console.log("Chat: Fallback para nome:", fallback);
-                setDisplayUserName(fallback);
+                setDisplayUserName(user.displayName || user.email?.split('@')[0] || "Usuário");
             }
         };
 
         fetchName();
     }, [user]);
+
+    // Monitora mensagens não lidas
+    useEffect(() => {
+        if (!projectid || !user?.uid) return;
+
+        const unsubscribe = subscribeToMessages(projectid, (messages) => {
+            const unread = messages.filter(msg => 
+                msg.senderId !== user.uid && 
+                (!msg.viewedBy || !msg.viewedBy.includes(user.uid))
+            );
+            setUnreadCount(unread.length);
+        });
+
+        return () => unsubscribe();
+    }, [projectid, user?.uid]);
 
     // Efeito para fechar o chat automaticamente ao trocar de projeto ou sair da tela de projeto
     useEffect(() => {
@@ -89,19 +103,37 @@ export default function FloatingChat() {
             )}
 
             {/* Botão Flutuante (Floating Action Button) */}
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="btn-custom btn-custom-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
-                style={{ 
-                    width: "65px", 
-                    height: "65px", 
-                    fontSize: "30px",
-                    transition: "all 0.3s ease",
-                    border: "4px solid #fff"
-                }}
-            >
-                {isOpen ? <XCircleFill /> : <ChatDotsFill />}
-            </button>
+            <div className="position-relative">
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="btn-custom btn-custom-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
+                    style={{ 
+                        width: "65px", 
+                        height: "65px", 
+                        fontSize: "30px",
+                        transition: "all 0.3s ease",
+                        border: "4px solid #fff"
+                    }}
+                >
+                    {isOpen ? <XCircleFill /> : <ChatDotsFill />}
+                </button>
+
+                {!isOpen && unreadCount > 0 && (
+                    <span 
+                        className="position-absolute translate-middle badge rounded-pill bg-success border border-light"
+                        style={{ 
+                            top: "5px", 
+                            right: "-5px", 
+                            fontSize: "0.75rem",
+                            padding: "0.4em 0.6em",
+                            zIndex: 1051,
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                        }}
+                    >
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                )}
+            </div>
 
             <style>{`
                 @keyframes slideIn {

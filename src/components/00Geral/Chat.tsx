@@ -32,10 +32,15 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
 
     const scrollRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     // Carregar membros para mapear nomes
     useEffect(() => {
         if (!projectId) return;
+        
+        // Foca no input ao abrir o chat
+        setTimeout(() => inputRef.current?.focus(), 100);
+
         const unsub = getProjectMembers(projectId, (members) => {
             const map: Record<string, string> = {};
             members.forEach(m => {
@@ -106,6 +111,18 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
     const startEditing = (msg: MessageProps) => {
         setEditingId(msg.id);
         setNewMessage(msg.text);
+        setTimeout(() => inputRef.current?.focus(), 50);
+    };
+
+    const cancelEditing = () => {
+        setEditingId(null);
+        setNewMessage("");
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Escape") {
+            cancelEditing();
+        }
     };
 
     return (
@@ -144,11 +161,11 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
                                     </small>
                                 )}
 
-                                <div className="d-flex align-items-center gap-2">
+                                <div className="d-flex align-items-center gap-2" style={{ maxWidth: "100%", width: "100%", justifyContent: isMyMessage ? "flex-end" : "flex-start" }}>
                                     {isMyMessage && (
                                         <PencilFill
                                             size={12}
-                                            className="text-muted edit-btn-trigger"
+                                            className="text-muted edit-btn-trigger flex-shrink-0"
                                             style={{ cursor: "pointer" }}
                                             onClick={() => startEditing(msg)}
                                         />
@@ -161,7 +178,7 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
                                             <img src={msg.base64Image} alt="Anexo" className="img-fluid rounded mb-2 d-block" style={{ maxHeight: "200px" }} />
                                         )}
 
-                                        <span>{msg.text}</span>
+                                        <div className="msg-text">{msg.text}</div>
 
                                         <div className={`msg-meta ${isMyMessage ? "msg-sent-meta" : "msg-received-meta"}`}>
                                             {msg.isEdited && <span className="fw-normal" style={{fontSize: '0.6rem', fontStyle: 'italic'}}>editada</span>}
@@ -228,7 +245,7 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
                         <>
                             <PencilFill size={12} className="text-danger" />
                             <small className="text-muted grow">Editando mensagem</small>
-                            <XCircleFill className="text-danger" style={{ cursor: "pointer" }} onClick={() => { setEditingId(null); setNewMessage(""); }} />
+                            <XCircleFill className="text-danger" style={{ cursor: "pointer" }} onClick={cancelEditing} />
                         </>
                     )}
                 </div>
@@ -250,7 +267,16 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
                             reader.readAsDataURL(file);
                         }
                     }} />
-                    <input type="text" className="form-control rounded-pill border shadow-sm px-4" placeholder={editingId ? "Edite sua mensagem..." : "Escreva algo..."} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} style={{ fontSize: "0.95rem", height: "40px" }} />
+                    <input 
+                        ref={inputRef}
+                        type="text" 
+                        className="form-control rounded-pill border shadow-sm px-4" 
+                        placeholder={editingId ? "Edite sua mensagem..." : "Escreva algo..."} 
+                        value={newMessage} 
+                        onChange={(e) => setNewMessage(e.target.value)} 
+                        onKeyDown={handleKeyDown}
+                        style={{ fontSize: "0.95rem", height: "40px" }} 
+                    />
                     <button type="submit" className="btn-custom btn-custom-primary shadow-sm d-flex align-items-center justify-content-center p-0" style={{ width: "40px", height: "40px", flexShrink: 0 }} disabled={!newMessage.trim() && !selectedImage}>
                         <SendFill size={18} />
                     </button>

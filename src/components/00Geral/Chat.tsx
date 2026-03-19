@@ -13,6 +13,7 @@ import {
     PencilFill,
     Check2All
 } from "react-bootstrap-icons";
+import { getProjectMembers } from "../../services/projectServices";
 
 interface ChatProps {
     projectId: string;
@@ -27,9 +28,23 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [showViewersId, setShowViewersId] = useState<string | null>(null);
+    const [membersMap, setMembersMap] = useState<Record<string, string>>({});
 
     const scrollRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Carregar membros para mapear nomes
+    useEffect(() => {
+        if (!projectId) return;
+        const unsub = getProjectMembers(projectId, (members) => {
+            const map: Record<string, string> = {};
+            members.forEach(m => {
+                map[m.userId] = m.username || "Usuário";
+            });
+            setMembersMap(map);
+        });
+        return () => unsub();
+    }, [projectId]);
 
     // Carregar mensagens em tempo real
     useEffect(() => {
@@ -62,7 +77,7 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
         let date: Date;
         if (timestamp instanceof Date) {
             date = timestamp;
-        } else if (typeof timestamp === 'object' && timestamp !== null && 'toDate' in timestamp && typeof (timestamp as any).toDate === 'function') {
+        } else if (typeof timestamp === 'object' && timestamp !== null && 'toDate' in timestamp && typeof (timestamp as { toDate: () => Date }).toDate === 'function') {
             date = (timestamp as { toDate: () => Date }).toDate();
         } else {
             date = new Date(timestamp as string | number);
@@ -146,19 +161,17 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
                                             <img src={msg.base64Image} alt="Anexo" className="img-fluid rounded mb-2 d-block" style={{ maxHeight: "200px" }} />
                                         )}
 
-                                        <div className="d-flex flex-column">
-                                            <span className="pe-4">{msg.text}</span>
+                                        <span>{msg.text}</span>
 
-                                            <div className={`msg-meta ${isMyMessage ? "msg-sent-meta" : "msg-received-meta"}`}>
-                                                {msg.isEdited && <span className="fw-normal" style={{fontSize: '0.6rem', fontStyle: 'italic'}}>editada</span>}
-                                                <span>{formatTime(msg.createdAt)}</span>
-                                                {isMyMessage && (
-                                                    <Check2All 
-                                                        size={15} 
-                                                        style={{ color: isReadByOthers ? "#007bff" : "#adb5bd" }} 
-                                                    />
-                                                )}
-                                            </div>
+                                        <div className={`msg-meta ${isMyMessage ? "msg-sent-meta" : "msg-received-meta"}`}>
+                                            {msg.isEdited && <span className="fw-normal" style={{fontSize: '0.6rem', fontStyle: 'italic'}}>editada</span>}
+                                            <span>{formatTime(msg.createdAt)}</span>
+                                            {isMyMessage && (
+                                                <Check2All 
+                                                    size={15} 
+                                                    style={{ color: isReadByOthers ? "#007bff" : "#adb5bd" }} 
+                                                />
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -187,9 +200,9 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
                                                 }}
                                             >
                                                 <p className="mb-1 border-bottom fw-bold text-dark" style={{ fontSize: '0.65rem' }}>Lido por:</p>
-                                                {viewers.map((_, i) => (
+                                                {viewers.map((vId, i) => (
                                                     <div key={i} className="text-dark" style={{ fontSize: '0.6rem', whiteSpace: 'nowrap' }}>
-                                                        • Usuário
+                                                        • {membersMap[vId] || "Usuário"}
                                                     </div>
                                                 ))}
                                             </div>
@@ -225,8 +238,8 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
             <div className="chat-input-area p-3 mt-auto border-top">
                 <form onSubmit={handleSend} className="d-flex align-items-center gap-2">
                     {!editingId && (
-                        <button type="button" className="btn-custom btn-custom-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center border p-0" style={{ width: "40px", height: "40px" }} onClick={() => fileInputRef.current?.click()}>
-                            <Paperclip size={20} className="text-secondary" />
+                        <button type="button" className="btn-custom shadow-sm d-flex align-items-center justify-content-center border p-0" style={{ width: "40px", height: "40px", flexShrink: 0 }} onClick={() => fileInputRef.current?.click()}>
+                            <Paperclip size={20} className="text-primary" />
                         </button>
                     )}
                     <input type="file" ref={fileInputRef} style={{ display: "none" }} accept="image/*" onChange={(e) => {
@@ -238,7 +251,7 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
                         }
                     }} />
                     <input type="text" className="form-control rounded-pill border shadow-sm px-4" placeholder={editingId ? "Edite sua mensagem..." : "Escreva algo..."} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} style={{ fontSize: "0.95rem", height: "40px" }} />
-                    <button type="submit" className="btn-custom btn-custom-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0" style={{ width: "40px", height: "40px", flexShrink: 0 }} disabled={!newMessage.trim() && !selectedImage}>
+                    <button type="submit" className="btn-custom btn-custom-primary shadow-sm d-flex align-items-center justify-content-center p-0" style={{ width: "40px", height: "40px", flexShrink: 0 }} disabled={!newMessage.trim() && !selectedImage}>
                         <SendFill size={18} />
                     </button>
                 </form>

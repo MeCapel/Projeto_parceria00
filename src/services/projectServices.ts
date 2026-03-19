@@ -56,8 +56,6 @@ export const updateProject = async ( projectId: string, name: string, descriptio
         
         if (!userData) return;
 
-        const userId = userData.uid;
-
         const projectRef = doc(db, "projects", projectId);
 
         const projectDTO = {
@@ -212,7 +210,7 @@ export const linkProjectUser = async (
             joinedAt: serverTimestamp(),
         });
 
-        toast.success(`✅ Usuário adicionado ao projeto!`);
+        toast.success(`Usuário adicionado ao projeto!`);
         return { success: true };
 
     } catch (err) {
@@ -224,7 +222,7 @@ export const linkProjectUser = async (
 // ---- This function returns a list of the members the current project got -----  
 export const getProjectMembers = (
     projectId: string,
-    callback: (users: any[]) => void
+    callback: (users: { id: string; userId: string; role: string; username?: string; image?: string; email?: string }[]) => void
 ) => {
 
     const q = query(
@@ -236,7 +234,7 @@ export const getProjectMembers = (
         const memberRelationships = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
-        })) as any[];
+        })) as { id: string; userId: string; role: string; username?: string; image?: string; email?: string }[];
 
         if (memberRelationships.length === 0) {
             callback([]);

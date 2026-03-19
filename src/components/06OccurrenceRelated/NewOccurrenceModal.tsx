@@ -73,23 +73,20 @@ export default function NewOccurenceModal({ prototypeId } : NewOccorenceModalPro
     return(
         <>
             <button className='btn-custom btn-custom-secondary' onClick={openModal} type="button">
-                <p className='mb-0 fs-5 text-custom-white d-flex align-items-center justify-content-center gap-2 '>
-                    <PlusLg size={30} />
-                    Nova ocorrência
-                </p>
+                <PlusLg size={18} />
+                Nova ocorrência
             </button>
 
-            <Modal show={show} onHide={closeModal} dialogClassName="" centered className='p-0' size="lg">
-                <Modal.Header closeButton className="border-0 mt-3 mx-3"></Modal.Header>
-                <Modal.Body className="d-flex flex-column align-items-center mb-4">
+            <Modal show={show} onHide={closeModal} centered>
+                <Modal.Body className="p-4">
 
                     {/* --- 🔴 Inner content div --- */}
-                    <form ref={formRef} className="w-100 mt-0 pt-0 px-5" onSubmit={handleNewOccurence} noValidate>
+                    <form ref={formRef} className="w-100" onSubmit={handleNewOccurence} noValidate>
 
                         {/* --- Title div --- */}
-                        <div className="">
-                            <p className='fs-5 mb-0 text-custom-red'>Adicionar</p>
-                            <h1 className='text-custom-black fw-bold mb-1'>Nova ocorrência</h1>
+                        <div className="mb-4">
+                            <p className='fs-6 mb-0 text-custom-red'>Adicionar</p>
+                            <h2 className='text-custom-black fw-bold mb-1 h4'>Nova ocorrência</h2>
                         </div>
 
                         {/* --- 🔵 Inputs div --- */}

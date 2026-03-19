@@ -23,14 +23,21 @@ export default function PrototypeChecklistsTab({
             <div className="d-flex align-items-center justify-content-between mb-3">
 
                 <div>
-                <h4 className="fw-bold text-custom-black mb-0">
-                    Checklists
-                </h4>
+                    <h4 className="fw-bold text-custom-black mb-0">
+                        Checklists
+                    </h4>
 
-                <small className="text-muted">
-                    Listas de requisiitos vinculadas ao protótipo
-                </small>
+                    <small className="text-muted">
+                        Listas de requisiitos vinculadas ao protótipo
+                    </small>
                 </div>
+
+                <ManageChecklistsModal
+                    vertical={vertical}
+                    selectedChecklists={checklists}
+                    onUpdate={onListUpdate}
+                    onClose={() => {}}
+                />
 
             </div>
 
@@ -38,13 +45,6 @@ export default function PrototypeChecklistsTab({
                 prototypeId={prototypeId}
                 checklists={checklists}
                 onUpdate={onUpdate}
-            />
-
-            <ManageChecklistsModal
-                vertical={vertical}
-                selectedChecklists={checklists}
-                onUpdate={onListUpdate}
-                onClose={() => {}}
             />
         </>
     );

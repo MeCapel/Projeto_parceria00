@@ -1,6 +1,6 @@
 import Modal from 'react-bootstrap/Modal';
 import { useNavigate } from "react-router";
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, useCallback } from "react";
 import type { PrototypeProps } from '../../services/prototypeServices';
 import { createPrototype, addChecklistToPrototype  } from "../../services/prototypeServices";
 import StepTracker from './Steps/StepTracker';
@@ -103,19 +103,19 @@ export default function ProtoMultiForm2({ projectId } : MultiFormProps) {
 
 
     // 🔥 troca de inputs
-    function handleInputChange(name: string, value: string | string[]) 
+    const handleInputChange = useCallback((name: string, value: string | string[]) => 
     {
         setFormValues(prev => ({
-        ...prev,
-        [name]: value
+            ...prev,
+            [name]: value
         }));
 
         // limpa erro do campo alterado
         setErrors(prev => ({
-        ...prev,
-        [name]: ""
+            ...prev,
+            [name]: ""
         }));
-    }
+    }, []);
 
     // navegação 
     function HandlePrev() 

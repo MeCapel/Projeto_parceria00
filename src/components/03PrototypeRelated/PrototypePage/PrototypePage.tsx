@@ -10,6 +10,8 @@ import NewOccurenceModal from "../../06OccurrenceRelated/NewOccurrenceModal";
 import { useParams, useNavigate } from "react-router";
 import EditOccurrenceModal from "../../06OccurrenceRelated/EditOccurrenceModal";
 
+import { toast } from "react-toastify";
+
 export default function PrototypePage() {
     const { prototypeid, projectid } = useParams();
     const navigate = useNavigate();
@@ -24,22 +26,34 @@ export default function PrototypePage() {
         if (!prototypeid) return;
 
         async function fetchData() {
-            const data = await getPrototype(prototypeid!);
-            const checklists = await getPrototypeChecklists(prototypeid!);
+            setLoading(true);
+            try {
+                // Busca protótipo e ocorrências em paralelo
+                const [data, checklists] = await Promise.all([
+                    getPrototype(prototypeid!),
+                    getPrototypeChecklists(prototypeid!)
+                ]);
 
-            if (data) {
-                setPrototype({
-                    ...data,
-                    id: prototypeid,
-                    checklists: checklists
-                });
+                if (data) {
+                    setPrototype({
+                        ...data,
+                        id: prototypeid,
+                        checklists: checklists
+                    });
+                } else {
+                    toast.error("Protótipo não encontrado!");
+                    navigate(`/projects/${projectid}`);
+                }
+            } catch (err) {
+                console.error("Erro ao carregar protótipo:", err);
+                toast.error("Erro ao carregar dados do protótipo");
+            } finally {
+                setLoading(false);
             }
-
-            setLoading(false);
         }
 
         fetchData();
-    }, [prototypeid]);
+    }, [prototypeid, projectid, navigate]);
 
     useEffect(() => {
         if (!prototype?.id) return;
@@ -128,6 +142,8 @@ export default function PrototypePage() {
     ];
 
     function renderView() {
+        if (!prototype) return null; // Garantia para o TS
+
         switch (currentView) {
             case 0:
                 return <PrototypeGeralInfosTab prototype={prototype} onChange={handleChange} />;

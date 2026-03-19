@@ -1,20 +1,7 @@
     import { type StepProps } from "../ProtoMultiForm";
     import ChooseChecklists from '../../04ChecklistRelated/instanced/ChooseChecklist';
-    import { useState, useEffect } from "react";
 
     export default function Step3({ values, errors, onChange }: StepProps) {
-        const [checklistsIds, setChecklistsIds] = useState<string[]>([]);
-
-        // Sincroniza os IDs selecionados com o pai sempre que mudar
-        useEffect(() => {
-            onChange("checklistsIds", checklistsIds);
-        }, [checklistsIds, onChange]);
-
-        // Limpa a seleção de checklists quando a vertical muda
-        useEffect(() => {
-            setChecklistsIds([]);
-            onChange("checklistsIds", []); // opcional, garante sincronização imediata
-        }, [values.vertical, onChange]);
 
         return (
             <div>
@@ -33,7 +20,10 @@
                                     name="vertical"
                                     value={v}
                                     checked={values.vertical === v}
-                                    onChange={e => onChange("vertical", e.target.value)}
+                                    onChange={e => {
+                                        onChange("vertical", e.target.value);
+                                        onChange("checklistsIds", []); // Limpa checklists ao mudar vertical
+                                    }}
                                 />
                                 {v}
                             </label>
@@ -45,7 +35,11 @@
 
                 {/* Componente de seleção de checklists */}
                 <div className='my-5'>
-                    <ChooseChecklists vertical={values.vertical} onValueChange={setChecklistsIds} />
+                    <ChooseChecklists 
+                        vertical={values.vertical} 
+                        initialSelectedIds={values.checklistsIds}
+                        onValueChange={(ids) => onChange("checklistsIds", ids)} 
+                    />
                 </div>
 
                 {errors.checklistsIds && <p style={{ color: "red" }}>{errors.checklistsIds}</p>}

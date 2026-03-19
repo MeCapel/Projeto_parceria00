@@ -36,7 +36,7 @@ export default function OccurrenceCard({ name, description, criticity, image, cr
                 </div>
             )}
 
-            <div className="p-3 d-flex flex-column flex-grow-1 justify-content-between">
+            <div className="p-3 d-flex flex-column grow justify-content-between">
                 
                 <div className="d-flex flex-column gap-1">
                     <div className="d-flex align-items-center justify-content-between mb-1">
@@ -47,14 +47,14 @@ export default function OccurrenceCard({ name, description, criticity, image, cr
                         </h6>
 
                         {/* // ----- Here goes the criticity of the given occurrence */}
-                        <span className={`rounded-pill px-2 py-0 border fw-bold small ${criticityStyles[criticity]}`} style={{ fontSize: '0.7rem' }} >
+                        <span className={`rounded-pill px-2 py-0 border fw-bold small ${criticityStyles[criticity]}`} style={{ fontSize: '0.8rem' }} >
                             {criticity}
                         </span>
                     
                     </div>
 
                     {/* // ----- Here goes the date that the occurence was created ----- */}
-                    <small className="text-muted mb-2" style={{ fontSize: '0.7rem' }}>
+                    <small className="text-muted mb-2" style={{ fontSize: '0.8rem' }}>
                         {typeof createdAt === "string"
                             ? createdAt
                             : (createdAt && typeof createdAt.toDate === 'function')
@@ -63,15 +63,15 @@ export default function OccurrenceCard({ name, description, criticity, image, cr
                     </small>
                     
                     {/* // ----- Here goes the description */}
-                    <p className="text-secondary small overflow-hidden" style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", fontSize: '0.8rem' }}>
+                    <p className="text-secondary small overflow-hidden" style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", fontSize: '0.9rem' }}>
                         {description}
                     </p>
                 </div>
 
                 {/* // ----- Buttons delete and edit ----- */}
                 <div className="d-flex justify-content-between gap-2 mt-2">
-                    <button className="btn-custom btn-custom-outline-secondary btn-sm rounded-pill flex-grow-1" onClick={onEdit}>Editar</button>
-                    <button className="btn-custom btn-custom-primary btn-sm rounded-pill flex-grow-1" onClick={onDelete}>Deletar</button>
+                    <button className="btn-custom btn-custom-outline-secondary btn-sm grow" onClick={onEdit}>Editar</button>
+                    <button className="btn-custom btn-custom-primary btn-sm grow" onClick={onDelete}>Deletar</button>
                 </div>
             </div>
         </div>

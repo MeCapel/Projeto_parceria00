@@ -43,52 +43,37 @@ export default function MainFrame({ projectId } : MainFrameProps)
     }
 
     return(
-        <>
-            {/* <h1>Prototypes from project {projectId}</h1> */}
-            <table className="table table-bordered table-striped p-0 m-0 rounded-2 overflow-hidden">
-                {renderTable(5, prototypesList.length)}
-                <thead>
+        <div className="table-responsive rounded-3 border">
+            <table className="table table-hover align-middle mb-0">
+                <thead className="table-light">
                     <tr>
                         {fields.map((field, i) => (
-                            <th key={i} className="border py-2 px-4 text-custom-black text-center">{field}</th>
+                            <th key={i} className="py-3 px-4 text-custom-black fw-bold">{field}</th>
                         ))}
                     </tr>
                 </thead>
                 <tbody>
                     {prototypesList.map((item, i) => (
                         <tr key={i} onClick={() => navigate(`/projects/${projectId}/${item.id}`)} style={{ cursor: "pointer"}}>
-                            <td className="d-flex gap-3 align-items-center">
-                                <button className="btn-custom btn-custom-outline-success">
-                                    <PencilSquare size={25}/>
-                                </button>
-                                {item.name}
+                            <td className="px-4">
+                                <div className="d-flex gap-3 align-items-center">
+                                    <div className="text-success d-flex align-items-center justify-content-center">
+                                        <PencilSquare size={18}/>
+                                    </div>
+                                    <span className="fw-semibold">{item.name}</span>
+                                </div>
                             </td>
-                            <td>{item.description}</td>
-                            <td>{item.stage}</td>
-                            <td>{item.vertical}</td>
+                            <td className="px-4 text-secondary">{item.description}</td>
+                            <td className="px-4">
+                                <span className="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill">
+                                    {item.stage}
+                                </span>
+                            </td>
+                            <td className="px-4">{item.vertical}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-        </>
-    )
-}
-
-function renderTable(rows: number, cols: number)
-{
-    for (let i = 0; i < rows; i++)
-    {
-        for (let j = 0; j < cols; j++)
-        {
-            (<tr>
-                <th>{j}</th>
-            </tr>)
-        }
-    }
-
-    return(
-        <>
-          
-        </>
+        </div>
     )
 }

@@ -45,7 +45,7 @@ export const listOccurrences = ( callback: (occurrences: OccurrenceProps[] ) => 
     });
 }
 
-export const listOccourenciesByPrototype = ( proptotypeId: string, callback: (occurrences: OccurrenceProps[]) => void ) => {
+export const listOccurenciesByPrototype = ( proptotypeId: string, callback: (occurrences: OccurrenceProps[]) => void ) => {
     const q = query(collection(db, "occurrences"), where("prototypeId", "==", proptotypeId));
 
     return onSnapshot(q, (snapshot) => {

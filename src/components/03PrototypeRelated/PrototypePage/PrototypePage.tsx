@@ -2,16 +2,17 @@ import { useEffect, useState } from "react";
 import PrototypeGeralInfosTab from "./PrototypeGeralInfosTab";
 import PrototypeChecklistsTab from "./PrototypeChecklistsTab";
 import { deletePrototype, getPrototype, getPrototypeChecklists, updatePrototype, updatePrototypeChecklists, type PrototypeProps } from "../../../services/prototypeServices";
-import { TrashFill, Floppy2Fill, Trash3Fill } from "react-bootstrap-icons";
+import { TrashFill, Floppy2Fill, Trash3Fill, ArrowLeftCircleFill } from "react-bootstrap-icons";
 import type { ChecklistProps } from "../../../services/checklistServices";
 import PrototypeOccurrencesTab from "./PrototypeOccurrencesTab";
-import { deleteOccorrence, listOccourenciesByPrototype, type OccurrenceProps } from "../../../services/occurrenceServices";
+import { deleteOccorrence, listOccurenciesByPrototype, type OccurrenceProps } from "../../../services/occurrenceServices";
 import NewOccurenceModal from "../../06OccurrenceRelated/NewOccurrenceModal";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import EditOccurrenceModal from "../../06OccurrenceRelated/EditOccurrenceModal";
 import { Modal } from "react-bootstrap";
 
 export default function PrototypePage() {
+    const navigate = useNavigate();
     const { prototypeid } = useParams();
     const [currentView, setCurrentView] = useState<number>(0);
     const [loading, setLoading] = useState(true);
@@ -51,7 +52,7 @@ export default function PrototypePage() {
     useEffect(() => {
         if (!prototype?.id) return;
 
-        const unsubscribe = listOccourenciesByPrototype(
+        const unsubscribe = listOccurenciesByPrototype(
             prototype.id,
             (data) => setOccurrences(data)
         );
@@ -188,49 +189,69 @@ export default function PrototypePage() {
     ];
 
     return (
-        <div className="p-3 p-md-5 d-flex flex-column gap-4 gap-md-5">
+        <>
+            <div className="ps-5 pt-5 pb-0 pe-0">
+                <button 
+                    className="btn-custom btn-custom-link d-flex gap-3 align-items-center border-0 bg-transparent p-0" 
+                    onClick={() => navigate(`/projects/${prototype.projectId}`)}
+                >
+                    <ArrowLeftCircleFill size={30} className="text-custom-black" />
+                    <p className="text-custom-black fs-5 mb-0 fw-semibold">
+                        voltar ao projeto
+                    </p>
+                </button>
+            </div>
 
-            <header className="d-flex align-items-center justify-content-between">
+            <div className="p-3 p-md-5 d-flex flex-column gap-4 gap-md-5">
 
-                <div>
-                    <p className="fs-6 text-custom-red mb-0">Edição</p>
-                    <p className="fs-3 fw-bold mb-0">{prototype.name}</p>
-                </div>
+                <header className="d-flex align-items-center justify-content-between mb-2">
 
-                <div className="d-flex flex-wrap gap-2">
-                    {componentsMap.map(c => (
-                        <button
-                            key={c.i}
-                            onClick={() => setCurrentView(c.i)}
-                            className={`btn-custom rounded-5 px-3 ${
-                                currentView === c.i
-                                    ? "btn-custom-black text-white"
-                                    : "btn-custom-outline-black"
-                            }`}
-                        >
-                            {c.label}
+                    <div>
+                        <p className="fs-6 text-custom-red mb-0 fw-bold text-uppercase">Protótipo</p>
+                        <h1 className="text-custom-black fw-bold mb-0">{prototype.name}</h1>
+                    </div>
+
+                    <div className="d-flex gap-3">
+                        <button onClick={openModal} className="btn-custom btn-custom-outline-primary px-4 d-flex gap-2 align-items-center fw-bold" >
+                            <TrashFill size={20} />
+                            Excluir
                         </button>
-                    ))}
+
+                        <button onClick={handleSave} className="btn-custom btn-custom-success px-4 d-flex gap-2 align-items-center fw-bold shadow-sm" >
+                            <Floppy2Fill size={20} />
+                            Salvar
+                        </button>
+                    </div>
+                </header>
+
+                <div className="d-flex flex-column align-items-start mb-2">
+                    <div className="d-flex gap-2">
+                        {componentsMap.map(c => (
+                            <button
+                                key={c.i}
+                                onClick={() => setCurrentView(c.i)}
+                                // className={`btn-custom rounded-5 px-3 ${
+                                //     currentView === c.i
+                                //     ? "btn-custom-black text-white"
+                                //     : "btn-custom-outline-black"
+                                // }`}
+                                className={`btn-custom px-4 py-2 border-0 rounded-0 border-bottom ${currentView === c.i ? 'border-danger text-danger fw-bold' : 'border-transparent text-muted'}`}
+                                style={{ transition: 'all 0.3s' }}
+                            >
+                                {c.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="w-100" style={{ borderBottom: "1px solid var(--gray02)", marginTop: "-1px" }}></div>
+                
                 </div>
 
-                <div className="d-flex gap-2">
-                    <button onClick={openModal} className="btn-custom btn-custom-outline-primary d-flex gap-2 align-items-center" >
-                        <TrashFill size={20} />
-                        Deletar
-                    </button>
+                {componentsMap.find(c => c.i === currentView)?.component}
 
-                    <button onClick={handleSave} className="btn-custom btn-custom-success d-flex gap-2 align-items-center" >
-                        <Floppy2Fill size={20} />
-                        Salvar
-                    </button>
-                </div>
-            </header>
-
-            {componentsMap.find(c => c.i === currentView)?.component}
-
-            {/* // Certifique-se de renderizar o modal apenas quando existir ID e showModal = true */}
-            {selectedOccurrenceId && showEditModal && (
-                <EditOccurrenceModal
+                {/* // Certifique-se de renderizar o modal apenas quando existir ID e showModal = true */}
+                {selectedOccurrenceId && showEditModal && (
+                    <EditOccurrenceModal
                     occurrenceId={selectedOccurrenceId}
                     show={showEditModal}
                     onClose={() => {
@@ -238,21 +259,21 @@ export default function PrototypePage() {
                         setSelectedOccurrenceId(null);
                     }}
                     onUpdate={handleOccurrenceUpdated} 
-                />
-            )}
+                    />
+                )}
 
-            <Modal show={openDeleteModal} onHide={closeModal} centered>
-                <Modal.Body className="text-center p-5">
-                    <Trash3Fill size={50} className="text-danger mb-4" />
-                    <h4 className="fw-bold mb-3">Excluir protótipo?</h4>
-                    <p className="text-muted mb-5">Esta ação não pode ser desfeita.</p>
-                    <div className="d-flex gap-2 justify-content-center">
-                        <button className="btn btn-light px-4 rounded-pill" onClick={closeModal}>Cancelar</button>
-                        <button className="btn btn-danger px-4 rounded-pill shadow-sm" onClick={handleDelete}>Excluir</button>
-                    </div>
-                </Modal.Body>
-            </Modal>
-        </div>
+                <Modal show={openDeleteModal} onHide={closeModal} centered>
+                    <Modal.Body className="text-center p-5">
+                        <Trash3Fill size={50} className="text-danger mb-4" />
+                        <h4 className="fw-bold mb-3">Excluir protótipo?</h4>
+                        <p className="text-muted mb-5">Esta ação não pode ser desfeita.</p>
+                        <div className="d-flex gap-2 justify-content-center">
+                            <button className="btn btn-light px-4 rounded-pill" onClick={closeModal}>Cancelar</button>
+                            <button className="btn btn-danger px-4 rounded-pill shadow-sm" onClick={handleDelete}>Excluir</button>
+                        </div>
+                    </Modal.Body>
+                </Modal>
+            </div>
+        </>
     );
 }
-

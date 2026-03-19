@@ -1,7 +1,7 @@
 // ===== GERAL IMPORTS =====
 import { toast } from "react-toastify";
 import { db } from '../firebaseConfig/config'
-import { addDoc, deleteDoc, collection, doc, getDoc, getDocs, updateDoc, onSnapshot, query, where, serverTimestamp, setDoc } from 'firebase/firestore'
+import { addDoc, deleteDoc, collection, doc, getDoc, getDocs, updateDoc, onSnapshot, query, where, serverTimestamp, setDoc, documentId } from 'firebase/firestore'
 import { getCurrentUser, type UserProps } from "./authServices";
 import { deletePrototype } from "./prototypeServices";
 
@@ -11,6 +11,8 @@ export interface ProjectProps {
     name: string;
     description: string;
     ownerId: string;
+    owner?: string;
+    members?: string[];
     createdAt: string;
 }
 
@@ -57,7 +59,6 @@ export const updateProject = async ( projectId: string, name: string, descriptio
         const userId = userData.uid;
 
         const projectRef = doc(db, "projects", projectId);
-        const userProjectRef = doc(db, "users", userId, "projects", projectId);
 
         const projectDTO = {
             name: name,
@@ -65,7 +66,6 @@ export const updateProject = async ( projectId: string, name: string, descriptio
         }
 
         await updateDoc(projectRef, projectDTO);
-        await updateDoc(userProjectRef, projectDTO);
     }
     catch (err)
     {
@@ -95,28 +95,25 @@ export const getUserProjects = ( userId: string, callback: ( projects: ProjectPr
         const unsubscribe = onSnapshot(q, async (snapshot) => {
             const projectsIds = snapshot.docs.map(doc => doc.data().projectId);
 
-            if(projectsIds.length == 0)
+            if(projectsIds.length === 0)
             {
                 callback([]);
                 return;
             }
 
-            const projects: ProjectProps[] = [];
+            // O limite do Firestore para o operador 'in' é de 30 itens.
+            const projectsQuery = query(
+                collection(db, "projects"),
+                where(documentId(), "in", projectsIds.slice(0, 30))
+            );
 
-            for( const id of projectsIds)
-            {
-                const projectSnap = await getDoc(doc(db, "projects", id));
+            const projectsSnap = await getDocs(projectsQuery);
+            const projectsList = projectsSnap.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            } as ProjectProps));
 
-                if(projectSnap.exists())
-                {
-                    projects.push({
-                        id: projectSnap.id,
-                        ...projectSnap.data()
-                    } as ProjectProps);
-                }
-            }
-
-            callback(projects);
+            callback(projectsList);
         });
 
         return unsubscribe;
@@ -158,11 +155,6 @@ export const deleteProjectNPrototypes = async ( projectId: string ) => {
 
             return;
         }
-
-        // ----- Once gotten the user id, go to "projects" collection and drop the project ref -----
-
-        const userProjectRef = doc(db, "users", userId, "projects", projectId);
-        await deleteDoc(userProjectRef);
 
         // ----- Delete all prototypes that got project id attach to them ----- 
 

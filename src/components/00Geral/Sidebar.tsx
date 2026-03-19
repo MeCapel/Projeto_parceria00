@@ -67,12 +67,12 @@ export default function Sidebar({ onWidthChange } : SidebarProps)
 
                     {!isCollapsed ? (
                         <button className="btn-custom text-secondary" onClick={() => setIsCollapsed(true)}
-                        aria-label="Expand sidebar" title="Expand sidebar" style={{ height: '3rem' }}>
+                        aria-label="Expand sidebar" title="Expandir" style={{ height: '3rem' }}>
                             <LayoutSidebarReverse size={25} />
                         </button>
                     ) : (
                         <button className="btn-custom text-secondary" onClick={() => setIsCollapsed(false)}
-                                aria-label="Collapse sidebar" title="Collapse sidebar">
+                                aria-label="Collapse sidebar" title="Colapsar">
                             <LayoutSidebar size={25} />
                         </button>
                     )}

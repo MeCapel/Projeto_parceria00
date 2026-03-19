@@ -99,7 +99,7 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
 
                                 <div className="d-flex flex-column gap-2">
                                     <button
-                                        className="btn btn-outline-danger d-flex gap-3 align-items-center w-100 justify-content-start py-2 border-0"
+                                        className="btn-custom btn-custom-outline-primary d-flex gap-3 align-items-center w-100 justify-content-start py-2 border-0 rounded-pill"
                                         onClick={() => {
                                             onClose();
                                             navigate("/profile");
@@ -112,7 +112,7 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
                                     <hr className="my-2" />
 
                                     <button
-                                        className="btn btn-danger d-flex gap-3 align-items-center w-100 justify-content-center py-2 mt-2 shadow-sm"
+                                        className="btn-custom btn-custom-primary d-flex gap-3 align-items-center w-100 justify-content-center py-2 mt-2 shadow-sm rounded-pill"
                                         onClick={async () => {
                                             onClose();
                                             await Logout();

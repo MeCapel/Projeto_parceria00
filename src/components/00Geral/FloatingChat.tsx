@@ -73,7 +73,7 @@ export default function FloatingChat() {
             {/* Botão Flutuante (Floating Action Button) */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="btn btn-danger rounded-circle shadow-lg d-flex align-items-center justify-content-center"
+                className="btn-custom btn-custom-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
                 style={{ 
                     width: "65px", 
                     height: "65px", 

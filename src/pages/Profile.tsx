@@ -136,7 +136,7 @@ export default function Profile() {
                                     <p className="text-muted fs-6 mb-0">Colaborador Baldan</p>
                                 </div>
 
-                                <button className="btn btn-danger d-flex gap-2 align-items-center px-4 rounded-pill shadow-sm"
+                                <button className="btn-custom btn-custom-primary d-flex gap-2 align-items-center px-4 rounded-pill shadow-sm"
                                     onClick={openModal}>
                                     <PencilSquare size={18} />
                                     <span>Editar perfil</span>
@@ -174,7 +174,8 @@ export default function Profile() {
                                     </div>
                                     <button 
                                         type="button"
-                                        className="btn btn-danger btn-sm rounded-circle position-absolute bottom-0 end-0 p-2 shadow"
+                                        className="btn-custom btn-custom-primary btn-sm rounded-circle position-absolute bottom-0 end-0 p-2 shadow"
+                                        style={{ width: '35px', height: '35px' }}
                                         onClick={() => fileInputRef.current?.click()}
                                     >
                                         <CameraFill size={16} />
@@ -203,8 +204,8 @@ export default function Profile() {
                             </div>
 
                             <div className="d-grid gap-2">
-                                <button className='btn btn-danger btn-lg shadow-sm rounded-pill fw-bold' type='submit'>Salvar Alterações</button>
-                                <button className='btn btn-link text-muted' type='button' onClick={closeModal}>Cancelar</button>
+                                <button className='btn-custom btn-custom-primary btn-lg shadow-sm rounded-pill fw-bold py-3' type='submit'>Salvar Alterações</button>
+                                <button className='btn-custom btn-custom-link text-muted' type='button' onClick={closeModal}>Cancelar</button>
                             </div>
                         </form>
                     </Modal.Body>

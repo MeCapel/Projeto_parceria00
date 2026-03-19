@@ -1,7 +1,7 @@
 // ===== GERAL IMPORTS =====
 import { useState } from "react";
-import { Card, Modal } from "react-bootstrap";
-import { PencilSquare, Trash3Fill } from "react-bootstrap-icons";
+import { Modal } from "react-bootstrap";
+import { Trash3Fill } from "react-bootstrap-icons";
 
 // ===== TYPE INTERFACE =====
 interface Props {
@@ -31,55 +31,55 @@ export default function OccurrenceCard({ name, description, criticity, image, cr
 
     return(
         <>
-            <Card className="shadow border p-2" style={{ height: "18rem", width: '18rem' }}>
-                
-                {image && (
+            <div className="card-custom card-custom-hover p-0 overflow-hidden">
+            
+                {image ? (
                     <div style={{ height: "8rem", overflow: "hidden" }} >
-                        <Card.Img src={image} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        <img src={image} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    </div>
+                ) : (
+                    <div className="bg-light d-flex align-items-center justify-content-center" style={{ height: "8rem" }}>
+                        <span className="text-muted small">Sem imagem</span>
                     </div>
                 )}
 
-                <Card.Body className="d-flex flex-column justify-content-between">
+                <div className="p-3 d-flex flex-column grow justify-content-between">
                     
-                    <div className="d-flex flex-column gap-2">
-                        <div className="d-flex align-items-center gap-2 mb-2">
+                    <div className="d-flex flex-column gap-1">
+                        <div className="d-flex align-items-center justify-content-between mb-1">
+
+                            {/* // ----- Here goes the name of the occurence ----- */}
+                            <h6 className="mb-0 fw-bold text-truncate text-custom-black" style={{ maxWidth: "10rem" }}>
+                                {name}
+                            </h6>
 
                             {/* // ----- Here goes the criticity of the given occurrence */}
-                            <span className={`rounded-5 px-3 py-1 border fw-semibold text-black ${criticityStyles[criticity]}`} >
+                            <span className={`rounded-pill px-2 py-0 border fw-bold small ${criticityStyles[criticity]}`} style={{ fontSize: '0.7rem' }} >
                                 {criticity}
                             </span>
-                            
-                            {/* // ----- Here goes the name of the occurence ----- */}
-                            <Card.Title className="mb-0 fs-6 fw-bold text-truncate" style={{ maxWidth: "9rem" }}>
-                                {name}
-                            </Card.Title>
                         
                         </div>
 
                         {/* // ----- Here goes the date that the occurence was created ----- */}
-                        <small className="text-muted mb-2">
+                        <small className="text-muted mb-2" style={{ fontSize: '0.7rem' }}>
                             {typeof createdAt === "string"
                                 ? createdAt
                                 : createdAt?.toDate?.().toLocaleDateString()}
                         </small>
                         
                         {/* // ----- Here goes the description */}
-                        <Card.Text>{description}</Card.Text>
+                        <p className="text-secondary small overflow-hidden" style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", fontSize: '0.8rem' }}>
+                            {description}
+                        </p>
                     </div>
 
                     {/* // ----- Buttons delete and edit ----- */}
-                    <div className="d-flex align-items-center justify-content-between">
-                        <button onClick={openModal} className="btn btn-sm w-100 d-flex gap-2 align-items-center justify-content-center text-start py-2">
-                            <Trash3Fill className="text-danger"/>
-                            <span>Excluir</span>
-                        </button>
-                        <button onClick={onEdit} className="btn btn-sm w-100 d-flex gap-2 align-items-center justify-content-center text-start py-2">
-                            <PencilSquare className="text-danger"/>
-                            <span>Editar</span>
-                        </button>
+                    <div className="d-flex justify-content-between gap-2 mt-2">
+                        <button className="btn-custom btn-custom-outline-secondary btn-sm rounded-pill grow" onClick={onEdit}>Editar</button>
+                        <button className="btn-custom btn-custom-primary btn-sm rounded-pill grow" onClick={openModal}>Deletar</button>
                     </div>
-                </Card.Body>
-            </Card>
+                </div>
+            </div>
 
             <Modal show={openDeleteModal} onHide={closeModal} centered>
                 <Modal.Body className="text-center p-5">

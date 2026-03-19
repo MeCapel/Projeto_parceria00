@@ -83,12 +83,12 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
         <>
             {/* BOTÃO */}
             <button
-                className="btn-custom btn-custom-secondary"
+                className="btn-custom btn-custom-outline-primary px-4"
                 onClick={openModal}
             >
-                <p className="mb-0 fs-5 text-custom-white d-flex gap-3">
-                    Gerenciar membros <People size={28} />
-                </p>
+                <div className="mb-0 fs-6 d-flex gap-2 align-items-center fw-bold">
+                    Gerenciar membros <People size={20} />
+                </div>
             </button>
 
             {/* MODAL */}
@@ -148,7 +148,7 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
                                         <div className="d-flex justify-content-between align-items-center">
 
                                             <p className="mb-0 fw-bold">
-                                                Papel no projeto
+                                                Função
                                             </p>
 
                                             <select
@@ -165,10 +165,10 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
                                                     )
                                                 }
                                             >
-                                                <option value="viewer">Viewer</option>
+                                                <option value="viewer">Visualizador</option>
                                                 <option value="editor">Editor</option>
-                                                <option value="admin">Admin</option>
-                                                <option value="owner">Owner</option>
+                                                <option value="admin">Administrador</option>
+                                                <option value="owner">Dono</option>
                                             </select>
 
                                         </div>

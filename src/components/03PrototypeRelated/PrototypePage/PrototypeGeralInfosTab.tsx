@@ -13,7 +13,7 @@ export default function PrototypeGeralInfosTab({ prototype, onChange }: Props) {
     const [cityError, setCityError] = useState("");
 
     // Atualiza pai direto (sem estado duplicado)
-    function handleFieldChange(e: React.ChangeEvent<any>) {
+    function handleFieldChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
         const { name, value } = e.target;
 
         onChange({
@@ -56,7 +56,7 @@ export default function PrototypeGeralInfosTab({ prototype, onChange }: Props) {
                 <small className="text-muted">
                     Aqui vão as principais informações de um protótipo
                 </small>
-                </div>
+                </div >
 
             </div>
 

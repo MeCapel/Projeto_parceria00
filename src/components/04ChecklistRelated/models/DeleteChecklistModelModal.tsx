@@ -2,6 +2,7 @@
 import { useNavigate } from "react-router"
 import { deleteChecklistModel } from "../../../services/checklistServices"
 import { Modal } from "react-bootstrap"
+import { Trash3Fill } from "react-bootstrap-icons"
 
 // ===== TYPE INTERFACE =====
 interface Props {
@@ -25,38 +26,16 @@ export default function DeleteChecklistModal({ checklistId, onClose }: Props) {
   }
 
   return (
-    <Modal show onHide={onClose} centered>
-
-      <Modal.Header closeButton>
-        Confirmação
-      </Modal.Header>
-
-      <Modal.Body className="text-center">
-
-        <p>
-          Tem certeza que deseja excluir este modelo?
-        </p>
-
-        <div className="d-flex gap-3 justify-content-center">
-
-          <button
-            className="btn btn-secondary"
-            onClick={onClose}
-          >
-            Cancelar
-          </button>
-
-          <button
-            className="btn btn-danger"
-            onClick={handleDelete}
-          >
-            Excluir
-          </button>
-
-        </div>
-
-      </Modal.Body>
-
-    </Modal>
+      <Modal show onHide={onClose} centered>
+          <Modal.Body className="text-center p-5">
+              <Trash3Fill size={50} className="text-danger mb-4" />
+              <h4 className="fw-bold mb-3">Excluir Projeto?</h4>
+              <p className="text-muted mb-5">Esta ação não pode ser desfeita.</p>
+              <div className="d-flex gap-2 justify-content-center">
+                  <button className="btn-custom btn-custom-outline-secondary px-4 rounded-pill" onClick={onClose}>Cancelar</button>
+                  <button className="btn-custom btn-custom-primary px-4 rounded-pill shadow-sm" onClick={handleDelete}>Excluir</button>
+              </div>
+          </Modal.Body>
+      </Modal>
   )
 }

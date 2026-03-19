@@ -6,7 +6,7 @@
     text-align: center;
     padding: 0.5rem 1rem;
     border: 1px solid rgba(255, 255, 255, 0);
-    border-radius: 5px;
+    border-radius: 10px;
     background-color: rgba(255, 255, 255, 0);
     cursor: pointer;
     transition: all 0.25s;
@@ -32,8 +32,8 @@
 }
 
 .btn-custom-outline-primary {
-    background-color: var(--red03);
-    border: 1px solid var(--red00);
+    /*background-color: var(--red03);*/
+    border: 1px solid var(--red01);
     color: var(--red01);
 }
 

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../../context/useAuth'; 
 import { db } from '../../firebaseConfig/config';
 import { 
   collection, 
@@ -10,7 +9,7 @@ import {
   serverTimestamp,
   Timestamp 
 } from 'firebase/firestore';
-import { getCurrentUser } from '../../services/authService';
+import { getCurrentUser } from '../../services/authServices';
 
 interface ChatMessage {
   id: string;
@@ -110,7 +109,7 @@ const ProjectChat: React.FC<ChatProps> = ({ projectId }) => {
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Escreva..."
         />
-        <button type="submit" style={{ background: 'none', border: 'none', color: '#d32f2f', fontWeight: 'bold', cursor: 'pointer' }}>
+        <button type="submit" className="btn-custom btn-custom-primary fw-bold" style={{ border: 'none', cursor: 'pointer' }}>
           Enviar
         </button>
       </form>

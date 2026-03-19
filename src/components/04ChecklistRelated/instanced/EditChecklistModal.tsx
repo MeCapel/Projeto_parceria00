@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import { type ChecklistProps } from "../../../services/checklistServices";
 import { toggleChecklistItems } from "../../../services/prototypeServices";
-// import { toggleChecklistItems } from "../../services/prototypeServices2";
 
 interface Props {
     prototypeId: string;
@@ -90,8 +89,8 @@ export default function EditChecklistModal({ prototypeId, checklist, onClose, on
             </Modal.Body>
 
             <Modal.Footer>
-                <button onClick={onClose} className="btn btn-secondary">Fechar</button>
-                <button onClick={handleSave} className="btn btn-success">
+                <button onClick={onClose} className="btn-custom btn-custom-secondary rounded-pill">Fechar</button>
+                <button onClick={handleSave} className="btn-custom btn-custom-success rounded-pill">
                     {saving ? "Salvando..." : "Salvar"}
                 </button>
             </Modal.Footer>

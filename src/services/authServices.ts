@@ -1,7 +1,7 @@
 // ===== GERAL IMPORTS =====
 import { toast } from "react-toastify";
 import { auth, db } from '../firebaseConfig/config'
-import { collection, doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore'
+import { collection, doc, onSnapshot, setDoc, updateDoc, getDoc, query, where } from 'firebase/firestore'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 
 // ===== INTERFACE to define type ===== 
@@ -104,16 +104,48 @@ export interface UserDocument {
     [key: string]: any; // A temporary measure to allow other fields, but avoiding explicit any in the callback
 }
 
-export const getUsers = (callback: (users: UserDocument[]) => void) => {
-    const docRef = collection(db, "users");
-    return onSnapshot(docRef, (snapshot) => {
-        const usersList = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
+export const getUserById = async (userId: string): Promise<UserDocument | null> => {
+    try {
+        const docRef = doc(db, "users", userId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return { id: docSnap.id, ...docSnap.data() } as UserDocument;
+        }
+        return null;
+    } catch (err) {
+        console.error("Erro ao buscar usuário:", err);
+        return null;
+    }
+}
 
-        })) as UserDocument[];
-        callback(usersList);
-    })
+export const getUsersByIds = (userIds: string[], callback: (users: UserDocument[]) => void) => {
+    if (userIds.length === 0) {
+        callback([]);
+        return () => {};
+    }
+
+    // O Firestore tem um limite de 30 IDs no operador 'in'
+    const chunks = [];
+    for (let i = 0; i < userIds.length; i += 30) {
+        chunks.push(userIds.slice(i, i + 30));
+    }
+
+    const docRef = collection(db, "users");
+    
+    // Para simplificar e manter o tempo real, vamos usar múltiplos snapshots se necessário
+    // mas para a maioria dos casos de projetos, userIds será pequeno.
+    const unsubscribes = chunks.map(chunk => {
+        const q = query(docRef, where("uid", "in", chunk));
+        return onSnapshot(q, (snapshot) => {
+            const usersList = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as UserDocument[];
+            callback(usersList);
+        });
+    });
+
+    return () => unsubscribes.forEach(unsub => unsub());
 }
 
 // ----- This function gets the current user logged in -----

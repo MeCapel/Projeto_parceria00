@@ -70,14 +70,8 @@ export default function ProjectCard({ id, projectName, projectDescription, eleme
         <>
             <div 
                 key={id}
-                className="card shadow-sm border rounded-4 position-relative hover-card" 
-                style={{ 
-                    width: "16rem",
-                    minHeight: "220px", // Reduzido para ser mais compacto
-                    background: "#fff",
-                    transition: "all 0.2s ease-in-out",
-                    cursor: "pointer"
-                }}
+                className="card-custom card-custom-hover" 
+                style={{ cursor: "pointer" }}
                 onClick={() => navigate(location)}
             >
                 {/* Menu de Opções */}
@@ -100,19 +94,19 @@ export default function ProjectCard({ id, projectName, projectDescription, eleme
                             style={{ top: "25px", right: 0, minWidth: "9rem", zIndex: 100 }}
                             className="position-absolute rounded-3 shadow-lg p-2 bg-white border"
                         >
-                            <button onClick={openModal1} className="btn btn-sm w-100 d-flex gap-2 align-items-center text-start py-2">
-                                <PencilSquare className="text-danger"/>
+                            <button onClick={openModal1} className="btn-custom btn-custom-inside-primary w-100 d-flex gap-2 align-items-center text-start py-2 border-0 bg-transparent">
+                                <PencilSquare />
                                 <span>Editar</span>
                             </button>
-                            <button onClick={openModal2} className="btn btn-sm w-100 d-flex gap-2 align-items-center text-start py-2">
-                                <Trash3Fill className="text-danger"/>
+                            <button onClick={openModal2} className="btn-custom btn-custom-inside-primary w-100 d-flex gap-2 align-items-center text-start py-2 border-0 bg-transparent">
+                                <Trash3Fill />
                                 <span>Excluir</span>
                             </button>
                         </div>
                     )}
                 </div>
 
-                <div className="card-body p-3 d-flex flex-column align-items-center text-center">
+                <div className="d-flex flex-column align-items-center text-center">
                     
                     {/* Ícone Reduzido */}
                     <div 
@@ -149,15 +143,7 @@ export default function ProjectCard({ id, projectName, projectDescription, eleme
                 </div>
             </div>
 
-            <style>{`
-                .hover-card:hover {
-                    transform: translateY(-4px);
-                    border-color: var(--red00) !important;
-                    box-shadow: 0 8px 15px rgba(228, 13, 44, 0.1) !important;
-                }
-            `}</style>
-
-            {/* MODAIS (MANTIDOS IGUAIS) */}
+            {/* MODAIS (Padronizados com Botões Baldan) */}
             <Modal show={show1} onHide={closeModal1} centered size="lg">
                 <Modal.Header closeButton className="border-0 px-4 pt-4"></Modal.Header>
                 <Modal.Body className="px-5 pb-5 pt-0">
@@ -175,7 +161,7 @@ export default function ProjectCard({ id, projectName, projectDescription, eleme
                             <label htmlFor="desc">Descrição do projeto</label>
                         </div>
                         <div className="d-grid">
-                            <button type='submit' className='btn btn-danger btn-lg rounded-pill shadow-sm'>Salvar Alterações</button>
+                            <button type='submit' className='btn-custom btn-custom-primary btn-lg rounded-pill shadow-sm py-3 fw-bold'>Salvar Alterações</button>
                         </div>
                     </form>
                 </Modal.Body>
@@ -187,8 +173,8 @@ export default function ProjectCard({ id, projectName, projectDescription, eleme
                     <h4 className="fw-bold mb-3">Excluir Projeto?</h4>
                     <p className="text-muted mb-5">Esta ação não pode ser desfeita.</p>
                     <div className="d-flex gap-2 justify-content-center">
-                        <button className="btn btn-light px-4 rounded-pill" onClick={closeModal2}>Cancelar</button>
-                        <button className="btn btn-danger px-4 rounded-pill shadow-sm" onClick={() => handleMoveProjectToTrash(id)}>Excluir</button>
+                        <button className="btn-custom btn-custom-outline-secondary px-4 rounded-pill" onClick={closeModal2}>Cancelar</button>
+                        <button className="btn-custom btn-custom-primary px-4 rounded-pill shadow-sm" onClick={() => handleMoveProjectToTrash(id)}>Excluir</button>
                     </div>
                 </Modal.Body>
             </Modal>

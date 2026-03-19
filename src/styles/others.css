@@ -38,6 +38,27 @@
 .skeleton-title { height: 0.8rem; width: 40%; margin-bottom: 0.3rem; }
 .skeleton-bubble { height: 3rem; width: 80%; border-radius: 15px; }
 
+/* STANDARD CARD STYLES */
+.card-custom {
+    background: #fff;
+    border: 1px solid #e1dfdd;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    width: 16rem;
+    min-height: 180px;
+}
+
+.card-custom-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
 /* REFINED CHAT STYLES */
 .chat-container {
     background-color: #f0f2f5;

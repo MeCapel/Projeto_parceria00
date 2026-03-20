@@ -7,9 +7,10 @@ import FormTextarea from "../../forms/FormTextarea";
 interface Props {
     prototype: PrototypeProps;
     onChange: (data: Partial<PrototypeProps>) => void;
+    onVerticalChange: (id: string) => void;
 }
 
-export default function PrototypeGeralInfosTab({ prototype, onChange }: Props) {
+export default function PrototypeGeralInfosTab({ prototype, onChange, onVerticalChange }: Props) {
     const [cityError, setCityError] = useState("");
 
     // Atualiza pai direto (sem estado duplicado)
@@ -101,7 +102,11 @@ export default function PrototypeGeralInfosTab({ prototype, onChange }: Props) {
                             name="vertical"
                             value={prototype.vertical}
                             options={["Preparo", "Plantio", "Pulverização"]}
-                            onChange={handleFieldChange}
+                            onChange={(e) => {
+                                handleFieldChange(e);
+                                // função para retirar todas as checklists do protótipo
+                                onVerticalChange(prototype.id!);
+                            }}
                         />
                     </div>
                 </div>

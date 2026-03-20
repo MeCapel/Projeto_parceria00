@@ -9,15 +9,15 @@ interface Props {
 
 export default function UserCard({ user, subtitle, onDelete, children }: Props) {
     return (
-        <div className="p-4 w-100 shadow rounded-4 d-flex flex-column gap-3 bg-custom-black00">
+        <div className="card shadow w-100 p-4 shadow rounded-4 d-flex flex-column gap-3 bg-white">
 
             {/* HEADER */}
-            <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex align-items-center justify-content-between">
 
                 <div className="d-flex gap-3 align-items-center">
 
                     <div
-                        className="rounded-circle bg-white overflow-hidden"
+                        className="rounded-circle border bg-secondary-subtle overflow-hidden"
                         style={{ height: "5rem", width: "5rem" }}
                     >
                         {user.profileImage && (
@@ -30,18 +30,15 @@ export default function UserCard({ user, subtitle, onDelete, children }: Props) 
                     </div>
 
                     <div>
-                        <p className="mb-0 fs-4 fw-bold text-white">
+                        <p className="mb-0 fs-4 fw-bold">
                             {user.username}
                         </p>
 
-                        <div className="d-flex gap-2 text-white small">
+                        <div className="d-flex flex-column gap-2 small">
                             <span>{user.email}</span>
 
                             {user.role && (
-                                <>
-                                    <span>|</span>
-                                    <span>{user.role}</span>
-                                </>
+                                <span>{user.role}</span>
                             )}
                         </div>
 

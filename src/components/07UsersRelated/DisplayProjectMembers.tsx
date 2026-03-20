@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { changeMemberRole, dropMember, getProjectMembers, getUserRole } from "../../services/projectServices"
 import UserCard from "./UserCard"
 import { getCurrentUser } from "../../services/authServices"
-import { People } from "react-bootstrap-icons"
+import { People, XCircleFill } from "react-bootstrap-icons"
 import { Modal } from "react-bootstrap"
 
 interface FullMember {
@@ -96,20 +96,32 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
                 show={isOpen}
                 onHide={closeModal}
                 centered
+                dialogClassName="modal-custom"
             >
-                <Modal.Body className="p-4">
+                <Modal.Body className="p-5 overflow-auto" style={{ maxHeight: "80vh" }}>
 
                     <div className="w-100">
 
                         {/* HEADER */}
-                        <div className="mb-4">
-                            <p className="fs-6 mb-0 text-custom-red">
-                                Projeto
-                            </p>
-                            <h2 className="text-custom-black fw-bold mb-1 h4">
-                                Membros
-                            </h2>
+                        <div className="d-flex align-items-center justify-content-between">
+                            <div className="">
+                                <p className="fs-6 mb-0 text-custom-red">
+                                    Projeto
+                                </p>
+                                <h2 className="text-custom-black fw-bold mb-1 h4">
+                                    Membros
+                                </h2>
+                            </div>
+
+                            <div className="">
+                                <XCircleFill 
+                                    size={25} 
+                                    style={{ cursor: "pointer" }} 
+                                    onClick={closeModal} 
+                                />
+                            </div>
                         </div>
+                        
 
                         {/* LISTA */}
                         <div className="d-flex flex-column gap-3 mt-4">
@@ -140,29 +152,32 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
                                     >
                                         <div className="d-flex justify-content-between align-items-center">
 
-                                            <p className="mb-0 fw-bold">
-                                                Função
-                                            </p>
-
-                                            <select
-                                                value={member.role}
-                                                disabled={
-                                                    !canManage ||
-                                                    isSelf ||
-                                                    isOwner
-                                                }
-                                                onChange={(e) =>
-                                                    handleChangeRole(
-                                                        member.id,
-                                                        e.target.value
-                                                    )
-                                                }
-                                            >
-                                                <option value="viewer">Visualizador</option>
-                                                <option value="editor">Editor</option>
-                                                <option value="admin">Administrador</option>
-                                                <option value="owner">Dono</option>
-                                            </select>
+                                            <div className="col-12 col-md-4 w-100">
+                                                <div className="form-floating">
+                                                    <select
+                                                        name="role"
+                                                        className="form-select"
+                                                        value={member.role}
+                                                        disabled={
+                                                            !canManage ||
+                                                            isSelf ||
+                                                            isOwner
+                                                        }
+                                                        onChange={(e) =>
+                                                            handleChangeRole(
+                                                                member.id,
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                    >
+                                                        {/* <option value="">Escolha o papél</option> */}
+                                                        <option value="membro">Membro</option>
+                                                        <option value="admin">Administrador</option>
+                                                        <option value="owner">Proprietário</option>
+                                                    </select>
+                                                    <label>Função</label>
+                                                </div>
+                                        </div>
 
                                         </div>
                                     </UserCard>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import PrototypeGeralInfosTab from "./PrototypeGeralInfosTab";
 import PrototypeChecklistsTab from "./PrototypeChecklistsTab";
-import { deletePrototype, getPrototype, getPrototypeChecklists, updatePrototype, updatePrototypeChecklists, type PrototypeProps } from "../../../services/prototypeServices";
+import { deleteAllPrototypeChecklists, deletePrototype, getPrototype, getPrototypeChecklists, updatePrototype, updatePrototypeChecklists, type PrototypeProps } from "../../../services/prototypeServices";
 import { TrashFill, Floppy2Fill, Trash3Fill, ArrowLeftCircleFill } from "react-bootstrap-icons";
 import type { ChecklistProps } from "../../../services/checklistServices";
 import PrototypeOccurrencesTab from "./PrototypeOccurrencesTab";
@@ -95,13 +95,13 @@ export default function PrototypePage() {
     }
 
     const handleOccurrenceUpdated = (updatedOccurrence: OccurrenceProps) => {
-            setOccurrences(prev =>
-                prev.map(o => (o.id === updatedOccurrence.id ? updatedOccurrence : o))
-            );
-        };
+        setOccurrences(prev =>
+            prev.map(o => (o.id === updatedOccurrence.id ? updatedOccurrence : o))
+        );
+    };
 
-        // SALVAR (COM LIMPEZA)
-        async function handleSave() {
+    // SALVAR (COM LIMPEZA)
+    async function handleSave() {
         if (!prototype?.id) return;
 
         try {
@@ -125,10 +125,10 @@ export default function PrototypePage() {
 
             console.log("SALVANDO PROTOTYPE:", payload);
 
-            // ✅ salva dados do protótipo
+            // salva dados do protótipo
             await updatePrototype(payload);
 
-            // ✅🔥 salva SUBCOLLECTION de checklists (ESSENCIAL)
+            // salva SUBCOLLECTION de checklists (ESSENCIAL)
             await updatePrototypeChecklists(
                 prototype.id,
                 cleanedChecklists
@@ -141,7 +141,8 @@ export default function PrototypePage() {
 
     async function handleDelete() {
         if (!prototype?.id) return;
-        if (!confirm("Tem certeza?")) return;
+
+        navigate(`/projects/${prototype.projectId}`);
 
         await deletePrototype(prototype.id);
     }
@@ -155,6 +156,19 @@ export default function PrototypePage() {
         await deleteOccorrence(id);
     };
 
+    async function onVerticalChange()
+    {
+        if (!prototypeid) throw new Error("Id do protótipo não encontrado!");
+
+        // 1. delete from Firestore
+        await deleteAllPrototypeChecklists(prototypeid);
+
+        // 2. clear locally
+        setPrototype(prev =>
+            prev ? { ...prev, checklists: [] } : prev
+        );
+    }
+
     if (loading || !prototype) return <p>Carregando...</p>;
 
     const componentsMap = [
@@ -164,6 +178,7 @@ export default function PrototypePage() {
                 <PrototypeGeralInfosTab
                     prototype={prototype}
                     onChange={handleChange}
+                    onVerticalChange={onVerticalChange}
                 />
             ),
             i: 0,

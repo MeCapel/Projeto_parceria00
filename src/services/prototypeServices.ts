@@ -497,3 +497,22 @@ export const deletePrototypeChecklist = async ( prototypeId: string, checklistId
         return null;
     }
 }
+
+export const deleteAllPrototypeChecklists = async (prototypeId: string) => {
+    try {
+        const collectionRef = collection(db, "prototypes", prototypeId, "checklists");
+        const snapshot = await getDocs(collectionRef);
+
+        if (snapshot.empty) return;
+
+        const batch = writeBatch(db);
+
+        snapshot.docs.forEach((docSnap) => {
+            batch.delete(docSnap.ref);
+        });
+
+        await batch.commit();
+    } catch (err) {
+        console.error("Erro ao deletar checklists:", err);
+    }
+};  

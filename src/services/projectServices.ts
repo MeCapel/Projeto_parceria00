@@ -362,3 +362,33 @@ export const dropMember = async (projectId: string, userId: string) => {
         console.error(err);
     }
 }
+
+export const searchUsersNotInProject = (
+    projectId: string,
+    email: string,
+    callback: (users: any[]) => void
+) => {
+
+    const q = query(collection(db, "users"));
+
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+
+        const users = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+
+        let filtered = users;
+
+        // 🔥 Só filtra se tiver texto
+        if (email) {
+            filtered = users.filter((user: any) =>
+                user.email?.toLowerCase().includes(email.toLowerCase())
+            );
+        }
+
+        callback(filtered);
+    });
+
+    return unsubscribe;
+};

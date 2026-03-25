@@ -1,0 +1,66 @@
+@import "./colors.css";
+
+.stepper-container {
+  gap: 0.5rem;
+}
+
+/* STEP ITEM */
+.step-item {
+  width: 80px;
+}
+
+/* CIRCLE BASE */
+.step-circle {
+  height: 48px;
+  width: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+/* ACTIVE */
+.step-circle.active {
+  background: white;
+  border: 2px solid var(--red02);
+  color: var(--red02);
+  transform: scale(1.1);
+}
+
+/* COMPLETED */
+.step-circle.completed {
+  background: var(--success01);
+  color: white;
+  border: none;
+}
+
+/* INACTIVE */
+.step-circle.inactive {
+  background: var(--gray02);
+  color: white;
+}
+
+/* LABEL */
+.step-label {
+  font-size: 0.8rem;
+  color: var(--black01);
+  max-width: 80px;
+}
+
+/* LINE BASE */
+.step-line {
+  width: 60px;
+  height: 3px;
+  background: var(--gray02);
+  margin: 0 8px;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* LINE COMPLETED */
+.step-line.completed {
+  background: var(--success01);
+}

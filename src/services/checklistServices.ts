@@ -1,6 +1,8 @@
+// ===== GERAL IMPORTS =====
 import { db } from '../firebaseConfig/config'
 import { addDoc, deleteDoc, collection, doc, getDocs, query, where, onSnapshot, orderBy, limit, getDoc } from 'firebase/firestore'
 
+// =====
 export interface CheckboxItemProps {
     id: string,
     label: string,

@@ -4,7 +4,7 @@ import { auth, db } from '../firebaseConfig/config'
 import { collection, doc, onSnapshot, setDoc, updateDoc, getDoc, query, where } from 'firebase/firestore'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 
-// ===== INTERFACE to define type ===== 
+// ===== TYPE INTERFACE ===== 
 export interface UserProps {
     id: string;
     username: string;
@@ -15,17 +15,7 @@ export interface UserProps {
 
 // ===== FUNCTIONS =====
 
-// ----- This function checks if the current user is logged in ----- 
-export const checkIsLogIn = () => {
-    const currentUser = auth.currentUser;
-    if (currentUser == null) {
-        toast.warn("Você precisa estar logado.");
-        return false;
-    }
-    return true;
-}
-
-// ----- This function creates a new account -----
+// ----- This function creates a new user account -----
 export const createAccount = async (username: string, email: string, password: string) => {
     try {
         await createUserWithEmailAndPassword(auth, email, password);
@@ -37,14 +27,14 @@ export const createAccount = async (username: string, email: string, password: s
                 uid: user.uid
             });
         }
-
-        toast.success("Conta criada com sucesso!");
+        // toast.success("Conta criada com sucesso!");
     } catch (err) {
-        toast.error(`Erro ao criar conta: ${err}`);
+        console.error(`Erro: ${err}`);
+        toast.error(`Erro ao criar conta`);
     }
 };
 
-// ----- This function sign in user that already got an account -----
+// ----- This function sign in a user that already got an account -----
 export const signIn = async (email:string, password: string) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -56,31 +46,41 @@ export const signIn = async (email:string, password: string) => {
                 uid: user.uid
             }, { merge: true });
         }
-        toast.success("Login realizado com sucesso!");
+        // toast.success("Login realizado com sucesso!");
     } catch (err) {
-        console.error("Erro ao fazer login:", err);
+        console.error(`Erro: ${err}`);
         toast.error("E-mail ou senha incorretos!");
     }
 }
 
-export interface EditUserData {
-    userId: string;
-    username: string;
-    profileImage?: string; // Nova propriedade para imagem
+// ----- This function gets the current user logged in -----
+export const getCurrentUser = () => {
+    try 
+    {
+        const currentUser = auth.currentUser;
+        return currentUser;
+    }
+    catch (err)
+    {
+        console.log(`Erro: ${err}`);
+        toast.error("Erro ao puxar as informações do usuário!");
+    }
 }
 
 // ----- This function updates the user data, its username and profile image ----- 
-export const updateAccount = async ({ userId, username, profileImage } : EditUserData) => {
-    if (!userId) return null;
+export const updateAccount = async ({ id, username, profileImage } : UserProps) => {
+    if (!id) return null;
     try {
-        const docRef = doc(db, "users", userId);
+        const docRef = doc(db, "users", id);
         const updateData: Record<string, string> = { username };
+
+        // se tiver foto de perfil...
         if (profileImage) updateData.profileImage = profileImage;
 
         await updateDoc(docRef, updateData);
         toast.success("Perfil atualizado com sucesso!");
     } catch (err) {
-        console.error("Erro ao atualizar perfil:", err);
+        console.error("Erro:", err);
         toast.error("Erro ao atualizar perfil.");
     }
 }
@@ -89,27 +89,20 @@ export const updateAccount = async ({ userId, username, profileImage } : EditUse
 export const Logout = async () => {
     try {
         await signOut(auth);
-        toast.info("Logout realizado com sucesso!");
+        // toast.info("Logout realizado com sucesso!");
     } catch (err) {
-        console.error("Erro ao fazer logout:", err);
+        console.error(`Erro: ${err}`);
         toast.error("Erro ao fazer logout!");
     }
 }
 
-export interface UserDocument {
-    id: string;
-    username: string;
-    email: string;
-    profileImage?: string;
-    [key: string]: any; // A temporary measure to allow other fields, but avoiding explicit any in the callback
-}
-
-export const getUserById = async (userId: string): Promise<UserDocument | null> => {
+// ----- This function returns the user selected by its id -----
+export const getUserById = async (userId: string): Promise<UserProps | null> => {
     try {
         const docRef = doc(db, "users", userId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-            return { id: docSnap.id, ...docSnap.data() } as UserDocument;
+            return { id: docSnap.id, ...docSnap.data() } as UserProps;
         }
         return null;
     } catch (err) {
@@ -118,7 +111,8 @@ export const getUserById = async (userId: string): Promise<UserDocument | null> 
     }
 }
 
-export const getUsersByIds = (userIds: string[], callback: (users: UserDocument[]) => void) => {
+// ----- This function returns a list of users selected by their ids in reaal time -----
+export const getUsersByIds = (userIds: string[], callback: (users: UserProps[]) => void) => {
     if (userIds.length === 0) {
         callback([]);
         return () => {};
@@ -140,24 +134,10 @@ export const getUsersByIds = (userIds: string[], callback: (users: UserDocument[
             const usersList = snapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data(),
-            })) as UserDocument[];
+            })) as UserProps[];
             callback(usersList);
         });
     });
 
     return () => unsubscribes.forEach(unsub => unsub());
 }
-
-// ----- This function gets the current user logged in -----
-export const getCurrentUser = () => {
-    try 
-    {
-        const currentUser = auth.currentUser;
-        return currentUser;
-    }
-    catch (err)
-    {
-        console.log(`Erro na tentativa de puxar as informações do usuário! ${err}`);
-    }
-}
-

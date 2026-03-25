@@ -1,28 +1,22 @@
+// ===== GERAL IMPORTS =====
 import { db } from "../firebaseConfig/config";
-import { 
-    collection, 
-    addDoc, 
-    query, 
-    orderBy, 
-    onSnapshot, 
-    serverTimestamp, 
-    Timestamp, 
-    doc, 
-    updateDoc, 
-    arrayUnion 
-} from "firebase/firestore";
+import { collection,  addDoc,  query,  orderBy,  onSnapshot,  serverTimestamp,  Timestamp,  doc,  updateDoc,  arrayUnion } from "firebase/firestore";
 
+// ===== TYPE INTERFACE =====
 export interface MessageProps {
     id: string;
     text: string;
     senderId: string;
     senderName: string;
-    createdAt: Timestamp | null;
     base64Image?: string;
     viewedBy?: string[]; // IDs de usuários que viram a mensagem
     isEdited?: boolean;  // Marca se a mensagem foi editada
+    createdAt: Timestamp | null;
 }
 
+// ===== FUNCTIONS =====
+
+// ----- This function creates / sends a message in the chat of the project -----
 // Enviar mensagem (com ou sem imagem)
 export const sendMessage = async (projectId: string, text: string, senderId: string, senderName: string, base64Image?: string) => {
     try {
@@ -33,14 +27,15 @@ export const sendMessage = async (projectId: string, text: string, senderId: str
             senderName,
             base64Image: base64Image || null,
             viewedBy: [senderId], // O remetente já "viu" a mensagem ao enviar
+            isEdited: false,
             createdAt: serverTimestamp(),
-            isEdited: false
         });
     } catch (err) {
-        console.error("Erro ao enviar mensagem:", err);
+        console.error(`Erro ao enviar mensagem: ${err}`);
     }
 };
 
+// ----- This function updates a message in the chat of the project -----
 // Editar mensagem existente
 export const updateMessage = async (projectId: string, messageId: string, newText: string) => {
     try {
@@ -51,7 +46,7 @@ export const updateMessage = async (projectId: string, messageId: string, newTex
             editedAt: serverTimestamp()
         });
     } catch (err) {
-        console.error("Erro ao editar mensagem:", err);
+        console.error(`Erro ao editar mensagem: ${err}`);
     }
 };
 
@@ -63,13 +58,15 @@ export const markMessageAsRead = async (projectId: string, messageId: string, us
             viewedBy: arrayUnion(userId)
         });
     } catch (err) {
-        console.error("Erro ao marcar como lida:", err);
+        console.error(`Erro ao marcar como lida: ${err}`);
     }
 };
 
 // Ouvir mensagens em tempo real
 export const subscribeToMessages = (projectId: string, callback: (messages: MessageProps[]) => void) => {
     const messagesRef = collection(db, "projects", projectId, "messages");
+
+    // order by most recent ones
     const q = query(messagesRef, orderBy("createdAt", "asc"));
 
     return onSnapshot(q, (snapshot) => {

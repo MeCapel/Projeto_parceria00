@@ -1,14 +1,16 @@
+// ===== GERAL IMPORTS ===== 
 import Modal from 'react-bootstrap/Modal';
 import { useNavigate } from "react-router";
 import { useState, type FormEvent } from "react";
 import type { PrototypeProps } from '../../services/prototypeServices';
 import { createPrototype, addChecklistToPrototype  } from "../../services/prototypeServices";
-import StepTracker from './Steps/StepTracker';
 
+import StepTracker from './Steps/StepTracker';
 import Step1 from "./Steps/Step1";
 import Step2 from "./Steps/Step2";
 import Step3 from "./Steps/Step3";
 
+// ===== TYPE INTERFACES =====
 export interface StepProps {
   values: PrototypeProps;
   errors: Record<string, string>;
@@ -19,6 +21,8 @@ interface MultiFormProps {
     projectId: string,
 }
 
+// ===== MAIN COMPONENT =====
+// ----- Component responsable for controling the steps and logic behid the new prototype modal -----
 export default function ProtoMultiForm2({ projectId } : MultiFormProps) {
     const navigate = useNavigate();
 
@@ -77,7 +81,7 @@ export default function ProtoMultiForm2({ projectId } : MultiFormProps) {
         setCurrentStep(0);
     };
 
-    // 🔥 validação por step
+    // validação por step
     function validateStep(step: number) {
         const fields = formSteps[step].fields;
         const newErrors: Record<string, string> = {};
@@ -102,7 +106,7 @@ export default function ProtoMultiForm2({ projectId } : MultiFormProps) {
     }
 
 
-    // 🔥 troca de inputs
+    // troca de inputs
     function handleInputChange(name: string, value: string | string[]) 
     {
         setFormValues(prev => ({
@@ -172,38 +176,43 @@ export default function ProtoMultiForm2({ projectId } : MultiFormProps) {
                         <p className="mb-0 fs-5 text-custom-white">Novo protótipo</p>
             </button>
 
-            <Modal show={show} onHide={closeModal} dialogClassName="" centered className="p-0">
+            <Modal show={show} onHide={closeModal} dialogClassName="modal-custom" centered className="p-0">
                 <Modal.Header closeButton className="mb-0 mx-5 border-0 my-3" />
                 <Modal.Body className="d-flex flex-column align-items-center justify-content-center pb-3">
 
-                    <StepTracker currentStep={currentStep} stepsList={stepsLabels} totalSteps={totalSteps}/>
+                    <div className="w-100 px-4">
 
-                    <form onSubmit={handleSubmit}>
-
-                        {/* --- Title div --- */}
-                        <div className="mb-5">
-                            <p className='fs-5 mb-0 text-custom-red'>Cadastro</p>
-                            <p className='text-custom-black display-6 fw-bold mb-1'>Cadastro do protótipo</p>
-                            <p className='text-custom-black'>*Campos obrigatórios</p>
+                        <div className="mb-4">
+                            <StepTracker currentStep={currentStep} stepsList={stepsLabels} totalSteps={totalSteps}/>
                         </div>
 
-                        <StepComponent values={formValues} errors={errors} onChange={handleInputChange} />
+                        <form onSubmit={handleSubmit}>
 
-                        <div className="mt-5 d-flex align-items-center justify-content-center gap-5">
-                            {currentStep > 0 && (
-                                <button type="button" className="btn btn-secondary ml-auto" onClick={HandlePrev}>Voltar</button>
-                            )}
+                            {/* --- Title div --- */}
+                            <div className="mb-5">
+                                <p className='fs-5 mb-0 text-custom-red'>Cadastro</p>
+                                <p className='text-custom-black display-6 fw-bold mb-1'>Cadastro do protótipo</p>
+                                <p className='text-custom-black'>*Campos obrigatórios</p>
+                            </div>
 
-                            {currentStep < totalSteps - 1 && (
-                                <button type="button" className="btn btn-success" onClick={HandleNext}>Próximo</button>
-                            )}
+                            <StepComponent values={formValues} errors={errors} onChange={handleInputChange} />
 
-                            {currentStep === totalSteps - 1 && (
-                                <button type="submit" className="btn btn-success">Finalizar</button>
-                            )}
-                        </div>
-                    </form>
+                            <div className="mt-5 d-flex align-items-center justify-content-center gap-5">
+                                {currentStep > 0 && (
+                                    <button type="button" className="btn btn-secondary ml-auto" onClick={HandlePrev}>Voltar</button>
+                                )}
 
+                                {currentStep < totalSteps - 1 && (
+                                    <button type="button" className="btn btn-success" onClick={HandleNext}>Próximo</button>
+                                )}
+
+                                {currentStep === totalSteps - 1 && (
+                                    <button type="submit" className="btn btn-success">Finalizar</button>
+                                )}
+                            </div>
+                        </form>
+
+                    </div>
                 </Modal.Body>
             </Modal>
         </>

@@ -6,7 +6,7 @@ import {
     updateMessage,
     markMessageAsRead,
     type MessageProps
-} from "../../services/chatService";
+} from "../../services/chatServices";
 import {
     SendFill,
     Paperclip,

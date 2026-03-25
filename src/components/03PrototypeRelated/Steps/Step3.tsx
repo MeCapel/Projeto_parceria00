@@ -1,46 +1,34 @@
 import { type StepProps } from "../ProtoMultiForm";
 import ChooseChecklists from '../../04ChecklistRelated/instanced/ChooseChecklist';
 import { useState, useEffect } from "react";
+import FormRadioGroup from "../../forms/FormRadioGroup";
 
 export default function Step3({ values, errors, onChange }: StepProps) {
     const [checklistsIds, setChecklistsIds] = useState<string[]>([]);
 
     // Sincroniza os IDs selecionados com o pai sempre que mudar
     useEffect(() => {
-        if (checklistsIds.length === 0) return;
+        // if (checklistsIds.length === 0) return;
         onChange("checklistsIds", checklistsIds);
     }, [checklistsIds]);
 
     // Limpa a seleção de checklists quando a vertical muda
     useEffect(() => {
         setChecklistsIds([]);
-        onChange("checklistsIds", []); // opcional, garante sincronização imediata
+        onChange("checklistsIds", []); // garante sincronização imediata
     }, [values.vertical]);
 
     return (
         <div>
             {/* 🔵 Radio select div */}
-            <fieldset className='d-flex flex-column mt-3 p-3 align-items-start border rounded-2'>
-                <div className="d-flex py-1 px-3 align-items-start justify-content-center rounded-5 position-relative border bg-secondary" 
-                        style={{ top: '-2.5rem' }}>
-                    <legend className='mb-0 text-white fs-5'>Vertical*</legend>
-                </div>
 
-                <div className="d-flex w-100 gap-3 align-items-start justify-content-center position-relative" style={{ top: '-0.75rem' }}>
-                    {["Preparo", "Plantio", "Pulverização"].map(v => (
-                        <label key={v} className="d-flex gap-2">
-                            <input
-                                type="radio"
-                                name="vertical"
-                                value={v}
-                                checked={values.vertical === v}
-                                onChange={e => onChange("vertical", e.target.value)}
-                            />
-                            {v}
-                        </label>
-                    ))}
-                </div>
-            </fieldset>
+            <FormRadioGroup
+                label="Vertical"
+                name="vertical"
+                value={values.vertical}
+                options={["Preparo", "Plantio", "Pulverização"]}
+                onChange={e => onChange("vertical", e.target.value)}
+            />
 
             {errors.vertical && <p style={{ color: "red" }}>{errors.vertical}</p>}
 

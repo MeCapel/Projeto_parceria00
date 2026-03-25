@@ -6,6 +6,7 @@ import './styles/buttons.css'
 import './styles/backgrounds.css'
 import './styles/textColors.css'
 import './styles/others.css'
+import './styles/stepTracker.css'
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>

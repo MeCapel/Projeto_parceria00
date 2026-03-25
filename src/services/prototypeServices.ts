@@ -461,22 +461,6 @@ export const findChecklistInstance = async (prototypeId: string, modelId: string
     return { id: snap.docs[0].id, ...snap.docs[0].data() };
 }
 
-export const toggleChecklistSelection = async (prototypeId: string, modelId: string, checked: boolean) => {
-    const existing = await findChecklistInstance(prototypeId, modelId);
-
-    if (checked && !existing) {
-        // Adicionar (duplicar)
-        return await addChecklistToPrototype(prototypeId, modelId);
-    }
-
-    if (!checked && existing) {
-        // Remover
-        return await deletePrototypeChecklist(prototypeId, existing.id);
-    }
-
-    return null;
-};
-
 export const getChecklistProgress = async () => {
 
 }

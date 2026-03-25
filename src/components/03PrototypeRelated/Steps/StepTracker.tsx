@@ -1,12 +1,16 @@
+// ===== GERAL IMPORTS =====
 import { useEffect, useState } from "react"
 import { CheckLg } from "react-bootstrap-icons"
 
+// ===== TYPE INTERFACE =====
 interface Props {
     currentStep: number,
     stepsList: string[],
     totalSteps: number
 }
 
+// ===== MAIN COMPONENT =====
+// ----- Component responsable for display the progress on new prototype modal creation ----
 export default function StepTracker({ currentStep, stepsList, totalSteps } : Props)
 {
     const [ current, setCurrent ] = useState(currentStep);
@@ -17,61 +21,47 @@ export default function StepTracker({ currentStep, stepsList, totalSteps } : Pro
 
     return(
         <>
-            <div className="d-flex align-items-center justify-content-center mb-3">
+            <div className="stepper-container d-flex justify-content-center">
+                <div className="stepper d-flex flex-wrap justify-content-between align-items-center">
 
                 {stepsList.map((item, i) => (
-                    <div className="d-flex align-items-center justify-content-center" key={i}>
-                    
-                    <div className="d-flex flex-column gap-2 align-items-center justify-content-center" style={{ width: "3rem" }}>
+                    <div className="step-wrapper d-flex align-items-center" key={i}>
 
-                        {i == current && (
-                            <div 
-                                className="d-flex align-items-center justify-content-center rounded-circle" 
-                                style={{ height: "50px", width: "50px", backgroundColor: "var(--white00)", border: "2px solid var(--gray00)" }}
-                            >
-                                <p className="fs-5 fw-bold mb-0">
-                                    {i + 1}
-                                </p>
-                            </div>
+                    <div className="step d-flex flex-column align-items-center text-center">
+
+                        {/* Círculo */}
+                        <div
+                        className={`step-circle 
+                            ${i < current ? "completed" : ""}
+                            ${i === current ? "active" : ""}
+                            ${i > current ? "inactive" : ""}
+                        `}
+                        >
+                        {i < current ? (
+                            <CheckLg size={18} />
+                        ) : (
+                            <span>{i + 1}</span>
                         )}
+                        </div>
 
-                        {i < current && (
-                            <div 
-                                style={{ height: "50px", width: "50px", backgroundColor: "var(--success00)" }}
-                                className="d-flex align-items-center justify-content-center rounded-circle text-white" 
-                            >
-                                <CheckLg size={25}/>
-                            </div>
-                        )}
-
-                        {i > current && (
-                            <div 
-                                style={{ height: "50px", width: "50px", backgroundColor: "var(--gray01)" }}
-                                className="d-flex align-items-center justify-content-center rounded-circle" 
-                            >
-                                <p className="fs-5 fw-bold mb-0 text-white">
-                                    {i + 1}
-                                </p>
-                            </div>
-                        )}
-
-
-                        <p className="text-center">
-                            {item}
-                        </p>
+                        {/* Label */}
+                        <span className="step-label mt-2">
+                        {item}
+                        </span>
                     </div>
-                        
-                        {i < totalSteps - 1 && (
-                            <div 
-                                className="position-relative" 
-                                style={{ width: "5rem", top: "-1.5rem", borderBottom: "1px solid var(--gray00)" }}
-                            ></div>
-                        )}
+
+                    {/* Linha */}
+                    {i < totalSteps - 1 && (
+                        <div
+                        className={`step-line ${
+                            i < current ? "line-completed" : ""
+                        }`}
+                        />
+                    )}
                     </div>
                 ))}
 
-                
-
+                </div>
             </div>
         </>
     )

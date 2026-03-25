@@ -6,7 +6,7 @@ import MembersCircles from './MembersCircles'
 import NewProjectModal from './NewProjectModal'
 import { AuthContext } from '../../context/AuthContext'
 import { getUserProjects, type ProjectProps } from '../../services/projectServices'
-import { getUsersByIds, type UserDocument } from '../../services/authServices'
+import { getUsersByIds, type UserProps } from '../../services/authServices'
 
 // ===== PROPS =====
 interface Props {
@@ -18,7 +18,7 @@ export default function DisplayProjects({ displayAll } : Props)
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
     const [ projects, setProjects ] = useState<ProjectProps[]>([]);
-    const [ allUsers, setAllUsers ] = useState<UserDocument[]>([]);
+    const [ allUsers, setAllUsers ] = useState<UserProps[]>([]);
     const [ loading, setLoading ] = useState(true);
 
     useEffect(() => {

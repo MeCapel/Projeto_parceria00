@@ -59,7 +59,6 @@
   font-size: 1rem;
 }
 
-.modal-custom
-{
-    max-width: 75vw;
+.modal-custom {
+  max-width: min(90vw, 70vw) !important;
 }

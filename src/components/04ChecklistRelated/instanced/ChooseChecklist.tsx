@@ -59,7 +59,7 @@ export default function ChooseChecklists({ vertical, onValueChange, initialSelec
             </div>
 
             {data.length === 0 ? (
-                <p>Nenhuma checklist encontrada para este P.</p>
+                <p>Nenhuma checklist encontrada para esta vertical.</p>
             ) : (
                 <ul className="list-unstyled d-flex flex-column gap-2">
                     {data.map(item => (

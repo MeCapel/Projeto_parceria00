@@ -28,7 +28,7 @@ export default function PrototypeChecklistsTab({
                     </h4>
 
                     <small className="text-muted">
-                        Listas de requisiitos vinculadas ao protótipo
+                        Listas de requisitos vinculadas ao protótipo
                     </small>
                 </div>
 

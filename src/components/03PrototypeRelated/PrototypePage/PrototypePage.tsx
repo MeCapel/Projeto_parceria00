@@ -253,11 +253,6 @@ export default function PrototypePage() {
                             <button
                                 key={c.i}
                                 onClick={() => setCurrentView(c.i)}
-                                // className={`btn-custom rounded-5 px-3 ${
-                                //     currentView === c.i
-                                //     ? "btn-custom-black text-white"
-                                //     : "btn-custom-outline-black"
-                                // }`}
                                 className={`btn-custom px-4 py-2 border-0 rounded-0 border-bottom ${currentView === c.i ? 'border-danger text-danger fw-bold' : 'border-transparent text-muted'}`}
                                 style={{ transition: 'all 0.3s' }}
                             >

@@ -1,0 +1,39 @@
+name: CI/CD Pipeline
+
+# Define quando a pipeline será executada [cite: 29]
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+        # 1. Baixa o código do repositório
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+        # 2. Configura o Node.js (v18 é a recomendada para Vercel)
+      - name: Instalar Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+          # 3. Instala as dependências (React, TS, Firebase)
+      - name: Instalar dependências
+        run: npm install
+
+        # 4. Verifica erros de padronização (Lint)
+      - name: Rodar lint
+        run: npm run lint
+
+        # 5. Tenta gerar o build (se falhar aqui, não vai para a Vercel)
+      - name: Build do projeto
+        run: npm run build
+
+        # 6. Executa os testes unitários
+      - name: Rodar testes
+        run: npm run test

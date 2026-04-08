@@ -1,7 +1,7 @@
 // ===== GERAL IMPORTS =====
 import { NavLink } from 'react-router'
 import { useState, useRef, useLayoutEffect } from "react";
-import { LayoutSidebar, LayoutSidebarReverse, HouseFill, CollectionFill } from 'react-bootstrap-icons'
+import { LayoutSidebar, LayoutSidebarReverse, HouseFill, CollectionFill, PeopleFill } from 'react-bootstrap-icons'
 
 // ===== TYPE INTERFACE =====
 interface SidebarProps {
@@ -53,6 +53,7 @@ export default function Sidebar({ onWidthChange } : SidebarProps)
     const navItems = [
                       { to: '/home', label: 'Home', icon: <HouseFill size={25} /> },
                       { to: '/projects', label: 'Projects', icon: <CollectionFill size={25} /> },
+                      { to: '/clientes', label: 'Clientes', icon: <PeopleFill size={25} /> }, 
                      ]
 
     return(

@@ -1,5 +1,6 @@
 // Importing geral stuff
 import './App.css'
+
 import { Routes, Route } from 'react-router'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -8,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import AuthProvider from './context/AuthProvider'
 import ProtectedRoute from './components/Others/ProtectedRoute'
 import Layout from './components/00Geral/Layout'
+import Clientes from './pages/Clientes'
 
 // Importing full pages
 import Home from './pages/Home'
@@ -43,6 +45,7 @@ export default function App() {
           
           {/* Rotas Protegidas que usam o Layout do sistema */}
           <Route path='/home' element={<ProtectedRoute><Layout><Home /></Layout></ProtectedRoute>}/>
+          <Route path='/clientes' element={<ProtectedRoute><Layout><Clientes /></Layout></ProtectedRoute>}/>
           <Route path="/projects" element={<ProtectedRoute><Layout><Projects /></Layout></ProtectedRoute>} />
           <Route path='/profile' element={<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>}/>
           <Route path="/projects/:projectid" element={<ProtectedRoute><Layout><Project /></Layout></ProtectedRoute>} />

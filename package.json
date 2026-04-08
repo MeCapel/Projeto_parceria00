@@ -1,8 +1,20 @@
 {
   "name": "projeto",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
+  "description": "Repositório dedicado ao desenvolvimento de um projeto colaborativo.",
+  "homepage": "https://github.com/MeCapel/Projeto_parceria00#readme",
+  "bugs": {
+    "url": "https://github.com/MeCapel/Projeto_parceria00/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MeCapel/Projeto_parceria00.git"
+  },
+  "license": "ISC",
+  "author": "",
   "type": "module",
+  "main": "eslint.config.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

@@ -85,15 +85,16 @@ export default function ProjectItem()
             <div className='py-3 px-5'>
                 {/* ----- Title div ----- */}
 
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                    <p className='mb-0 text-custom-black fs-1 fw-bold'>
-                        {projectData.name || "Nome do projeto"}
-                    </p>
-                    <div className="d-flex gap-3">
-                        <NewMemberModal projectId={projectid!} />
-                        <DisplayProjectMembers projectId={projectid!} />
-                    </div>
-                </div>
+                <div className="header-responsive d-flex justify-content-between align-items-center mb-4">
+    <p className='mb-0 text-custom-black fs-1 fw-bold'>
+        {projectData.name || "Nome do projeto"}
+    </p>
+
+    <div className="actions d-flex gap-3">
+        <NewMemberModal projectId={projectid!} />
+        <DisplayProjectMembers projectId={projectid!} />
+    </div>
+</div>
 
                 {/* ----- Navigation between inner project pages ----- */}
 

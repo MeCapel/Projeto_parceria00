@@ -1,23 +1,22 @@
-// ===== GERAL IMPORTS =====
 import { NavLink } from 'react-router'
 import { useState, useRef, useLayoutEffect } from "react";
 import { LayoutSidebar, LayoutSidebarReverse, HouseFill, CollectionFill } from 'react-bootstrap-icons'
 
-// ===== TYPE INTERFACE =====
 interface SidebarProps {
     onWidthChange?: (width: number) => void;
+    isMobile?: boolean;
+    isOpen?: boolean;
+    onClose?: () => void;
 }
 
-// ===== MAIN COMPONENT =====
-// ----- Componente responsável pela sidebar e sua contração ou expansão -----
-export default function Sidebar({ onWidthChange } : SidebarProps)
+export default function Sidebar({ onWidthChange, isMobile, isOpen, onClose }: SidebarProps)
 {
-    const [ isCollapsed, setIsCollapsed ] = useState(false); 
-    // const [ isHovered, setIsHovered ] = useState(false); 
-
+    const [isCollapsed, setIsCollapsed] = useState(false); 
     const navRef = useRef<HTMLElement | null>(null);
 
     useLayoutEffect(() => {
+        if (isMobile) return;
+
         const navElement = navRef.current;
         if (!navElement) return;
 
@@ -35,62 +34,95 @@ export default function Sidebar({ onWidthChange } : SidebarProps)
         ro.observe(navElement);
 
         return () => ro.disconnect();
-    }, [isCollapsed, onWidthChange]);
+    }, [isCollapsed, onWidthChange, isMobile]);
 
     const NavItem = ({ to, label, icon } : { to: string; label: string; icon: React.ReactNode; }) => (
     <li>
-      <NavLink to={to} onClick={() => setIsCollapsed(false)}
+      <NavLink to={to} onClick={() => onClose?.()}
         className={({ isActive }) =>
           `btn-custom d-flex gap-3 py-2 text-decoration-none align-items-start
           ${isActive ? "rounded-1 text-danger btn-custom-white shadow bg-danger-subtle" : "text-secondary"}`}
         >
         {icon}
-        {isCollapsed && <span className="m-0 p-0">{label}</span>}
+        {(isCollapsed || isMobile) && <span>{label}</span>}
       </NavLink>
     </li>
     )
 
     const navItems = [
-                      { to: '/home', label: 'Home', icon: <HouseFill size={25} /> },
-                      { to: '/projects', label: 'Projects', icon: <CollectionFill size={25} /> },
-                     ]
+        { to: '/home', label: 'Home', icon: <HouseFill size={25} /> },
+        { to: '/projects', label: 'Projects', icon: <CollectionFill size={25} /> },
+    ]
 
+    // 🔥 MOBILE (OVERLAY)
+    if (isMobile) {
+        return (
+            <>
+                {isOpen && (
+                    <div 
+                        onClick={onClose}
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            background: "rgba(0,0,0,0.4)",
+                            zIndex: 4
+                        }}
+                    />
+                )}
+
+                <nav
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: isOpen ? 0 : "-300px",
+                        width: "250px",
+                        height: "100%",
+                        background: "white",
+                        transition: "0.3s",
+                        zIndex: 5,
+                        padding: "1rem"
+                    }}
+                >
+                    <ul className="d-flex flex-column gap-3 list-unstyled">
+
+                        <button 
+                            className="btn-custom mb-3"
+                            onClick={onClose}
+                        >
+                            Fechar
+                        </button>
+
+                        {navItems.map((item) => (
+                            <NavItem key={item.to} {...item} />
+                        ))}
+                    </ul>
+                </nav>
+            </>
+        )
+    }
+
+    // 💻 DESKTOP NORMAL
     return(
-        <nav ref={navRef} className="position-fixed border-end border-secondary-subtle vh-100 d-flex flex-column" 
-            style={{ transition: 'width 0.3s ease', width: isCollapsed ? '275px' : '100px'}}>
+        <nav ref={navRef} className="position-fixed border-end vh-100 d-flex flex-column"
+            style={{ transition: 'width 0.3s', width: isCollapsed ? '275px' : '100px'}}>
 
-            <ul className="d-flex flex-column gap-3 px-3 list-unstyled py-0 m-0 grow">
+            <ul className="d-flex flex-column gap-3 px-3 list-unstyled">
 
-                {/* Header Logo */}
-                <div style={{ width: '100%', transition: 'all 0.5s ease' }} className={`d-flex align-items-center gap-4 pt-3
-                    ${isCollapsed ? "justify-content-between" : "flex-column"}`}>
-
-                    {!isCollapsed ? (
-                        <button className="btn-custom text-secondary" onClick={() => setIsCollapsed(true)}
-                        aria-label="Expand sidebar" title="Expandir" style={{ height: '3rem' }}>
-                            <LayoutSidebarReverse size={25} />
-                        </button>
-                    ) : (
-                        <button className="btn-custom text-secondary" onClick={() => setIsCollapsed(false)}
-                                aria-label="Collapse sidebar" title="Colapsar">
-                            <LayoutSidebar size={25} />
-                        </button>
-                    )}
-
+                <div className={`d-flex pt-3 ${isCollapsed ? "justify-content-between" : "flex-column"}`}>
+                    <button className="btn-custom text-secondary" onClick={() => setIsCollapsed(!isCollapsed)}>
+                        {isCollapsed ? <LayoutSidebar /> : <LayoutSidebarReverse />}
+                    </button>
                 </div>
 
-                {/* Navigation Items */}
-
-                <div className={`d-flex flex-column gap-3 ${isCollapsed ? "p-0" : "align-items-center"}`}>
-
+                <div className={`d-flex flex-column gap-3 ${isCollapsed ? "" : "align-items-center"}`}>
                     {navItems.map((item) => (
-                        <div key={item.to} className="">
-                            <NavItem to={item.to} label={item.label} icon={item.icon} />
-                        </div>
+                        <NavItem key={item.to} {...item} />
                     ))}
                 </div>
 
-                {/* HR separator for compact sidebar */}
                 <hr />
             </ul>
         </nav>

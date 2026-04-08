@@ -69,102 +69,105 @@ export default function AddNewMember({ projectId }: Props) {
         );
     };
 
-    return (
-        <div className="d-flex flex-column overflow-auto" style={{ maxHeight: "50vh" }}>
-            <ul className="list-unstyled d-flex flex-column gap-2">
+  return (
+    <div className="d-flex flex-column overflow-auto" style={{ maxHeight: "50vh" }}>
+        <ul className="list-unstyled d-flex flex-column gap-2">
 
-                {users.map(user => {
+            {users.map(user => {
 
-                    if (!user.id) return null;
+                if (!user.id) return null;
 
-                    return (
-                        <li
-                            key={user.id}
-                            className="d-flex align-items-center justify-content-between gap-3"
+                return (
+                    <li
+                        key={user.id}
+                        className="d-flex align-items-center gap-2"
+                        style={{ width: "100%" }}
+                    >
+
+                        {/* EMAIL */}
+                        <div
+                            className="text-truncate"
+                            style={{ flex: 1, minWidth: 0 }}
+                        >
+                            {user.email}
+                        </div>
+
+                        {/* DIREITA */}
+                        <div
+                            className="d-flex align-items-center gap-2 flex-shrink-0 position-relative"
+                            ref={openUserId === user.id ? dropdownRef : null}
                         >
 
-                            <label className="form-check-label">
-                                {user.email}
-                            </label>
-
-                            <div className="d-flex align-items-center gap-3 bg-custom-outline-secondary position-relative" ref={openUserId === user.id ?  dropdownRef : null}>
-
-                                {/* caret button */}
-                                <div
-                                    className="pointer p-2"
-                                    onClick={() => toggleDropdown(user.id!)}
-                                >
-                                    {openUserId === user.id
-                                        ? <CaretUp size={20} />
-                                        : <CaretDown size={20} />
-                                    }
-
-                                </div>
-
-                                {/* dropdown */}
-                                {openUserId === user.id && (
-
-                                    <div
-                                        className="d-flex flex-column gap-2 p-2 border rounded shadow-sm bg-white"
-                                        style={{
-                                            position: "absolute",
-                                            top: "2.2rem",
-                                            left: "0",
-                                            zIndex: 100,
-                                            minWidth: "120px"
-                                        }}
-                                    >
-
-                                        {["Membro", "Admin"].map(role => (
-
-                                            <label
-                                                key={role}
-                                                className="d-flex gap-2 align-items-center form-check-label"
-                                            >
-
-                                                <input
-                                                    type="radio"
-                                                    value={role}
-                                                    name={`role-${user.id}`}
-                                                    checked={user.role === role}
-                                                    onChange={() =>
-                                                        handleRoleChange(
-                                                            user.id!,
-                                                            role as UserProps["role"]
-                                                        )
-                                                    }
-                                                    className="form-check-input"
-                                                />
-
-                                                {role}
-
-                                            </label>
-
-                                        ))}
-
-                                    </div>
-
-                                )}
-
-                                <p className="mb-0">Como {user.role}</p>
-                                
-                                {/* add button */}
-                                <button
-                                    type="button"
-                                    onClick={() => handleNewMember(user)}
-                                    className="btn-custom btn-custom-outline-success d-flex align-items-center justify-content-center gap-2"
-                                >
-                                    Adicionar
-                                </button>
-
+                            {/* caret */}
+                            <div
+                                className="pointer p-1"
+                                onClick={() => toggleDropdown(user.id)}
+                            >
+                                {openUserId === user.id
+                                    ? <CaretUp size={16} />
+                                    : <CaretDown size={16} />
+                                }
                             </div>
 
-                        </li>
-                    );
+                            {/* dropdown */}
+                            {openUserId === user.id && (
+                                <div
+                                    className="d-flex flex-column gap-2 p-2 border rounded shadow-sm bg-white"
+                                    style={{
+                                        position: "absolute",
+                                        top: "2rem",
+                                        right: "0",
+                                        zIndex: 100,
+                                        minWidth: "120px"
+                                    }}
+                                >
+                                    {["Membro", "Admin"].map(role => (
+                                        <label
+                                            key={role}
+                                            className="d-flex gap-2 align-items-center form-check-label"
+                                        >
+                                            <input
+                                                type="radio"
+                                                value={role}
+                                                name={`role-${user.id}`}
+                                                checked={user.role === role}
+                                                onChange={() =>
+                                                    handleRoleChange(
+                                                        user.id,
+                                                        role as UserProps["role"]
+                                                    )
+                                                }
+                                                className="form-check-input"
+                                            />
+                                            {role}
+                                        </label>
+                                    ))}
+                                </div>
+                            )}
 
-                })}
+                            {/* TEXTO */}
+                            <span style={{ fontSize: "0.8rem", whiteSpace: "nowrap" }}>
+                                {user.role}
+                            </span>
 
-            </ul>
-        </div>
-    );
+                            {/* BOTÃO */}
+                            <button
+                                type="button"
+                                onClick={() => handleNewMember(user)}
+                                className="btn-custom btn-custom-outline-success px-2 py-1"
+                                style={{ whiteSpace: "nowrap" }}
+                            >
+                                Adicionar
+                            </button>
+
+                        </div>
+
+                    </li>
+                );
+
+            })}
+
+        </ul>
+    </div>
+);
 }

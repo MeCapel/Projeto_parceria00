@@ -176,7 +176,7 @@ export default function ProtoMultiForm2({ projectId } : MultiFormProps) {
                         <p className="mb-0 fs-5 text-custom-white">Novo protótipo</p>
             </button>
 
-            <Modal show={show} onHide={closeModal} dialogClassName="modal-custom" centered className="p-0">
+            <Modal show={show} onHide={closeModal} centered size="lg">
                 <Modal.Header closeButton className="mb-0 mx-5 border-0 my-3" />
                 <Modal.Body className="d-flex flex-column align-items-center justify-content-center pb-3">
 

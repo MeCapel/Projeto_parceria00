@@ -68,8 +68,8 @@ export default function DisplayProjects({ displayAll } : Props)
 
     return(
         <div className='p-5 mx-3'>
-            <div className="d-flex row align-items-center mb-4">
-                <div className="col-10">
+            <div className="d-flex flex-wrap align-items-center gap-3 justify-content-between mb-4">
+                <div className="">
                     <p className='mb-0 text-custom-red fs-5' style={{ cursor: "pointer" }} onClick={() => navigate(`/projects`)}>
                         Projetos
                     </p>
@@ -77,7 +77,7 @@ export default function DisplayProjects({ displayAll } : Props)
                         {displayAll ? "Todos os projetos" : "Visitados recentemente"}
                     </h1>
                 </div>
-                <div className="col-2 d-flex justify-content-end gap-3">
+                <div className="d-flex justify-content-end gap-3">
                     <NewProjectModal />
                     {!displayAll && (
                         <Link to={"/projects"} className='btn-custom btn-custom-outline-black text-decoration-none'>

@@ -47,41 +47,49 @@ export default function NewMemberModal({ projectId } : Props)
                 </div>
             </button>
 
-            <Modal show={isOpen} onHide={closeModal} dialogClassName="" centered className="p-0" size="lg">
+            <Modal 
+                show={isOpen} 
+                onHide={closeModal} 
+                centered 
+                className="p-0"
+                dialogClassName="custom-modal"
+                      >
                 <Modal.Header closeButton className="border-0 mt-3 mx-3"></Modal.Header>
                 <Modal.Body>
 
-                    <form ref={formRef} className="w-100 mt-0 pt-0 px-5" onSubmit={handleNewProjectMember} noValidate>
+                    <form ref={formRef} className="w-100 mt-0 pt-0 px-3 px-lg-5" onSubmit={handleNewProjectMember} noValidate>
                         
                         <div className="">
                             <p className="fs-5 mb-0 text-custom-red">Adicionar</p>
-                            <h1 className="text-custom-black fw-bold mb-1">Novo membro</h1>
+                            <h1 className="text-custom-black fw-bold mb-1 fs-3 fs-md-2">Novo membro</h1>
                         </div>
                         
-                        <div className="d-flex gap-3 my-4">
-                            <div className="form-floating mb-3 w-100">
-                                <input 
-                                    id='input1'
-                                    required 
-                                    type="text" 
-                                    minLength={3}
-                                    maxLength={25}
-                                    className='form-control' 
-                                    placeholder='Nome do projeto*' 
-                                    // onChange={(e) => setUsername(e.target.value)} 
-                                    />
-                                <label htmlFor="input1" className="d-flex flex-column gap-3">Email do usuário</label>
-                            </div>
+                <div className="row g-3 my-4 align-items-end">
+    
+                    <div className="row g-3 my-4 align-items-end">
+                        <div className="form-floating w-100"></div>
+                        <input 
+                        id='input1'
+                        required 
+                        type="text" 
+                        minLength={3}
+                        maxLength={25}
+                        className='form-control' 
+                        placeholder='Nome do projeto*' 
+                            />
+                    <label htmlFor="input1">Email do usuário</label>
+                    </div>
 
-                            <button 
-                                style={{ height: "3.5rem" }}
-                                type='submit'
-                                className='btn-custom btn-custom-outline-success d-flex align-items-center justify-content-center gap-3'>
-                                Adicionar
-                                <PlusLg size={18}/>
-                            </button>
+                        <div className="col-12 col-lg-auto"></div>
+                           <button 
+                             style={{ height: "3.5rem" }}
+                             type='submit'
+                             className='btn-custom btn-custom-outline-success d-flex align-items-center justify-content-center gap-3 w-100'>
+                             Adicionar
+                             <PlusLg size={18}/>
+                          </button>
 
-                        </div>
+                </div>
 
                         <AddNewMember projectId={projectId} />
                         

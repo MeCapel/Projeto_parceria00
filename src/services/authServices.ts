@@ -8,7 +8,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } f
 export interface UserProps {
     id: string;
     username: string;
-    email: string;
+    email?: string;
     profileImage?: string; // String Base64
     role?: string,
 }

@@ -57,7 +57,7 @@ export default function Profile() {
 
         try {
             await updateAccount({
-                userId: user.uid,
+                id: user.uid,
                 username: newUsername,
                 profileImage: newProfileImage || undefined
             });

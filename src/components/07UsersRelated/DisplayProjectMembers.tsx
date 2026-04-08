@@ -96,7 +96,7 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
                 show={isOpen}
                 onHide={closeModal}
                 centered
-                dialogClassName="modal-custom"
+                dialogClassName="custom-modal-custom"
             >
                 <Modal.Body className="p-5 overflow-auto" style={{ maxHeight: "80vh" }}>
 

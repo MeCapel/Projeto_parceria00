@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { listenPrototypesForProjectWProgress, type PrototypeProps } from "../../services/prototypeServices";
 import { CaretDown, CaretUp, PencilSquare } from "react-bootstrap-icons";
 import { useNavigate } from "react-router";
-import type { ChecklistProps, CategoriesProps, CheckboxItemProps } from "../../services/checklistServices";
+import type { ChecklistProps } from "../../services/checklistServices";
 
 interface Props {
     projectId: string,
@@ -11,18 +11,22 @@ interface Props {
 export default function DividedByProgress({ projectId }: Props) {
     const [prototypesList, setPrototypesList] = useState<PrototypeProps[] | null>(null);
     const [loading, setLoading] = useState(true);
+    const [open, setOpen] = useState<Record<number, boolean>>({ 1: false, 2: false, 3: false });
+    const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 768);
 
-    const [open, setOpen] = useState<Record<number, boolean>>({
-        1: false,
-        2: false,
-        3: false,
-    });
+    // ✅ RESPONSIVO SEM LIB
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     const toggleItem = (id: number) => {
         setOpen(prev => ({ ...prev, [id]: !prev[id] }));
     };
-
-    const fields = ["Nome", "Descrição", "Vertical", "Etapa", "Progresso"];
 
     const statusConfig = [
         { id: 1, label: "Pendentes", color: "var(--red00)", key: "pendente" },
@@ -32,7 +36,6 @@ export default function DividedByProgress({ projectId }: Props) {
 
     useEffect(() => {
         if (!projectId) return;
-
         setLoading(true);
 
         const unsubscribe = listenPrototypesForProjectWProgress(projectId, (data) => {
@@ -49,55 +52,53 @@ export default function DividedByProgress({ projectId }: Props) {
         const grouped: Record<ProgressStatus, PrototypeProps[]> = {
             pendente: [],
             em_andamento: [],
-            concluido: [],
+            concluido: []
         };
 
-        prototypesList.forEach(prototype => {
-            const progress = calculatePrototypeProgressWeighted(prototype.checklists);
+        prototypesList.forEach(p => {
+            const progress = calculatePrototypeProgressWeighted(p.checklists);
             const status = getStatusByProgress(progress);
-            grouped[status].push(prototype);
+            grouped[status].push(p);
         });
 
         return grouped;
     }, [prototypesList]);
 
     if (loading) return <p>Carregando o projeto...</p>;
-
-    if (!prototypesList || prototypesList.length === 0) {
-        return <p>Nenhum protótipo encontrado!</p>;
-    }
+    if (!prototypesList || prototypesList.length === 0) return <p>Nenhum protótipo encontrado!</p>;
 
     return (
         <>
             {statusConfig.map(status => (
-                <div className="d-flex flex-column gap-3" key={status.id}>
+                <div key={status.id} className="d-flex flex-column gap-3">
+                    
+                    {/* HEADER */}
                     <div
                         className="d-flex gap-3 align-items-center"
                         onClick={() => toggleItem(status.id)}
                         style={{ cursor: "pointer" }}
                     >
                         {open[status.id] ? (
-                            <CaretUp size={25} color={status.color} />
+                            <CaretUp size={22} color={status.color} />
                         ) : (
-                            <CaretDown size={25} color={status.color} />
+                            <CaretDown size={22} color={status.color} />
                         )}
 
                         <p
-                            className="mb-0 fs-5 fw-semimbold"
-                            style={{ color: status.color }}
+                            className="mb-0 fw-semibold"
+                            style={{ color: status.color, fontSize: isMobile ? 16 : 20 }}
                         >
                             {status.label} ({prototypesByStatus?.[status.key].length})
                         </p>
                     </div>
 
+                    {/* LISTA */}
                     {open[status.id] && prototypesByStatus && (
-                        <div className="mb-4">
-                            <PrototypesTable
-                                projectId={projectId}
-                                fields={fields}
-                                prototypes={prototypesByStatus[status.key]}
-                            />
-                        </div>
+                        <PrototypesTable
+                            projectId={projectId}
+                            prototypes={prototypesByStatus[status.key]}
+                            isMobile={isMobile}
+                        />
                     )}
                 </div>
             ))}
@@ -105,24 +106,22 @@ export default function DividedByProgress({ projectId }: Props) {
     );
 }
 
-function calculatePrototypeProgressWeighted(
-    checklists?: ChecklistProps[]
-): number {
+// ================= HELPERS =================
+
+function calculatePrototypeProgressWeighted(checklists?: ChecklistProps[]): number {
     if (!checklists || checklists.length === 0) return 0;
 
     let totalItems = 0;
     let checkedItems = 0;
 
-    checklists.forEach((checklist: ChecklistProps) => {
-        checklist.categories.forEach((category: CategoriesProps) => {
-            totalItems += category.items.length;
-            checkedItems += category.items.filter((item: CheckboxItemProps) => item.checked).length;
-        });
-    });
+    checklists.forEach(c =>
+        c.categories.forEach(cat => {
+            totalItems += cat.items.length;
+            checkedItems += cat.items.filter(i => i.checked).length;
+        })
+    );
 
-    if (totalItems === 0) return 0;
-
-    return Math.round((checkedItems / totalItems) * 100);
+    return totalItems === 0 ? 0 : Math.round((checkedItems / totalItems) * 100);
 }
 
 type ProgressStatus = "pendente" | "em_andamento" | "concluido";
@@ -133,57 +132,91 @@ function getStatusByProgress(progress: number): ProgressStatus {
     return "em_andamento";
 }
 
+// ================= TABLE / CARDS =================
+
 interface PrototypesTableProps {
-    projectId: string,
-    fields: string[];
+    projectId: string;
     prototypes: PrototypeProps[];
+    isMobile: boolean;
 }
 
-function PrototypesTable({ projectId, fields, prototypes }: PrototypesTableProps) {
+function PrototypesTable({ projectId, prototypes, isMobile }: PrototypesTableProps) {
     const navigate = useNavigate();
 
-    return (
-    <>
-        {prototypes.length === 0 ? 
-            (
-                <p className="text-center">Nenhum protótipo nesta área!</p>
-            ) : 
-            (
-                <table className="table table-bordered table-striped p-0 m-0 rounded-2 overflow-hidden">
-                    <thead>
-                        <tr>
-                            {fields.map((field, index) => (
-                                <th
-                                    key={index}
-                                    className="border py-2 px-4 text-custom-black text-center"
-                                >
-                                    {field}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
+    if (prototypes.length === 0) {
+        return <p className="text-center">Nenhum protótipo nesta área!</p>;
+    }
 
-                        {prototypes.map((prototype, i) => (
-                            <tr key={i} onClick={() => navigate(`/projects/${projectId}/${prototype.id}`)} style={{ cursor: "pointer"}}>
-                                <td className="d-flex gap-3 align-items-center">
-                                    <button className="btn-custom btn-custom-outline-success">
-                                        <PencilSquare size={25}/>
-                                    </button>
-                                    {prototype.name}
-                                </td>
-                                <td>{prototype.description}</td>
-                                <td>{prototype.stage}</td>
-                                <td>{prototype.vertical}</td>
-                                <td className="border py-2 px-4 text-center">
-                                    {calculatePrototypeProgressWeighted(prototype.checklists)}%
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )
-        }
-    </>
+    // ================= MOBILE =================
+    if (isMobile) {
+        return (
+            <div className="d-flex flex-column gap-3">
+                {prototypes.map(p => (
+                    <div
+                        key={p.id}
+                        className="card shadow-sm border-0 p-3"
+                        onClick={() => navigate(`/projects/${projectId}/${p.id}`)}
+                        style={{ cursor: "pointer", borderLeft: "4px solid var(--red01)" }}
+                    >
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                            <strong>{p.name}</strong>
+                            <PencilSquare size={18} />
+                        </div>
+
+                        <small className="text-muted mb-2">{p.description}</small>
+
+                        <div className="d-flex flex-wrap gap-2">
+                            <span className="badge bg-light text-dark">{p.vertical}</span>
+                            <span className="badge bg-light text-dark">{p.stage}</span>
+                            <span className="badge bg-success">
+                                {calculatePrototypeProgressWeighted(p.checklists)}%
+                            </span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
+    // ================= DESKTOP =================
+    return (
+        <div className="table-responsive">
+            <table className="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th className="d-none d-md-table-cell">Descrição</th>
+                        <th>Vertical</th>
+                        <th>Etapa</th>
+                        <th>Progresso</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {prototypes.map(p => (
+                        <tr
+                            key={p.id}
+                            onClick={() => navigate(`/projects/${projectId}/${p.id}`)}
+                            style={{ cursor: "pointer" }}
+                        >
+                            <td className="d-flex gap-2 align-items-center">
+                                <button className="btn btn-sm btn-outline-success">
+                                    <PencilSquare size={18} />
+                                </button>
+                                {p.name}
+                            </td>
+
+                            <td className="d-none d-md-table-cell">
+                                {p.description}
+                            </td>
+
+                            <td>{p.vertical}</td>
+                            <td>{p.stage}</td>
+                            <td>{calculatePrototypeProgressWeighted(p.checklists)}%</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     );
 }

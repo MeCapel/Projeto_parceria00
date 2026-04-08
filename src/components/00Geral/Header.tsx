@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { Modal } from "react-bootstrap";
+import { List } from "react-bootstrap-icons";
 import AccountSettings from "../01LoginRelated/AccountSettings";
 import { GearFill, PersonCircle, Sliders2, ArrowUpRightCircleFill } from "react-bootstrap-icons";
 
@@ -9,25 +10,39 @@ import { GearFill, PersonCircle, Sliders2, ArrowUpRightCircleFill } from "react-
 interface HeaderProps {
   sidebarWidth: number;
   hidden?: boolean;
+  isMobile?: boolean;
+  onMenuClick?: () => void;
 }
 
 // ===== MAIN COMPONENT =====
 // ----- Componente responsável pelo header que é exibido pelo app -----
-export default function Header({ sidebarWidth, hidden = false }: HeaderProps) {
+export default function Header({ sidebarWidth, hidden = false, isMobile, onMenuClick }: HeaderProps) {
   const [openComponent, setOpenComponent] = useState<string | null>(null);
 
   if (hidden) return null;
 
   return (
-    <header
-      style={{ position: "fixed", top: 0, left: `${sidebarWidth}px`, right: 0 , zIndex: 2 }}
-      className="showOrHide navbar navbar-light bg-white text-custom-black px-3 p-0 px-md-5 border-bottom border-secondary-subtle"
-    >
-      <Link to={"/home"}>
-        <img height={30} src="/fromBrand/baldan-principal.png" alt="Logotipo da marca" />
-      </Link>
+   <header
+  style={{ position: "fixed", top: 0, left: `${sidebarWidth}px`, right: 0 , zIndex: 2 }}
+  className="header-main navbar navbar-light bg-white px-3 p-0 px-md-5 border-bottom border-secondary-subtle"
+>
+      
+       <div className="d-flex align-items-center gap-2">
 
-      <div className="d-flex align-items-center py-2 gap-1 ms-auto">
+    {isMobile && (
+      <button className="btn-custom" onClick={onMenuClick}>
+        <List size={25} />
+      </button>
+    )}
+
+    {/* 🔥 ÚNICA LOGO */}
+    <Link to={"/home"}>
+      <img height={30} src="/fromBrand/baldan-principal.png" alt="Logotipo da marca" />
+    </Link>
+
+  </div>
+
+      <div className="header-actions d-flex align-items-center py-2 gap-2 ms-auto">
 
         {<Settings />}
 
@@ -54,9 +69,13 @@ function Settings()
         </button>
 
         {show && (
-          <Modal show={show} onHide={() => setShow(false)} dialogClassName="modal-custom" centered className='p-0'>
+          <Modal show={show}
+           onHide={() => setShow(false)}
+            dialogClassName="modal-custom-responsive"
+             centered 
+             className='p-0'>
             {/* <Modal.Header closeButton className="m-3 border-0"></Modal.Header> */}
-            <Modal.Body className="d-flex p-0">
+            <Modal.Body className="modal-content-responsive d-flex p-0">
               <div className="bg-body-tertiary p-4 rounded-start-3">
                 <div className="d-flex flex-column gap-2 align-items-start">
 

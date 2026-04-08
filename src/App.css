@@ -62,3 +62,153 @@
 .modal-custom {
   max-width: min(90vw, 70vw) !important;
 }
+
+@media (max-width: 768px) {
+  .modal-body {
+    padding: 1rem !important;
+  }
+}
+
+.custom-modal {
+  max-width: 700px;
+  width: 95%;
+}
+
+@media (max-width: 992px) {
+  .custom-modal {
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 576px) {
+  .custom-modal {
+    max-width: 100%;
+    margin: 0;
+  }
+}
+
+.custom-modal {
+  width: 95%;
+  max-width: 650px;
+}
+
+@media (max-width: 768px) {
+  .custom-modal {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+.modal-body {
+  overflow-x: hidden;
+}
+
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* botões lado a lado (desktop) */
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* 📱 MOBILE */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .actions {
+    width: 100%;
+    flex-direction: column; /* empilha */
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-responsive {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px;
+  }
+
+  .header-responsive .actions {
+    width: 53%;
+    flex-direction: column;
+  }
+
+  .header-responsive .actions > * {
+    width: 100%;
+     max-width: 230px;
+  }
+}
+
+/* ===== HEADER ===== */
+@media (max-width: 768px) {
+  .header-main {
+    padding: 8px 12px !important;
+  }
+
+  .header-main img {
+    height: 24px;
+  }
+
+  .header-actions {
+    gap: 6px;
+  }
+
+  .header-actions button {
+    padding: 6px;
+  }
+}
+
+/* ===== MODAL ===== */
+.modal-custom-responsive {
+  max-width: 700px;
+}
+
+@media (max-width: 768px) {
+  .modal-custom-responsive {
+    max-width: 95% !important;
+    margin: 0 auto;
+  }
+
+  .modal-content-responsive {
+    flex-direction: column;
+  }
+
+  .modal-content-responsive > div:first-child {
+    width: 100%;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .modal-content-responsive > div:last-child {
+    padding: 20px !important;
+  }
+}
+
+/* ===== FORM ===== */
+@media (max-width: 768px) {
+  form .d-flex.justify-content-between {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 10px;
+  }
+
+  form button {
+    width: fit-content;
+  }
+}
+
+.main-content {
+  padding-top: 60px;
+}

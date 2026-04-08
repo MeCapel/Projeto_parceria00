@@ -46,15 +46,15 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
 
         const unsubscribe = getProjectMembers(projectId, (members) => {
 
-            const fullMembers = members.map(member => ({
-                id: member.userId,
-                username: member.username || "Sem nome",
-                email: member.email || "",
-                profileImage: member.image || undefined, // Nome correto esperado pelo UserCard
-                role: member.role
+            const fullMembers: FullMember[] = members.map(member => ({
+            id: member.userId,
+            username: member.username || "Sem nome",
+            email: member.email || "",
+            image: member.image || undefined, // Use "image" para bater com a interface
+            role: member.role as "admin" | "membro" | "owner" // Forçamos o tipo das strings aceitas
             }))
 
-            setMembers(fullMembers as any)
+        setMembers(fullMembers) // Removido o "as any"        
         })
 
         return () => unsubscribe()

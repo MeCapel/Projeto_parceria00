@@ -26,6 +26,10 @@ jobs:
       - name: Instalar dependências
         run: npm install
 
+        # 4. Executa o Lint (Vai acusar os erros acima se você não arrumar!)
+      - name: Rodar Lint
+        run: npm run lint
+
         # 5. Tenta gerar o build (se falhar aqui, não vai para a Vercel)
       - name: Build do projeto
         run: npm run build
@@ -33,3 +37,11 @@ jobs:
         # 6. Executa os testes unitários
       - name: Rodar testes
         run: npm run test
+        
+        # 7. Executa os testes de ponta a ponta (Cypress)
+      - name: Cypress run
+        uses: cypress-io/github-action@v5
+        with:
+          build: npm run build
+          start: npm run dev
+          wait-on: 'http://localhost:5173'

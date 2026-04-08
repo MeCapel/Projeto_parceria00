@@ -94,7 +94,7 @@ export default function AddNewMember({ projectId }: Props) {
 
                         {/* DIREITA */}
                         <div
-                            className="d-flex align-items-center gap-2 flex-shrink-0 position-relative"
+                            className="d-flex align-items-center gap-2 shrink-0 position-relative"
                             ref={openUserId === user.id ? dropdownRef : null}
                         >
 

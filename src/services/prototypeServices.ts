@@ -245,6 +245,7 @@ export const updatePrototype = async (editedPrototype: PrototypeProps) => {
             // Adicionar/Atualizar as que ficaram
             editedPrototype.checklists.forEach(cl => {
                 const clRef = doc(db, "prototypes", id, "checklists", cl.id!);
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { id: _, ...data } = cl; // não salva o ID dentro do documento
                 batch.set(clRef, {
                     ...data,

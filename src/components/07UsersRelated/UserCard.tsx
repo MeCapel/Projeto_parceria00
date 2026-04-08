@@ -17,7 +17,7 @@ export default function UserCard({ user, subtitle, onDelete, children }: Props) 
                 <div className="d-flex gap-3 align-items-center w-100">
 
                     <div
-                        className="rounded-circle border bg-secondary-subtle overflow-hidden flex-shrink-0"
+                        className="rounded-circle border bg-secondary-subtle overflow-hidden shrink-0"
                         style={{ height: "4rem", width: "4rem" }}
                     >
                         {user.profileImage && (

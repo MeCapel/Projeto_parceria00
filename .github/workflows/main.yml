@@ -14,11 +14,11 @@ jobs:
     steps:
         # 1. Baixa o código do repositório
       - name: Checkout do código
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
         # 2. Configura o Node.js (v18 é a recomendada para Vercel)
       - name: Instalar Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -37,10 +37,10 @@ jobs:
         # 6. Executa os testes unitários
       - name: Rodar testes
         run: npm run test
-        
+     
         # 7. Executa os testes de ponta a ponta (Cypress)
       - name: Cypress run
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
           build: npm run build
           start: npm run dev

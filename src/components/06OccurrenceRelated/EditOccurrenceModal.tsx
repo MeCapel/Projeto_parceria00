@@ -37,7 +37,7 @@ export default function EditOccurrenceModal({ occurrenceId, show, onClose, onUpd
         if (!show) {
             reset();
         }
-    }, [show]);
+    }, [show, reset]);
 
     // carregar dados da ocorrência
     useEffect(() => {
@@ -65,7 +65,7 @@ export default function EditOccurrenceModal({ occurrenceId, show, onClose, onUpd
         };
 
         load();
-    }, [occurrenceId, show]);
+    }, [occurrenceId, show, setValues]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

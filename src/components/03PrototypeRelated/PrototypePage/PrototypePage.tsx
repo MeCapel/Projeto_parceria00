@@ -44,6 +44,7 @@ export default function PrototypePage() {
                     });
                 } else {
                     toast.error("Protótipo não encontrado!");
+                    // Correção: prototype?.projectId foi adicionado à dependência para evitar erro no build
                     navigate(`/projects/${prototype?.projectId}`);
                 }
             } catch (err) {
@@ -55,7 +56,8 @@ export default function PrototypePage() {
         }
 
         fetchData();
-    }, [prototypeid]);
+    // Dependências corrigidas para o build passar:
+}, [prototypeid, navigate, prototype?.projectId]);
 
     useEffect(() => {
         if (!prototype?.id) return;
@@ -66,6 +68,7 @@ export default function PrototypePage() {
         );
 
         return unsubscribe;
+        // Dependência corrigida:
     }, [prototype?.id]);
 
     function handleChange(updatedData: Partial<PrototypeProps>) {

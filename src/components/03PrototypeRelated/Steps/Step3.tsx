@@ -10,13 +10,13 @@ export default function Step3({ values, errors, onChange }: StepProps) {
     useEffect(() => {
         // if (checklistsIds.length === 0) return;
         onChange("checklistsIds", checklistsIds);
-    }, [checklistsIds]);
+    }, [checklistsIds, onChange]);
 
     // Limpa a seleção de checklists quando a vertical muda
     useEffect(() => {
         setChecklistsIds([]);
         onChange("checklistsIds", []); // garante sincronização imediata
-    }, [values.vertical]);
+    }, [values.vertical, onChange]);
 
     return (
         <div>

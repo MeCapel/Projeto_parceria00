@@ -1,6 +1,5 @@
 name: CI/CD Pipeline
 
-# Define quando a pipeline será executada [cite: 29]
 on:
   push:
     branches: [ "main", "develop" ]
@@ -10,38 +9,42 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    # Movi o env para cá! Agora todos os steps abaixo enxergam as chaves.
+    env:
+      VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+      VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+      VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+      VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+      VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+      VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+      VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
 
     steps:
-        # 1. Baixa o código do repositório
       - name: Checkout do código
         uses: actions/checkout@v4
 
-        # 2. Configura o Node.js (v18 é a recomendada para Vercel)
       - name: Instalar Node
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '20' # Usei a 20 que é estável, mas a 24 também serve
 
-          # 3. Instala as dependências (React, TS, Firebase)
       - name: Instalar dependências
         run: npm install
 
-        # 4. Executa o Lint (Vai acusar os erros acima se você não arrumar!)
       - name: Rodar Lint
         run: npm run lint
 
-        # 5. Tenta gerar o build (se falhar aqui, não vai para a Vercel)
       - name: Build do projeto
         run: npm run build
 
-        # 6. Executa os testes unitários
-      - name: Rodar testes
-        run: npm run test
-     
-        # 7. Executa os testes de ponta a ponta (Cypress)
+      - name: Rodar testes unitários
+        run: npm run test -- --watchAll=false # Evita que o teste fique travado
+
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-           build: npm run build
-           start: npm run dev
-           wait-on: 'http://localhost:5173'
+          install: false # Já instalamos no step anterior
+          build: npm run build
+          start: npm run dev
+          wait-on: 'http://localhost:5173'

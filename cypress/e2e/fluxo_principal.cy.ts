@@ -2,19 +2,16 @@
 
 describe('Projeto Baldan - Testes E2E', () => {
   
-  // Esse bloco é o SEU SALVADOR. Ele ignora erros do Firebase App Check 
-  // e impede que o teste trave por causa da sitekey faltando.
   Cypress.on('uncaught:exception', (err) => {
     if (err.message.includes('sitekey') || 
         err.message.includes('App Check') || 
         err.message.includes('required parameters')) {
-      return false; // Não falha o teste por causa disso
+      return false; 
     }
     return true;
   });
 
   beforeEach(() => {
-    // Aumentamos o tempo de espera para a página carregar mesmo com erro de rede
     cy.visit('/', { timeout: 30000 });
   });
 
@@ -23,11 +20,18 @@ describe('Projeto Baldan - Testes E2E', () => {
   });
 
   it('Cenário 2: Deve exibir erro ao inserir credenciais inválidas', () => {
-    // Usamos um seletor mais genérico e damos um tempinho para o campo aparecer
     cy.get('input', { timeout: 10000 }).first().type('usuario@baldan.com.br');
-    cy.get('input[type="password"]').type('123456');
+    cy.get('input[type="password"]').type('errado123'); // senha errada aqui
+    cy.get('button').contains('Entrar').click();
+    // Adicione uma asserção de erro aqui se o seu sistema mostrar algum alerta!
+  }); 
+  it('Cenário 3: Deve realizar login com sucesso', () => {
+    cy.get('input', { timeout: 10000 }).first().type('isis@mail.com');    
+    cy.get('input[type="password"]').type('123456');    
     cy.get('button').contains('Entrar').click();
     
-    // Se o seu sistema mostrar erro de login, o teste passa!
+    // Asserções de sucesso
+    cy.url({ timeout: 15000 }).should('include', '/home'); 
+    cy.contains('Projetos', { timeout: 10000 }).should('be.visible');
   });
 });

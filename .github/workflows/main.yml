@@ -41,6 +41,7 @@ jobs:
       - name: Rodar testes unitários
         run: npm run test -- --watchAll=false # Evita que o teste fique travado
 
+        
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:

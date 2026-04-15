@@ -1,11 +1,11 @@
-import DisplayProjects from '../components/02ProjectRelated/DisplayProjects'
+import ProjectsPage from './ProjectsPage'
 import ChecklistsModelSection from '../components/04ChecklistRelated/models/ChecklistModelSection'
 
 export default function Home()
 {    
     return(
         <>
-            <DisplayProjects displayAll={false} />
+            <ProjectsPage />
             <ChecklistsModelSection />
         </>
     )

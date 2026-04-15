@@ -2,7 +2,7 @@ import { type StepProps } from "../ProtoMultiForm";
 import FormInput from "../../forms/FormInput";
 import FormTextarea from "../../forms/FormTextarea";
 
-export default function Step1({ values, errors, onChange }: StepProps) {
+export default function Step1({ values, onChange, isFieldRequired }: StepProps) {
   return (
     <div>
       
@@ -14,24 +14,24 @@ export default function Step1({ values, errors, onChange }: StepProps) {
                         name="code"
                         value={values.code ?? ""}
                         onChange={e => onChange("code", e.target.value)}
+                        required={isFieldRequired("code")}
                 />
-                {errors.code && <p style={{ color: "red" }}>{errors.code}</p>}
 
                 <FormInput
                         label="Nome"
-                        name="code"
+                        name="name"
                         value={values.name}
                         onChange={e => onChange("name", e.target.value)}
+                        required={isFieldRequired("name")}
                 />
-                {errors.name && <p style={{ color: "red" }}>{errors.name}</p>}
 
                 <FormTextarea
                         label="Descrição"
                         name="description"
                         value={values.description}
                         onChange={e => onChange("description", e.target.value)}
+                        required={isFieldRequired("description")}
                 />
-                {errors.description && <p style={{ color: "red" }}>{errors.description}</p>}
         </div>
 
     </div>

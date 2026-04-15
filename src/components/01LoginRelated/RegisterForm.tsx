@@ -1,7 +1,10 @@
+// ===== GERAL IMPORTS =====
 import React, { useState } from "react"
 import { useNavigate } from "react-router"
 import { createAccount } from "../../services/authServices"
 
+// ===== MAIN COMPONENT =====
+// ----- Componente responsável pelo formulário de registro dos usuários / criação de conta -----
 export default function SignInForm()
 {
     const [ userName, setUserName ] = useState("");

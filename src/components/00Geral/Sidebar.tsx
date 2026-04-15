@@ -1,7 +1,9 @@
+// ===== GERAL IMPORTS ======
 import { NavLink } from 'react-router'
 import { useState, useRef, useLayoutEffect } from "react";
 import { LayoutSidebar, LayoutSidebarReverse, HouseFill, CollectionFill, PeopleFill } from 'react-bootstrap-icons'
 
+// ====== INTERFACE TYPES ====== 
 interface SidebarProps {
     onWidthChange?: (width: number) => void;
     isMobile?: boolean;
@@ -9,6 +11,8 @@ interface SidebarProps {
     onClose?: () => void;
 }
 
+// ====== MAIN COMPONENT ======
+// ------ Componente responsável por exibir a sidebar e calcular o espaço disponivel para a exibição dos outros conteúdos das páginas -----
 export default function Sidebar({ onWidthChange, isMobile, isOpen, onClose }: SidebarProps)
 {
     const [isCollapsed, setIsCollapsed] = useState(false); 

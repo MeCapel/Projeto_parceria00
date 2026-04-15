@@ -1,27 +1,26 @@
-// Importing geral stuff
+// ===== GERAL IMPORTS =====
 import './App.css'
-
 import { Routes, Route } from 'react-router'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// Importing components
+// ===== IMPORTING COMPONENTS =====
 import AuthProvider from './context/AuthProvider'
 import ProtectedRoute from './components/Others/ProtectedRoute'
 import Layout from './components/00Geral/Layout'
-import Clientes from './pages/Clientes'
+import Clients from './pages/Clients';
 
-// Importing full pages
+// ====== IMPORTING FULL PAGES =====
 import Home from './pages/Home'
 import Login from './pages/Login'
 import SignUp from './pages/SignUp'
 import Project from './pages/Project'
 import Profile from './pages/Profile'
-import Projects from './pages/Projects'
 import NotFoundPage from './pages/NotFoundPage'
 import ResetPassword from './pages/ResetPassword'
 import ConfirmResetPassword from './pages/ConfirmResetPassword'
 import PrototypePage from './components/03PrototypeRelated/PrototypePage/PrototypePage';
+import ProjectsPage from './pages/ProjectsPage';
 
 // App.tsx component
 export default function App() {
@@ -45,8 +44,8 @@ export default function App() {
           
           {/* Rotas Protegidas que usam o Layout do sistema */}
           <Route path='/home' element={<ProtectedRoute><Layout><Home /></Layout></ProtectedRoute>}/>
-          <Route path='/clientes' element={<ProtectedRoute><Layout><Clientes /></Layout></ProtectedRoute>}/>
-          <Route path="/projects" element={<ProtectedRoute><Layout><Projects /></Layout></ProtectedRoute>} />
+          <Route path='/clientes' element={<ProtectedRoute><Layout><Clients /></Layout></ProtectedRoute>}/>
+          <Route path="/projects" element={<ProtectedRoute><Layout><ProjectsPage /></Layout></ProtectedRoute>} />
           <Route path='/profile' element={<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>}/>
           <Route path="/projects/:projectid" element={<ProtectedRoute><Layout><Project /></Layout></ProtectedRoute>} />
           <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><Layout><PrototypePage /></Layout></ProtectedRoute>} />

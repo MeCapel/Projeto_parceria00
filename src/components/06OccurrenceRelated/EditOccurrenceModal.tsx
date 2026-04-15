@@ -125,8 +125,7 @@ export default function EditOccurrenceModal({ occurrenceId, show, onClose, onUpd
             reset();
         } catch (err) {
             console.error(err);
-}
-
+        }
     };
 
     return (

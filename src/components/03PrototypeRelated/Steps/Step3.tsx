@@ -1,43 +1,58 @@
-import { type StepProps } from "../ProtoMultiForm";
-import ChooseChecklists from '../../04ChecklistRelated/instanced/ChooseChecklist';
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import ChooseChecklists from "../../04ChecklistRelated/instanced/ChooseChecklist";
 import FormRadioGroup from "../../forms/FormRadioGroup";
+import type { StepProps } from "../ProtoMultiForm";
 
-export default function Step3({ values, errors, onChange }: StepProps) {
+export default function Step3({ values, onChange, isFieldRequired }: StepProps) {
     const [checklistsIds, setChecklistsIds] = useState<string[]>([]);
+    const isInvalid = !!values.vertical && values.checklistsIds.length === 0;
+    const isValid = !!values.vertical && values.checklistsIds.length > 0;
 
-    // Sincroniza os IDs selecionados com o pai sempre que mudar
     useEffect(() => {
-        // if (checklistsIds.length === 0) return;
         onChange("checklistsIds", checklistsIds);
     }, [checklistsIds]);
 
-    // Limpa a seleção de checklists quando a vertical muda
     useEffect(() => {
         setChecklistsIds([]);
-        onChange("checklistsIds", []); // garante sincronização imediata
+        onChange("checklistsIds", []);
     }, [values.vertical]);
 
     return (
         <div>
-            {/* 🔵 Radio select div */}
 
-            <FormRadioGroup
-                label="Vertical"
-                name="vertical"
-                value={values.vertical}
-                options={["Preparo", "Plantio", "Pulverização"]}
-                onChange={e => onChange("vertical", e.target.value)}
-            />
+        <FormRadioGroup
+            label="Vertical"
+            name="vertical"
+            value={values.vertical}
+            options={["Preparo", "Plantio", "Pulverização"]}
+            onChange={e => onChange("vertical", e.target.value)}
+            required={isFieldRequired("vertical")}
+        />
 
-            {errors.vertical && <p style={{ color: "red" }}>{errors.vertical}</p>}
+            <div className="position-relative mt-4">
 
-            {/* Componente de seleção de checklists */}
-            <div className='my-5'>
-                <ChooseChecklists vertical={values.vertical} onValueChange={setChecklistsIds} />
+                <input
+                    type="text"
+                    className={`form-control position-absolute opacity-0 ${
+                        isInvalid ? "is-invalid" : isValid ? "is-valid" : ""
+                    }`}
+                    style={{ height: 0, padding: 0, border: 0 }}
+                    tabIndex={-1}
+                    required
+                    value={isValid ? "ok" : ""}
+                    onChange={() => {}}
+                />
+
             </div>
 
-            {errors.checklistsIds && <p style={{ color: "red" }}>{errors.checklistsIds}</p>}
+        <div className="my-5">
+            <ChooseChecklists
+            vertical={values.vertical}
+            onValueChange={setChecklistsIds}
+            isInvalid={isInvalid}
+            />
+        </div>
+
         </div>
     );
 }

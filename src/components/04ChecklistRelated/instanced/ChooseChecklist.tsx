@@ -5,9 +5,10 @@ interface Props {
     vertical: string;
     initialSelectedIds?: string[];
     onValueChange: (ids: string[], checklists: ChecklistProps[]) => void;
+    isInvalid?: boolean;
 }
 
-export default function ChooseChecklists({ vertical, onValueChange, initialSelectedIds }: Props) {
+export default function ChooseChecklists({ vertical, onValueChange, initialSelectedIds, isInvalid }: Props) {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<ChecklistProps[]>([]);
     const [selectedIds, setSelectedIds] = useState<string[]>(initialSelectedIds || []);
@@ -50,13 +51,18 @@ export default function ChooseChecklists({ vertical, onValueChange, initialSelec
     }, [vertical]);
 
     if (loading) return <p>Carregando...</p>;
-
     return (
-        <div className="p-3 d-flex flex-column gap-3 border rounded-2">
+        <div className={`p-3 d-flex flex-column gap-3 border rounded-2 ${isInvalid ? "border-danger" : ""}`}>
             <div>
                 <p className="text-custom-black fs-4 fw-bold mb-0">Selecionar checklists</p>
                 <p className="fs-5 mb-0 text-custom-red">{vertical}</p>
             </div>
+
+            {isInvalid && (
+                <div className="invalid-feedback d-block">
+                    Selecione ao menos uma checklist
+                </div>
+            )}
 
             {data.length === 0 ? (
                 <p>Nenhuma checklist encontrada para esta vertical.</p>
@@ -67,7 +73,7 @@ export default function ChooseChecklists({ vertical, onValueChange, initialSelec
                             <input
                                 id={item.id}
                                 type="checkbox"
-                                className="form-check-input"
+                                className="form-check-input text-black"
                                 onChange={() => handleToggle(item.id!)}
                                 checked={selectedIds.includes(item.id!)}
                             />

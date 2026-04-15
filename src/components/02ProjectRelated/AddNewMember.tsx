@@ -1,12 +1,16 @@
+// ===== GERAL IMPORTS =====
 import { useEffect, useRef, useState } from "react";
 import { type UserProps } from "../../services/authServices";
 import { getUsersNotInProject, linkProjectUser } from "../../services/projectServices";
 import { CaretDown, CaretUp } from "react-bootstrap-icons";
 
+// ===== INTERFACE TYPES =====
 interface Props {
     projectId: string;
 }
 
+// ===== MAIN COMPONENT =====
+// ----- Componente responsável por exibir usuários cadastrados e não presentes em determinado projeto, permitindo selecionna-los e assim adiciona-los ao projeto atual -----
 export default function AddNewMember({ projectId }: Props) {
     const [users, setUsers] = useState<UserProps[]>([]);
     const [openUserId, setOpenUserId] = useState<string | null>(null);

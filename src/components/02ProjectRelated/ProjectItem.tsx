@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { db } from '../../firebaseConfig/config'
 import { doc, onSnapshot } from 'firebase/firestore'
 import MainFrame2 from "../03PrototypeRelated/MainFrame";
-import ProtoMultiForm2 from "../03PrototypeRelated/ProtoMultiForm";
+import ProtoMultiForm from "../03PrototypeRelated/ProtoMultiForm";
 import DividedByProgress from "./DividedByProgress";
 import NewMemberModal from "./NewMemberModal";
 import type { ProjectProps } from "../../services/projectServices";
@@ -86,15 +86,15 @@ export default function ProjectItem()
                 {/* ----- Title div ----- */}
 
                 <div className="header-responsive d-flex justify-content-between align-items-center mb-4">
-    <p className='mb-0 text-custom-black fs-1 fw-bold'>
-        {projectData.name || "Nome do projeto"}
-    </p>
+                    <p className='mb-0 text-custom-black fs-1 fw-bold'>
+                        {projectData.name || "Nome do projeto"}
+                    </p>
 
-    <div className="actions d-flex gap-3">
-        <NewMemberModal projectId={projectid!} />
-        <DisplayProjectMembers projectId={projectid!} />
-    </div>
-</div>
+                    <div className="actions d-flex gap-3">
+                        <NewMemberModal projectId={projectid!} />
+                        <DisplayProjectMembers projectId={projectid!} />
+                    </div>
+                </div>
 
                 {/* ----- Navigation between inner project pages ----- */}
 
@@ -118,7 +118,7 @@ export default function ProjectItem()
                     <div className="w-100" style={{ borderBottom: "1px solid var(--gray02)", marginTop: "-1px" }}></div>
                     
                     <div className="mt-4 w-100">
-                         <ProtoMultiForm2 projectId={projectid}/>
+                         <ProtoMultiForm projectId={projectid}/>
                     </div>
                 </div>
 

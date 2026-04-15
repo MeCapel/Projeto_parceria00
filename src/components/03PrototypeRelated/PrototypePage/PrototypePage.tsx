@@ -213,7 +213,7 @@ export default function PrototypePage() {
 
     return (
         <>
-            <div className="px-3 pt-4">
+            <div className="ps-5 pt-5 pb-0 pe-0">
                 <button 
                     className="btn-custom btn-custom-link d-flex gap-3 align-items-center border-0 bg-transparent p-0" 
                     onClick={() => navigate(`/projects/${prototype.projectId}`)}
@@ -225,11 +225,11 @@ export default function PrototypePage() {
                 </button>
             </div>
 
-            <div className="container-fluid px-3 px-md-4 py-4">
+            <div className="py-3 px-5">
                 <header className="d-flex align-items-center justify-content-between mb-4">
 
                     <div>
-                        <p className="fs-6 text-custom-red mb-0 fw-bold text-uppercase">Protótipo</p>
+                        <p className="fs-6 text-custom-red mb-0 fw-bold">Protótipo</p>
                         <h1 className="text-custom-black fw-bold mb-0">{prototype.name}</h1>
                     </div>
 
@@ -246,8 +246,8 @@ export default function PrototypePage() {
                     </div>
                 </header>
 
-                <div className="d-flex flex-column align-items-start mb-3">
-                    <div className="d-flex gap-2 mb-2">
+                <div className="d-flex flex-column align-items-start mb-4">
+                    <div className="d-flex gap-2">
                         {componentsMap.map(c => (
                             <button
                                 key={c.i}
@@ -260,6 +260,7 @@ export default function PrototypePage() {
                         ))}
                     </div>
 
+                    <div className="w-100" style={{ borderBottom: "1px solid var(--gray02)", marginTop: "-1px" }}></div>
                 </div>
 
                 {componentsMap.find(c => c.i === currentView)?.component}

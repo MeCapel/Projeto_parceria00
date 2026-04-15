@@ -1,218 +1,154 @@
-// ===== GERAL IMPORTS ===== 
-import Modal from 'react-bootstrap/Modal';
-import { useNavigate } from "react-router";
-import { useState, type FormEvent } from "react";
-import type { PrototypeProps } from '../../services/prototypeServices';
-import { createPrototype, addChecklistToPrototype  } from "../../services/prototypeServices";
+import { Modal } from "react-bootstrap";
+import StepTracker from "./Steps/StepTracker";
+import { usePrototypeForm, type PrototypeFormValues } from "../../hooks/usePrototypeForm";
+import { useRef, useState } from "react";
 
-import StepTracker from './Steps/StepTracker';
 import Step1 from "./Steps/Step1";
 import Step2 from "./Steps/Step2";
 import Step3 from "./Steps/Step3";
 
-// ===== TYPE INTERFACES =====
+interface Props {
+    projectId: string
+}
+
 export interface StepProps {
-  values: PrototypeProps;
-  errors: Record<string, string>;
-  onChange: (name: string, value: string | string[]) => void;
+  values: PrototypeFormValues
+  errors: Record<string, string>
+  onChange: (name: string, value: string | string[]) => void
+  isFieldRequired: (name: string) => boolean
 }
 
-interface MultiFormProps {
-    projectId: string,
-}
+export default function ProtoMultiForm({ projectId }: Props) {
+    const [show, setShow] = useState(false);
+    const formRef = useRef<HTMLFormElement | null>(null);
 
-// ===== MAIN COMPONENT =====
-// ----- Component responsable for controling the steps and logic behid the new prototype modal -----
-export default function ProtoMultiForm2({ projectId } : MultiFormProps) {
-    const navigate = useNavigate();
+    const {
+        values,
+        errors,
+        currentStep,
+        totalSteps,
+        isFieldRequired,
+        handleChange,
+        nextStep,
+        prevStep,
+        handleSubmit,
+        reset
+    } = usePrototypeForm(projectId);
 
-    // Configuração dos steps e campos para validação
-    const formSteps = [
-        {
-        fields: [
-            { name: "code", label: "Código", required: false },
-            { name: "name", label: "Nome", required: true },
-            { name: "description", label: "Descrição", required: true },
-        ],
-        component: Step1,
-        },
-        {
-        fields: [
-            { name: "stage", label: "Etapa", required: true },
-            { name: "state", label: "Estado", required: false },
-            { name: "city", label: "Cidade", required: false },
-            { name: "areaSize", label: "Tamanho da área", required: false },
-        ],
-        component: Step2,
-        },
-        {
-        fields: [
-            { name: "vertical", label: "Vertical", required: true },
-        ],
-        component: Step3,
-        }
-    ];
+    const steps = [Step1, Step2, Step3];
+    const stepsLabels = ["Geral", "Local", "Requisitos"];
 
-    const stepsLabels = [ "Geral", "Local", "Requisitos"];
-    const totalSteps = formSteps.length;
+    const isFirstStep = currentStep === 0;
+    const isLastStep = currentStep === totalSteps - 1;
 
-    const [currentStep, setCurrentStep] = useState(0);
-    const defaultValues: PrototypeProps & { checklistsIds: string[] } = {
-        projectId: projectId,
-        code: "",
-        name: "",
-        description: "",
-        stage: "",
-        state: "",
-        city: "",
-        areaSize: "",
-        vertical: "",
-        editedAt: [],
-        createdAt: undefined,
-        checklistsIds: [],
+    function openModal() {
+        setShow(true);
     }
-    const [formValues, setFormValues] = useState<PrototypeProps& { checklistsIds: string[] }>(defaultValues);
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const [show, setShow ] = useState(false);
-    const openModal = () => setShow(true);
-    const closeModal = () => {
+
+    function closeModal() {
         setShow(false);
-        cleanAllFields();
-        setCurrentStep(0);
-    };
+        reset();
+    }
 
-    // validação por step
-    function validateStep(step: number) {
-        const fields = formSteps[step].fields;
-        const newErrors: Record<string, string> = {};
-        let valid = true;
+    function onSubmit(e: React.FormEvent) {
+        e.preventDefault();
 
-        // Valida campos obrigatórios do step
-        fields.forEach(field => {
-            if (field.required && !formValues[field.name as keyof PrototypeProps]) {
-                newErrors[field.name] = `O campo "${field.label}" é obrigatório`;
-                valid = false;
-            }
-        });
+        const form = formRef.current;
+        if (!form) return;
 
-        // Validação extra do Step 3: pelo menos uma checklist selecionada
-        if (step === 2 && (!formValues.checklistsIds || formValues.checklistsIds.length === 0)) {
-            newErrors["checklistsIds"] = "Selecione ao menos uma checklist";
-            valid = false;
+        form.classList.add("was-validated");
+
+        if (!form.checkValidity()) {
+            const firstInvalid = form.querySelector<HTMLElement>(":invalid");
+            if (firstInvalid) firstInvalid.focus();
+            return;
         }
 
-        setErrors(prev => ({ ...prev, ...newErrors }));
-        return valid;
+        handleSubmit(() => {
+            setShow(false);
+        });
     }
-
-
-    // troca de inputs
-    function handleInputChange(name: string, value: string | string[]) 
-    {
-        setFormValues(prev => ({
-        ...prev,
-        [name]: value
-        }));
-
-        // limpa erro do campo alterado
-        setErrors(prev => ({
-        ...prev,
-        [name]: ""
-        }));
-    }
-
-    // navegação 
-    function HandlePrev() 
-    {
-        setCurrentStep(prev => prev - 1);
-    }
-
-    function HandleNext() 
-    {
-        if (!validateStep(currentStep)) return;
-        setCurrentStep(prev => prev + 1);
-    }
-
-    function cleanAllFields()
-    {
-        setFormValues(prev => ({
-            ...prev,
-            code: "",
-            name: "",
-            description: "",
-            stage: "",
-            state: "",
-            city: "",
-            areaSize: "",
-            vertical: "",
-            checklistsIds: [],
-        }));
-        setErrors({});
-    }
-
-    async function handleSubmit(e: FormEvent) {
-        e.preventDefault();
-        if (!validateStep(currentStep)) return;
-
-        const prototypeId = await createPrototype(formValues);
-        if (!prototypeId) return;
-
-        // Cria instâncias de checklist para cada checklistId selecionada
-        await Promise.all(
-            (formValues.checklistsIds || []).map(id => addChecklistToPrototype(prototypeId, id))
-        );
-
-        console.log("OBJETO FINAL:", formValues);
-        closeModal();
-        navigate(`/projects/${projectId}`);
-    }
-
-    // step atual baseado no array
-    const StepComponent = formSteps[currentStep].component;
 
     return (
         <>
             <button className="btn-custom btn-custom-primary" onClick={openModal}>
-                        <p className="mb-0 fs-5 text-custom-white">Novo protótipo</p>
+                <p className="mb-0 fs-5 text-custom-white">Novo protótipo</p>
             </button>
 
             <Modal show={show} onHide={closeModal} centered size="lg">
-                <Modal.Header closeButton className="mb-0 mx-5 border-0 my-3" />
-                <Modal.Body className="d-flex flex-column align-items-center justify-content-center pb-3">
+                <Modal.Header closeButton className="border-0 mt-3 mx-3" />
 
-                    <div className="w-100 px-4">
+                <Modal.Body className="px-5 pb-5 pt-0">
+
+                    <div className="pt-3">
+                        <StepTracker 
+                            currentStep={currentStep} 
+                            stepsList={stepsLabels} 
+                            totalSteps={totalSteps}
+                        />
+                    </div>
+
+                    <form ref={formRef} onSubmit={onSubmit} noValidate>
 
                         <div className="mb-4">
-                            <StepTracker currentStep={currentStep} stepsList={stepsLabels} totalSteps={totalSteps}/>
+                            <p className='fs-5 mb-0 text-custom-red'>Cadastro</p>
+                            <p className='text-custom-black display-6 fw-bold mb-1'>Cadastro do protótipo</p>
+                            <p className='text-custom-black'>*Campos obrigatórios</p>
                         </div>
 
-                        <form onSubmit={handleSubmit}>
+                        {steps.map((Step, index) => (
+                            <fieldset
+                                key={index}
+                                disabled={index !== currentStep}
+                                style={{ display: index === currentStep ? "block" : "none" }}
+                            >
+                                <Step
+                                values={values}
+                                errors={errors}
+                                onChange={handleChange}
+                                isFieldRequired={isFieldRequired}
+                                />
+                            </fieldset>
+                            ))}
 
-                            {/* --- Title div --- */}
-                            <div className="mb-5">
-                                <p className='fs-5 mb-0 text-custom-red'>Cadastro</p>
-                                <p className='text-custom-black display-6 fw-bold mb-1'>Cadastro do protótipo</p>
-                                <p className='text-custom-black'>*Campos obrigatórios</p>
-                            </div>
+                        <div className="mt-5 d-flex align-items-center justify-content-center gap-5">
 
-                            <StepComponent values={formValues} errors={errors} onChange={handleInputChange} />
+                            {!isFirstStep && (
+                                <button type="button" className="btn btn-secondary ml-auto" onClick={prevStep}>
+                                    Voltar
+                                </button>
+                            )}
 
-                            <div className="mt-5 d-flex align-items-center justify-content-center gap-5">
-                                {currentStep > 0 && (
-                                    <button type="button" className="btn btn-secondary ml-auto" onClick={HandlePrev}>Voltar</button>
-                                )}
+                            {!isLastStep && (
+                                <button type="button" className="btn btn-success" 
+                                    onClick={() => {
+                                        const form = formRef.current;
+                                        if (!form) return;
 
-                                {currentStep < totalSteps - 1 && (
-                                    <button type="button" className="btn btn-success" onClick={HandleNext}>Próximo</button>
-                                )}
+                                        form.classList.add("was-validated");
 
-                                {currentStep === totalSteps - 1 && (
-                                    <button type="submit" className="btn btn-success">Finalizar</button>
-                                )}
-                            </div>
-                        </form>
+                                        if (!form.checkValidity()) {
+                                        const firstInvalid = form.querySelector<HTMLElement>(":invalid");
+                                        if (firstInvalid) firstInvalid.focus();
+                                        return;
+                                        }
 
-                    </div>
+                                        form.classList.remove("was-validated");
+
+                                        nextStep();
+                                }}>
+                                    Próximo
+                                </button>
+                            )}
+
+                            {isLastStep && (
+                                <button type="submit" className="btn btn-success">
+                                    Finalizar
+                                </button>
+                            )}
+
+                        </div>
+                    </form>
                 </Modal.Body>
             </Modal>
         </>

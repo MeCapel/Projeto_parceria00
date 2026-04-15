@@ -1,3 +1,4 @@
+// ===== GERAL IMPORTS ======
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
 import { useState, useEffect, useContext } from "react";
@@ -7,6 +8,7 @@ import { db } from "../../firebaseConfig/config";
 import { PersonCircle, BoxArrowRight, InfoCircle } from "react-bootstrap-icons";
 import { AuthContext } from "../../context/AuthContext";
 
+// ===== INTERFACE TYPES =====
 interface AccountSettingsProps {
     isOpen: boolean;
     onOpen: () => void;
@@ -19,6 +21,8 @@ interface UserData {
     profileImage?: string; // Adicionado campo de imagem
 }
 
+// ===== MAIN COMPONENT =====
+// ----- Componente responsável por exbir pequeno menu de ações relacionadas a conta do usuário ao criar na foto de perfil no canto direito superior ----- 
 export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSettingsProps)
 {
     const { user, loading } = useContext(AuthContext);

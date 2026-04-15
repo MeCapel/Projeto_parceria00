@@ -84,39 +84,56 @@ export const getProjects = (callback: ( projects: ProjectProps[] ) => void ) => 
     });
 } 
 
-export const getUserProjects = ( userId: string, callback: ( projects: ProjectProps[] ) => void ) => {
-    try 
-    {
+export const getUserProjects = (
+    userId: string,
+    callback: (projects: ProjectProps[]) => void
+) => {
+    try {
         const collectionRef = collection(db, "projectMembers");
         const q = query(collectionRef, where("userId", "==", userId));
 
-        const unsubscribe = onSnapshot(q, async (snapshot) => {
+        let unsubscribeProjects: (() => void) | null = null;
+
+        const unsubscribeMembers = onSnapshot(q, (snapshot) => {
             const projectsIds = snapshot.docs.map(doc => doc.data().projectId);
 
-            if(projectsIds.length === 0)
-            {
+            // limpa listener anterior (IMPORTANTE)
+            if (unsubscribeProjects) {
+                unsubscribeProjects();
+                unsubscribeProjects = null;
+            }
+
+            if (projectsIds.length === 0) {
                 callback([]);
                 return;
             }
 
-            // O limite do Firestore para o operador 'in' é de 30 itens.
+            // limite do Firestore
+            const limitedIds = projectsIds.slice(0, 30);
+
             const projectsQuery = query(
                 collection(db, "projects"),
-                where(documentId(), "in", projectsIds.slice(0, 30))
+                where(documentId(), "in", limitedIds)
             );
 
-            const projectsSnap = await getDocs(projectsQuery);
-            const projectsList = projectsSnap.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            } as ProjectProps));
+            // agora SIM reativo
+            unsubscribeProjects = onSnapshot(projectsQuery, (projectsSnap) => {
+                const projectsList = projectsSnap.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                } as ProjectProps));
 
-            callback(projectsList);
+                callback(projectsList);
+            });
         });
 
-        return unsubscribe;
-    } 
-    catch (err) {
+        // cleanup completo
+        return () => {
+            unsubscribeMembers();
+            if (unsubscribeProjects) unsubscribeProjects();
+        };
+
+    } catch (err) {
         console.error(err);
         callback([]);
         return () => {};

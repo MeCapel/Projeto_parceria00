@@ -63,7 +63,7 @@ export default function MainFrame({ projectId } : MainFrameProps)
                                     <span className="fw-semibold">{item.name}</span>
                                 </div>
                             </td>
-                            <td className="px-4 text-secondary">{item.description}</td>
+                            <td className="px-4">{item.description}</td>
                             <td className="px-4">
                                 <span className="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill">
                                     {item.stage}

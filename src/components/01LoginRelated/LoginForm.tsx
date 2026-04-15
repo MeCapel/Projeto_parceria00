@@ -1,8 +1,11 @@
+// ===== GERAL IMPORTS =====
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { signIn } from '../../services/authServices'
 // import { Microsoft } from 'react-bootstrap-icons'
 
+// ===== MAIN COMPONENT =====
+// ----- Conponente responsável por formulário de login / entrar numa conta já cadastrada ----- 
 export default function LoginForm()
 {
     const [ email, setEmail ] = useState("");

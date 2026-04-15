@@ -14,7 +14,7 @@ export default function DividedByProgress({ projectId }: Props) {
     const [open, setOpen] = useState<Record<number, boolean>>({ 1: false, 2: false, 3: false });
     const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 768);
 
-    // ✅ RESPONSIVO SEM LIB
+    // RESPONSIVO SEM LIB
     useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth < 768);

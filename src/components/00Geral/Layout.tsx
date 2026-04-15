@@ -1,12 +1,16 @@
+// ===== GERAL IMPORTS =====
 import React, { useState, useEffect } from "react";
 import Header from './Header'
 import Sidebar from './Sidebar'
 import FloatingChat from "./FloatingChat";
 
+// ===== INTERFACE TYPES ======
 interface LayoutProps {
     children: React.ReactNode;
 }
 
+// ===== MAIN COMPONENT =====
+// ----- Componente responsável por juntar o header e sidebar, recebe children -----
 export default function Layout({ children }: LayoutProps)
 {
     const [sidebarWidth, setSidebarWidth] = useState<number>(0);

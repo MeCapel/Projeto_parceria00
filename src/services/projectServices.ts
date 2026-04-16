@@ -162,15 +162,6 @@ export const deleteProjectNPrototypes = async ( projectId: string ) => {
         const userId = user?.uid;
         if (!userId) return;
 
-        const userRole = await getUserRole(projectId);
-        if (userRole !== "owner" && userRole !== "admin")
-        {
-            console.error(`Você não tem permissão!`);
-            console.error(`${userRole}`);
-
-            return;
-        }
-
         // ----- Delete all prototypes that got project id attach to them ----- 
 
         const prototypesRef = collection(db, "prototypes");
@@ -354,7 +345,6 @@ export const changeMemberRole = async (
 
         const memberData = docSnap.data();
 
-        // 🔒 não mexer no owner
         if (memberData.role === "owner") {
             console.error("Não é possível alterar o owner");
             return;
@@ -381,14 +371,6 @@ export const dropMember = async (projectId: string, userId: string) => {
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) return;
-
-        const memberData = docSnap.data();
-
-        // 🔒 impedir remover owner
-        if (memberData.role === "owner") {
-            console.error("Não é possível remover o owner");
-            return;
-        }
 
         await deleteDoc(docRef);
 

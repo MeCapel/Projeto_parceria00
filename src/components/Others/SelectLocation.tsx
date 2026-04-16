@@ -20,13 +20,13 @@ export default function SelectLocation({ stateValue, cityValue, onChangeState, o
         setSelectedState(value);
 
         onChangeState({
-            target: { value }
+            target: { name: "state", value }
         } as ChangeEvent<HTMLSelectElement>);
 
         onChangeCity({
-            target: { value: "" }
+            target: { name: "city", value: "" }
         } as ChangeEvent<HTMLSelectElement>);
-        }
+    }
 
     function handleCityChange(e: ChangeEvent<HTMLSelectElement>) {
         onChangeCity(e);
@@ -42,7 +42,7 @@ export default function SelectLocation({ stateValue, cityValue, onChangeState, o
                     onChange={handleStateChange}
                     required={requiredState}
                     options={[
-                        { value: "", label: "Selecione o estado" },
+                        { value: "", label: "Selecione o estado", disabled: true },
                         ...states
                     ]}
                 />
@@ -56,7 +56,7 @@ export default function SelectLocation({ stateValue, cityValue, onChangeState, o
                     onChange={handleCityChange}
                     required={requiredCity}
                     options={[
-                        { value: "", label: "Selecione a cidade" },
+                        { value: "", label: "Selecione a cidade", disabled: true },
                         ...cities
                     ]}
                 />

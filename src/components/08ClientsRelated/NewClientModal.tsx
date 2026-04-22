@@ -6,6 +6,7 @@ import CrudModal from "../Others/CrudModal";
 import type { ClientProps } from "../../services/clientServices";
 import FormInput from "../forms/FormInput";
 import SelectLocation from "../Others/SelectLocation";
+import FormFoneInput from "../forms/FormInputFone";
 
 interface Props {
   show: boolean;
@@ -71,13 +72,9 @@ export default function NewClientModal({ show, onClose, onCreated }: Props) {
             minLength={3}
         />
 
-        <FormInput
-            label="Telefone"
-            name="fone"
+        <FormFoneInput
             value={values.fone}
             onChange={handleChange}
-            required
-            minLength={3}
         />
         
         <SelectLocation

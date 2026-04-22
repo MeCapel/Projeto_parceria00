@@ -9,6 +9,7 @@ import { Trash3Fill } from "react-bootstrap-icons";
 import { useForm } from "../hooks/useForm";
 import { CrudTable } from "../components/Others/CrudTable";
 import SelectLocation from "../components/Others/SelectLocation";
+import FormFoneInput from "../components/forms/FormInputFone";
 
 export interface ClientForm {
     name: string;
@@ -21,8 +22,6 @@ export interface ClientForm {
 
 export default function Clients()
 {
-    // const myRegex = new RegExp("/^(\+55|55)?\s?\(?[1-9]{2}\)?\s?(9?\d{4})[-.\s]?(\d{4})$/");
-
     const { clients, createClient, updateClient, deleteClient } = useClients();
 
     const [showModal, setShowModal] = useState<boolean>(false);
@@ -161,14 +160,9 @@ export default function Clients()
                                 minLength={3}
                             />
 
-                            <FormInput
-                                label="Telefone"
-                                name="fone"
+                            <FormFoneInput
                                 value={values.fone}
                                 onChange={handleChange}
-                                required
-                                minLength={3}
-                                // regEx={myRegex.toString()}
                             />
                             
                             <SelectLocation

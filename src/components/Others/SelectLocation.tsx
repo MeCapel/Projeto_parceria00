@@ -7,11 +7,9 @@ interface Props {
   cityValue: string
   onChangeState: (e: ChangeEvent<HTMLSelectElement>) => void
   onChangeCity: (e: ChangeEvent<HTMLSelectElement>) => void
-  requiredState?: boolean
-  requiredCity?: boolean
 }
 
-export default function SelectLocation({ stateValue, cityValue, onChangeState, onChangeCity, requiredState, requiredCity }: Props) {
+export default function SelectLocation({ stateValue, cityValue, onChangeState, onChangeCity }: Props) {
     const { states, cities, setSelectedState } = useLocation();
 
     function handleStateChange(e: ChangeEvent<HTMLSelectElement>) {
@@ -40,7 +38,7 @@ export default function SelectLocation({ stateValue, cityValue, onChangeState, o
                     name="state"
                     value={stateValue}
                     onChange={handleStateChange}
-                    required={requiredState}
+                    required
                     options={[
                         { value: "", label: "Selecione o estado", disabled: true },
                         ...states
@@ -54,7 +52,7 @@ export default function SelectLocation({ stateValue, cityValue, onChangeState, o
                     name="city"
                     value={cityValue}
                     onChange={handleCityChange}
-                    required={requiredCity}
+                    required
                     options={[
                         { value: "", label: "Selecione a cidade", disabled: true },
                         ...cities

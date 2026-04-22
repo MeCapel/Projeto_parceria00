@@ -82,7 +82,7 @@ export default function SignInForm()
                 
                 <div className="d-flex flex-column gap-3">
                     <label htmlFor="usernameInput" className="fs-5">Nome</label>
-                    <input type="text" name="" id="usernameInput" className="py-2 px-3 fs-5 rounded-2" 
+                    <input type="text" name="" id="usernameInput" className="py-2 px-3 fs-5 rounded-2"  placeholder="Seu nome"
                            style={{ border: '1px solid var(--gray00)'}} onChange={(e) => setUserName(e.target.value)} required/>
                 </div>
 
@@ -95,12 +95,12 @@ export default function SignInForm()
 
                 <div className="d-flex flex-column gap-3">
                     <label htmlFor="passwordInput" className="fs-5">Senha</label>
-                    <input type="password" name="" id="passwordInput" className="py-2 px-3 fs-5 rounded-2" required
+                    <input type="password" name="" id="passwordInput" className="py-2 px-3 fs-5 rounded-2" required placeholder="Insira a sua senha"
                            style={{ border: '1px solid var(--gray00)'}} onChange={(e) => setPassword(e.target.value)}/>
                 </div>
 
                 <button className="btn-custom btn-custom-outline-black fs-5 mt-4" type="submit" disabled={loading}>
-                    <p className='mb-0 text-custom-white'>{loading ? "Criando..." : "Criar"}</p>
+                    <p className='mb-0'>{loading ? "Criando..." : "Criar"}</p>
                 </button>
 
             </form>

@@ -27,20 +27,20 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
     const openModal = () => setIsOpen(true)
     const closeModal = () => setIsOpen(false)
 
-    // 🔐 pega user atual
+    // pega user atual
     useEffect(() => {
         const user = getCurrentUser()
         setCurrentUserId(user?.uid || null)
     }, [])
 
-    // 🔐 pega role do user atual no projeto
+    // pega role do user atual no projeto
     useEffect(() => {
         if (!projectId) return
 
         getUserRole(projectId).then(setCurrentUserRole)
     }, [projectId])
 
-    // 📡 carrega membros (só quando abre)
+    // carrega membros (só quando abre)
     useEffect(() => {
         if (!isOpen) return
 
@@ -63,7 +63,7 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
     const canManage =
         currentUserRole === "admin" || currentUserRole === "owner"
 
-    // 🧨 remover membro
+    // remover membro
     const handleRemove = async (userId: string) => {
         if (!canManage) return
         if (userId === currentUserId) return
@@ -71,7 +71,7 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
         await dropMember(projectId, userId)
     }
 
-    // 🔄 mudar role
+    // mudar role
     const handleChangeRole = async (userId: string, role: string) => {
         if (!canManage) return
         if (userId === currentUserId) return

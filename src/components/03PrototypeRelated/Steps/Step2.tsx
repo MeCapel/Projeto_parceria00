@@ -30,8 +30,6 @@ export default function Step2({ values, errors, onChange, isFieldRequired }: Ste
                             cityValue={values.city || ""}
                             onChangeState={(e) => onChange("state", e.target.value)}
                             onChangeCity={(e) => onChange("city", e.target.value)}
-                            requiredState={isFieldRequired("state")}
-                            requiredCity={isFieldRequired("city")}
                         />
 
                         <FormInput

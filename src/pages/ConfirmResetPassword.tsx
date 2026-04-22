@@ -82,7 +82,7 @@ export default function ConfirmResetPassword()
                 </div>
 
                 <button className="btn-custom btn-custom-success fs-5 mt-4" type='submit'>
-                    <p className='mb-0 text-custom-white'>Salvar nova senha</p>
+                    <p className='mb-0' >Salvar nova senha</p>
                 </button>
 
             </form>

@@ -47,7 +47,7 @@ export default function ResetPassword()
                 </div>
 
                 <button className="btn-custom btn-custom-success fs-5 mt-4" type='submit'>
-                    <p className='mb-0 text-custom-white'>Salvar</p>
+                    <p className='mb-0'>Salvar</p>
                 </button>
 
             </form>

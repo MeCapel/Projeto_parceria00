@@ -68,12 +68,12 @@ export default function LoginForm()
                         <label htmlFor="passwordInput" className="fs-5">Senha</label>
                         <p className="fs-5 mb-0 text-link-custom" onClick={() => navigate("/resetPassword")}>Esqueçeu a senha?</p>
                     </div>
-                    <input type="password" name="" id="passwordInput" className="py-2 px-3 fs-5 rounded-2" required
+                    <input type="password" name="" id="passwordInput" className="py-2 px-3 fs-5 rounded-2" required placeholder='Insira a sua senha'
                            style={{ border: '1px solid var(--gray00)'}} onChange={(e) => setPassword(e.target.value)}/>
                 </div>
 
-                <button className="btn-custom btn-custom-outilne-black fs-5 mt-4" type='submit' disabled={loading}>
-                    <p className='mb-0 text-custom-white'>{loading ? "Entrando..." : "Entrar"}</p>
+                <button className="btn-custom btn-custom-outline-black fs-5 mt-4" type='submit' disabled={loading}>
+                    <p className='mb-0'>{loading ? "Entrando..." : "Entrar"}</p>
                 </button>
 
                 {/* <div className="d-flex align-items-center justify-content-center gap-4">

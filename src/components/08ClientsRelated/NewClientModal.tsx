@@ -20,8 +20,9 @@ export default function NewClientModal({ show, onClose, onCreated }: Props) {
 
   const { values, handleChange, reset } = useForm<ClientForm>({
     name: "",
+    clientFone: "",
     revend: "",
-    fone: "",
+    revendFone: "",
     state: "",
     city: "",
     area: "",
@@ -54,28 +55,43 @@ export default function NewClientModal({ show, onClose, onCreated }: Props) {
   return (
     <CrudModal show={show} title="Novo cliente" onClose={onClose}>
       <form ref={formRef} onSubmit={handleNew} noValidate className="d-flex flex-column gap-3">
-        <FormInput
-            label="Nome"
-            name="name"
-            value={values.name}
-            onChange={handleChange}
-            required
-            minLength={3}
-        />
+        <div className="d-flex flex-column gap-3">
+            <div className="d-flex gap-3">
+                <FormInput
+                    label="Nome"
+                    name="name"
+                    value={values.name}
+                    onChange={handleChange}
+                    required
+                    minLength={3}
+                />
 
-        <FormInput
-            label="Revenda"
-            name="revend"
-            value={values.revend}
-            onChange={handleChange}
-            required
-            minLength={3}
-        />
+                <FormFoneInput
+                    label="Telefone do client"
+                    name="clientFone"
+                    value={values.clientFone}
+                    onChange={handleChange}
+                />
+            </div>
 
-        <FormFoneInput
-            value={values.fone}
-            onChange={handleChange}
-        />
+            <div className="d-flex gap-3">
+                <FormInput
+                    label="Revenda"
+                    name="revend"
+                    value={values.revend}
+                    onChange={handleChange}
+                    required
+                    minLength={3}
+                />
+
+                <FormFoneInput
+                    label="Telefone da revenda"
+                    name="revendFone"
+                    value={values.revendFone}
+                    onChange={handleChange}
+                />
+            </div>
+        </div>
         
         <SelectLocation
             stateValue={values.state}

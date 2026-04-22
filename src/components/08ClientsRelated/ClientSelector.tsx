@@ -75,7 +75,7 @@ export default function ClientSelector({ value, onSelect }: Props) {
                         {clients.map(c => (
                             <li
                             key={c.id}
-                            className="d-flex gap-3 p-3 border rounded-3 hover-shadow cursor-pointer transition"
+                            className="d-flex gap-3 align-items-center justify-content-between p-3 border rounded-3 hover-shadow cursor-pointer transition"
                             style={{ cursor: "pointer" }}
                             onClick={() => {
                                 onSelect(c);
@@ -87,8 +87,16 @@ export default function ClientSelector({ value, onSelect }: Props) {
                                     <span>{c.name}</span>
                                 </div>
                                 <div className="d-flex justify-content-between gap-1">
+                                    <p className="mb-0 fw-semibold">Telefone do cliente:</p>
+                                    <span>{c.clientFone}</span>
+                                </div>
+                                <div className="d-flex justify-content-between gap-1">
                                     <p className="mb-0 fw-semibold">Revenda:</p>
                                     <span>{c.revend}</span>
+                                </div>
+                                <div className="d-flex justify-content-between gap-1">
+                                    <p className="mb-0 fw-semibold">Telefone da revenda:</p>
+                                    <span>{c.revendFone}</span>
                                 </div>
                                 <div className="d-flex justify-content-between gap-1">
                                     <p className="mb-0 fw-semibold">Localização:</p>
@@ -127,7 +135,9 @@ export default function ClientSelector({ value, onSelect }: Props) {
                     <thead className="table-light">
                         <tr>
                             <th className="py-3 px-4 text-custom-black fw-bold">Nome</th>
+                            <th className="py-3 px-4 text-custom-black fw-bold">Telefone do cliente</th>
                             <th className="py-3 px-4 text-custom-black fw-bold">Revenda</th>
+                            <th className="py-3 px-4 text-custom-black fw-bold">Telefone da revenda</th>
                             <th className="py-3 px-4 text-custom-black fw-bold">Cidade / Estado</th>
                             <th className="py-3 px-4 text-custom-black fw-bold">Área</th>
                         </tr>
@@ -141,7 +151,13 @@ export default function ClientSelector({ value, onSelect }: Props) {
                             </td>
 
                             <td className="px-4 text-muted">
+                                {selectedClient.clientFone}
+                            </td>
+                            <td className="px-4 text-muted">
                                 {selectedClient.revend}
+                            </td>
+                            <td className="px-4 text-muted">
+                                {selectedClient.revendFone}
                             </td>
 
                             <td className="px-4 text-muted">

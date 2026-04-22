@@ -10,8 +10,9 @@ import { getCurrentUser } from "../services/authServices";
 
 interface CreateClientDTO {
     name: string,
+    clientFone: string,
     revend: string,
-    fone: string,
+    revendFone: string,
     state: string,
     city: string,
     area: string,
@@ -20,8 +21,9 @@ interface CreateClientDTO {
 interface UpdateClientDTO {
     id: string,
     name: string,
+    clientFone: string,
     revend: string,
-    fone: string,
+    revendFone: string,
     state: string,
     city: string,
     area: string,
@@ -57,8 +59,9 @@ export const useClients = () => {
 
         const id = await createClientService(
             data.name,
+            data.clientFone,
             data.revend,
-            data.fone,
+            data.revendFone,
             data.state,
             data.city,
             data.area
@@ -82,7 +85,7 @@ export const useClients = () => {
     };
 
     const updateClient = async (data: UpdateClientDTO) => {
-        await updateClientService(data.id, data.name, data.revend, data.fone, data.state, data.city, data.area);
+        await updateClientService(data.id, data.name, data.clientFone, data.revend, data.revendFone, data.state, data.city, data.area);
     }
 
     const deleteClient = async (clientId: string) => {

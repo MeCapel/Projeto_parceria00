@@ -4,24 +4,26 @@ import { db } from "../firebaseConfig/config";
 import { addDoc, deleteDoc, collection, doc, updateDoc, onSnapshot, serverTimestamp, getDoc } from 'firebase/firestore';
 
 export interface ClientProps {
-  id: string;
-  name: string;
-  revend: string;
-  fone: string;
-  state: string,
-  city: string,
-  area: string;
+    id: string;
+    name: string,
+    clientFone: string,
+    revend: string,
+    revendFone: string,
+    state: string,
+    city: string,
+    area: string,
 }
 
 const clientsCollectionRef = collection(db, "clients");
 
 // ----- Função para cadastrar -----
-export const createClient = async (name: string, revend: string, fone: string, state: string, city: string, area: string) => {
+export const createClient = async (name: string, clientFone: string, revend: string, revendFone: string, state: string, city: string, area: string) => {
     try {
         const docRef = await addDoc(clientsCollectionRef, {
             name,
+            clientFone,
             revend,
-            fone,
+            revendFone,
             state,
             city,
             area,
@@ -36,10 +38,18 @@ export const createClient = async (name: string, revend: string, fone: string, s
 }
 
 // ----- Função para atualizar -----
-export const updateClient = async (clientId: string, name: string, revend: string, fone: string, state: string, city: string, area: string) => {
+export const updateClient = async (clientId: string, name: string, clientFone: string, revend: string, revendFone: string, state: string, city: string, area: string) => {
     try {
         const clienteRef = doc(db, "clients", clientId);
-        await updateDoc(clienteRef, { name, revend, fone, state, city, area });
+        await updateDoc(clienteRef, { 
+            name,
+            clientFone,
+            revend,
+            revendFone,
+            state,
+            city,
+            area,
+        });
     } catch (err) {
         console.error(err);
         toast.error(`Erro ao atualizar cliente`);

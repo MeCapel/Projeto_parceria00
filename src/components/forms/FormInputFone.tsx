@@ -1,9 +1,11 @@
 interface Props {
+    label: string,
+    name: string,
     value: string | number,
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
 }
 
-export default function FormFoneInput({ value, onChange }: Props) {
+export default function FormFoneInput({ label, name, value, onChange }: Props) {
 
     function formatFone(value: string) {
         const numbers = value.replace(/\D/g, "").slice(0, 13);
@@ -38,7 +40,7 @@ export default function FormFoneInput({ value, onChange }: Props) {
             ...e,
             target: {
                 ...e.target,
-                name: "fone",
+                name: name,
                 value: formatted
             }
         };
@@ -49,14 +51,14 @@ export default function FormFoneInput({ value, onChange }: Props) {
     return (
         <div className="form-floating w-100">
             <input 
-                name="fone"
+                name={name}
                 value={value}
-                placeholder="Telefone"
+                placeholder={label}
                 onChange={handleChange}
                 className="form-control"
                 required
             />
-            <label>Telefone</label>
+            <label>{label}</label>
         </div>
     );
 }

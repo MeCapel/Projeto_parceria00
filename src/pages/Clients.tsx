@@ -12,12 +12,13 @@ import SelectLocation from "../components/Others/SelectLocation";
 import FormFoneInput from "../components/forms/FormInputFone";
 
 export interface ClientForm {
-    name: string;
-    revend: string;
-    fone: string;
+    name: string,
+    clientFone: string,
+    revend: string,
+    revendFone: string,
     state: string,
     city: string,
-    area: string;
+    area: string,
 }
 
 export default function Clients()
@@ -31,8 +32,9 @@ export default function Clients()
     const formRef = useRef<HTMLFormElement | null>(null);
     const { values, setValues, handleChange, reset } = useForm<ClientForm>({
         name: "",
+        clientFone: "",
         revend: "",
-        fone: "",
+        revendFone: "",
         state: "",
         city: "",
         area: "",
@@ -53,8 +55,9 @@ export default function Clients()
 
         setValues({
             name: client.name,
+            clientFone: client.clientFone,
             revend: client.revend,
-            fone: client.fone,
+            revendFone: client.revendFone,
             state: client.state,
             city: client.city,
             area: client.area,
@@ -112,7 +115,7 @@ export default function Clients()
 
                 list={
                     <CrudTable
-                        headers={["Nome", "Revenda", "Telefone", "Estado", "Cidade", "Área"]}
+                        headers={["Nome", "Telefone do cliente", "Revenda", "Telefone da revenda", "Estado", "Cidade", "Área"]}
 
                         data={clients}
 
@@ -121,8 +124,9 @@ export default function Clients()
                         renderRow={(c) => (
                             <>
                                 <td className="px-4 text-secondary">{c.name}</td>
+                                <td className="px-4 text-secondary">{c.clientFone}</td>
                                 <td className="px-4 text-secondary">{c.revend}</td>
-                                <td className="px-4 text-secondary">{c.fone}</td>
+                                <td className="px-4 text-secondary">{c.revendFone}</td>
                                 <td className="px-4 text-secondary">{c.state}</td>
                                 <td className="px-4 text-secondary">{c.city}</td>
                                 <td className="px-4 text-secondary">{c.area}</td>
@@ -142,28 +146,43 @@ export default function Clients()
                         edit={!!editingClientId}
                     >
                         <form ref={formRef} onSubmit={handleSave} noValidate className="d-flex flex-column gap-3">
-                            <FormInput
-                                label="Nome"
-                                name="name"
-                                value={values.name}
-                                onChange={handleChange}
-                                required
-                                minLength={3}
-                            />
+                            <div className="d-flex flex-column gap-3">
+                                    <div className="d-flex gap-3">
+                                    <FormInput
+                                        label="Nome"
+                                        name="name"
+                                        value={values.name}
+                                        onChange={handleChange}
+                                        required
+                                        minLength={3}
+                                    />
 
-                            <FormInput
-                                label="Revenda"
-                                name="revend"
-                                value={values.revend}
-                                onChange={handleChange}
-                                required
-                                minLength={3}
-                            />
+                                    <FormFoneInput
+                                        label="Telefone do client"
+                                        name="clientFone"
+                                        value={values.clientFone}
+                                        onChange={handleChange}
+                                    />
+                                </div>
 
-                            <FormFoneInput
-                                value={values.fone}
-                                onChange={handleChange}
-                            />
+                                <div className="d-flex gap-3">
+                                    <FormInput
+                                        label="Revenda"
+                                        name="revend"
+                                        value={values.revend}
+                                        onChange={handleChange}
+                                        required
+                                        minLength={3}
+                                    />
+
+                                    <FormFoneInput
+                                        label="Telefone da revenda"
+                                        name="revendFone"
+                                        value={values.revendFone}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            </div>
                             
                             <SelectLocation
                                 stateValue={values.state}

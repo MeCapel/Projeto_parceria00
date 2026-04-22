@@ -40,10 +40,10 @@ export default function NewMemberModal({ projectId } : Props)
 
     return(
         <>
-            <button className="btn-custom btn-custom-primary px-4 shadow-sm" onClick={openModal}>
+            <button className="btn-custom btn-custom-outline-black px-4 shadow-sm" onClick={openModal}>
                 <div className="mb-0 fs-6 d-flex gap-2 align-items-center fw-bold">
-                    Adicionar membro
                     <PlusLg size={20} />
+                    Adicionar membro
                 </div>
             </button>
 
@@ -59,37 +59,10 @@ export default function NewMemberModal({ projectId } : Props)
 
                     <form ref={formRef} className="w-100 mt-0 pt-0 px-3 px-lg-5" onSubmit={handleNewProjectMember} noValidate>
                         
-                        <div className="">
+                        <div className="pb-3">
                             <p className="fs-5 mb-0 text-custom-red">Adicionar</p>
                             <h1 className="text-custom-black fw-bold mb-1 fs-3 fs-md-2">Novo membro</h1>
                         </div>
-                        
-                <div className="row g-3 my-4 align-items-end">
-    
-                    <div className="row g-3 my-4 align-items-end">
-                        <div className="form-floating w-100"></div>
-                        <input 
-                        id='input1'
-                        required 
-                        type="text" 
-                        minLength={3}
-                        maxLength={25}
-                        className='form-control' 
-                        placeholder='Nome do projeto*' 
-                            />
-                    <label htmlFor="input1">Email do usuário</label>
-                    </div>
-
-                        <div className="col-12 col-lg-auto"></div>
-                           <button 
-                             style={{ height: "3.5rem" }}
-                             type='submit'
-                             className='btn-custom btn-custom-outline-success d-flex align-items-center justify-content-center gap-3 w-100'>
-                             Adicionar
-                             <PlusLg size={18}/>
-                          </button>
-
-                </div>
 
                         <AddNewMember projectId={projectId} />
                         

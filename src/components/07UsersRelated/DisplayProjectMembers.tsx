@@ -83,11 +83,12 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
         <>
             {/* BOTÃO */}
             <button
-                className="btn-custom btn-custom-outline-primary px-4"
+                className="btn-custom btn-custom-outline-black px-4"
                 onClick={openModal}
             >
                 <div className="mb-0 fs-6 d-flex gap-2 align-items-center fw-bold">
-                    Gerenciar membros <People size={20} />
+                    <People size={20} />
+                    Gerenciar membros 
                 </div>
             </button>
 

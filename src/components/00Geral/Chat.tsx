@@ -128,7 +128,7 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
                     </div>
                 ) : messages.length === 0 ? (
                     <div className="d-flex h-100 align-items-center justify-content-center text-muted">
-                        <div className="bg-white px-3 py-1 rounded-pill shadow-sm small border">Inicie uma conversa!</div>
+                        <div className="bg-white px-3 py-1 rounded-3 shadow-sm small border">Inicie uma conversa!</div>
                     </div>
                 ) : (
                     messages.map((msg) => {
@@ -242,8 +242,8 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
             <div className="chat-input-area p-3 mt-auto border-top">
                 <form onSubmit={handleSend} className="d-flex align-items-center gap-2">
                     {!editingId && (
-                        <button type="button" className="btn-custom shadow-sm d-flex align-items-center justify-content-center border p-0" style={{ width: "40px", height: "40px", flexShrink: 0 }} onClick={() => fileInputRef.current?.click()}>
-                            <Paperclip size={20} className="text-primary" />
+                        <button type="button" className="btn-custom btn-custom-gray shadow-sm d-flex align-items-center justify-content-center border p-0" style={{ width: "40px", height: "40px", flexShrink: 0 }} onClick={() => fileInputRef.current?.click()}>
+                            <Paperclip size={20} className="" />
                         </button>
                     )}
                     <input type="file" ref={fileInputRef} style={{ display: "none" }} accept="image/*" onChange={(e) => {
@@ -254,8 +254,8 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
                             reader.readAsDataURL(file);
                         }
                     }} />
-                    <input type="text" className="form-control rounded-pill border shadow-sm px-4" placeholder={editingId ? "Edite sua mensagem..." : "Escreva algo..."} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} style={{ fontSize: "0.95rem", height: "40px" }} />
-                    <button type="submit" className="btn-custom btn-custom-primary shadow-sm d-flex align-items-center justify-content-center p-0" style={{ width: "40px", height: "40px", flexShrink: 0 }} disabled={!newMessage.trim() && !selectedImage}>
+                    <input type="text" className="form-control rounded-3 border shadow-sm px-4" placeholder={editingId ? "Edite sua mensagem..." : "Escreva algo..."} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} style={{ fontSize: "0.95rem", height: "40px" }} />
+                    <button type="submit" className="btn-custom btn-custom-gray shadow-sm d-flex align-items-center justify-content-center border p-0" style={{ width: "40px", height: "40px", flexShrink: 0 }} disabled={!newMessage.trim() && !selectedImage}>
                         <SendFill size={18} />
                     </button>
                 </form>

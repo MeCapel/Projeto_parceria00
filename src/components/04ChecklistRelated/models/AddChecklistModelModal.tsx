@@ -295,7 +295,7 @@ export default function AddChecklistModel() {
                         </div>
                         {/* Submit */}
                         <div className="d-flex align-items-center justify-content-end">
-                            <button className="btn-custom btn-custom-success rounded-pill px-4 fw-bold" type="submit" disabled={loading}>
+                            <button className="btn-custom btn-custom-success px-4 fw-bold" type="submit" disabled={loading}>
                                 {loading ? "Adicionando..." : "Criar modelo"}
                             </button>
                         </div>

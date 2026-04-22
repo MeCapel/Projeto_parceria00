@@ -3,17 +3,16 @@ import { useState } from "react"
 import type { ChecklistProps } from "../../../services/checklistServices"
 import ChecklistCardMenu from "./ChecklistModelCardMenu"
 import EditChecklistModelModal from "./EditChecklistModelModal"
-import DeleteChecklistModal from "./DeleteChecklistModelModal"
 
 // ===== TYPE INTERFACE =====
-interface Props {
+interface CardProps {
   checklist: ChecklistProps
   inline?: boolean
 }
 
 // ===== MAIN COMPONENT =====
 // ----- This component is the card responsable for displaying checklist's data -----
-export default function ChecklistCard({ checklist, inline }: Props) {
+export default function ChecklistCard({ checklist, inline }: CardProps) {
 
   const [showEdit, setShowEdit] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
@@ -40,14 +39,14 @@ export default function ChecklistCard({ checklist, inline }: Props) {
 
           <div className="d-flex gap-2">
             <button
-              className="btn-custom btn-custom-outline-secondary btn-sm rounded-pill px-3"
+              className="btn-custom btn-custom-outline-secondary px-3"
               onClick={() => setShowEdit(true)}
             >
               Editar
             </button>
 
             <button
-              className="btn-custom btn-custom-primary btn-sm rounded-pill px-3"
+              className="btn-custom btn-custom-primary px-3"
               onClick={() => setShowDelete(true)}
             >
               Excluir
@@ -106,5 +105,47 @@ export default function ChecklistCard({ checklist, inline }: Props) {
         />
       )}
     </>
+  )
+}
+
+/// ===== GERAL IMPORTS =====
+import { useNavigate } from "react-router"
+import { deleteChecklistModel } from "../../../services/checklistServices"
+import { Modal } from "react-bootstrap"
+import { Trash3Fill } from "react-bootstrap-icons"
+
+// ===== TYPE INTERFACE =====
+interface Props {
+  checklistId: string
+  onClose: () => void
+}
+
+// ===== MAIN COMPONENT =====
+// ----- This component is responsable for deleting and validated deleting operation for a checklist model ----- 
+function DeleteChecklistModal({ checklistId, onClose }: Props) {
+
+  const navigate = useNavigate()
+
+  const handleDelete = async () => {
+
+    await deleteChecklistModel(checklistId)
+
+    onClose()
+    navigate("/home")
+
+  }
+
+  return (
+      <Modal show onHide={onClose} centered>
+          <Modal.Body className="text-center p-5">
+              <Trash3Fill size={50} className="text-danger mb-4" />
+              <h4 className="fw-bold mb-3">Excluir?</h4>
+              <p className="text-muted mb-5">Esta ação não pode ser desfeita.</p>
+              <div className="d-flex gap-3 justify-content-center">
+                  <button className="btn-custom btn-custom-outline-secondary px-4 rounded-3 shadow-sm" onClick={onClose}>Cancelar</button>
+                  <button className="btn-custom btn-custom-primary px-4 rounded-3 shadow-sm" onClick={handleDelete}>Excluir</button>
+              </div>
+          </Modal.Body>
+      </Modal>
   )
 }

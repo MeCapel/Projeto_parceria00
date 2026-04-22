@@ -178,16 +178,16 @@ export default function ProjectsPage() {
                         Esta ação não pode ser desfeita.
                     </p>
 
-                    <div className="d-flex gap-2 justify-content-center">
+                    <div className="d-flex gap-3 justify-content-center">
                         <button 
-                            className="btn-custom btn-custom-outline-secondary px-4 rounded-pill"
+                            className="btn-custom btn-custom-outline-secondary px-4"
                             onClick={() => setProjectToDelete(null)}
                         >
                             Cancelar
                         </button>
 
                         <button 
-                            className="btn-custom btn-custom-primary px-4 rounded-pill shadow-sm"
+                            className="btn-custom btn-custom-outline-primary px-4 shadow-sm"
                             onClick={confirmDelete}
                         >
                             Excluir

@@ -158,7 +158,7 @@ export default function AddNewMember({ projectId }: Props) {
                             <button
                                 type="button"
                                 onClick={() => handleNewMember(user)}
-                                className="btn-custom btn-custom-outline-success px-2 py-1"
+                                className="btn-custom btn-custom-outline-black p-2"
                                 style={{ whiteSpace: "nowrap" }}
                             >
                                 Adicionar

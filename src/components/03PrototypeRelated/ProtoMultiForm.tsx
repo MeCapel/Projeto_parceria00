@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import Step1 from "./Steps/Step1";
 import Step2 from "./Steps/Step2";
 import Step3 from "./Steps/Step3";
+import { PlusLg } from "react-bootstrap-icons";
 
 interface Props {
     projectId: string
@@ -71,8 +72,11 @@ export default function ProtoMultiForm({ projectId }: Props) {
 
     return (
         <>
-            <button className="btn-custom btn-custom-primary" onClick={openModal}>
-                <p className="mb-0 fs-5 text-custom-white">Novo protótipo</p>
+            <button className="btn-custom btn-custom-outline-black" onClick={openModal}>
+                <div className="mb-0 fs-6 d-flex gap-2 align-items-center fw-bold">
+                    <PlusLg size={20} />
+                    Novo protótipo
+                </div>
             </button>
 
             <Modal show={show} onHide={closeModal} centered size="lg">
@@ -114,13 +118,13 @@ export default function ProtoMultiForm({ projectId }: Props) {
                         <div className="mt-5 d-flex align-items-center justify-content-center gap-5">
 
                             {!isFirstStep && (
-                                <button type="button" className="btn btn-secondary ml-auto" onClick={prevStep}>
+                                <button type="button" className="btn-custom btn-custom-gray border shadow-sm" onClick={prevStep}>
                                     Voltar
                                 </button>
                             )}
 
                             {!isLastStep && (
-                                <button type="button" className="btn btn-success" 
+                                <button type="button" className="btn-custom btn-custom-success" 
                                     onClick={() => {
                                         const form = formRef.current;
                                         if (!form) return;
@@ -142,7 +146,7 @@ export default function ProtoMultiForm({ projectId }: Props) {
                             )}
 
                             {isLastStep && (
-                                <button type="submit" className="btn btn-success">
+                                <button type="submit" className="btn-custom btn-custom-success">
                                     Finalizar
                                 </button>
                             )}

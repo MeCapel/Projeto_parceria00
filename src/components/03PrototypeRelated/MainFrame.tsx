@@ -65,7 +65,7 @@ export default function MainFrame({ projectId } : MainFrameProps)
                             </td>
                             <td className="px-4">{item.description}</td>
                             <td className="px-4">
-                                <span className="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill">
+                                <span className="badge bg-danger-subtle text-danger px-3 py-2 rounded-3">
                                     {item.stage}
                                 </span>
                             </td>

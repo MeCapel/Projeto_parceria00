@@ -283,9 +283,9 @@ export default function PrototypePage() {
                         <Trash3Fill size={50} className="text-danger mb-4" />
                         <h4 className="fw-bold mb-3">Excluir protótipo?</h4>
                         <p className="text-muted mb-5">Esta ação não pode ser desfeita.</p>
-                        <div className="d-flex gap-2 justify-content-center">
-                            <button className="btn btn-light px-4 rounded-pill" onClick={closeModal}>Cancelar</button>
-                            <button className="btn btn-danger px-4 rounded-pill shadow-sm" onClick={handleDelete}>Excluir</button>
+                        <div className="d-flex gap-3 justify-content-center">
+                            <button className="btn-custom btn-custom-gray shadow border px-4 rounded-3" onClick={closeModal}>Cancelar</button>
+                            <button className="btn-custom btn-custom-outline-primary" onClick={handleDelete}>Excluir</button>
                         </div>
                     </Modal.Body>
                 </Modal>

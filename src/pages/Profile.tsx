@@ -121,9 +121,9 @@ export default function Profile() {
                     <div className="px-5 pb-5">
                         {/* Foto de Perfil Grande */}
                         <div className="d-flex align-items-center justify-content-center rounded-circle shadow border bg-white position-relative overflow-hidden"
-                            style={{ height: "160px", width: "150px", top: "-80px", border: "5px solid white !important" }}>
+                            style={{ height: "160px", width: "160px", top: "-80px", border: "5px solid white" }}>
                             {userData?.profileImage ? (
-                                <img src={userData.profileImage} alt="Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <img src={userData.profileImage} alt="Perfil" style={{ objectFit: 'cover' }} />
                             ) : (
                                 <PersonCircle size={80} className="text-secondary opacity-50" />
                             )}
@@ -136,7 +136,7 @@ export default function Profile() {
                                     <p className="text-muted fs-6 mb-0">Colaborador Baldan</p>
                                 </div>
 
-                                <button className="btn-custom btn-custom-primary d-flex gap-2 align-items-center px-4 rounded-pill shadow-sm"
+                                <button className="btn-custom btn-custom-gray shadow-sm border d-flex gap-3 align-items-center px-4 shadow-sm"
                                     onClick={openModal}>
                                     <PencilSquare size={18} />
                                     <span>Editar perfil</span>
@@ -174,7 +174,7 @@ export default function Profile() {
                                     </div>
                                     <button 
                                         type="button"
-                                        className="btn-custom btn-custom-primary btn-sm rounded-circle position-absolute bottom-0 end-0 p-2 shadow"
+                                        className="btn-custom btn-custom-primary btn-sm rounded-circle position-absolute bottom-0 end-0 p-2 shadow-sm d-flex align-items-center justify-content-center"
                                         style={{ width: '35px', height: '35px' }}
                                         onClick={() => fileInputRef.current?.click()}
                                     >
@@ -203,9 +203,9 @@ export default function Profile() {
                                 />
                             </div>
 
-                            <div className="d-grid gap-2">
-                                <button className='btn-custom btn-custom-primary btn-lg shadow-sm rounded-pill fw-bold py-3' type='submit'>Salvar Alterações</button>
-                                <button className='btn-custom btn-custom-link text-muted' type='button' onClick={closeModal}>Cancelar</button>
+                            <div className="d-flex gap-3 align-items-center justify-content-between">
+                                <button className='btn-custom btn-custom-outline-primary' type='button' onClick={closeModal}>Cancelar</button>
+                                <button className='btn-custom btn-custom-outline-black' type='submit'>Salvar Alterações</button>
                             </div>
                         </form>
                     </Modal.Body>

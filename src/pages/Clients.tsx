@@ -21,6 +21,8 @@ export interface ClientForm {
 
 export default function Clients()
 {
+    // const myRegex = new RegExp("/^(\+55|55)?\s?\(?[1-9]{2}\)?\s?(9?\d{4})[-.\s]?(\d{4})$/");
+
     const { clients, createClient, updateClient, deleteClient } = useClients();
 
     const [showModal, setShowModal] = useState<boolean>(false);
@@ -166,6 +168,7 @@ export default function Clients()
                                 onChange={handleChange}
                                 required
                                 minLength={3}
+                                // regEx={myRegex.toString()}
                             />
                             
                             <SelectLocation
@@ -211,16 +214,16 @@ export default function Clients()
                         Esta ação não pode ser desfeita.
                     </p>
 
-                    <div className="d-flex gap-2 justify-content-center">
+                    <div className="d-flex gap-3 justify-content-center">
                         <button 
-                            className="btn-custom btn-custom-outline-secondary px-4 rounded-pill"
+                            className="btn-custom btn-custom-outline-secondary px-4 rounded-3"
                             onClick={() => setClientToDelete(null)}
                         >
                             Cancelar
                         </button>
 
                         <button 
-                            className="btn-custom btn-custom-primary px-4 rounded-pill shadow-sm"
+                            className="btn-custom btn-custom-outline-primary px-4 rounded-3 shadow-sm"
                             onClick={confirmDelete}
                         >
                             Excluir

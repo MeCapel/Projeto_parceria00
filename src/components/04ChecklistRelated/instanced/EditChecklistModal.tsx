@@ -89,8 +89,8 @@ export default function EditChecklistModal({ prototypeId, checklist, onClose, on
             </Modal.Body>
 
             <Modal.Footer>
-                <button onClick={onClose} className="btn-custom btn-custom-secondary rounded-pill">Fechar</button>
-                <button onClick={handleSave} className="btn-custom btn-custom-success rounded-pill">
+                <button onClick={onClose} className="btn-custom btn-custom-secondary">Fechar</button>
+                <button onClick={handleSave} className="btn-custom btn-custom-success">
                     {saving ? "Salvando..." : "Salvar"}
                 </button>
             </Modal.Footer>

@@ -72,7 +72,7 @@ export default function LoginForm()
                            style={{ border: '1px solid var(--gray00)'}} onChange={(e) => setPassword(e.target.value)}/>
                 </div>
 
-                <button className="btn-custom btn-custom-success fs-5 mt-4" type='submit' disabled={loading}>
+                <button className="btn-custom btn-custom-outilne-black fs-5 mt-4" type='submit' disabled={loading}>
                     <p className='mb-0 text-custom-white'>{loading ? "Entrando..." : "Entrar"}</p>
                 </button>
 

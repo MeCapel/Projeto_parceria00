@@ -109,6 +109,16 @@
     color: var(--white00);
 }
 
+.btn-custom-gray {
+    background-color: var(--white00);
+    color: var(--black00);
+}
+
+.btn-custom-gray:hover {
+    background-color: var(--gray03);
+    color: var(--black00);
+}
+
 .border-custom-red00 
 {
     border: 1px solid var(--red00);

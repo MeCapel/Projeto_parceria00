@@ -60,7 +60,7 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
     return(
         <div className="d-flex justify-content-center">
             {/* Botão do Header */}
-            <button className={ isOpen ? "d-flex align-items-center btn-custom btn-custom-outline-primary shadow-sm overflow-hidden" : "d-flex align-items-center text-custom-black btn-custom overflow-hidden" }
+            <button className={ isOpen ? "d-flex align-items-center btn-custom btn-custom-gray shadow-sm overflow-hidden" : "d-flex align-items-center text-custom-black btn-custom overflow-hidden" }
                     style={{ borderRadius: "50%", padding: userData?.profileImage ? "0px" : "8px", width: "45px", height: "45px" }}
                     onClick={ () => (isOpen ? onClose() : onOpen() ) }>
                 {userData?.profileImage ? (
@@ -103,7 +103,7 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
 
                                 <div className="d-flex flex-column gap-2">
                                     <button
-                                        className="btn-custom btn-custom-outline-primary d-flex gap-3 align-items-center w-100 justify-content-start py-2 border-0 rounded-pill"
+                                        className="btn-custom btn-custom-gray d-flex gap-3 align-items-center w-100 justify-content-start py-2 border-0 rounded-3"
                                         onClick={() => {
                                             onClose();
                                             navigate("/profile");
@@ -116,7 +116,7 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
                                     <hr className="my-2" />
 
                                     <button
-                                        className="btn-custom btn-custom-primary d-flex gap-3 align-items-center w-100 justify-content-center py-2 mt-2 shadow-sm rounded-pill"
+                                        className="btn-custom btn-custom-outline-primary d-flex gap-3 align-items-center w-100 justify-content-center py-2 mt-2 shadow-sm rounded-3"
                                         onClick={async () => {
                                             onClose();
                                             await Logout();

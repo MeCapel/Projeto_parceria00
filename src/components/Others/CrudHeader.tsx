@@ -1,10 +1,20 @@
+import { PlusLg } from "react-bootstrap-icons";
+
 interface Props {
-    title: string;
-    subtitle?: string;
-    onNew?: () => void;
+    title: string,
+    subtitle?: string,
+    onNew?: () => void,
+}
+
+function normalizeTitle(title: string)
+{
+    const normalizedTitle = title.toLocaleLowerCase();
+    if (normalizedTitle.endsWith('s')) return normalizedTitle.slice(0, -1);
 }
 
 export default function CrudHeader({ title, subtitle, onNew }: Props) {
+    const normalizedTitle = normalizeTitle(title);
+    
     return (
         <div className="d-flex flex-wrap align-items-center gap-3 justify-content-between mb-4">
             
@@ -21,10 +31,11 @@ export default function CrudHeader({ title, subtitle, onNew }: Props) {
 
             {onNew && (
                 <button 
-                    className='btn-custom btn-custom-outline-black'
+                    className='btn-custom btn-custom-outline-black d-flex gap-3 align-items-center'
                     onClick={onNew}
                 >
-                    <p className='mb-0 p-1'>Novo</p>
+                    <PlusLg size={18}/>
+                    Novo {normalizedTitle}
                 </button>
             )}
 

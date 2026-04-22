@@ -298,14 +298,14 @@ export default function ChecklistModelEditor({
 
         <button
           type="button"
-          className="btn-custom btn-custom-outline-primary rounded-pill"
+          className="btn-custom btn-custom-outline-primary"
           onClick={onCancel}
         >
           Cancelar
         </button>
 
         <button
-          className="btn-custom btn-custom-success rounded-pill"
+          className="btn-custom btn-custom-succes"
           type="submit"
           disabled={loading}
         >

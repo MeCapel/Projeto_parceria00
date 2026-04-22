@@ -78,9 +78,9 @@ export default function OccurrenceCard({ name, description, criticity, image, cr
                     </div>
 
                     {/* // ----- Buttons delete and edit ----- */}
-                    <div className="d-flex justify-content-between gap-2 mt-2">
-                        <button className="btn-custom btn-custom-outline-secondary btn-sm grow" onClick={onEdit}>Editar</button>
-                        <button className="btn-custom btn-custom-primary btn-sm grow" onClick={openModal}>Deletar</button>
+                    <div className="d-flex justify-content-between gap-3 mt-2">
+                        <button className="btn-custom btn-custom-outline-primary" onClick={openModal}>Deletar</button>
+                        <button className="btn-custom btn-custom-outline-secondary" onClick={onEdit}>Editar</button>
                     </div>
                 </div>
             </div>
@@ -90,9 +90,9 @@ export default function OccurrenceCard({ name, description, criticity, image, cr
                     <Trash3Fill size={50} className="text-danger mb-4" />
                     <h4 className="fw-bold mb-3">Excluir ocorrência?</h4>
                     <p className="text-muted mb-5">Esta ação não pode ser desfeita.</p>
-                    <div className="d-flex gap-2 justify-content-center">
-                        <button className="btn btn-light px-4 rounded-pill" onClick={closeModal}>Cancelar</button>
-                        <button className="btn btn-danger px-4 rounded-pill shadow-sm" onClick={onDelete}>Excluir</button>
+                    <div className="d-flex gap-3 justify-content-center">
+                        <button className="btn-custom btn-custom-gray p-2 shadow border" onClick={closeModal}>Cancelar</button>
+                        <button className="btn-custom btn-custom-outline-primary p-2" onClick={onDelete}>Excluir</button>
                     </div>
                 </Modal.Body>
             </Modal>

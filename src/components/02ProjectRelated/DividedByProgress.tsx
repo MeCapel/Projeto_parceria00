@@ -1,31 +1,42 @@
-import { useEffect, useMemo, useState } from "react";
-import { listenPrototypesForProjectWProgress, type PrototypeProps } from "../../services/prototypeServices";
-import { CaretDown, CaretUp, PencilSquare } from "react-bootstrap-icons";
+import { useMemo, useState } from "react";
+import { CaretDown, CaretUp, Trash3Fill } from "react-bootstrap-icons";
+import { Modal } from "react-bootstrap";
 import { useNavigate } from "react-router";
-import type { ChecklistProps } from "../../services/checklistServices";
+import { usePrototypeWithProgress } from "../../hooks/usePrototyteWProgress";
+import { CrudTable } from "../Others/CrudTable";
 
 interface Props {
-    projectId: string,
+    projectId: string;
 }
 
 export default function DividedByProgress({ projectId }: Props) {
-    const [prototypesList, setPrototypesList] = useState<PrototypeProps[] | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [open, setOpen] = useState<Record<number, boolean>>({ 1: false, 2: false, 3: false });
-    const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 768);
+    const { prototypes, loading } = usePrototypeWithProgress(projectId);
+    const [open, setOpen] = useState<Record<number, boolean>>({
+        1: false,
+        2: false,
+        3: false
+    });
 
-    // RESPONSIVO SEM LIB
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth < 768);
-        };
+    const [prototypeToDelete, setPrototypeToDelete] = useState<string | null>(null);
 
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
+    const navigate = useNavigate();
 
     const toggleItem = (id: number) => {
         setOpen(prev => ({ ...prev, [id]: !prev[id] }));
+    };
+
+    const handleNavigate = (id: string) => {
+        navigate(`/projects/${projectId}/${id}`);
+    };
+
+    const handleDelete = (id: string) => {
+        setPrototypeToDelete(id);
+    };
+
+    const confirmDelete = async () => {
+        if (!prototypeToDelete) return;
+        // chamar seu deletePrototype aqui
+        setPrototypeToDelete(null);
     };
 
     const statusConfig = [
@@ -34,44 +45,31 @@ export default function DividedByProgress({ projectId }: Props) {
         { id: 3, label: "Concluído", color: "var(--success01)", key: "concluido" },
     ] as const;
 
-    useEffect(() => {
-        if (!projectId) return;
-        setLoading(true);
-
-        const unsubscribe = listenPrototypesForProjectWProgress(projectId, (data) => {
-            setPrototypesList(data);
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, [projectId]);
-
-    const prototypesByStatus = useMemo(() => {
-        if (!prototypesList) return null;
-
-        const grouped: Record<ProgressStatus, PrototypeProps[]> = {
-            pendente: [],
-            em_andamento: [],
-            concluido: []
+    const grouped = useMemo(() => {
+        const result = {
+            pendente: [] as typeof prototypes,
+            em_andamento: [] as typeof prototypes,
+            concluido: [] as typeof prototypes
         };
 
-        prototypesList.forEach(p => {
-            const progress = calculatePrototypeProgressWeighted(p.checklists);
-            const status = getStatusByProgress(progress);
-            grouped[status].push(p);
+        prototypes.forEach(p => {
+            if (p.progress === 0) result.pendente.push(p);
+            else if (p.progress === 100) result.concluido.push(p);
+            else result.em_andamento.push(p);
         });
 
-        return grouped;
-    }, [prototypesList]);
+        return result;
+    }, [prototypes]);
 
     if (loading) return <p>Carregando o projeto...</p>;
-    if (!prototypesList || prototypesList.length === 0) return <p>Nenhum protótipo encontrado!</p>;
+    if (!prototypes || prototypes.length === 0)
+        return <p>Nenhum protótipo encontrado!</p>;
 
     return (
         <>
             {statusConfig.map(status => (
-                <div key={status.id} className="d-flex flex-column gap-3">
-                    
+                <div key={status.id} className="d-flex flex-column gap-3 mb-4">
+
                     {/* HEADER */}
                     <div
                         className="d-flex gap-3 align-items-center"
@@ -84,139 +82,87 @@ export default function DividedByProgress({ projectId }: Props) {
                             <CaretDown size={22} color={status.color} />
                         )}
 
-                        <p
-                            className="mb-0 fw-semibold"
-                            style={{ color: status.color, fontSize: isMobile ? 16 : 20 }}
-                        >
-                            {status.label} ({prototypesByStatus?.[status.key].length})
+                        <p className="mb-0 fw-semibold" style={{ color: status.color }}>
+                            {status.label} ({grouped[status.key].length})
                         </p>
                     </div>
 
-                    {/* LISTA */}
-                    {open[status.id] && prototypesByStatus && (
-                        <PrototypesTable
-                            projectId={projectId}
-                            prototypes={prototypesByStatus[status.key]}
-                            isMobile={isMobile}
-                        />
+                    {/* TABELA */}
+                    {open[status.id] && (
+                        grouped[status.key].length === 0 ? (
+                            <p className="text-center text-muted">
+                                Nenhum protótipo nesta categoria
+                            </p>
+                        ) : (
+                            <CrudTable
+                                headers={["Nome", "Descrição", "Etapa", "Vertical", "Progresso"]}
+                                data={grouped[status.key]}
+                                getId={(p) => p.id!}
+
+                                renderRow={(p) => (
+                                    <>
+                                        <td className="px-4">{p.name}</td>
+                                        <td className="px-4">
+                                            {
+                                                p.description.length > 35 ? p.description.substring(0, 35) + "..." : p.description 
+                                            }
+                                        </td>
+
+                                        <td className="px-4">
+                                            <span className="badge bg-danger-subtle text-danger px-3 py-2 rounded-3">
+                                                {p.stage}
+                                            </span>
+                                        </td>
+
+                                        <td className="px-4">{p.vertical}</td>
+
+                                        <td className="px-4">
+                                            <span className="badge bg-custom-gray00">
+                                                {p.progress}%
+                                            </span>
+                                        </td>
+                                    </>
+                                )}
+
+                                onEdit={handleNavigate}
+                                onDelete={handleDelete}
+                            />
+                        )
                     )}
                 </div>
             ))}
-        </>
-    );
-}
 
-// ================= HELPERS =================
+            {/* MODAL DELETE */}
+            <Modal
+                show={!!prototypeToDelete}
+                onHide={() => setPrototypeToDelete(null)}
+                centered
+            >
+                <Modal.Body className="text-center p-5">
+                    <Trash3Fill size={50} className="text-danger mb-4" />
 
-function calculatePrototypeProgressWeighted(checklists?: ChecklistProps[]): number {
-    if (!checklists || checklists.length === 0) return 0;
+                    <h4 className="fw-bold mb-3">Excluir protótipo?</h4>
+                    <p className="text-muted mb-5">
+                        Esta ação não pode ser desfeita.
+                    </p>
 
-    let totalItems = 0;
-    let checkedItems = 0;
-
-    checklists.forEach(c =>
-        c.categories.forEach(cat => {
-            totalItems += cat.items.length;
-            checkedItems += cat.items.filter(i => i.checked).length;
-        })
-    );
-
-    return totalItems === 0 ? 0 : Math.round((checkedItems / totalItems) * 100);
-}
-
-type ProgressStatus = "pendente" | "em_andamento" | "concluido";
-
-function getStatusByProgress(progress: number): ProgressStatus {
-    if (progress === 0) return "pendente";
-    if (progress === 100) return "concluido";
-    return "em_andamento";
-}
-
-// ================= TABLE / CARDS =================
-
-interface PrototypesTableProps {
-    projectId: string;
-    prototypes: PrototypeProps[];
-    isMobile: boolean;
-}
-
-function PrototypesTable({ projectId, prototypes, isMobile }: PrototypesTableProps) {
-    const navigate = useNavigate();
-
-    if (prototypes.length === 0) {
-        return <p className="text-center">Nenhum protótipo nesta área!</p>;
-    }
-
-    // ================= MOBILE =================
-    if (isMobile) {
-        return (
-            <div className="d-flex flex-column gap-3">
-                {prototypes.map(p => (
-                    <div
-                        key={p.id}
-                        className="card shadow-sm border-0 p-3"
-                        onClick={() => navigate(`/projects/${projectId}/${p.id}`)}
-                        style={{ cursor: "pointer", borderLeft: "4px solid var(--red01)" }}
-                    >
-                        <div className="d-flex justify-content-between align-items-center mb-2">
-                            <strong>{p.name}</strong>
-                            <PencilSquare size={18} />
-                        </div>
-
-                        <small className="text-muted mb-2">{p.description}</small>
-
-                        <div className="d-flex flex-wrap gap-2">
-                            <span className="badge bg-light text-dark">{p.vertical}</span>
-                            <span className="badge bg-light text-dark">{p.stage}</span>
-                            <span className="badge bg-success">
-                                {calculatePrototypeProgressWeighted(p.checklists)}%
-                            </span>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
-    }
-
-    // ================= DESKTOP =================
-    return (
-        <div className="table-responsive">
-            <table className="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th className="d-none d-md-table-cell">Descrição</th>
-                        <th>Vertical</th>
-                        <th>Etapa</th>
-                        <th>Progresso</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {prototypes.map(p => (
-                        <tr
-                            key={p.id}
-                            onClick={() => navigate(`/projects/${projectId}/${p.id}`)}
-                            style={{ cursor: "pointer" }}
+                    <div className="d-flex gap-3 justify-content-center">
+                        <button
+                            className="btn-custom btn-custom-outline-secondary px-4"
+                            onClick={() => setPrototypeToDelete(null)}
                         >
-                            <td className="d-flex gap-2 align-items-center">
-                                <button className="btn btn-sm btn-outline-success">
-                                    <PencilSquare size={18} />
-                                </button>
-                                {p.name}
-                            </td>
+                            Cancelar
+                        </button>
 
-                            <td className="d-none d-md-table-cell">
-                                {p.description}
-                            </td>
-
-                            <td>{p.vertical}</td>
-                            <td>{p.stage}</td>
-                            <td>{calculatePrototypeProgressWeighted(p.checklists)}%</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+                        <button
+                            className="btn-custom btn-custom-outline-primary px-4"
+                            onClick={confirmDelete}
+                        >
+                            Excluir
+                        </button>
+                    </div>
+                </Modal.Body>
+            </Modal>
+        </>
     );
 }

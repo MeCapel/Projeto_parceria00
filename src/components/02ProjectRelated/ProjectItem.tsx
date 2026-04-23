@@ -4,7 +4,7 @@ import { ArrowLeftCircleFill } from "react-bootstrap-icons";
 import { useEffect, useState } from "react";
 import { db } from '../../firebaseConfig/config'
 import { doc, onSnapshot } from 'firebase/firestore'
-import MainFrame2 from "../03PrototypeRelated/MainFrame";
+import MainFrame from "../03PrototypeRelated/MainFrame";
 import ProtoMultiForm from "../03PrototypeRelated/ProtoMultiForm";
 import DividedByProgress from "./DividedByProgress";
 import NewMemberModal from "./NewMemberModal";
@@ -60,11 +60,11 @@ export default function ProjectItem()
         switch(current)
         {
             case 0:
-                return <MainFrame2 projectId={projectid!}/>
+                return <MainFrame projectId={projectid!}/>
             case 1:
                 return <DividedByProgress projectId={projectid!}/>
             default:
-                return <MainFrame2 projectId={projectid!}/>
+                return <MainFrame projectId={projectid!}/>
         }
     }
 

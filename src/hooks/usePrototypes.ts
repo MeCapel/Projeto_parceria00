@@ -5,7 +5,8 @@ import {
     createPrototype as createPrototypeService,
     updatePrototype as updatePrototypeService,
     deletePrototype as deletePrototypeService,
-    getPrototypes,
+    // getPrototypes,
+    listenPrototypesForProject,
 } from "../services/prototypeServices";
 
 interface CreatePrototypeDTO {
@@ -32,7 +33,7 @@ interface UpdatePrototypeDTO {
     areaSize?: string,
     projectId: string,
 }
-export const usePrototype = () => {
+export const usePrototype = (prototypeId: string) => {
     const [prototypes, setPrototypes] = useState<PrototypeProps[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -44,7 +45,7 @@ export const usePrototype = () => {
             return;
         }
 
-        const unsubscribe = getPrototypes((prototypesList) => {
+        const unsubscribe = listenPrototypesForProject(prototypeId, (prototypesList) => {
             setPrototypes(prototypesList || []);
             setLoading(false);
         })

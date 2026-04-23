@@ -30,7 +30,7 @@ interface UpdateClientDTO {
 }
 
 export const useClients = () => {
-    const [client, setClient] = useState<ClientProps | null>(null);
+    const [ client, setClient]  = useState<ClientProps | null>(null);
     const [ clients, setClients ] = useState<ClientProps[]>([]);
     const [ loading, setLoading ] = useState<boolean>(true);
 

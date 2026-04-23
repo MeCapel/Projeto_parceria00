@@ -3,6 +3,7 @@ import type { Timestamp } from "firebase/firestore";
 import { useState } from "react";
 import { Modal } from "react-bootstrap";
 import { Trash3Fill } from "react-bootstrap-icons";
+import { calcularOpenDays } from '../../utils/dateUtils'; // Função para calcular os dias em abertos
 
 // ===== TYPE INTERFACE =====
 interface Props {
@@ -29,10 +30,15 @@ export default function OccurrenceCard({ name, description, criticity, image, cr
         B: "border border-warning bg-warning-subtle",
         C: "border border-info bg-info-subtle"
     }
+
+    // Lógica de dias em aberto
     const formattedDate =
         typeof createdAt === "string"
             ? createdAt
             : createdAt.toDate().toLocaleDateString("pt-BR");
+
+    // Calculo de dias em aberto
+    const openDays = calcularOpenDays(createdAt);
 
     return(
         <>
@@ -66,10 +72,19 @@ export default function OccurrenceCard({ name, description, criticity, image, cr
                         
                         </div>
 
-                        {/* // ----- Here goes the date that the occurence was created ----- */}
-                        <small className="text-muted mb-2" style={{ fontSize: '0.7rem' }}>
-                            {formattedDate}
-                        </small>
+                        {/* --- DATA COM O CONTADOR --- */}
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                            {/* // ----- Here goes the date that the occurence was created ----- */}
+                            <small className="text-muted" style={{ fontSize: '0.7rem' }}>
+                                {formattedDate}
+                            </small>
+
+                            {/* Mostra "Hoje" se for 0, senão mostra a quantidade de dias */}
+                                <small className={`fw-bold ${openDays > 5 ? 'text-danger' : 'text-secondary'}`} style={{ fontSize: '0.7rem' }}>
+                                    {openDays === 0 ? "Aberto hoje" : `Aberto há: ${openDays} d`}
+                                </small>
+                        </div>
+
                         
                         {/* // ----- Here goes the description */}
                         <p className="text-secondary small overflow-hidden" style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", fontSize: '0.8rem' }}>

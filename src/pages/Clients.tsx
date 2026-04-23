@@ -10,6 +10,7 @@ import { useForm } from "../hooks/useForm";
 import { CrudTable } from "../components/Others/CrudTable";
 import SelectLocation from "../components/Others/SelectLocation";
 import FormFoneInput from "../components/forms/FormInputFone";
+import SearchInput from "../components/forms/SearchInput"; // Import do SearchInput
 
 export interface ClientForm {
     name: string,
@@ -24,6 +25,15 @@ export interface ClientForm {
 export default function Clients()
 {
     const { clients, createClient, updateClient, deleteClient } = useClients();
+    // Consulta Clientes pelo searchTerm
+    const [search, setSearch] = useState("");
+    // Filtra a lista baseada no nome ou na revenda
+    // Caso necessário podem ser adicionados mais filtros
+    const filteredData = clients.filter(c => 
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        c.revend.toLowerCase().includes(search.toLowerCase())
+    );
+
 
     const [showModal, setShowModal] = useState<boolean>(false);
     const [editingClientId, setEditingClientId] = useState<string | null>(null);
@@ -106,18 +116,27 @@ export default function Clients()
         <>
             <CrudPageLayout
                 header={
+                <>
                     <CrudHeader
                         title="Clientes"
                         subtitle="Gerencie seus clientes"
                         onNew={handleNew}
                     />
+                    <div className="pb-3">
+                        <SearchInput 
+                            value={search} 
+                            onChange={setSearch} 
+                            placeholder="Pesquisar cliente ou revenda..." 
+                        />
+                    </div>
+                </>
                 }
 
                 list={
                     <CrudTable
                         headers={["Nome", "Telefone do cliente", "Revenda", "Telefone da revenda", "Estado", "Cidade", "Área"]}
 
-                        data={clients}
+                        data={filteredData}
 
                         getId={(c) => c.id} 
 

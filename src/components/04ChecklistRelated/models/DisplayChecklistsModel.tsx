@@ -7,13 +7,19 @@ import ChecklistCard from "./ChecklistModelCard";
 interface Props {
   inline: boolean,
   showAll: boolean,
+  search?: string
+
 }
 
 // ===== MAIN COMPONENT =====
-export default function DisplayChecklistsModel({ inline, showAll }: Props) {
+export default function DisplayChecklistsModel({ inline, showAll, search = "" }: Props) {
 
   const [data, setData] = useState<ChecklistProps[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const filteredModels = data.filter(m => 
+    m.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   useEffect(() => {
     const unsubscribe = getChecklistsModel((items: ChecklistProps[]) => {
@@ -27,12 +33,14 @@ export default function DisplayChecklistsModel({ inline, showAll }: Props) {
 
   return (
     <div className="d-flex gap-4 flex-wrap">
-        {data.length === 0 ? (
+        {filteredModels.length === 0 ? (
             <div className="w-100 py-5 text-center border rounded bg-light">
-                <p className="text-muted mb-0">Nenhum modelo encontrado.</p>
+                <p className="text-muted mb-0">
+                    {search ? `Nenhum modelo encontrado para "${search}"` : "Nenhum modelo encontrado."}
+                </p>
             </div>
         ) : (
-            (showAll ? data : data.slice(0, 5)).map(item => (
+            (showAll ? filteredModels : filteredModels.slice(0, 5)).map(item => (
                 <div key={item.id}>
                     <ChecklistCard
                         checklist={item}

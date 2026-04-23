@@ -10,6 +10,7 @@ import FormInput from "../components/forms/FormInput";
 import FormTextarea from "../components/forms/FormTextarea";
 import { Modal } from "react-bootstrap";
 import { Trash3Fill } from "react-bootstrap-icons";
+import SearchInput from "../components/forms/SearchInput"; // Import do SearchInput
 
 interface ProjectForm {
     name: string;
@@ -18,6 +19,14 @@ interface ProjectForm {
 
 export default function ProjectsPage() {
     const { userProjects, createProject, updateProject, deleteProject } = useProjects();
+
+    // Campo de Busca - Projetos
+    const [search, setSearch] = useState("");
+    const filteredProjects = userProjects.filter(p => 
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.description.toLowerCase().includes(search.toLowerCase())
+        );    
+    
 
     const [showModal, setShowModal] = useState(false);
     const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
@@ -92,33 +101,41 @@ export default function ProjectsPage() {
         <>
             <CrudPageLayout
                 header={
+                <>
                     <CrudHeader
                         title="Projetos"
                         subtitle="Gerencie seus projetos"
                         onNew={handleNew}
                     />
-                }
+                    <div className="pb-3">
+                        <SearchInput
+                            value={search}
+                            onChange={setSearch}
+                            placeholder="Pesquisar projetos..."
+                    />
+                    </div>
+                </>
+                   
+                }                
 
                 list={
                     <CrudList>
-                        {userProjects.length === 0 ? (
+                        {filteredProjects.length === 0 ? ( // Usamos a lista filtrada aqui
                             <div className="w-100 py-5 text-center border rounded bg-light">
                                 <p className="text-muted mb-0">
-                                    Nenhum projeto encontrado.
+                                    {search ? "Nenhum projeto corresponde à sua busca." : "Nenhum projeto encontrado."}
                                 </p>
                             </div>
                         ) : (
-                            userProjects.map(p => (
+                            filteredProjects.map(p => ( // E aqui também
                                 <div className="" key={p.id}>
-
-                                <ProjectCard
-                                    projectName={p.name}
-                                    projectDescription={p.description}
-                                    location={`/projects/${p.id}`}
-                                    element={null} // pode colocar MembersCircles depois
-                                    onEdit={() => handleEdit(p.id)}
-                                    onDelete={() => handleDelete(p.id)}
-                                />
+                                    <ProjectCard
+                                        projectName={p.name}
+                                        projectDescription={p.description}
+                                        location={`/projects/${p.id}`}
+                                        onEdit={() => handleEdit(p.id)}
+                                        onDelete={() => handleDelete(p.id)}
+                                    />
                                 </div>
                             ))
                         )}

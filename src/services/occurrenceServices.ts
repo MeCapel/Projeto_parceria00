@@ -1,5 +1,6 @@
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, query, serverTimestamp, Timestamp, updateDoc, where } from "firebase/firestore";
 import { db } from "../firebaseConfig/config";
+import type { CreateOccurrenceDTO, updateOccurrenceDTO } from "../hooks/usePrototypeOccurrences";
 
 export interface OccurrenceProps {
     id: string
@@ -7,11 +8,13 @@ export interface OccurrenceProps {
     description: string
     criticity: string
     prototypeId: string
-    createdAt?: string | Timestamp
-    image?: string
+    image?: string,
+    status: "Pendente" | "Em andamento" | "Concluído",
+    dueOn: Timestamp | null,
+    createdAt?: Timestamp
 }
 
-export const createOccurrence = async ( occurrence: OccurrenceProps ) => {
+export const createOccurrence = async ( occurrence: CreateOccurrenceDTO ) => {
     try 
     {
         const collectionRef = collection(db, "occurrences");
@@ -36,6 +39,8 @@ export const createOccurrence = async ( occurrence: OccurrenceProps ) => {
             criticity: occurrence.criticity,
             prototypeId: occurrence.prototypeId,
             image: occurrence.image || null,
+            status: occurrence.status,
+            dueOn: occurrence.dueOn,
             createdAt: serverTimestamp(),
         });
 
@@ -97,7 +102,7 @@ export const getOccurrence = async (id: string): Promise<OccurrenceProps | null>
     }
 };
 
-export const updateOccurrence = async ( occurrence: OccurrenceProps ) => {
+export const updateOccurrence = async ( occurrence: updateOccurrenceDTO ) => {
     try 
     {
         if(!occurrence.id) return;
@@ -108,8 +113,9 @@ export const updateOccurrence = async ( occurrence: OccurrenceProps ) => {
             name: occurrence.name,
             description: occurrence.description,
             criticity: occurrence.criticity,
-            prototypeId: occurrence.prototypeId,
             image: occurrence.image || null,
+            status: occurrence.status,
+            dueOn: occurrence.dueOn,
         };
 
         await updateDoc(docRef, occurrenceDTO);

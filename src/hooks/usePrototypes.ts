@@ -51,7 +51,7 @@ export const usePrototype = (prototypeId: string) => {
         })
 
         return () => unsubscribe();
-    }, []);
+    }, [prototypeId]);
 
     const createPrototype = async (data: CreatePrototypeDTO) => {
         const user = getCurrentUser();

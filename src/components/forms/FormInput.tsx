@@ -20,8 +20,8 @@ export default function FormInput({ label, name, value, onChange, type, required
                     placeholder={label}
                     onChange={onChange}
                     required={required}
-                    minLength={minLength}
-                    maxLength={maxLength}
+                    minLength={minLength || 3}
+                    maxLength={maxLength || 55}
                     className="form-control"
                 />
 

@@ -145,8 +145,9 @@ export default function AddChecklistModel() {
 
     return (
         <div className="">
-            <button className='btn-custom btn-custom-outline-black' onClick={openModal}>
-                <PlusLg size={30}/>
+            <button className='btn-custom btn-custom-outline-black d-flex gap-3 align-items-center' onClick={openModal}>
+                <PlusLg size={18}/>
+                Nova checklist
             </button>
 
             <Modal show={show} onHide={closeModal} dialogClassName="" centered className='p-0' size="lg">

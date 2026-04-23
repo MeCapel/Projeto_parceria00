@@ -1,3 +1,4 @@
+import type React from "react";
 import { PencilSquare, Trash3Fill } from "react-bootstrap-icons";
 
 interface CrudTableProps<T> {

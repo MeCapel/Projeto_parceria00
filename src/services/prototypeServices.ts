@@ -436,6 +436,18 @@ export const getPrototypeChecklists = async (prototypeId: string) => {
     })) as ChecklistProps[];
 };
 
+export const getPrototypeChecklistsRealtime = (prototypeId: string, callback: (checklists: ChecklistProps[]) => void) => {
+    const collectionRef = collection(db, "prototypes", prototypeId, "checklists");
+    
+    return onSnapshot(collectionRef, (snapshot) => {
+        const data = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+        }) as ChecklistProps);
+        callback(data);
+    });
+}
+
 // ----- ESTA FUNÇÃO ATUALIZA OS CAMPOS CHECKED DAS CHECKLISTS DO PROTÓTIPO -----
 export const toggleChecklistItems = async ( prototypeId: string, checklistId: string, newChecklist: ChecklistProps ) => {
     try 

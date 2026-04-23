@@ -57,6 +57,7 @@ export default function FormFoneInput({ label, name, value, onChange }: Props) {
                 onChange={handleChange}
                 className="form-control"
                 required
+                maxLength={13}
             />
             <label>{label}</label>
         </div>

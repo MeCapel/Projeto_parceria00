@@ -90,7 +90,7 @@ export const getPrototype = async (prototypeId: string) => {
         const checklists = checklistSnap.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
-        }));
+        })) as ChecklistProps[];
 
         return {
             ...prototypeData,

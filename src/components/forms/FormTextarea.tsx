@@ -19,8 +19,8 @@ export default function FormTextarea({ label, name, value, onChange, required, m
                 placeholder={label}
                 onChange={onChange}
                 required={required}
-                minLength={minLength}
-                maxLength={maxLength}
+                minLength={minLength || 3}
+                maxLength={maxLength || 55}
                 className="form-control"
                 style={{ minHeight: "100px", maxHeight: "250px", resize: "vertical" }}
             />

@@ -1,108 +1,57 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router";
+import { useProjectPrototypes } from "../../../hooks/useProjectPrototype";
+import { deleteAllPrototypeChecklists, type PrototypeProps } from "../../../services/prototypeServices";
+import type { ChecklistProps } from "../../../services/checklistServices";
 import PrototypeGeralInfosTab from "./PrototypeGeralInfosTab";
 import PrototypeChecklistsTab from "./PrototypeChecklistsTab";
-import { deleteAllPrototypeChecklists, deletePrototype, getPrototype, getPrototypeChecklists, updatePrototype, updatePrototypeChecklists, type PrototypeProps } from "../../../services/prototypeServices";
-import { TrashFill, Floppy2Fill, Trash3Fill, ArrowLeftCircleFill } from "react-bootstrap-icons";
-import type { ChecklistProps } from "../../../services/checklistServices";
-import PrototypeOccurrencesTab from "./PrototypeOccurrencesTab";
-import { deleteOccorrence, listOccurenciesByPrototype, type OccurrenceProps } from "../../../services/occurrenceServices";
-import NewOccurenceModal from "../../06OccurrenceRelated/NewOccurrenceModal";
-import { useNavigate, useParams } from "react-router";
-import EditOccurrenceModal from "../../06OccurrenceRelated/EditOccurrenceModal";
+import OccurrencesPage from "../../06OccurrenceRelated/OccurenecesPage";
+import { ArrowLeftCircleFill, Floppy2Fill, Trash3Fill, TrashFill } from "react-bootstrap-icons";
 import { Modal } from "react-bootstrap";
-
-import { toast } from "react-toastify";
 
 export default function PrototypePage() {
     const navigate = useNavigate();
     const { prototypeid } = useParams();
+
     const [currentView, setCurrentView] = useState<number>(0);
-    const [loading, setLoading] = useState(true);
-    const [prototype, setPrototype] = useState<PrototypeProps | null>(null);
-    const [occurrences, setOccurrences] = useState<OccurrenceProps[]>([]);
-    const [selectedOccurrenceId, setSelectedOccurrenceId] = useState<string | null>(null);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
+    const [openDeleteModal, setOpenDeleteModal] = useState(false);
+
+    const {
+        prototype,
+        loading,
+        update,
+        remove,
+        patch
+    } = useProjectPrototypes(prototypeid);
 
     const openModal = () => setOpenDeleteModal(true);
     const closeModal = () => setOpenDeleteModal(false);
 
-    useEffect(() => {
-        if (!prototypeid) return;
-
-        async function fetchData() {
-            setLoading(true);
-            try {
-                const data = await getPrototype(prototypeid!);
-                const checklists = await getPrototypeChecklists(prototypeid!);
-
-                if (data) {
-                    setPrototype({
-                        ...data,
-                        id: prototypeid,
-                        checklists: checklists
-                    });
-                } else {
-                    toast.error("Protótipo não encontrado!");
-                    navigate(`/projects/${prototype?.projectId}`);
-                }
-            } catch (err) {
-                console.error("Erro ao carregar protótipo:", err);
-                toast.error("Erro ao carregar dados do protótipo");
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchData();
-    }, [prototypeid]);
-
-    useEffect(() => {
-        if (!prototype?.id) return;
-
-        const unsubscribe = listOccurenciesByPrototype(
-            prototype.id,
-            (data) => setOccurrences(data)
-        );
-
-        return unsubscribe;
-    }, [prototype?.id]);
-
+    // ================= UPDATE LOCAL =================
     function handleChange(updatedData: Partial<PrototypeProps>) {
-        setPrototype(prev => prev ? { ...prev, ...updatedData } : prev);
+        patch(updatedData);
     }
 
-    // UPDATE CHECKLIST ITEM (edição dentro do modal)
+    // ================= CHECKLIST UPDATE =================
     function handleChecklistUpdate(updatedChecklist: ChecklistProps) {
-        setPrototype(prev => {
-            if (!prev) return prev;
+        if (!prototype) return;
 
-            return {
-                ...prev,
-                checklists: prev.checklists!.map(cl =>
-                    cl.id === updatedChecklist.id ? updatedChecklist : cl
-                )
-            };
+        patch({
+            checklists: (prototype.checklists || []).map(cl =>
+                cl.id === updatedChecklist.id ? updatedChecklist : cl
+            )
         });
     }
 
-    // UPDATE LIST (gerenciar checklists)
     function handleChecklistListUpdate(newChecklists: ChecklistProps[]) {
-        setPrototype(prev => prev ? {
-            ...prev,
+        patch({
             checklists: newChecklists
-        } : prev);
+        });
     }
 
-    const handleOccurrenceUpdated = (updatedOccurrence: OccurrenceProps) => {
-        setOccurrences(prev =>
-            prev.map(o => (o.id === updatedOccurrence.id ? updatedOccurrence : o))
-        );
-    };
-
-    // SALVAR (COM LIMPEZA)
+    // ================= SAVE =================
     async function handleSave() {
-        if (!prototype?.id) return;
+        if (!prototype) return;
 
         try {
             const cleanedChecklists = (prototype.checklists || []).map(cl => ({
@@ -117,60 +66,38 @@ export default function PrototypePage() {
                 }))
             }));
 
-            const payload = {
+            await update({
                 ...prototype,
-                createdAt: prototype.createdAt || undefined,
                 checklists: cleanedChecklists
-            };
-
-            console.log("SALVANDO PROTOTYPE:", payload);
-
-            // salva dados do protótipo
-            await updatePrototype(payload);
-
-            // salva SUBCOLLECTION de checklists (ESSENCIAL)
-            await updatePrototypeChecklists(
-                prototype.id,
-                cleanedChecklists
-            );
+            });
 
         } catch (err) {
             console.error(err);
         }
     }
 
+    // ================= DELETE =================
     async function handleDelete() {
-        if (!prototype?.id) return;
+        if (!prototype) return;
 
         navigate(`/projects/${prototype.projectId}`);
-
-        await deletePrototype(prototype.id);
+        await remove();
     }
 
-    const handleEditOccurrence = (id: string) => {
-        setSelectedOccurrenceId(id);
-        setShowEditModal(true);
-    };
+    // ================= RESET CHECKLIST =================
+    async function onVerticalChange() {
+        if (!prototype?.id) return;
 
-    const handleDeleteOccurrence = async (id: string) => {
-        await deleteOccorrence(id);
-    };
+        await deleteAllPrototypeChecklists(prototype.id);
 
-    async function onVerticalChange()
-    {
-        if (!prototypeid) throw new Error("Id do protótipo não encontrado!");
-
-        // 1. delete from Firestore
-        await deleteAllPrototypeChecklists(prototypeid);
-
-        // 2. clear locally
-        setPrototype(prev =>
-            prev ? { ...prev, checklists: [] } : prev
-        );
+        patch({
+            checklists: []
+        });
     }
 
     if (loading || !prototype) return <p>Carregando...</p>;
 
+    // ================= TABS =================
     const componentsMap = [
         {
             label: "Informações gerais",
@@ -199,13 +126,7 @@ export default function PrototypePage() {
         {
             label: "Ocorrências",
             component: (
-                <PrototypeOccurrencesTab 
-                    occurrences={occurrences}
-                    onDelete={handleDeleteOccurrence}
-                    onEdit={handleEditOccurrence}
-                >
-                    <NewOccurenceModal prototypeId={prototype.id!} />
-                 </PrototypeOccurrencesTab>
+                <OccurrencesPage prototypeId={prototype.id!} />
             ),
             i: 2,
         },
@@ -213,9 +134,10 @@ export default function PrototypePage() {
 
     return (
         <>
+            {/* ================= HEADER BACK ================= */}
             <div className="ps-5 pt-5 pb-0 pe-0">
-                <button 
-                    className="btn-custom btn-custom-link d-flex gap-3 align-items-center border-0 bg-transparent p-0" 
+                <button
+                    className="btn-custom btn-custom-link d-flex gap-3 align-items-center border-0 bg-transparent p-0"
                     onClick={() => navigate(`/projects/${prototype.projectId}`)}
                 >
                     <ArrowLeftCircleFill size={30} className="text-custom-black" />
@@ -225,67 +147,92 @@ export default function PrototypePage() {
                 </button>
             </div>
 
+            {/* ================= MAIN ================= */}
             <div className="py-3 px-5">
                 <header className="d-flex align-items-center justify-content-between mb-4">
 
                     <div>
                         <p className="fs-6 text-custom-red mb-0 fw-bold">Protótipo</p>
-                        <h1 className="text-custom-black fw-bold mb-0">{prototype.name}</h1>
+                        <h1 className="text-custom-black fw-bold mb-0">
+                            {prototype.name}
+                        </h1>
                     </div>
 
                     <div className="d-flex gap-3">
-                        <button onClick={openModal} className="btn-custom btn-custom-outline-primary px-4 d-flex gap-2 align-items-center fw-bold" >
+                        <button
+                            onClick={openModal}
+                            className="btn-custom btn-custom-outline-primary px-4 d-flex gap-2 align-items-center fw-bold"
+                        >
                             <TrashFill size={20} />
                             Excluir
                         </button>
 
-                        <button onClick={handleSave} className="btn-custom btn-custom-success px-4 d-flex gap-2 align-items-center fw-bold shadow-sm" >
+                        <button
+                            onClick={handleSave}
+                            className="btn-custom btn-custom-success px-4 d-flex gap-2 align-items-center fw-bold shadow-sm"
+                        >
                             <Floppy2Fill size={20} />
                             Salvar
                         </button>
                     </div>
                 </header>
 
+                {/* ================= TABS NAV ================= */}
                 <div className="d-flex flex-column align-items-start mb-4">
                     <div className="d-flex gap-2">
                         {componentsMap.map(c => (
                             <button
                                 key={c.i}
                                 onClick={() => setCurrentView(c.i)}
-                                className={`btn-custom px-4 py-2 border-0 rounded-0 border-bottom ${currentView === c.i ? 'border-danger text-danger fw-bold' : 'border-transparent text-muted'}`}
-                                style={{ transition: 'all 0.3s' }}
+                                className={`btn-custom px-4 py-2 border-0 rounded-0 border-bottom ${
+                                    currentView === c.i
+                                        ? "border-danger text-danger fw-bold"
+                                        : "border-transparent text-muted"
+                                }`}
+                                style={{ transition: "all 0.3s" }}
                             >
                                 {c.label}
                             </button>
                         ))}
                     </div>
 
-                    <div className="w-100" style={{ borderBottom: "1px solid var(--gray02)", marginTop: "-1px" }}></div>
+                    <div
+                        className="w-100"
+                        style={{
+                            borderBottom: "1px solid var(--gray02)",
+                            marginTop: "-1px"
+                        }}
+                    />
                 </div>
 
+                {/* ================= TAB CONTENT ================= */}
                 {componentsMap.find(c => c.i === currentView)?.component}
 
-                {/* // Certifique-se de renderizar o modal apenas quando existir ID e showModal = true */}
-                {selectedOccurrenceId && showEditModal && (
-                    <EditOccurrenceModal
-                    occurrenceId={selectedOccurrenceId}
-                    show={showEditModal}
-                    onClose={() => {
-                        setShowEditModal(false);
-                        setSelectedOccurrenceId(null);
-                    }}
-                    onUpdate={handleOccurrenceUpdated} 
-                    />
-                )}
-
+                {/* ================= DELETE MODAL ================= */}
                 <Modal show={openDeleteModal} onHide={closeModal} centered>
                     <Modal.Body className="text-center p-5">
                         <Trash3Fill size={50} className="text-danger mb-4" />
+
                         <h4 className="fw-bold mb-3">Excluir protótipo?</h4>
-                        <p className="text-muted mb-5">Esta ação não pode ser desfeita.</p>
+
+                        <p className="text-muted mb-5">
+                            Esta ação não pode ser desfeita.
+                        </p>
+
                         <div className="d-flex gap-3 justify-content-center">
-                            <button className="btn-custom btn-custom-gray shadow border px-4 rounded-3" onClick={closeModal}>Cancelar</button>
-                            <button className="btn-custom btn-custom-outline-primary" onClick={handleDelete}>Excluir</button>
+                            <button
+                                className="btn-custom btn-custom-gray shadow border px-4 rounded-3"
+                                onClick={closeModal}
+                            >
+                                Cancelar
+                            </button>
+
+                            <button
+                                className="btn-custom btn-custom-outline-primary"
+                                onClick={handleDelete}
+                            >
+                                Excluir
+                            </button>
                         </div>
                     </Modal.Body>
                 </Modal>

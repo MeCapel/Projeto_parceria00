@@ -33,7 +33,7 @@ export default function ChecklistsModelSection() {
                         className='btn-custom btn-custom-outline-black text-decoration-none' 
                         onClick={() => setShowAll(!showAll)}
                     >
-                        <p className='mb-0 p-1'>{showAll ? "Reduzir" : "Ver todos"}</p>
+                        <p className='mb-0'>{showAll ? "Reduzir" : "Ver todos"}</p>
                     </button>
                 </div>
             </div>

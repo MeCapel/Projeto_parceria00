@@ -56,9 +56,9 @@ npm run dev
 
 ```
 Projeto_paceria00/
-├── .github/workflows              # Automatização de processos
-│  └── main.yml                  # Define comandos da pipeline para o vercel
-├── public/                        # Logotipos da marca
+├── .github/workflows             # Automatização de processos
+│  └── main.yml                   # Define comandos da pipeline para o vercel
+├── public/                       # Logotipos da marca
 │  └── fromBrand/ 
 ├── src/
 │  └── components/
@@ -68,7 +68,7 @@ Projeto_paceria00/
 │    └── forms/                   # Componentes inputs padrões (ex: FormInput.tsx, FormRadioGroup.tsx...)
 │    └── Geral/                   # Componentes compartilhados 
 │    └── Login/                   # Componentes relacionados a sessão dos usuários
-│    └── Ocurrence/               # Componentes relacionados as ocorrências
+│    └── Occurrence/              # Componentes relacionados as ocorrências
 │    └── Othes/                   # Componentes padronizados
 │    └── Project/                 # Componentes relacionados aos projetos
 │    └── Members/                 # Componentes relacionados aos membros dos projetos 
@@ -80,16 +80,16 @@ Projeto_paceria00/
 │  └── styles/                    # Estilos
 │  └── App.tsx                    # Página principal (SPA aka Single Page Application)
 │  └── main.tsx                   # Importações gerais
-├── .gitignore                     # Git ignora pastas ou arquivos descritos
-├── README.md/                     # Apresentação e descrição do projeto
-├── eslint.config.js               # Configuração eslint e seus padrões
-├── index.html                     # Página base em html
-├── package-lock.json              # Decrição da árvore de dependências 
-├── package.json                   # Configuração de metadados e dependências do projeto
-├── tsconfig.app.json              # Definir configurações do código
-├── tsconfig.json                  # Definir configurações do projeto (typescript)
-├── tsconfig.node.json             # Definir configurações do compilador
-└── vite.config.ts                 # Definir configurações do Vite
+├── .gitignore                    # Git ignora pastas ou arquivos descritos
+├── README.md/                    # Apresentação e descrição do projeto
+├── eslint.config.js              # Configuração eslint e seus padrões
+├── index.html                    # Página base em html
+├── package-lock.json             # Decrição da árvore de dependências 
+├── package.json                  # Configuração de metadados e dependências do projeto
+├── tsconfig.app.json             # Definir configurações do código
+├── tsconfig.json                 # Definir configurações do projeto (typescript)
+├── tsconfig.node.json            # Definir configurações do compilador
+└── vite.config.ts                # Definir configurações do Vite
 ```
 
 ## Desenvolvedores

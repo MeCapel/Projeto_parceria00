@@ -305,7 +305,7 @@ export default function ChecklistModelEditor({
         </button>
 
         <button
-          className="btn-custom btn-custom-succes"
+          className="btn-custom btn-custom-success"
           type="submit"
           disabled={loading}
         >

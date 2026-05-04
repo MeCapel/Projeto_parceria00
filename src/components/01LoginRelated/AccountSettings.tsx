@@ -3,10 +3,11 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
 import { useState, useEffect, useContext } from "react";
 import { doc, getDoc } from 'firebase/firestore'
-import { Logout } from "../../services/authServices";
 import { db } from "../../firebaseConfig/config";
 import { PersonCircle, BoxArrowRight, InfoCircle } from "react-bootstrap-icons";
 import { AuthContext } from "../../context/AuthContext";
+import { logout } from "../../services/auth.service";
+// import { Logout } from "../../services/authServices";
 
 // ===== INTERFACE TYPES =====
 interface AccountSettingsProps {
@@ -119,8 +120,7 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
                                         className="btn-custom btn-custom-outline-primary d-flex gap-3 align-items-center w-100 justify-content-center py-2 mt-2 shadow-sm rounded-3"
                                         onClick={async () => {
                                             onClose();
-                                            await Logout();
-                                            navigate("/login");
+                                            await logout();
                                         }}
                                     >
                                         <BoxArrowRight size={20}/>

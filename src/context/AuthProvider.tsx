@@ -1,25 +1,30 @@
 import { AuthContext } from "./AuthContext";
-import { auth } from "../firebaseConfig/config"
 import React, { useEffect, useState } from "react";
-import { onAuthStateChanged, type User } from "firebase/auth";
+import { api } from "../services/api";
+import type { User } from "firebase/auth";
 
-export default function AuthProvider({ children } : { children: React.ReactNode })
-{
+export default function AuthProvider({ children } : { children: React.ReactNode }) {
     const [ user, setUser ] = useState<User | null>(null);
     const [ loading, setLoading ] = useState(true);
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-            setUser(firebaseUser);
-
+    const checkAuth = async () => {
+        try {
+            // A API vai checar o cookie e retornar o usuário
+            const res = await api.get("/users/me");
+            setUser(res.data);
+        } catch {
+            setUser(null);
+        } finally {
             setLoading(false);
-        });
+        }
+    };
 
-        return () => unsubscribe();
+    useEffect(() => {
+        checkAuth();
     }, []);
 
     return(
-        <AuthContext.Provider value={{ user, loading }}>
+        <AuthContext.Provider value={{ user, loading, checkAuth }}>
             {children}
         </AuthContext.Provider>
     )

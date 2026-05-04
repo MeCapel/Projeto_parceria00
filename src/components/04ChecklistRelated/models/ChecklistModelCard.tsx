@@ -3,6 +3,10 @@ import { useState } from "react"
 import type { ChecklistProps } from "../../../services/checklistServices"
 import ChecklistCardMenu from "./ChecklistModelCardMenu"
 import EditChecklistModelModal from "./EditChecklistModelModal"
+import { useNavigate } from "react-router"
+import { deleteChecklistModel } from "../../../services/checklistServices"
+import { Modal } from "react-bootstrap"
+import { Trash3Fill } from "react-bootstrap-icons"
 
 // ===== TYPE INTERFACE =====
 interface CardProps {
@@ -17,11 +21,16 @@ export default function ChecklistCard({ checklist, inline }: CardProps) {
   const [showEdit, setShowEdit] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
 
+  // Função centralizada para abrir a edição
+  const handleOpenEdit = () => setShowEdit(true);
+
   return (
     <>
       {inline ? (
         <div
           className="card-custom w-100 d-flex flex-row align-items-center justify-content-between px-4 py-3"
+          onClick={handleOpenEdit} // Clique na linha toda
+          style={{ cursor: 'pointer' }}
         >
           <div className="d-flex flex-column">
             <span className="fw-bold text-custom-black">
@@ -37,10 +46,11 @@ export default function ChecklistCard({ checklist, inline }: CardProps) {
             v{checklist.version}
           </span>
 
-          <div className="d-flex gap-2">
+          <div className="d-flex gap-2" onClick={(e) => e.stopPropagation()}> 
+            {/* stopPropagation evita que clique no botão dispare o clique do card duas vezes */}
             <button
               className="btn-custom btn-custom-outline-secondary px-3"
-              onClick={() => setShowEdit(true)}
+              onClick={handleOpenEdit}
             >
               Editar
             </button>
@@ -56,6 +66,8 @@ export default function ChecklistCard({ checklist, inline }: CardProps) {
       ) : (
         <div
           className="card-custom card-custom-hover"
+          onClick={handleOpenEdit} // Clique no card todo
+          style={{ cursor: 'pointer', position: 'relative' }}
         >
           <div className="d-flex justify-content-between align-items-start mb-2">
             <div>
@@ -73,7 +85,7 @@ export default function ChecklistCard({ checklist, inline }: CardProps) {
               onClick={(e) => e.stopPropagation()}
             >
               <ChecklistCardMenu
-                onEdit={() => setShowEdit(true)}
+                onEdit={handleOpenEdit}
                 onDelete={() => setShowDelete(true)}
               />
             </div>
@@ -108,44 +120,32 @@ export default function ChecklistCard({ checklist, inline }: CardProps) {
   )
 }
 
-/// ===== GERAL IMPORTS =====
-import { useNavigate } from "react-router"
-import { deleteChecklistModel } from "../../../services/checklistServices"
-import { Modal } from "react-bootstrap"
-import { Trash3Fill } from "react-bootstrap-icons"
-
-// ===== TYPE INTERFACE =====
-interface Props {
+// ===== DELETE MODAL COMPONENT =====
+interface DeleteProps {
   checklistId: string
   onClose: () => void
 }
 
-// ===== MAIN COMPONENT =====
-// ----- This component is responsable for deleting and validated deleting operation for a checklist model ----- 
-function DeleteChecklistModal({ checklistId, onClose }: Props) {
-
+function DeleteChecklistModal({ checklistId, onClose }: DeleteProps) {
   const navigate = useNavigate()
 
   const handleDelete = async () => {
-
     await deleteChecklistModel(checklistId)
-
     onClose()
     navigate("/home")
-
   }
 
   return (
-      <Modal show onHide={onClose} centered>
-          <Modal.Body className="text-center p-5">
-              <Trash3Fill size={50} className="text-danger mb-4" />
-              <h4 className="fw-bold mb-3">Excluir?</h4>
-              <p className="text-muted mb-5">Esta ação não pode ser desfeita.</p>
-              <div className="d-flex gap-3 justify-content-center">
-                  <button className="btn-custom btn-custom-outline-secondary px-4 rounded-3 shadow-sm" onClick={onClose}>Cancelar</button>
-                  <button className="btn-custom btn-custom-primary px-4 rounded-3 shadow-sm" onClick={handleDelete}>Excluir</button>
-              </div>
-          </Modal.Body>
-      </Modal>
+    <Modal show onHide={onClose} centered>
+      <Modal.Body className="text-center p-5">
+        <Trash3Fill size={50} className="text-danger mb-4" />
+        <h4 className="fw-bold mb-3">Excluir?</h4>
+        <p className="text-muted mb-5">Esta ação não pode ser desfeita.</p>
+        <div className="d-flex gap-3 justify-content-center">
+          <button className="btn-custom btn-custom-outline-secondary px-4 rounded-3 shadow-sm" onClick={onClose}>Cancelar</button>
+          <button className="btn-custom btn-custom-primary px-4 rounded-3 shadow-sm" onClick={handleDelete}>Excluir</button>
+        </div>
+      </Modal.Body>
+    </Modal>
   )
 }

@@ -169,27 +169,31 @@ export default function OccurrencesPage({ prototypeId }: Props)
 
                 renderRow={(o) => {
                     const daysOpen = calcularOpenDays(o.createdAt);
+                    
+                    // Estilo comum para as células clicáveis
+                    const cellStyle = { cursor: 'pointer' };
+                    const clickAction = () => handleEdit(o.id!);
 
                     return (
                         <>
-                            <td className="px-4 text-secondary">{o.name}</td>
-                            <td className="px-4 text-secondary">{o.description}</td>
+                            <td className="px-4 text-secondary" style={cellStyle} onClick={clickAction}>{o.name}</td>
+                            <td className="px-4 text-secondary" style={cellStyle} onClick={clickAction}>{o.description}</td>
 
-                            <td className="px-4 text-secondary">
+                            <td className="px-4 text-secondary" style={cellStyle} onClick={clickAction}>
                                 <span className="badge bg-danger-subtle text-danger px-3 py-2 rounded-3">
                                     {o.criticity}
                                 </span>
                             </td>
 
-                            <td className="px-4 text-secondary">{o.status}</td>
+                            <td className="px-4 text-secondary" style={cellStyle} onClick={clickAction}>{o.status}</td>
 
                             {/* Coluna: Data de abertura */}
-                            <td className="px-4 text-secondary">
+                            <td className="px-4 text-secondary" style={cellStyle} onClick={clickAction}>
                                 {formatDateBR(o.createdAt!)}
                             </td>
 
                             {/* Coluna: Dias em aberto */}
-                            <td className="px-4 text-secondary">
+                            <td className="px-4 text-secondary" style={cellStyle} onClick={clickAction}>
                                 {o.status !== "Concluído" ? (
                                     <span className={`fw-bold ${daysOpen > 5 ? 'text-danger' : 'text-dark'}`}>
                                         {daysOpen === 0 ? "Hoje" : `${daysOpen} dia(s)`}
@@ -200,7 +204,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
                             </td>
 
                             {/* Coluna: Data de vencimento */}
-                            <td className="px-4 text-secondary">
+                            <td className="px-4 text-secondary" style={cellStyle} onClick={clickAction}>
                                 {formatDateBR(o.dueOn!)}
                             </td>
                         </>

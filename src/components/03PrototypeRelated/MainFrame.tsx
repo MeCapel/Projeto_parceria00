@@ -15,6 +15,7 @@ export default function MainFrame({ projectId } : MainFrameProps)
     const [ prototypeToDelete, setPrototypeToDelete] = useState<string | null>(null);
     const navigate = useNavigate();
 
+    // Função que leva para a página de detalhes do protótipo
     const handleNavigate = (id: string) => {
         navigate(`/projects/${projectId}/${id}`);
     };
@@ -32,28 +33,54 @@ export default function MainFrame({ projectId } : MainFrameProps)
 
     if (!prototypes || prototypes.length === 0)
     {
-        return <p>Nenhum protótipo encontrado!</p>;
+        return <p className="p-4 text-muted">Nenhum protótipo encontrado!</p>;
     }
 
     return(
         <div className="">
             <CrudTable
                 headers={["Nome", "Descrição", "Etapa", "Vertical"]}
-
                 data={prototypes}
-
                 getId={(p) => p.id!} 
 
                 renderRow={(p) => (
                     <>
-                        <td className="px-4 text-secondary">{p.name}</td>
-                        <td className="px-4 text-secondary">{p.description}</td>
-                        <td className="px-4 text-secondary">
+                        {/* Adicionamos o onClick e o estilo de cursor em cada <td>.
+                           Isso faz com que a linha inteira funcione como um link para o protótipo.
+                        */}
+                        <td 
+                            className="px-4 text-secondary" 
+                            style={{ cursor: 'pointer' }} 
+                            onClick={() => handleNavigate(p.id!)}
+                        >
+                            {p.name}
+                        </td>
+                        
+                        <td 
+                            className="px-4 text-secondary" 
+                            style={{ cursor: 'pointer' }} 
+                            onClick={() => handleNavigate(p.id!)}
+                        >
+                            {p.description}
+                        </td>
+
+                        <td 
+                            className="px-4 text-secondary" 
+                            style={{ cursor: 'pointer' }} 
+                            onClick={() => handleNavigate(p.id!)}
+                        >
                             <span className="badge bg-danger-subtle text-danger px-3 py-2 rounded-3">
                                 {p.stage}
                             </span>
                         </td>
-                        <td className="px-4 text-secondary">{p.vertical}</td>
+
+                        <td 
+                            className="px-4 text-secondary" 
+                            style={{ cursor: 'pointer' }} 
+                            onClick={() => handleNavigate(p.id!)}
+                        >
+                            {p.vertical}
+                        </td>
                     </>
                 )}
 
@@ -61,6 +88,7 @@ export default function MainFrame({ projectId } : MainFrameProps)
                 onDelete={handleDelete}
             />
 
+            {/* ================= MODAL DE EXCLUSÃO ================= */}
             <Modal
                 show={!!prototypeToDelete} 
                 onHide={() => setPrototypeToDelete(null)} 

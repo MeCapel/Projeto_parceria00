@@ -13,6 +13,7 @@ import FormRadioGroup from "../forms/FormRadioGroup"
 import { Paperclip, Trash3Fill, XCircleFill } from "react-bootstrap-icons"
 import { Modal } from "react-bootstrap"
 import FormDatePicker from "../forms/FormDatePicker"
+import { calcularOpenDays } from "../../utils/dateUtils";
 
 interface OccurrenceForm {
     name: string
@@ -160,34 +161,51 @@ export default function OccurrencesPage({ prototypeId }: Props)
             />
 
             <CrudTable
-                headers={["Nome", "Descrição", "Criticidade", "Status", "Data", "Data de vencimento"]}
+                headers={["Nome", "Descrição", "Criticidade", "Status", "Data de abertura", "Dias em aberto", "Data de vencimento"]}
 
                 data={protoOccurrences}
 
                 getId={(o) => o.id!}
 
-                renderRow={(o) => (
-                    <>
-                        <td className="px-4 text-secondary">{o.name}</td>
-                        <td className="px-4 text-secondary">{o.description}</td>
+                renderRow={(o) => {
+                    const daysOpen = calcularOpenDays(o.createdAt);
 
-                        <td className="px-4 text-secondary">
-                            <span className="badge bg-danger-subtle text-danger px-3 py-2 rounded-3">
-                                {o.criticity}
-                            </span>
-                        </td>
+                    return (
+                        <>
+                            <td className="px-4 text-secondary">{o.name}</td>
+                            <td className="px-4 text-secondary">{o.description}</td>
 
-                        <td className="px-4 text-secondary">{o.status}</td>
+                            <td className="px-4 text-secondary">
+                                <span className="badge bg-danger-subtle text-danger px-3 py-2 rounded-3">
+                                    {o.criticity}
+                                </span>
+                            </td>
 
-                        <td className="px-4 text-secondary">
-                            {formatDateBR(o.createdAt!)}
-                        </td>
+                            <td className="px-4 text-secondary">{o.status}</td>
 
-                        <td className="px-4 text-secondary">
-                            {formatDateBR(o.dueOn!)}
-                        </td>
-                    </>
-                )}
+                            {/* Coluna: Data de abertura */}
+                            <td className="px-4 text-secondary">
+                                {formatDateBR(o.createdAt!)}
+                            </td>
+
+                            {/* Coluna: Dias em aberto */}
+                            <td className="px-4 text-secondary">
+                                {o.status !== "Concluído" ? (
+                                    <span className={`fw-bold ${daysOpen > 5 ? 'text-danger' : 'text-dark'}`}>
+                                        {daysOpen === 0 ? "Hoje" : `${daysOpen} dia(s)`}
+                                    </span>
+                                ) : (
+                                    <span className="text-muted small">-</span>
+                                )}
+                            </td>
+
+                            {/* Coluna: Data de vencimento */}
+                            <td className="px-4 text-secondary">
+                                {formatDateBR(o.dueOn!)}
+                            </td>
+                        </>
+                    );
+                }}
 
                 onEdit={handleEdit}
                 onDelete={handleDelete}
@@ -316,6 +334,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
                         <button
                             type="button"
                             className="btn-custom btn-custom-outline-primary px-4"
+                            onClick={() => setShowModal(false)}
                         >
                             Cancelar
                         </button>

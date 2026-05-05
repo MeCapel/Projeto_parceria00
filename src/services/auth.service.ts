@@ -2,6 +2,28 @@ import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "../firebaseConfig/config";
 import { api } from "./api";
 
+export type Role = 'admin' | 'coordenador de validacao' | 'po' | 'tecnico de campo' | 'tecnico de desenvolvimento de producao';
+export type Status = 'active' | 'inactive';
+
+export interface UserProps {
+    id: string;
+    username: string;
+    email: string;
+    profileImage?: string; // String Base64
+    role: Role,
+    status: Status
+}
+
+export const getCurrentUser = async (): Promise<UserProps> => {
+    const response = await api.get("/users/me");
+    return response.data;
+};
+
+export const getUserById = async (userId: string) => {
+    const response = await api.get(`/users/${userId}`);
+    return response.data;
+};
+
 export const signIn = async (email: string, password: string) => {
     try {
         // 1. Login no Firebase
@@ -18,7 +40,8 @@ export const signIn = async (email: string, password: string) => {
         // console.log("depois login");
 
     } 
-    catch (error: any) {
+    catch (error: any) 
+    {
         // console.error("Erro no backend login:", error?.response?.data || error.message);
         
         if (error.code === "auth/wrong-password") throw new Error("Senha incorreta");
@@ -58,11 +81,11 @@ export const inviteUser = async (data: { username: string, email: string, role: 
     }
 };
 
-export const getUserById = async (userId: string) => {
-    const response = await api.get(`/users/${userId}`);
-    return response.data;
+export const updateProfile = async (userId: string, data: { username?: string, profileImage?: string }) => {
+    return await api.patch(`/users/${userId}`, data);
 };
 
-export const updateProfile = async (data: { username?: string, profileImage?: string }) => {
-    return await api.put("/users/current", data);
+export const updateMyProfile = async (data: { username?: string; profileImage?: string }) => {
+    // A API saberá quem é você pelo cookie de sessão
+    return await api.patch("/users/me", data);
 };

@@ -2,12 +2,9 @@
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
 import { useState, useEffect, useContext } from "react";
-import { doc, getDoc } from 'firebase/firestore'
-import { db } from "../../firebaseConfig/config";
 import { PersonCircle, BoxArrowRight, InfoCircle } from "react-bootstrap-icons";
 import { AuthContext } from "../../context/AuthContext";
-import { logout } from "../../services/auth.service";
-// import { Logout } from "../../services/authServices";
+import { getCurrentUser, logout, type UserProps } from "../../services/auth.service";
 
 // ===== INTERFACE TYPES =====
 interface AccountSettingsProps {
@@ -16,42 +13,27 @@ interface AccountSettingsProps {
     onClose: () => void;
 }
 
-interface UserData {
-    username: string;
-    email: string;
-    profileImage?: string; // Adicionado campo de imagem
-}
-
 // ===== MAIN COMPONENT =====
 // ----- Componente responsável por exbir pequeno menu de ações relacionadas a conta do usuário ao criar na foto de perfil no canto direito superior ----- 
 export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSettingsProps)
 {
     const { user, loading } = useContext(AuthContext);
-    const [ userData, setUserData ] = useState<UserData | null>(null);
+    const [ userData, setUserData ] = useState<UserProps | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (loading || !user) return;
+        // Só busca dados se o menu estiver aberto e o user autenticado no Firebase
+        if (loading || !user || !isOpen) return;
 
         const fetchUserData = async () => {
             try
             {
-                const docRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists())
-                {
-                    const data = docSnap.data();
-                    setUserData({
-                        username: data.username || "",
-                        email: data.email || user.email || "",
-                        profileImage: data.profileImage || undefined
-                    });
-                }
+                const data = await getCurrentUser();
+                setUserData(data);
             }
             catch (error)
             {
-                console.error("Error fetching user: ", error);
+                console.error("Erro ao buscar dados do usuário atual: ", error);
             }
         };
 
@@ -61,9 +43,11 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
     return(
         <div className="d-flex justify-content-center">
             {/* Botão do Header */}
-            <button className={ isOpen ? "d-flex align-items-center btn-custom btn-custom-gray shadow-sm overflow-hidden" : "d-flex align-items-center text-custom-black btn-custom overflow-hidden" }
-                    style={{ borderRadius: "50%", padding: userData?.profileImage ? "0px" : "8px", width: "45px", height: "45px" }}
-                    onClick={ () => (isOpen ? onClose() : onOpen() ) }>
+            <button 
+                className={ isOpen ? "d-flex align-items-center btn-custom btn-custom-gray shadow-sm overflow-hidden" : "d-flex align-items-center text-custom-black btn-custom overflow-hidden" }
+                style={{ borderRadius: "50%", padding: userData?.profileImage ? "0px" : "8px", width: "45px", height: "45px" }}
+                onClick={ () => (isOpen ? onClose() : onOpen() ) }
+            >
                 {userData?.profileImage ? (
                     <img src={userData.profileImage} alt="Me" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
@@ -74,21 +58,24 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
             { isOpen &&
                 createPortal(
                     (
-                        <div className="shadow-lg border rounded-3 bg-white"
-                                style={{
-                                    position: "fixed",
-                                    top: '70px',
-                                    right: '20px',
-                                    zIndex: 2000,
-                                    width: "320px",
-                                    animation: "fadeIn 0.2s ease-out"
-                                }}>
+                        <div 
+                            className="shadow-lg border rounded-3 bg-white"
+                            style={{
+                                position: "fixed",
+                                top: '70px',
+                                right: '20px',
+                                zIndex: 2000,
+                                width: "320px",
+                                animation: "fadeIn 0.2s ease-out"
+                            }}>
 
                             <div className="p-4">
                                 <div className="d-flex align-items-center gap-3 mb-4">
                                     {/* Foto no Card que desce */}
-                                    <div className="d-flex align-items-center justify-content-center rounded-circle border bg-light shadow-sm overflow-hidden"
-                                            style={{ width: '60px', height: '60px', flexShrink: 0 }}>
+                                    <div 
+                                        className="d-flex align-items-center justify-content-center rounded-circle border bg-light shadow-sm overflow-hidden"
+                                        style={{ width: '60px', height: '60px', flexShrink: 0 }}
+                                    >
                                             {userData?.profileImage ? (
                                                 <img src={userData.profileImage} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             ) : (

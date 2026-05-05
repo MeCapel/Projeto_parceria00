@@ -1,31 +1,25 @@
 // ===== GERAL IMPORTS =====
 import React, { useState, useEffect, useRef } from "react";
 import {
-    sendMessage,
-    subscribeToMessages,
-    updateMessage,
-    markMessageAsRead,
-    type MessageProps
-} from "../../services/chatServices";
-import {
     SendFill,
     Paperclip,
     XCircleFill,
     PencilFill,
     Check2All
 } from "react-bootstrap-icons";
-import { getProjectMembers } from "../../services/projectServices";
+import { markMessageAsRead, sendMessage, subscribeToMessages, updateMessage, type MessageProps } from "../../services/chat.service";
+import { getProjectMembers } from "../../services/projectMembers.service";
 
 // ===== TYPE INTERFACE =====
 interface ChatProps {
     projectId: string;
     userId: string;
-    userName: string;
+    username: string;
 }
 
 // ===== MAIN COMPONENT =====
 // ----- Componente responsável pelo chat -----
-export default function Chat({ projectId, userId, userName }: ChatProps) {
+export default function Chat({ projectId, userId }: ChatProps) {
     const [messages, setMessages] = useState<MessageProps[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -40,33 +34,41 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
     // Carregar membros para mapear nomes
     useEffect(() => {
         if (!projectId) return;
-        const unsub = getProjectMembers(projectId, (members) => {
+
+        const fetchMembers = async () => {
+            const members = await getProjectMembers(projectId);
+
             const map: Record<string, string> = {};
+
             members.forEach(m => {
                 map[m.userId] = m.username || "Usuário";
             });
+
             setMembersMap(map);
-        });
-        return () => unsub();
+        };
+
+        fetchMembers();
     }, [projectId]);
 
     // Carregar mensagens em tempo real
     useEffect(() => {
         if (!projectId) return;
+
         const unsubscribe = subscribeToMessages(projectId, (data) => {
             setMessages(data);
-            setTimeout(() => setLoading(false), 1000);
+            setTimeout(() => setLoading(false), 500);
 
             data.forEach((msg) => {
-                const isViewed = msg.viewedBy && msg.viewedBy.includes(userId);
-                
-                if (msg.id && !isViewed && msg.senderId !== userId) {
-                    markMessageAsRead(projectId, msg.id, userId);
+                const isViewed = msg.viewedBy?.includes(userId);
+
+                if (!isViewed && msg.senderId !== userId) {
+                    markMessageAsRead(projectId, msg.id);
                 }
             });
         });
+
         return () => unsubscribe();
-    }, [projectId, userId, userName]);
+    }, [projectId, userId]);
 
     // Scroll automático
     useEffect(() => {
@@ -92,6 +94,7 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
+
         if (newMessage.trim() === "" && !selectedImage) return;
 
         if (editingId) {
@@ -101,9 +104,11 @@ export default function Chat({ projectId, userId, userName }: ChatProps) {
         } else {
             const text = newMessage;
             const image = selectedImage;
+
             setNewMessage("");
             setSelectedImage(null);
-            await sendMessage(projectId, text, userId, userName, image || undefined);
+
+            await sendMessage(projectId, text, image || undefined);
         }
     };
 

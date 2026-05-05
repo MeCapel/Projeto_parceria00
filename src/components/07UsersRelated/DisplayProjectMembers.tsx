@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react"
-import { changeMemberRole, dropMember, getProjectMembers, getUserRole } from "../../services/projectServices"
+import {
+    getProjectMembers,
+    removeProjectMember
+} from "../../services/projectMembers.service"
 import UserCard from "./UserCard"
-import { getCurrentUser } from "../../services/authServices"
 import { People, XCircleFill } from "react-bootstrap-icons"
 import { Modal } from "react-bootstrap"
+import { getCurrentUser, type UserProps } from "../../services/auth.service"
 
-interface FullMember {
-    id: string,
-    username: string,
-    email: string,
-    image?: string,
-    role: "admin" | "membro" | "owner",
-}
+// ===== TYPES =====
 
 interface Props {
     projectId: string
@@ -20,63 +17,52 @@ interface Props {
 export default function DisplayProjectMembersModal({ projectId }: Props) {
 
     const [isOpen, setIsOpen] = useState(false)
-    const [members, setMembers] = useState<FullMember[]>([])
-    const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
+    const [members, setMembers] = useState<UserProps[]>([])
     const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
     const openModal = () => setIsOpen(true)
     const closeModal = () => setIsOpen(false)
 
-    // pega user atual
+    // Pega usuário atual
     useEffect(() => {
-        const user = getCurrentUser()
-        setCurrentUserId(user?.uid || null)
+        const fetchUser = async () => {
+            const user = await getCurrentUser()
+            setCurrentUserId(user?.id || null)
+        }
+
+        fetchUser()
     }, [])
 
-    // pega role do user atual no projeto
+    // Carrega membros quando abre
     useEffect(() => {
-        if (!projectId) return
+        if (!isOpen || !projectId) return
 
-        getUserRole(projectId).then(setCurrentUserRole)
-    }, [projectId])
+        const fetchMembers = async () => {
+            const data = await getProjectMembers(projectId)
 
-    // carrega membros (só quando abre)
-    useEffect(() => {
-        if (!isOpen) return
-
-        const unsubscribe = getProjectMembers(projectId, (members) => {
-
-            const fullMembers = members.map(member => ({
+            const formatted = data.map((member: any) => ({
                 id: member.userId,
                 username: member.username || "Sem nome",
                 email: member.email || "",
-                profileImage: member.image || undefined, // Nome correto esperado pelo UserCard
-                role: member.role
+                profileImage: member.profileImage || undefined,
+                status: member.status || "Ativo",
+                role: member.role || "Técnico de campo"
             }))
 
-            setMembers(fullMembers as any)
-        })
+            setMembers(formatted)
+        }
 
-        return () => unsubscribe()
+        fetchMembers()
     }, [projectId, isOpen])
 
-    const canManage =
-        currentUserRole === "admin" || currentUserRole === "owner"
-
-    // remover membro
+    // Remover membro
     const handleRemove = async (userId: string) => {
-        if (!canManage) return
         if (userId === currentUserId) return
 
-        await dropMember(projectId, userId)
-    }
+        await removeProjectMember(projectId, userId)
 
-    // mudar role
-    const handleChangeRole = async (userId: string, role: string) => {
-        if (!canManage) return
-        if (userId === currentUserId) return
-
-        await changeMemberRole(projectId, userId, role as "admin" | "editor" | "viewer")
+        // Atualiza lista após remoção
+        setMembers(prev => prev.filter(m => m.id !== userId))
     }
 
     return (
@@ -88,7 +74,7 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
             >
                 <div className="mb-0 fs-6 d-flex gap-2 align-items-center fw-bold">
                     <People size={20} />
-                    Gerenciar membros 
+                    Gerenciar membros
                 </div>
             </button>
 
@@ -105,7 +91,7 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
 
                         {/* HEADER */}
                         <div className="d-flex align-items-center justify-content-between">
-                            <div className="">
+                            <div>
                                 <p className="fs-6 mb-0 text-custom-red">
                                     Projeto
                                 </p>
@@ -114,15 +100,12 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
                                 </h2>
                             </div>
 
-                            <div className="">
-                                <XCircleFill 
-                                    size={25} 
-                                    style={{ cursor: "pointer" }} 
-                                    onClick={closeModal} 
-                                />
-                            </div>
+                            <XCircleFill
+                                size={25}
+                                style={{ cursor: "pointer" }}
+                                onClick={closeModal}
+                            />
                         </div>
-                        
 
                         {/* LISTA */}
                         <div className="d-flex flex-column gap-3 mt-4">
@@ -136,52 +119,18 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
                             {members.map(member => {
 
                                 const isSelf = member.id === currentUserId
-                                const isOwner = member.role === "owner"
 
                                 return (
                                     <UserCard
                                         key={member.id}
                                         user={member}
                                         onDelete={
-                                            canManage && !isSelf && !isOwner
-                                                ? handleRemove
-                                                : undefined
+                                            !isSelf ? handleRemove : undefined
                                         }
                                         subtitle={
                                             isSelf ? "Você" : undefined
                                         }
-                                    >
-                                        <div className="d-flex justify-content-between align-items-center">
-
-                                            <div className="col-12 col-md-4 w-100">
-                                                <div className="form-floating">
-                                                    <select
-                                                        name="role"
-                                                        className="form-select"
-                                                        value={member.role}
-                                                        disabled={
-                                                            !canManage ||
-                                                            isSelf ||
-                                                            isOwner
-                                                        }
-                                                        onChange={(e) =>
-                                                            handleChangeRole(
-                                                                member.id,
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                    >
-                                                        {/* <option value="">Escolha o papél</option> */}
-                                                        <option value="membro">Membro</option>
-                                                        <option value="admin">Administrador</option>
-                                                        <option value="owner">Proprietário</option>
-                                                    </select>
-                                                    <label>Função</label>
-                                                </div>
-                                        </div>
-
-                                        </div>
-                                    </UserCard>
+                                    />
                                 )
                             })}
 

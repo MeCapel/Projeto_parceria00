@@ -1,177 +1,83 @@
-// ===== GERAL IMPORTS =====
-import { useEffect, useRef, useState } from "react";
-import { type UserProps } from "../../services/authServices";
-import { getUsersNotInProject, linkProjectUser } from "../../services/projectServices";
-import { CaretDown, CaretUp } from "react-bootstrap-icons";
+import { useEffect, useState } from "react";
+import { getUsersNotInProject, addProjectMember } from "../../services/projectMembers.service";
+import type { UserProps } from "../../services/auth.service";
 
-// ===== INTERFACE TYPES =====
 interface Props {
     projectId: string;
 }
 
-// ===== MAIN COMPONENT =====
-// ----- Componente responsável por exibir usuários cadastrados e não presentes em determinado projeto, permitindo selecionna-los e assim adiciona-los ao projeto atual -----
 export default function AddNewMember({ projectId }: Props) {
+
     const [users, setUsers] = useState<UserProps[]>([]);
-    const [openUserId, setOpenUserId] = useState<string | null>(null);
-    const dropdownRef = useRef<HTMLDivElement | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = getUsersNotInProject(projectId, (usersData) => {
+        const fetchUsers = async () => {
+            try {
+                const data = await getUsersNotInProject(projectId);
+                setUsers(data || []);
+            } catch (err) {
+                console.error("Erro ao buscar usuários:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-            const formatted = (usersData ?? []).map(user => ({
-                ...user,
-                role: "Membro" as UserProps["role"], // default role
-            }));
-
-            setUsers(formatted);
-        });
-
-        return () => unsubscribe();
+        fetchUsers();
     }, [projectId]);
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if(dropdownRef.current && !dropdownRef.current.contains(event.target as Node))
-            {
-                setOpenUserId(null);
-            }
-        }
+    const handleAdd = async (userId: string) => {
+        try {
+            await addProjectMember(projectId, userId);
 
-        document.addEventListener("mousedown", handleClickOutside);
+            // remove da lista após adicionar
+            setUsers(prev => prev.filter(u => u.id !== userId));
 
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        }
-    }, [])
-
-    const handleNewMember = async (user: UserProps) => {
-
-        if (!user.id) return;
-
-        const result = await linkProjectUser(projectId, {
-            id: user.id,
-            username: user.username || "Sem nome",
-            email: user.email || "",
-            image: user.profileImage
-        }, user.role as "admin" | "membro" | "owner"); 
-
-        if (!result.success) {
-            console.error("Erro ao adicionar um novo membro ao projeto!");
+        } catch (err) {
+            console.error("Erro ao adicionar membro:", err);
         }
     };
 
-    const toggleDropdown = (userId: string) => {
-        setOpenUserId(prev => (prev === userId ? null : userId));
-    };
+    return (
+        <div className="d-flex flex-column overflow-auto" style={{ maxHeight: "50vh" }}>
 
-    const handleRoleChange = (userId: string, role: UserProps["role"]) => {
-        setUsers(prev =>
-            prev.map(user =>
-                user.id === userId ? { ...user, role } : user
-            )
-        );
-    };
+            {loading && <p>Carregando...</p>}
 
-  return (
-    <div className="d-flex flex-column overflow-auto" style={{ maxHeight: "50vh" }}>
-        <ul className="list-unstyled d-flex flex-column gap-2">
+            <ul className="list-unstyled d-flex flex-column gap-2">
 
-            {users.map(user => {
+                {users.map(user => {
 
-                if (!user.id) return null;
+                    if (!user.id) return null;
 
-                return (
-                    <li
-                        key={user.id}
-                        className="d-flex align-items-center gap-2"
-                        style={{ width: "100%" }}
-                    >
-
-                        {/* EMAIL */}
-                        <div
-                            className="text-truncate"
-                            style={{ flex: 1, minWidth: 0 }}
-                        >
-                            {user.email}
-                        </div>
-
-                        {/* DIREITA */}
-                        <div
-                            className="d-flex align-items-center gap-2 shrink-0 position-relative"
-                            ref={openUserId === user.id ? dropdownRef : null}
+                    return (
+                        <li
+                            key={user.id}
+                            className="d-flex align-items-center justify-content-between"
                         >
 
-                            {/* caret */}
-                            <div
-                                className="pointer p-1"
-                                onClick={() => toggleDropdown(user.id)}
-                            >
-                                {openUserId === user.id
-                                    ? <CaretUp size={16} />
-                                    : <CaretDown size={16} />
-                                }
-                            </div>
-
-                            {/* dropdown */}
-                            {openUserId === user.id && (
-                                <div
-                                    className="d-flex flex-column gap-2 p-2 border rounded shadow-sm bg-white"
-                                    style={{
-                                        position: "absolute",
-                                        top: "2rem",
-                                        right: "0",
-                                        zIndex: 100,
-                                        minWidth: "120px"
-                                    }}
-                                >
-                                    {["Membro", "Admin"].map(role => (
-                                        <label
-                                            key={role}
-                                            className="d-flex gap-2 align-items-center form-check-label"
-                                        >
-                                            <input
-                                                type="radio"
-                                                value={role}
-                                                name={`role-${user.id}`}
-                                                checked={user.role === role}
-                                                onChange={() =>
-                                                    handleRoleChange(
-                                                        user.id,
-                                                        role as UserProps["role"]
-                                                    )
-                                                }
-                                                className="form-check-input"
-                                            />
-                                            {role}
-                                        </label>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* TEXTO */}
-                            <span style={{ fontSize: "0.8rem", whiteSpace: "nowrap" }}>
-                                {user.role}
+                            {/* EMAIL */}
+                            <span className="text-truncate">
+                                {user.email}
                             </span>
 
                             {/* BOTÃO */}
                             <button
                                 type="button"
-                                onClick={() => handleNewMember(user)}
+                                onClick={() => handleAdd(user.id)}
                                 className="btn-custom btn-custom-outline-black p-2"
-                                style={{ whiteSpace: "nowrap" }}
                             >
                                 Adicionar
                             </button>
 
-                        </div>
+                        </li>
+                    );
+                })}
 
-                    </li>
-                );
+                {!loading && users.length === 0 && (
+                    <p className="text-muted">Nenhum usuário disponível</p>
+                )}
 
-            })}
-
-        </ul>
-    </div>
-);
+            </ul>
+        </div>
+    );
 }

@@ -1,23 +1,17 @@
+// ===== GERAL IMPORTS ======
 import { Modal } from 'react-bootstrap'
 import { PencilSquare, CameraFill, PersonCircle } from 'react-bootstrap-icons'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router'
 import { useCallback, useEffect, useState, useContext, useRef } from 'react'
-import { doc, getDoc } from 'firebase/firestore'
-import { db } from '../firebaseConfig/config'
-import { updateAccount } from '../services/authServices'
+import { updateMyProfile } from '../services/auth.service'
 import { AuthContext } from '../context/AuthContext'
+import { getCurrentUser, type UserProps } from '../services/auth.service'
 
-interface UserProfileData {
-    userId: string;
-    username: string;
-    email: string;
-    profileImage?: string;
-}
-
+// ===== MAIN COMPONENT =====
 export default function Profile() {
     const { user, loading } = useContext(AuthContext);
-    const [userData, setUserData] = useState<UserProfileData | null>(null);
+    const [userData, setUserData] = useState<UserProps | null>(null);
     const [show, setShow] = useState<boolean>(false);
     const [newUsername, setNewUsername] = useState("");
     const [newProfileImage, setNewProfileImage] = useState<string | null>(null);
@@ -50,17 +44,18 @@ export default function Profile() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!user || !newUsername.trim()) {
+        const userId = userData?.id || user?.uid;
+
+        if (!userId || !newUsername.trim()) {
             toast.error("Dados inválidos para atualização.");
             return;
         }
 
         try {
-            await updateAccount({
-                id: user.uid,
+            await updateMyProfile({
                 username: newUsername,
                 profileImage: newProfileImage || undefined
-            });
+            } as UserProps);
 
             setUserData(prev => prev ? { 
                 ...prev, 
@@ -68,6 +63,7 @@ export default function Profile() {
                 profileImage: newProfileImage || prev.profileImage 
             } : null);
 
+            toast.success("Perfil atualizado!");
             closeModal();
         } catch (err) {
             console.error(err);
@@ -83,27 +79,19 @@ export default function Profile() {
         }
 
         const fetchUserData = async () => {
-            try {
-                const docRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    setUserData({
-                        userId: user.uid,
-                        username: data.username || "",
-                        email: data.email || user.email || "",
-                        profileImage: data.profileImage || undefined
-                    });
-                    setNewUsername(data.username || "");
-                }
-            } catch (error) {
-                console.error("Error fetching user data:", error);
+            try
+            {
+                const data = await getCurrentUser();
+                setUserData(data);
+            }
+            catch (error)
+            {
+                console.error("Erro ao buscar dados do usuário atual: ", error);
             }
         };
 
-        fetchUserData();
-    }, [user, loading, navigate]);
+            fetchUserData();
+        }, [user, loading, navigate]);
 
     if (loading) return <div className="p-5 text-center"><div className="spinner-border text-danger"></div></div>;
 
@@ -151,7 +139,11 @@ export default function Profile() {
                                     </div>
                                     <div className="col-md-6 mb-3">
                                         <label className="text-muted small fw-bold text-uppercase">Status da Conta</label>
-                                        <p className="text-success fs-5 mb-0 fw-semibold">Ativo</p>
+                                        <p className="text-success fs-5 mb-0 fw-semibold">
+                                            { userData?.status == "active" ? 
+                                                "Ativo" : "Desativo"
+                                            }
+                                        </p>
                                     </div>
                                 </div>
                             </div>

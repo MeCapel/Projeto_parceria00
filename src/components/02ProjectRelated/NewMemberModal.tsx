@@ -1,44 +1,42 @@
 import { PlusLg } from "react-bootstrap-icons"
 import { Modal } from "react-bootstrap"
-import {  useRef, useState } from "react"
+import { useRef, useState } from "react"
 import AddNewMember from "./AddNewMember";
 
 interface Props {
     projectId: string;
 }
 
-export default function NewMemberModal({ projectId } : Props)
+export default function NewMemberModal({ projectId }: Props)
 {
-    const [ isOpen, setIsOpen ] = useState<boolean>(false);
-    // const [ username, setUsername ] = useState<string>(""); // falta finalizar, FUNÇÃO PARA PODER PESQUISAR USERS  
+    const [isOpen, setIsOpen] = useState(false);
     const formRef = useRef<HTMLFormElement | null>(null);
 
     const openModal = () => setIsOpen(true);
+
     const closeModal = () => {
-        if(formRef.current) formRef.current.classList.remove("was-validated");
+        if (formRef.current) formRef.current.classList.remove("was-validated");
         setIsOpen(false);
-        //setUsername("");
     }
-    
-    const handleNewProjectMember = async ( e: React.FormEvent ) => {
+
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
         const form = formRef.current;
-        if(!form) return;
+        if (!form) return;
 
         form.classList.add("was-validated");
 
-        if(!form.checkValidity())
-        {
+        if (!form.checkValidity()) {
             const firstInvalid = form.querySelector<HTMLElement>(":invalid");
-            if(firstInvalid) firstInvalid.focus();
+            firstInvalid?.focus();
             return;
         }
 
         closeModal();
     }
 
-    return(
+    return (
         <>
             <button className="btn-custom btn-custom-outline-black px-4 shadow-sm" onClick={openModal}>
                 <div className="mb-0 fs-6 d-flex gap-2 align-items-center fw-bold">
@@ -47,27 +45,19 @@ export default function NewMemberModal({ projectId } : Props)
                 </div>
             </button>
 
-            <Modal 
-                show={isOpen} 
-                onHide={closeModal} 
-                centered 
-                className="p-0"
-                dialogClassName="custom-modal"
-                      >
-                <Modal.Header closeButton className="border-0 mt-3 mx-3"></Modal.Header>
+            <Modal show={isOpen} onHide={closeModal} centered dialogClassName="custom-modal">
+                <Modal.Header closeButton className="border-0 mt-3 mx-3" />
                 <Modal.Body>
+                    <form ref={formRef} className="w-100 px-3 px-lg-5" onSubmit={handleSubmit} noValidate>
 
-                    <form ref={formRef} className="w-100 mt-0 pt-0 px-3 px-lg-5" onSubmit={handleNewProjectMember} noValidate>
-                        
                         <div className="pb-3">
                             <p className="fs-5 mb-0 text-custom-red">Adicionar</p>
-                            <h1 className="text-custom-black fw-bold mb-1 fs-3 fs-md-2">Novo membro</h1>
+                            <h1 className="text-custom-black fw-bold fs-3">Novo membro</h1>
                         </div>
 
                         <AddNewMember projectId={projectId} />
-                        
-                    </form>
 
+                    </form>
                 </Modal.Body>
             </Modal>
         </>

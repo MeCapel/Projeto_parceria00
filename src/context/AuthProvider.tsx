@@ -8,13 +8,18 @@ export default function AuthProvider({ children } : { children: React.ReactNode 
     const [ loading, setLoading ] = useState(true);
 
     const checkAuth = async () => {
-        try {
+        try 
+        {
             // A API vai checar o cookie e retornar o usuário
             const res = await api.get("/users/me");
             setUser(res.data);
-        } catch {
+        } 
+        catch 
+        {
             setUser(null);
-        } finally {
+        } 
+        finally 
+        {
             setLoading(false);
         }
     };

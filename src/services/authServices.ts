@@ -5,12 +5,16 @@ import { collection, doc, onSnapshot, setDoc, updateDoc, getDoc, query, where } 
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 
 // ===== TYPE INTERFACE ===== 
+export type Role = 'admin' | 'coordenador de validacao' | 'po' | 'tecnico de campo' | 'tecnico de desenvolvimento de producao';
+export type Status = 'active' | 'inactive';
+
 export interface UserProps {
     id: string;
     username: string;
-    email?: string;
+    email: string;
     profileImage?: string; // String Base64
-    role?: string,
+    role: Role,
+    status: Status
 }
 
 // ===== FUNCTIONS =====

@@ -1,4 +1,4 @@
-import type { UserProps } from "../../services/authServices"
+import type { UserProps } from "../../services/auth.service"
 
 interface Props {
     user: UserProps

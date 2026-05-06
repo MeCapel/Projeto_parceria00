@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { addChecklistToPrototype, createPrototype } from "../services/prototypeServices";
+import { createPrototype } from "../services/prototypes.service";
+import { createChecklistInstance } from "../services/checklistInstances.service";
 
 export interface PrototypeFormValues {
   projectId: string;
@@ -168,20 +169,49 @@ export function usePrototypeForm(projectId: string) {
     setCurrentStep(0);
   }
 
-  // ----- Submit function ----- 
+  // ----- Submit function -----
   async function handleSubmit(onSuccess?: (id: string) => void) {
     if (!validateAll()) return;
 
     try {
-      const prototypeId = await createPrototype(values);
+      // Transform data to match API schema expectations
+      const payload: any = {
+        projectId: values.projectId,
+        code: values.code,
+        name: values.name,
+        description: values.description,
+        stage: values.stage.toLowerCase(), // API expects lowercase
+        vertical: values.vertical,
+      };
 
+      // Nest state and city inside location object
+      if (values.state || values.city) {
+        payload.location = {
+          state: values.state || undefined,
+          city: values.city || undefined,
+        };
+      }
+
+      // Convert areaSize to number if present
+      if (values.areaSize) {
+        payload.areaSize = Number(values.areaSize);
+      }
+
+      const prototypeResult = await createPrototype(payload);
+      const prototypeId = typeof prototypeResult === 'string' ? prototypeResult : prototypeResult.id;
+
+      // Create checklist instances after prototype is created
       await Promise.all(
-        values.checklistsIds.map(id =>
-          addChecklistToPrototype(prototypeId!, id)
+        values.checklistsIds.map(checklistModelId =>
+          createChecklistInstance(prototypeId, checklistModelId)
         )
       );
 
-      onSuccess?.(prototypeId!);
+      if (!prototypeId) {
+        throw new Error("Erro ao criar protótipo");
+      }
+
+      onSuccess?.(prototypeId);
       reset();
 
     } catch (err) {

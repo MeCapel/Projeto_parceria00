@@ -1,4 +1,4 @@
-import { type PrototypeProps } from "../../../services/prototypeServices";
+import { type PrototypeProps } from "../../../services/prototypes.service";
 import ClientSelector from "../../08ClientsRelated/ClientSelector";
 import FormInput from "../../forms/FormInput";
 import FormRadioGroup from "../../forms/FormRadioGroup";
@@ -7,7 +7,7 @@ import FormTextarea from "../../forms/FormTextarea";
 interface Props {
   prototype: PrototypeProps;
   onChange: (data: Partial<PrototypeProps>) => void;
-  onVerticalChange: (id: string) => void;
+  onVerticalChange?: (id: string) => void;
 }
 
 export default function PrototypeGeralInfosTab({
@@ -15,6 +15,13 @@ export default function PrototypeGeralInfosTab({
   onChange,
   onVerticalChange,
 }: Props) {
+
+  const handleVerticalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFieldChange(e);
+    if (onVerticalChange && prototype.id) {
+      onVerticalChange(prototype.id);
+    }
+  };
 
   function handleFieldChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -52,29 +59,26 @@ export default function PrototypeGeralInfosTab({
           </div>
         </div>
 
-        <div className="row g-3 mt-2">
-          <div className="col-12 col-md-6">
-            <FormRadioGroup
-              label="Etapa"
-              name="stage"
-              value={prototype.stage}
-              options={["Fabricação", "Montagem", "Validação de campo"]}
-              onChange={handleFieldChange}
-            />
+          <div className="row g-3 mt-2">
+            <div className="col-12 col-md-6">
+              <FormRadioGroup
+                label="Etapa"
+                name="stage"
+                value={prototype.stage}
+                options={["fabricacao", "montagem", "validacao de campo"]}
+                onChange={handleFieldChange}
+              />
+            </div>
+            <div className="col-12 col-md-6">
+              <FormRadioGroup
+                label="Vertical"
+                name="vertical"
+                value={prototype.vertical}
+                options={["preparo", "plantio", "pulverizacao"]}
+                onChange={handleVerticalChange}
+              />
+            </div>
           </div>
-          <div className="col-12 col-md-6">
-            <FormRadioGroup
-              label="Vertical"
-              name="vertical"
-              value={prototype.vertical}
-              options={["Preparo", "Plantio", "Pulverização"]}
-              onChange={(e) => {
-                handleFieldChange(e);
-                onVerticalChange(prototype.id!);
-              }}
-            />
-          </div>
-        </div>
 
         {/* Seção Condicional: Validação de Campo 🌾 */}
         {prototype.stage === "Validação de campo" && (
@@ -83,9 +87,8 @@ export default function PrototypeGeralInfosTab({
             onSelect={(client) => {
               onChange({
                 clientId: client.id,
-                state: client.state,
-                city: client.city,
-                areaSize: client.area,
+                location: { state: client.state, city: client.city },
+                areaSize: client.area ? Number(client.area) : undefined,
               });
             }}
           />

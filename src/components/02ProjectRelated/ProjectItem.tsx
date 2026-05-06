@@ -8,8 +8,8 @@ import MainFrame from "../03PrototypeRelated/MainFrame";
 import ProtoMultiForm from "../03PrototypeRelated/ProtoMultiForm";
 import DividedByProgress from "./DividedByProgress";
 import NewMemberModal from "./NewMemberModal";
-import type { ProjectProps } from "../../services/projectServices";
 import DisplayProjectMembers from "../07UsersRelated/DisplayProjectMembers";
+import type { ProjectProps } from "../../services/projects.service";
 
 export default function ProjectItem()
 {

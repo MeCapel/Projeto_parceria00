@@ -1,11 +1,24 @@
-import { useEffect, useState } from "react";
-import { usePrototype } from "./usePrototypes";
-import { getPrototypeChecklistsRealtime, type PrototypeProps } from "../services/prototypeServices";
+import { useEffect, useState, useCallback } from "react";
+import { usePrototypes } from "./usePrototypes";
+import { getProjectPrototypesProgress } from "../services/checklistInstances.service";
+import type { PrototypeProps } from "../services/prototypes.service";
 
 export const usePrototypeWithProgress = (projectId: string) => {
-    const { prototypes, loading: loadingPrototypes } = usePrototype(projectId);
+    const { prototypes, loading: loadingPrototypes } = usePrototypes(projectId);
 
     const [prototypesWithProgress, setPrototypesWithProgress] = useState<(PrototypeProps & { progress: number })[]>([]);
+
+    const fetchProgress = useCallback(async () => {
+        if (!projectId) return;
+
+        try {
+            const result = await getProjectPrototypesProgress(projectId);
+            // API returns: { prototypes: [{ id, name, ..., progress: number }] }
+            setPrototypesWithProgress(result?.prototypes || []);
+        } catch (err) {
+            console.error("Error fetching prototype progress:", err);
+        }
+    }, [projectId]);
 
     useEffect(() => {
         if (!prototypes || prototypes.length === 0) {
@@ -13,48 +26,12 @@ export const usePrototypeWithProgress = (projectId: string) => {
             return;
         }
 
-        const unsubscribes: (() => void)[] = [];
-
-        const updatedMap: Record<string, PrototypeProps & { progress: number }> = {};
-
-        prototypes.forEach((prototype) => {
-
-            const unsubscribe = getPrototypeChecklistsRealtime(
-                prototype.id!,
-                (checklists) => {
-
-                    let total = 0;
-                    let done = 0;
-
-                    checklists.forEach(c =>
-                        c.categories.forEach(cat => {
-                            total += cat.items.length;
-                            done += cat.items.filter(i => i.checked).length;
-                        })
-                    );
-
-                    const progress =
-                        total === 0 ? 0 : Math.round((done / total) * 100);
-
-                    updatedMap[prototype.id!] = {
-                        ...prototype,
-                        progress
-                    };
-
-                    setPrototypesWithProgress(Object.values(updatedMap));
-                }
-            );
-
-            unsubscribes.push(unsubscribe);
-        });
-
-        return () => {
-            unsubscribes.forEach(unsub => unsub());
-        };
-    }, [prototypes]);
+        fetchProgress();
+    }, [prototypes, fetchProgress]);
 
     return {
         prototypes: prototypesWithProgress,
-        loading: loadingPrototypes
+        loading: loadingPrototypes,
+        refresh: fetchProgress
     };
 };

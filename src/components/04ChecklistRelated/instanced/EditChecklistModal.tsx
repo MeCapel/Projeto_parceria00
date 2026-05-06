@@ -1,99 +1,111 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
-import { type ChecklistProps } from "../../../services/checklistServices";
-import { toggleChecklistItems } from "../../../services/prototypeServices";
+import type { ChecklistInstance } from "../../../services/checklistInstances.service";
+import { useChecklistInstances } from "../../../hooks/useChecklistInstances";
 
 interface Props {
-    prototypeId: string;
-    checklist: ChecklistProps;
-    onClose: () => void;
-    onSave: (updatedChecklist: ChecklistProps) => void;
+  prototypeId: string;
+  checklist: ChecklistInstance;
+  onClose: () => void;
+  onSave: (c: ChecklistInstance) => void;
 }
 
-export default function EditChecklistModal({ prototypeId, checklist, onClose, onSave }: Props) {
+export default function EditChecklistModal({
+  prototypeId,
+  checklist,
+  onClose,
+  onSave,
+}: Props) {
+  const { toggleItem } = useChecklistInstances({ prototypeId });
 
-    const [localChecklist, setLocalChecklist] = useState<ChecklistProps>(structuredClone(checklist));
-    const [saving, setSaving] = useState(false);
+  const [local, setLocal] = useState(checklist);
+  const [saving, setSaving] = useState(false);
 
-    useEffect(() => {
-        setLocalChecklist(structuredClone(checklist));
-    }, [checklist]);
-
-    const handleToggleItem = (catIndex: number, itemId: string) => {
-        setLocalChecklist(prev => ({
-            ...prev,
-            categories: prev.categories.map((cat, i) =>
-                i !== catIndex
-                    ? cat
-                    : {
-                        ...cat,
-                        items: cat.items.map(item =>
-                            item.id === itemId
-                                ? { ...item, checked: !item.checked }
-                                : item
-                        )
-                    }
-            )
-        }));
+  useEffect(() => {
+    // Normalize items to use "name" (handle both old "label" and new "name" fields)
+    const normalized = {
+      ...checklist,
+      categories: checklist.categories.map(cat => ({
+        ...cat,
+        items: cat.items.map((item: any) => ({
+          id: item.id,
+          name: item.name || item.label || "",
+          checked: item.checked || false,
+        }))
+      }))
     };
+    setLocal(normalized);
+  }, [checklist]);
 
-    const handleSave = async () => {
-        setSaving(true);
+  const handleToggle = (catIndex: number, itemId: string) => {
+    setLocal(prev => ({
+      ...prev,
+      categories: prev.categories.map((cat, i) =>
+        i !== catIndex
+          ? cat
+          : {
+              ...cat,
+              items: cat.items.map(item =>
+                item.id === itemId
+                  ? { ...item, checked: !item.checked }
+                  : item
+              ),
+            }
+      ),
+    }));
+  };
 
-        try {
-            // 1. Atualiza a checklist individual (itens checked)
-            await toggleChecklistItems(
-                prototypeId,
-                localChecklist.id!,
-                localChecklist
-            );
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      // Normalize items to use "name" (handle both old "label" and new "name" fields)
+      const categoriesToSend = local.categories.map(cat => ({
+        ...cat,
+        items: cat.items.map((item: any) => ({
+          id: item.id,
+          name: item.name || item.label || "",
+          checked: item.checked,
+        }))
+      }));
+      
+      await toggleItem(local.id, categoriesToSend);
+      onSave(local);
+    } finally {
+      setSaving(false);
+    }
+  };
 
-            // 2. Atualiza estado no componente pai
-            onSave(localChecklist);
+  return (
+    <Modal show onHide={onClose} size="lg" centered>
+      <Modal.Header closeButton>
+        <Modal.Title>{local.name}</Modal.Title>
+      </Modal.Header>
 
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setSaving(false);
-        }
-    };
+      <Modal.Body>
+        {local.categories.map((cat, catIndex) => (
+          <div key={cat.id} className="mb-3">
+            <h5>{cat.name}</h5>
 
-    return (
-        <Modal show onHide={onClose} size="lg" centered>
+            {cat.items.map(item => (
+              <div key={item.id} className="d-flex gap-2">
+                <input
+                  type="checkbox"
+                  checked={item.checked}
+                  onChange={() => handleToggle(catIndex, item.id!)}
+                />
+                <label>{item.name}</label>
+              </div>
+            ))}
+          </div>
+        ))}
+      </Modal.Body>
 
-            <Modal.Header closeButton>
-                <Modal.Title>{localChecklist.name}</Modal.Title>
-            </Modal.Header>
-
-            <Modal.Body>
-                {localChecklist.categories.map((cat, catIndex) => (
-                    <div key={cat.id} className="mb-3">
-
-                        <h5>{cat.name}</h5>
-
-                        {cat.items.map(item => (
-                            <div key={item.id} className="d-flex gap-2">
-
-                                <input
-                                    type="checkbox"
-                                    checked={!!item.checked}
-                                    onChange={() => handleToggleItem(catIndex, item.id)}
-                                />
-
-                                <label>{item.label}</label>
-
-                            </div>
-                        ))}
-                    </div>
-                ))}
-            </Modal.Body>
-
-            <Modal.Footer>
-                <button onClick={onClose} className="btn-custom btn-custom-secondary">Fechar</button>
-                <button onClick={handleSave} className="btn-custom btn-custom-success">
-                    {saving ? "Salvando..." : "Salvar"}
-                </button>
-            </Modal.Footer>
-        </Modal>
-    );
+      <Modal.Footer>
+        <button onClick={onClose}>Fechar</button>
+        <button onClick={handleSave}>
+          {saving ? "Salvando..." : "Salvar"}
+        </button>
+      </Modal.Footer>
+    </Modal>
+  );
 }

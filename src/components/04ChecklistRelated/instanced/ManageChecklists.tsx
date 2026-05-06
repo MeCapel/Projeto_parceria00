@@ -1,23 +1,22 @@
 import { useState, useEffect, useCallback } from "react";
 import { Modal } from "react-bootstrap";
 import ChooseChecklists from "./ChooseChecklist";
-import { type ChecklistProps } from "../../../services/checklistServices";
+import type { ChecklistInstance } from "../../../services/checklistInstances.service";
 
 interface ManageChecklistModalProps {
     vertical: string;
-    selectedChecklists: ChecklistProps[];
+    selectedChecklists: ChecklistInstance[];
     onClose: () => void;
-    onUpdate: (newChecklists: ChecklistProps[]) => void;
+    onUpdate: (modelIds: string[]) => void;
 }
 
 export default function ManageChecklistsModal({ vertical, selectedChecklists, onClose, onUpdate }: ManageChecklistModalProps) {
   const [show, setShow] = useState(false);
   const [selectedModelIds, setSelectedModelIds] = useState<string[]>([]);
-  const [avaliableModels, setAvaliableModels] = useState<ChecklistProps[]>([]);
 
   // re-sincroniza sempre que prop mudar
   useEffect(() => {
-    const ids = selectedChecklists.map(c => c.originalModel).filter((id): id is string => !!id);
+    const ids = selectedChecklists.map(c => c.originalModelId).filter((id): id is string => !!id);
     setSelectedModelIds(ids);
   }, [selectedChecklists]);
 
@@ -25,41 +24,14 @@ export default function ManageChecklistsModal({ vertical, selectedChecklists, on
   const closeModal = () => { setShow(false); onClose(); };
 
   const handleValueChange = useCallback(
-    (ids: string[], checklists: ChecklistProps[]) => {
+    (ids: string[]) => {
       setSelectedModelIds(ids);
-      setAvaliableModels(checklists);
     },
     []
   );
 
   const handleSave = () => {
-    // checklists que já existem no protótipo E continuam selecionadas
-    const kept = selectedChecklists.filter(
-      cl =>
-        cl.originalModel &&
-        selectedModelIds.includes(cl.originalModel)
-    );
-
-    // modelos selecionados que ainda NÃO viraram instância
-    const toCreate = avaliableModels.filter(
-      model =>
-        !kept.some(cl => cl.originalModel === model.id)
-    );
-
-    const created: ChecklistProps[] = toCreate.map(model => ({
-      id: crypto.randomUUID(),
-      name: model.name,
-      vertical: model.vertical,
-      categories: structuredClone(model.categories),
-      version: model.version,
-      createdAt: new Date().toISOString(),
-      originalModel: model.id,
-    }));
-
-    //  Array que realmente sobre para o pai
-    const finalChecklists = [...kept, ...created];
-
-    onUpdate(finalChecklists);
+    onUpdate(selectedModelIds);
     closeModal();
   };
 
@@ -73,8 +45,8 @@ export default function ManageChecklistsModal({ vertical, selectedChecklists, on
         <Modal.Body className="p-4">
           <ChooseChecklists
             vertical={vertical}
-            onValueChange={handleValueChange}
-            initialSelectedIds={selectedModelIds}
+            onSelect={handleValueChange}
+            selectedIds={selectedModelIds}
           />
 
           <div className="d-flex justify-content-center gap-2 mt-4">

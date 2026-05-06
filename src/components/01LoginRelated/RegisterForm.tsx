@@ -1,15 +1,15 @@
 // ===== GERAL IMPORTS =====
 import React, { useState } from "react"
 import { useNavigate } from "react-router"
-import { createAccount } from "../../services/authServices"
+import { inviteUser } from "../../services/auth.service";
 
 // ===== MAIN COMPONENT =====
 // ----- Componente responsável pelo formulário de registro dos usuários / criação de conta -----
 export default function SignInForm()
 {
-    const [ userName, setUserName ] = useState("");
+    const [ username, setUsername ] = useState("");
     const [ email, setEmail ] = useState("");
-    const [ password, setPassword ] = useState("");
+    const [ role, setRole ] = useState("");
     const [ loading, setLoading ] = useState(false);
 
     const navigate = useNavigate();
@@ -17,7 +17,7 @@ export default function SignInForm()
     const handleCreateAccount = async (e: React.FormEvent ) => {
         e.preventDefault();
 
-        if (!email || !password || !userName)
+        if (!email || !role || !username)
         {
             alert("Preencha os campos e email e senha!");
             return;
@@ -30,18 +30,17 @@ export default function SignInForm()
             return;
         }
 
-        if (password.length < 6)
-        {
-            alert("A senha deve ter mais que 6 caracteres!");
-            setLoading(false);
-            return;
-        }
-
         setLoading(true);
 
         try 
         {
-            await createAccount(userName.trim(), email.trim(), password.trim());
+            const data = {
+                username: username.trim(),
+                email: email.trim(),
+                role: role,
+            }
+
+            await inviteUser(data);
             alert("User created successfully!");
             navigate("/home");
         }
@@ -54,9 +53,6 @@ export default function SignInForm()
                     break;
                 case "auth/invalid-email":
                     alert("O formato do email é inválido.");
-                    break;
-                case "auth/weak-password":
-                    alert("A senha deve ter pelo menos 6 caracteres.");
                     break;
                 default:
                     alert("Ocorreu um erro ao criar a conta: " + (err.message || "Erro desconhecido"));
@@ -81,9 +77,9 @@ export default function SignInForm()
                 </div>
                 
                 <div className="d-flex flex-column gap-3">
-                    <label htmlFor="usernameInput" className="fs-5">Nome</label>
-                    <input type="text" name="" id="usernameInput" className="py-2 px-3 fs-5 rounded-2"  placeholder="Seu nome"
-                           style={{ border: '1px solid var(--gray00)'}} onChange={(e) => setUserName(e.target.value)} required/>
+                    <label htmlFor="username" className="fs-5">Nome</label>
+                    <input type="text" name="" id="username" className="py-2 px-3 fs-5 rounded-2"  placeholder="Seu nome"
+                           style={{ border: '1px solid var(--gray00)'}} onChange={(e) => setUsername(e.target.value)} required/>
                 </div>
 
                 <div className="d-flex flex-column gap-3">
@@ -94,9 +90,9 @@ export default function SignInForm()
                 
 
                 <div className="d-flex flex-column gap-3">
-                    <label htmlFor="passwordInput" className="fs-5">Senha</label>
-                    <input type="password" name="" id="passwordInput" className="py-2 px-3 fs-5 rounded-2" required placeholder="Insira a sua senha"
-                           style={{ border: '1px solid var(--gray00)'}} onChange={(e) => setPassword(e.target.value)}/>
+                    <label htmlFor="role" className="fs-5">Pápel</label>
+                    <input type="text" name="" id="role" className="py-2 px-3 fs-5 rounded-2" required placeholder="Insira o papel do usuário novo"
+                           style={{ border: '1px solid var(--gray00)'}} onChange={(e) => setRole(e.target.value)}/>
                 </div>
 
                 <button className="btn-custom btn-custom-outline-black fs-5 mt-4" type="submit" disabled={loading}>

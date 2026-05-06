@@ -11,6 +11,7 @@ import FormTextarea from "../components/forms/FormTextarea";
 import { Modal } from "react-bootstrap";
 import { Trash3Fill } from "react-bootstrap-icons";
 import SearchInput from "../components/forms/SearchInput"; // Import do SearchInput
+import type { ProjectProps } from "../services/projects.service";
 
 interface ProjectForm {
     name: string;
@@ -22,11 +23,14 @@ export default function ProjectsPage() {
 
     // Campo de Busca - Projetos
     const [search, setSearch] = useState("");
-    const filteredProjects = userProjects.filter(p => 
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.description.toLowerCase().includes(search.toLowerCase())
-        );    
+    const filteredProjects = userProjects
+        .filter((p): p is ProjectProps => Boolean(p))
+        .filter(p => 
+            (p.name ?? "").toLowerCase().includes(search.toLowerCase()) ||
+            (p.description ?? "").toLowerCase().includes(search.toLowerCase())
+    );   
     
+    // console.log("USER PROJECTS:", userProjects);
 
     const [showModal, setShowModal] = useState(false);
     const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
@@ -54,8 +58,8 @@ export default function ProjectsPage() {
         setShowModal(true);
 
         setValues({
-            name: project.name,
-            description: project.description,
+            name: project.name ?? "",
+            description: project.description ?? "",
         });
     };
 
@@ -130,8 +134,8 @@ export default function ProjectsPage() {
                             filteredProjects.map(p => ( // E aqui também
                                 <div className="" key={p.id}>
                                     <ProjectCard
-                                        projectName={p.name}
-                                        projectDescription={p.description}
+                                        projectName={p.name ?? ""}
+                                        projectDescription={p.description ?? ""}
                                         location={`/projects/${p.id}`}
                                         onEdit={() => handleEdit(p.id)}
                                         onDelete={() => handleDelete(p.id)}

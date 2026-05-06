@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { useProjectPrototypes } from "../../../hooks/useProjectPrototype";
-import { deleteAllPrototypeChecklists, type PrototypeProps } from "../../../services/prototypeServices";
-import type { ChecklistProps } from "../../../services/checklistServices";
+import { useProjectPrototypes } from "../../../hooks/useProjectPrototypes";
+import type { PrototypeProps } from "../../../services/prototypes.service";
 import PrototypeGeralInfosTab from "./PrototypeGeralInfosTab";
 import PrototypeChecklistsTab from "./PrototypeChecklistsTab";
-import OccurrencesPage from "../../06OccurrenceRelated/OccurenecesPage";
+import OccurrencesPage from "../../06OccurrenceRelated/OccurrencesPage";
 import { ArrowLeftCircleFill, Floppy2Fill, Trash3Fill, TrashFill } from "react-bootstrap-icons";
 import { Modal } from "react-bootstrap";
 
@@ -29,24 +28,7 @@ export default function PrototypePage() {
 
     // ================= UPDATE LOCAL =================
     function handleChange(updatedData: Partial<PrototypeProps>) {
-        patch(updatedData);
-    }
-
-    // ================= CHECKLIST UPDATE =================
-    function handleChecklistUpdate(updatedChecklist: ChecklistProps) {
-        if (!prototype) return;
-
-        patch({
-            checklists: (prototype.checklists || []).map(cl =>
-                cl.id === updatedChecklist.id ? updatedChecklist : cl
-            )
-        });
-    }
-
-    function handleChecklistListUpdate(newChecklists: ChecklistProps[]) {
-        patch({
-            checklists: newChecklists
-        });
+        patch(updatedData as any);
     }
 
     // ================= SAVE =================
@@ -54,23 +36,18 @@ export default function PrototypePage() {
         if (!prototype) return;
 
         try {
-            const cleanedChecklists = (prototype.checklists || []).map(cl => ({
-                ...cl,
-                categories: (cl.categories || []).map(cat => ({
-                    ...cat,
-                    items: (cat.items || []).map(item => ({
-                        id: item.id,
-                        label: item.label,
-                        checked: item.checked
-                    }))
-                }))
-            }));
-
             await update({
-                ...prototype,
-                checklists: cleanedChecklists
+                id: prototype.id, 
+                code: prototype.code,
+                name: prototype.name,
+                description: prototype.description,
+                stage: prototype.stage?.toLowerCase() || "",
+                vertical: prototype.vertical?.toLowerCase() || "",
+                projectId: prototype.projectId,
+                clientId: prototype.clientId || undefined,
+                location: prototype.location,
+                areaSize: prototype.areaSize ? Number(prototype.areaSize) : undefined,
             });
-
         } catch (err) {
             console.error(err);
         }
@@ -84,41 +61,26 @@ export default function PrototypePage() {
         await remove();
     }
 
-    // ================= RESET CHECKLIST =================
-    async function onVerticalChange() {
-        if (!prototype?.id) return;
-
-        await deleteAllPrototypeChecklists(prototype.id);
-
-        patch({
-            checklists: []
-        });
-    }
-
     if (loading || !prototype) return <p>Carregando...</p>;
 
     // ================= TABS =================
     const componentsMap = [
-        {
-            label: "Informações gerais",
-            component: (
-                <PrototypeGeralInfosTab
-                    prototype={prototype}
-                    onChange={handleChange}
-                    onVerticalChange={onVerticalChange}
-                />
-            ),
-            i: 0,
-        },
+            {
+                label: "Informações gerais",
+                component: (
+                    <PrototypeGeralInfosTab
+                        prototype={prototype}
+                        onChange={handleChange}
+                    />
+                ),
+                i: 0,
+            },
         {
             label: "Checklists",
             component: (
                 <PrototypeChecklistsTab
                     prototypeId={prototype.id!}
                     vertical={prototype.vertical}
-                    checklists={prototype.checklists || []}
-                    onUpdate={handleChecklistUpdate}
-                    onListUpdate={handleChecklistListUpdate}
                 />
             ),
             i: 1,

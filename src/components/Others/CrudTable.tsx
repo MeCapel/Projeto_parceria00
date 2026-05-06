@@ -28,13 +28,13 @@ export function CrudTable<T>({
                 <thead className="table-light">
                     <tr>
                         {headers.map((h, i) => (
-                            <th key={i} className="py-3 px-4 text-custom-black fw-bold">
+                            <th key={i} className="py-3 px-4 fw-bold">
                                 {h}
                             </th>
                         ))}
 
                         {(onEdit || onDelete) && (
-                            <th className="py-3 px-4 text-custom-black fw-bold">Ações</th>
+                            <th className="py-3 px-4 fw-bold">Ações</th>
                         )}
                     </tr>
                 </thead>

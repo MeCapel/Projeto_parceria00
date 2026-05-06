@@ -37,12 +37,12 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path='/login' element={<Login />}/>
-          <Route path="/signup" element={<SignUp />} />
           <Route path="*" element={<NotFoundPage />} />
           <Route path='/resetpassword' element={<ResetPassword />}/>
           <Route path='/confirmresetpassword' element={<ConfirmResetPassword />}/>
           
           {/* Rotas Protegidas que usam o Layout do sistema */}
+          <Route path='/signup' element={<ProtectedRoute><SignUp /></ProtectedRoute>}/>
           <Route path='/home' element={<ProtectedRoute><Layout><Home /></Layout></ProtectedRoute>}/>
           <Route path='/clientes' element={<ProtectedRoute><Layout><Clients /></Layout></ProtectedRoute>}/>
           <Route path="/projects" element={<ProtectedRoute><Layout><ProjectsPage /></Layout></ProtectedRoute>} />

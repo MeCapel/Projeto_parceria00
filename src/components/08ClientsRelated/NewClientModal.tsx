@@ -3,10 +3,10 @@ import { useClients } from "../../hooks/useClients";
 import type { ClientForm } from "../../pages/Clients";
 import { useForm } from "../../hooks/useForm";
 import CrudModal from "../Others/CrudModal";
-import type { ClientProps } from "../../services/clientServices";
 import FormInput from "../forms/FormInput";
 import SelectLocation from "../Others/SelectLocation";
 import FormFoneInput from "../forms/FormInputFone";
+import type { ClientProps } from "../../services/clients.service";
 
 interface Props {
   show: boolean;

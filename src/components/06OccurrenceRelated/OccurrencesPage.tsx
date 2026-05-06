@@ -1,6 +1,5 @@
-import type { Timestamp } from "firebase/firestore"
-import usePrototypeOccurrences from "../../hooks/usePrototypeOccurrences"
 import { useRef, useState } from "react"
+import { useOccurrences } from "../../hooks/useOccurrences"
 import { useForm } from "../../hooks/useForm"
 import { useImageUpload } from "../../hooks/useImageUpload"
 import CrudHeader from "../Others/CrudHeader"
@@ -15,14 +14,14 @@ import { Modal } from "react-bootstrap"
 import FormDatePicker from "../forms/FormDatePicker"
 
 interface OccurrenceForm {
-    name: string
-    description: string
-    criticity: string
-    image?: string
-    prototypeId: string
-    status: "Pendente" | "Em andamento" | "Concluído" ,
+    name: string;
+    description: string;
+    criticity: string;
+    image?: string;
+    prototypeId: string;
+    status: "pendente" | "em andamento" | "concluido" ,
     dueOn: Date | null,
-    createdAt: string | Timestamp
+    createdAt: string;
 }
 
 interface Props {
@@ -31,7 +30,7 @@ interface Props {
 
 export default function OccurrencesPage({ prototypeId }: Props)
 {
-    const { protoOccurrences, createOccurrence, updateOccurrence, deleteOccurrence } = usePrototypeOccurrences(prototypeId);
+    const { occurrences, create, update, remove } = useOccurrences({ prototypeId });
 
     const [showModal, setShowModal] = useState(false);
     const [editingOccurrenceId, setEditingOccurrence] = useState<string | null>(null);
@@ -47,7 +46,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
         criticity: "",
         image: "",
         prototypeId,
-        status: "Pendente",
+            status: "pendente",
         dueOn: null,
         createdAt: new Date().toISOString()
     });
@@ -76,11 +75,16 @@ export default function OccurrencesPage({ prototypeId }: Props)
     const handleNew = () => {
         reset();
 
-        setValues(prev => ({
-            ...prev,
+        setValues({
+            name: "",
+            description: "",
+            criticity: "",
+            image: "",
             prototypeId,
+            status: "pendente",
+            dueOn: null,
             createdAt: new Date().toISOString()
-        }));
+        });
 
         clearImage();
         setEditingOccurrence(null);
@@ -89,30 +93,36 @@ export default function OccurrencesPage({ prototypeId }: Props)
 
     // ================= EDIT =================
     const handleEdit = (id: string) => {
-        const occurrence = protoOccurrences.find(o => o.id === id);
+        const occurrence = occurrences.find(o => o.id === id);
         if (!occurrence) return;
 
         setEditingOccurrence(id);
         setShowModal(true);
-
         setImage(occurrence.image || null);
 
-        setValues(prev => ({
-            ...prev,
-            dueOn: occurrence.dueOn ? occurrence.dueOn.toDate() : null,
-        }));
+        setValues({
+            name: occurrence.name,
+            description: occurrence.description,
+            criticity: occurrence.criticity,
+            prototypeId: occurrence.prototypeId || "",
+            status: occurrence.status,
+            dueOn: occurrence.dueOn ? new Date(occurrence.dueOn) : null,
+            createdAt: occurrence.createdAt || "",
+        });
     };
 
     // ================= SAVE =================
     const saveOccurrence = async () => {
+        const payload = {
+            ...values,
+            dueOn: values.dueOn ? (values.dueOn instanceof Date ? values.dueOn.toISOString() : values.dueOn) : "",
+        };
+
         if (editingOccurrenceId) {
-            return updateOccurrence({
-                id: editingOccurrenceId,
-                ...values
-            });
+            return update(editingOccurrenceId, payload);
         }
 
-        return createOccurrence(values);
+        return create(payload);
     };
 
     const handleSave = async (e: React.FormEvent) => {
@@ -146,7 +156,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
     const confirmDelete = async () => {
         if (!occurrenceToDelete) return;
 
-        await deleteOccurrence(occurrenceToDelete);
+        await remove(occurrenceToDelete);
         setOccurrenceToDelete(null);
     };
 
@@ -162,7 +172,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
             <CrudTable
                 headers={["Nome", "Descrição", "Criticidade", "Status", "Data", "Data de vencimento"]}
 
-                data={protoOccurrences}
+                data={occurrences}
 
                 getId={(o) => o.id!}
 
@@ -184,7 +194,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
                         </td>
 
                         <td className="px-4 text-secondary">
-                            {formatDateBR(o.dueOn!)}
+                            {formatDateBR(o.dueOn)}
                         </td>
                     </>
                 )}
@@ -238,7 +248,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
                             name="status"
                             value={values.status}
                             onChange={handleChange}
-                            options={["Pendente", "Em andamento", "Concluído"]}
+                            options={["pendente", "em andamento", "concluido"]}
                             required
                         />
 

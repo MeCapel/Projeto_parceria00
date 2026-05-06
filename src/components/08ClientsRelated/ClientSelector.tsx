@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useClients } from "../../hooks/useClients";
-import type { ClientProps } from "../../services/clientServices";
 import NewClientModal from "./NewClientModal";
 import { PlusLg, CaretDownFill } from "react-bootstrap-icons";
+import type { ClientProps } from "../../services/clients.service";
 
 interface Props {
   value?: string; // clientId

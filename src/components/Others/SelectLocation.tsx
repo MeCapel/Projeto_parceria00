@@ -1,4 +1,4 @@
-import type { ChangeEvent } from "react";
+import { useEffect, type ChangeEvent } from "react";
 import FormSelect from "../forms/FormSelect";
 import { useLocation } from "../../hooks/useLocation";
 
@@ -11,6 +11,12 @@ interface Props {
 
 export default function SelectLocation({ stateValue, cityValue, onChangeState, onChangeCity }: Props) {
     const { states, cities, setSelectedState } = useLocation();
+
+    useEffect(() => {
+        if (stateValue) {
+            setSelectedState(stateValue);
+        }
+    }, [stateValue, setSelectedState]);
 
     function handleStateChange(e: ChangeEvent<HTMLSelectElement>) {
         const value = e.target.value;

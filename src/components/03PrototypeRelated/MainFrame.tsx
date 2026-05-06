@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { CrudTable } from "../Others/CrudTable";
-import { usePrototype } from "../../hooks/usePrototypes";
+import { usePrototypes } from "../../hooks/usePrototypes";
 import { Modal } from "react-bootstrap";
 import { Trash3Fill } from "react-bootstrap-icons";
 import { useNavigate } from "react-router";
@@ -11,7 +11,7 @@ interface MainFrameProps {
 
 export default function MainFrame({ projectId } : MainFrameProps)
 {
-    const { prototypes, deletePrototype } = usePrototype(projectId);
+    const { prototypes, deletePrototype } = usePrototypes(projectId);
     const [ prototypeToDelete, setPrototypeToDelete] = useState<string | null>(null);
     const navigate = useNavigate();
 

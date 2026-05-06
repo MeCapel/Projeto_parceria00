@@ -1,87 +1,75 @@
-import { useState, useEffect } from "react";
-import { getChecklistsModelByP, type ChecklistProps } from "../../../services/checklistServices";
+import { useEffect, useState } from "react";
+import { getChecklistsModelByP, type ChecklistModelProps } from "../../../services/checklistModels.service";
 
 interface Props {
-    vertical: string;
-    initialSelectedIds?: string[];
-    onValueChange: (ids: string[], checklists: ChecklistProps[]) => void;
-    isInvalid?: boolean;
+  vertical: string;
+  selectedIds?: string[];
+  onSelect: (ids: string[]) => void;
+  isInvalid?: boolean;
 }
 
-export default function ChooseChecklists({ vertical, onValueChange, initialSelectedIds, isInvalid }: Props) {
-    const [loading, setLoading] = useState(true);
-    const [data, setData] = useState<ChecklistProps[]>([]);
-    const [selectedIds, setSelectedIds] = useState<string[]>(initialSelectedIds || []);
+export default function ChooseChecklists({
+  vertical,
+  selectedIds = [],
+  onSelect,
+  isInvalid,
+}: Props) {
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<ChecklistModelProps[]>([]);
+  const [selected, setSelected] = useState<string[]>(selectedIds);
 
-    // Atualiza selectedIds se initialSelectedIds mudar
-    useEffect(() => {
-        if (initialSelectedIds) setSelectedIds(initialSelectedIds);
-    }, [initialSelectedIds]);
+  useEffect(() => {
+    setSelected(selectedIds);
+  }, [selectedIds]);
 
-    // Alterna seleção do checkbox
-    const handleToggle = (id: string) => {
-        setSelectedIds(prev =>
-            prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-        );
+  useEffect(() => {
+    if (!vertical) return;
+
+    const fetch = async () => {
+      setLoading(true);
+      try {
+        const res = await getChecklistsModelByP(vertical);
+        setData(res);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    // Sincroniza com o componente pai
-    useEffect(() => {
-        onValueChange(
-            selectedIds,
-            data.filter(m => selectedIds.includes(m.id!))
-        );
-    }, [selectedIds, data, onValueChange]);
+    fetch();
+  }, [vertical]);
 
-    // Busca checklists sempre que a vertical muda
-    useEffect(() => {
-        setLoading(true);
-        const fetchData = async () => {
-            try {
-                const checklists = await getChecklistsModelByP(vertical);
-                setData(checklists);
-            } catch (err) {
-                console.error("Erro ao buscar checklists por vertical:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
+  const toggle = (id: string) => {
+    const updated = selected.includes(id)
+      ? selected.filter(x => x !== id)
+      : [...selected, id];
 
-        fetchData();
-    }, [vertical]);
+    setSelected(updated);
+    onSelect(updated);
+  };
 
-    if (loading) return <p>Carregando...</p>;
-    return (
-        <div className={`p-3 d-flex flex-column gap-3 border rounded-2 ${isInvalid ? "border-danger" : ""}`}>
-            <div>
-                <p className="text-custom-black fs-4 fw-bold mb-0">Selecionar checklists</p>
-                <p className="fs-5 mb-0 text-custom-red">{vertical}</p>
-            </div>
+  if (loading) return <p>Carregando...</p>;
 
-            {isInvalid && (
-                <div className="invalid-feedback d-block">
-                    Selecione ao menos uma checklist
-                </div>
-            )}
+  return (
+    <div className={`p-3 border rounded-2 ${isInvalid ? "border-danger" : ""}`}>
+      <h5>Selecionar checklists</h5>
+      <small>{vertical}</small>
 
-            {data.length === 0 ? (
-                <p>Nenhuma checklist encontrada para esta vertical.</p>
-            ) : (
-                <ul className="list-unstyled d-flex flex-column gap-2">
-                    {data.map(item => (
-                        <li key={item.id} className="d-flex gap-3 align-items-center">
-                            <input
-                                id={item.id}
-                                type="checkbox"
-                                className="form-check-input text-black"
-                                onChange={() => handleToggle(item.id!)}
-                                checked={selectedIds.includes(item.id!)}
-                            />
-                            <label htmlFor={item.id} className="form-check-label">{item.name}</label>
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
-    );
+      {data.length === 0 ? (
+        <p>Nenhuma checklist encontrada</p>
+      ) : (
+        <ul className="list-unstyled mt-3">
+          {data.map(item => (
+            <li key={item.id} className="d-flex gap-2 align-items-center">
+              <input
+                type="checkbox"
+                checked={selected.includes(item.id!)}
+                onChange={() => toggle(item.id!)}
+              />
+              <label>{item.name}</label>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }

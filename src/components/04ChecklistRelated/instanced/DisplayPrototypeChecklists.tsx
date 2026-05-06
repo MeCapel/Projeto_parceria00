@@ -1,54 +1,47 @@
 import { useState } from "react";
 import EditChecklistModal from "./EditChecklistModal";
-import type { ChecklistProps } from "../../../services/checklistServices";
+import type { ChecklistInstance } from "../../../services/checklistInstances.service";
 
 interface Props {
-    prototypeId: string;
-    checklists: ChecklistProps[];
-    onUpdate: (updatedChecklist: ChecklistProps) => void; // para atualizar a checklist no pai
+  checklists: ChecklistInstance[];
+  prototypeId: string;
+  onUpdate: (c: ChecklistInstance) => void;
 }
 
-export default function DisplayPrototypeChecklists({ checklists, prototypeId, onUpdate }: Props) {
-    const [selectedChecklist, setSelectedChecklist] = useState<ChecklistProps | null>(null);
+export default function DisplayPrototypeChecklists({
+  checklists,
+  prototypeId,
+  onUpdate,
+}: Props) {
+  const [selected, setSelected] = useState<ChecklistInstance | null>(null);
 
-    const openChecklist = (cl: ChecklistProps) => {
-        const copy = structuredClone(cl);
-        setSelectedChecklist(copy);
-    };
+  return (
+    <div className="d-flex flex-wrap gap-3 mt-3">
+      {checklists.length === 0 && <p>Nenhuma checklist</p>}
 
-    return (
-        <div className="d-flex flex-column gap-2 mt-2">
-
-            <div className="d-flex flex-wrap gap-3">
-
-                {checklists.length === 0 && <p>Nenhuma checklist encontrada.</p>}
-
-                {checklists.map((cl) => (
-                    <div
-                        key={cl.id}
-                        onClick={() => openChecklist(cl)}
-                        className="card p-3 shadow"
-                        style={{ width: "18rem", cursor: "pointer" }}
-                    >
-                        <h5>{cl.name} • v{cl.version}</h5>
-                        <p>{cl.vertical}</p>
-                        <p>{cl.categories.length} categorias</p>
-                    </div>
-                ))}
-            </div>
-
-            {selectedChecklist && (
-                <EditChecklistModal
-                    prototypeId={prototypeId}
-                    checklist={selectedChecklist}
-                    onClose={() => setSelectedChecklist(null)}
-                    onSave={(updatedChecklist) => {
-                        onUpdate(updatedChecklist);
-                        setSelectedChecklist(null);
-                    }}
-                />
-            )}
+      {checklists.map(cl => (
+        <div
+          key={cl.id}
+          className="card p-3 shadow"
+          onClick={() => setSelected(cl)}
+          style={{ cursor: "pointer", width: "18rem" }}
+        >
+          <h5>{cl.name}</h5>
+          <p>{cl.categories.length} categorias</p>
         </div>
-    );
+      ))}
+
+      {selected && (
+        <EditChecklistModal
+          prototypeId={prototypeId}
+          checklist={selected}
+          onClose={() => setSelected(null)}
+          onSave={(c) => {
+            onUpdate(c);
+            setSelected(null);
+          }}
+        />
+      )}
+    </div>
+  );
 }
- 

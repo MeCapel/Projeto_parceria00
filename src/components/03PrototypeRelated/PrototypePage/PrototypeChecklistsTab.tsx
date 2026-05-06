@@ -1,51 +1,50 @@
-import type { ChecklistProps } from "../../../services/checklistServices";
+import { useChecklistInstances } from "../../../hooks/useChecklistInstances";
 import DisplayPrototypeChecklists from "../../04ChecklistRelated/instanced/DisplayPrototypeChecklists";
 import ManageChecklistsModal from "../../04ChecklistRelated/instanced/ManageChecklists";
 
 interface Props {
-    prototypeId: string;
-    vertical: string;
-    checklists: ChecklistProps[];
-    onUpdate: (updatedChecklist: ChecklistProps) => void;
-    onListUpdate: (newChecklists: ChecklistProps[]) => void;
+  prototypeId: string;
+  vertical: string;
 }
 
 export default function PrototypeChecklistsTab({
-    prototypeId,
-    vertical,
-    checklists,
-    onUpdate,
-    onListUpdate
+  prototypeId,
+  vertical,
 }: Props) {
+  const {
+    checklists,
+    linkChecklist,
+    removeChecklist,
+    fetchChecklists,
+  } = useChecklistInstances({ prototypeId });
 
-    return (
-        <>
-            <div className="d-flex align-items-center justify-content-between mb-3">
+  return (
+    <>
+      <div className="d-flex justify-content-between">
+        <h4>Checklists</h4>
 
-                <div>
-                    <h4 className="fw-bold text-custom-black mb-0">
-                        Checklists
-                    </h4>
+        <ManageChecklistsModal
+          vertical={vertical}
+          selectedChecklists={checklists}
+          onUpdate={async (modelIds) => {
+            const existing = new Set(checklists.map(c => c.originalModelId).filter(Boolean));
+            const toAdd = modelIds.filter(id => !existing.has(id));
+            const toRemove = checklists.filter(c => c.originalModelId && !modelIds.includes(c.originalModelId));
 
-                    <small className="text-muted">
-                        Listas de requisitos vinculadas ao protótipo
-                    </small>
-                </div>
+            await Promise.all([
+              ...toAdd.map(id => linkChecklist(id)),
+              ...toRemove.map(c => removeChecklist(c.id))
+            ]);
+          }}
+          onClose={() => {}}
+        />
+      </div>
 
-                <ManageChecklistsModal
-                    vertical={vertical}
-                    selectedChecklists={checklists}
-                    onUpdate={onListUpdate}
-                    onClose={() => {}}
-                />
-
-            </div>
-
-            <DisplayPrototypeChecklists
-                prototypeId={prototypeId}
-                checklists={checklists}
-                onUpdate={onUpdate}
-            />
-        </>
-    );
+      <DisplayPrototypeChecklists
+        prototypeId={prototypeId}
+        checklists={checklists}
+        onUpdate={() => fetchChecklists()}
+      />
+    </>
+  );
 }

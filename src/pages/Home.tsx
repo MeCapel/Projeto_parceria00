@@ -1,5 +1,5 @@
 import ProjectsPage from './ProjectsPage'
-import ChecklistsModelSection from '../components/04ChecklistRelated/models/ChecklistModelSection'
+import ChecklistModelPage from '../components/04ChecklistRelated/new-models/ChecklistModelPage'
 
 export default function Home()
 {    
@@ -12,7 +12,7 @@ export default function Home()
                     style={{ height: "2rem", fill: "#fce57e" }} />
                 <hr style={{ width: "50%" }} />
             </div>
-            <ChecklistsModelSection />
+            <ChecklistModelPage />
         </>
     )
 }

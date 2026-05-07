@@ -69,9 +69,12 @@ export const lisenChecklistModel = async ( checklistModelId: string ) : Promise<
 }
 
 // ================= GET ALL =================
-export const getChecklistModels = async () => {
-  const response = await api.get("/checklist-models");
-  return response.data.data; // { data, lastDoc }
+export const getChecklistModels = async (vertical?: string) => {
+  const url = vertical
+    ? `/checklist-models?vertical=${encodeURIComponent(vertical)}`
+    : "/checklist-models";
+  const response = await api.get(url);
+  return response.data.data || response.data;
 };
 
 // ================= GET ONE =================
@@ -109,7 +112,7 @@ export const deleteChecklistModel = async (id: string) => {
 };
 
 // ----- ESTA FUNÇÃO PEGA OS MODELOS DE CHECKLIST DE ACORDO COM A VERTICAL SOLICITADA -----
-export const getChecklistsModelByP = async (vertical: string) => {
+export const getChecklistsModelByVertical = async (vertical: string) => {
     try
     {
         const docRef = collection(db, "checklistModels");

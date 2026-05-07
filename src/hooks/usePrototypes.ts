@@ -19,6 +19,7 @@ interface CreatePrototypeDTO {
     areaSize?: number;
     createdBy?: string;
     createdAt?: string;
+    checklistModelIds?: string[];
 }
 
 interface UpdatePrototypeDTO extends Partial<CreatePrototypeDTO> {
@@ -36,8 +37,8 @@ export const usePrototypes = (projectId: string) => {
     try {
       setLoading(true);
 
-      const response = await getPrototypesByProject(projectId);
-      setPrototypes(response.data || []);
+      const data = await getPrototypesByProject(projectId);
+      setPrototypes(data || []);
     } catch (err) {
       console.error("Erro ao buscar protótipos:", err);
     } finally {

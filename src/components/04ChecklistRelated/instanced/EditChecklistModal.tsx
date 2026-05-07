@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
-import type { ChecklistInstance } from "../../../services/checklistInstances.service";
+
+import type { ChecklistInstance, ChecklistItem } from "../../../services/checklistInstances.service";
 import { useChecklistInstances } from "../../../hooks/useChecklistInstances";
 
 interface Props {
@@ -22,33 +23,36 @@ export default function EditChecklistModal({
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    // Normalize items to use "name" (handle both old "label" and new "name" fields)
     const normalized = {
       ...checklist,
-      categories: checklist.categories.map(cat => ({
+      categories: checklist.categories.map((cat) => ({
         ...cat,
-        items: cat.items.map((item: any) => ({
+        items: cat.items.map((item: ChecklistItem) => ({
           id: item.id,
-          name: item.name || item.label || "",
+          label: item.label || "",
           checked: item.checked || false,
-        }))
-      }))
+        })),
+      })),
     };
+
     setLocal(normalized);
   }, [checklist]);
 
-  const handleToggle = (catIndex: number, itemId: string) => {
-    setLocal(prev => ({
+  const handleToggle = (catIndex: number, itemIndex: number) => {
+    setLocal((prev) => ({
       ...prev,
-      categories: prev.categories.map((cat, i) =>
-        i !== catIndex
+      categories: prev.categories.map((cat, cIndex) =>
+        cIndex !== catIndex
           ? cat
           : {
               ...cat,
-              items: cat.items.map(item =>
-                item.id === itemId
-                  ? { ...item, checked: !item.checked }
-                  : item
+              items: cat.items.map((item, iIndex) =>
+                iIndex !== itemIndex
+                  ? item
+                  : {
+                      ...item,
+                      checked: !item.checked,
+                    }
               ),
             }
       ),
@@ -57,18 +61,19 @@ export default function EditChecklistModal({
 
   const handleSave = async () => {
     setSaving(true);
+
     try {
-      // Normalize items to use "name" (handle both old "label" and new "name" fields)
-      const categoriesToSend = local.categories.map(cat => ({
+      const categoriesToSend = local.categories.map((cat) => ({
         ...cat,
-        items: cat.items.map((item: any) => ({
+        items: cat.items.map((item: ChecklistItem) => ({
           id: item.id,
-          name: item.name || item.label || "",
+          label: item.label,
           checked: item.checked,
-        }))
+        })),
       }));
-      
+
       await toggleItem(local.id, categoriesToSend);
+
       onSave(local);
     } finally {
       setSaving(false);
@@ -77,35 +82,81 @@ export default function EditChecklistModal({
 
   return (
     <Modal show onHide={onClose} size="lg" centered>
-      <Modal.Header closeButton>
-        <Modal.Title>{local.name}</Modal.Title>
+      <Modal.Header closeButton className="border-0 pb-0">
+        <Modal.Title className="fw-bold">
+          {local.name}
+        </Modal.Title>
       </Modal.Header>
 
-      <Modal.Body>
+      <Modal.Body className="pt-3">
         {local.categories.map((cat, catIndex) => (
-          <div key={cat.id} className="mb-3">
-            <h5>{cat.name}</h5>
+          <div
+            key={cat.id ?? catIndex}
+            className="mb-4 p-3 border rounded-4 bg-light from-check"
+          >
+            <h5 className="fw-semibold mb-3">
+              {cat.name}
+            </h5>
 
-            {cat.items.map(item => (
-              <div key={item.id} className="d-flex gap-2">
-                <input
-                  type="checkbox"
-                  checked={item.checked}
-                  onChange={() => handleToggle(catIndex, item.id!)}
-                />
-                <label>{item.name}</label>
-              </div>
-            ))}
+            <div className="d-flex flex-column gap-2">
+              {cat.items.map((item, itemIndex) => (
+                <label
+                  key={item.id ?? `${catIndex}-${itemIndex}`}
+                  className="
+                    d-flex
+                    align-items-center
+                    gap-3
+                    p-2
+                    rounded-3
+                    cursor-pointer
+                    hover-shadow
+                    form-check-label
+                  "
+                  style={{
+                    cursor: "pointer",
+                    transition: "0.2s",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={item.checked}
+                    onChange={() =>
+                      handleToggle(catIndex, itemIndex)
+                    }
+                    style={{
+                      accentColor: "var(--various03)",
+                    }}
+                    className="form-check-input"
+                  />
+
+                  <span
+                    style={
+                      item.checked
+                        ? {
+                            textDecoration: "line-through",
+                            textDecorationColor: "#fffff",
+                            textDecorationThickness: "1px",
+                          }
+                        : {}
+                    }
+                  >
+                    {item.label}
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
         ))}
       </Modal.Body>
 
       <Modal.Footer>
-        <button onClick={onClose}>Fechar</button>
-        <button onClick={handleSave}>
+         <button onClick={onClose} className="btn-custom btn-custom-outline-primary">Fechar</button>
+         <button onClick={handleSave} className="btn-custom btn-custom-outline-success">
           {saving ? "Salvando..." : "Salvar"}
-        </button>
-      </Modal.Footer>
+         </button>
+      </Modal.Footer> 
     </Modal>
   );
 }
+
+  

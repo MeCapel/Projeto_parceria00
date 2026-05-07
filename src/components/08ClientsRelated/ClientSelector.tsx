@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function ClientSelector({ value, onSelect }: Props) {
-  const { clients } = useClients();
+  const { clients, createClient } = useClients();
 
   const [open, setOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -185,6 +185,7 @@ export default function ClientSelector({ value, onSelect }: Props) {
             setShowModal(false);
             setOpen(false);
         }}
+        createClient={createClient}
         />
 
     </div>

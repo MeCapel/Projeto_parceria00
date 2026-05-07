@@ -103,6 +103,7 @@ export const useClients = () => {
     client,
     clients,
     loading,
+    fetchClients,
     createClient,
     getClient,
     updateClient,

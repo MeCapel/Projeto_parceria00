@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import { useClients } from "../../hooks/useClients";
 import type { ClientForm } from "../../pages/Clients";
 import { useForm } from "../../hooks/useForm";
 import CrudModal from "../Others/CrudModal";
@@ -12,10 +11,10 @@ interface Props {
   show: boolean;
   onClose: () => void;
   onCreated?: (client: ClientProps) => void;
+  createClient: (data: ClientForm) => Promise<any>;
 }
 
-export default function NewClientModal({ show, onClose, onCreated }: Props) {
-  const { createClient } = useClients();
+export default function NewClientModal({ show, onClose, onCreated, createClient }: Props) {
   const formRef = useRef<HTMLFormElement | null>(null);
 
   const { values, handleChange, reset } = useForm<ClientForm>({
@@ -43,9 +42,10 @@ export default function NewClientModal({ show, onClose, onCreated }: Props) {
       }
 
       const newClient = await createClient(values);
+      const clientData = newClient?.data || newClient;
 
-      if (newClient) {
-          onCreated?.(newClient);
+      if (clientData) {
+          onCreated?.(clientData);
           onClose(); 
       }
 

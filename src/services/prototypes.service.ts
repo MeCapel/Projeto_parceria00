@@ -26,8 +26,8 @@ export const getPrototypes = async () => {
 
 // 🔹 protótipos de um projeto
 export const getPrototypesByProject = async (projectId: string) => {
-  const response = await api.get(`/projects/${projectId}/prototypes`);
-  return response.data; // { data, lastDoc }
+  const response = await api.get(`/prototypes/project/${projectId}`);
+  return response.data.data || response.data;
 };
 
 // 🔹 pegar protótipo específico
@@ -39,7 +39,9 @@ export const getPrototype = async (prototypeId: string): Promise<PrototypeProps>
 // ===== POST =====
 
 // 🔹 criar protótipo
-export const createPrototype = async (data: Omit<PrototypeProps, "id">) => {
+export const createPrototype = async (
+  data: Omit<PrototypeProps, "id"> & { checklistModelIds?: string[] }
+) => {
   const response = await api.post("/prototypes", data);
   return response.data;
 };

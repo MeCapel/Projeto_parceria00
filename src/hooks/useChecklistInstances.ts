@@ -5,7 +5,6 @@ import {
   createChecklistInstance,
   updateChecklistInstance,
   deleteChecklistInstance,
-  getChecklistProgress,
   type ChecklistInstance,
 } from "../services/checklistInstances.service";
 
@@ -35,10 +34,10 @@ export function useChecklistInstances({ prototypeId }: Params) {
   }, [fetchChecklists]);
 
   // ===== CRIAR LINK MODEL -> INSTANCE =====
-  const linkChecklist = async (checklistModelId: string) => {
+  const linkChecklist = async (checklistModelIds: string[]) => {
     const newChecklist = await createChecklistInstance(
       prototypeId,
-      checklistModelId
+      checklistModelIds
     );
 
     setChecklists(prev => [...prev, newChecklist]);
@@ -73,11 +72,6 @@ export function useChecklistInstances({ prototypeId }: Params) {
     );
   };
 
-  // ===== PROGRESS (opcional cache simples) =====
-  const getProgress = async (checklistId: string) => {
-    return await getChecklistProgress(prototypeId, checklistId);
-  };
-
   return {
     checklists,
     loading,
@@ -85,6 +79,5 @@ export function useChecklistInstances({ prototypeId }: Params) {
     linkChecklist,
     toggleItem,
     removeChecklist,
-    getProgress,
   };
 }

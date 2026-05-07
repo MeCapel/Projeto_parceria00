@@ -132,3 +132,9 @@
 .modal-custom {
     width: 30vw;
 }
+
+.strikethrough {
+  text-decoration-line: line-through;
+  text-decoration-color: red; /* Sets the line color */
+  color: black;              /* Sets the text color */
+}

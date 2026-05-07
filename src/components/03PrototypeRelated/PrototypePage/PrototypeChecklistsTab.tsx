@@ -23,21 +23,21 @@ export default function PrototypeChecklistsTab({
       <div className="d-flex justify-content-between">
         <h4>Checklists</h4>
 
-        <ManageChecklistsModal
-          vertical={vertical}
-          selectedChecklists={checklists}
-          onUpdate={async (modelIds) => {
-            const existing = new Set(checklists.map(c => c.originalModelId).filter(Boolean));
-            const toAdd = modelIds.filter(id => !existing.has(id));
-            const toRemove = checklists.filter(c => c.originalModelId && !modelIds.includes(c.originalModelId));
+      <ManageChecklistsModal
+        vertical={vertical}
+        selectedChecklists={checklists}
+        onUpdate={async (modelIds) => {
+          const existing = new Set(checklists.map(c => c.originalModelId).filter(Boolean));
+          const toAdd = modelIds.filter(id => !existing.has(id));
+          const toRemove = checklists.filter(c => c.originalModelId && !modelIds.includes(c.originalModelId));
 
-            await Promise.all([
-              ...toAdd.map(id => linkChecklist(id)),
-              ...toRemove.map(c => removeChecklist(c.id))
-            ]);
-          }}
-          onClose={() => {}}
-        />
+          if (toAdd.length > 0) {
+            await linkChecklist(toAdd);
+          }
+          await Promise.all(toRemove.map(c => removeChecklist(c.id)));
+        }}
+        onClose={() => {}}
+      />
       </div>
 
       <DisplayPrototypeChecklists

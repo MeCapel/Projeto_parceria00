@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getChecklistsModelByP, type ChecklistModelProps } from "../../../services/checklistModels.service";
+import { getChecklistsModelByVertical, type ChecklistModelProps } from "../../../services/checklistModels.service";
 
 interface Props {
   vertical: string;
@@ -28,7 +28,7 @@ export default function ChooseChecklists({
     const fetch = async () => {
       setLoading(true);
       try {
-        const res = await getChecklistsModelByP(vertical);
+        const res = await getChecklistsModelByVertical(vertical);
         setData(res);
       } finally {
         setLoading(false);

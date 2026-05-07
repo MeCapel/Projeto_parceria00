@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { createPrototype } from "../services/prototypes.service";
-import { createChecklistInstance } from "../services/checklistInstances.service";
 
 export interface PrototypeFormValues {
   projectId: string;
@@ -182,6 +181,7 @@ export function usePrototypeForm(projectId: string) {
         description: values.description,
         stage: values.stage.toLowerCase(), // API expects lowercase
         vertical: values.vertical,
+        checklistModelIds: values.checklistsIds, // Add checklist models to create with prototype
       };
 
       // Nest state and city inside location object
@@ -198,14 +198,7 @@ export function usePrototypeForm(projectId: string) {
       }
 
       const prototypeResult = await createPrototype(payload);
-      const prototypeId = typeof prototypeResult === 'string' ? prototypeResult : prototypeResult.id;
-
-      // Create checklist instances after prototype is created
-      await Promise.all(
-        values.checklistsIds.map(checklistModelId =>
-          createChecklistInstance(prototypeId, checklistModelId)
-        )
-      );
+      const prototypeId = typeof prototypeResult === 'string' ? prototypeResult : prototypeResult?.id;
 
       if (!prototypeId) {
         throw new Error("Erro ao criar protótipo");

@@ -5,7 +5,7 @@ import { api } from "./api";
 
 export interface ChecklistItem {
   id: string;
-  name: string;
+  label: string;
   checked: boolean;
 }
 
@@ -33,48 +33,18 @@ export interface ChecklistInstance {
 // todas as checklists do protótipo
 export const getPrototypeChecklists = async (prototypeId: string) => {
   const res = await api.get(`/prototypes/${prototypeId}/checklists`);
-  return res.data;
-};
-
-// checklist única
-export const getChecklistInstance = async (
-  prototypeId: string,
-  checklistId: string
-) => {
-  const res = await api.get(
-    `/prototypes/${prototypeId}/checklists/${checklistId}`
-  );
-  return res.data;
-};
-
-// progresso de uma checklist
-export const getChecklistProgress = async (
-  prototypeId: string,
-  checklistId: string
-) => {
-  const res = await api.get(
-    `/prototypes/${prototypeId}/checklists/${checklistId}/progress`
-  );
-  return res.data;
-};
-
-// progresso geral do projeto
-export const getProjectPrototypesProgress = async (projectId: string) => {
-  const res = await api.get(
-    `/projects/${projectId}/prototypes/progress`
-  );
-  return res.data;
+  return res.data.data || res.data;
 };
 
 // ===== POST =====
 
 export const createChecklistInstance = async (
   prototypeId: string,
-  checklistModelId: string
+  checklistModelIds: string[]
 ) => {
   const res = await api.post(
     `/prototypes/${prototypeId}/checklists`,
-    { checklistModelId } // ✅ só isso
+    { checklistModelIds }
   );
 
   return res.data;

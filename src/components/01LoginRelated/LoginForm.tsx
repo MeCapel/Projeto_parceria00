@@ -61,15 +61,11 @@ export default function LoginForm()
                 style={{ maxWidth: '30rem' }} 
                 onSubmit={handleLogin}
             >
-                <div className="">
-                    <p className="fs-2 mb-0 fw-bold text-custom-black text-center">Entre na sua conta</p>
-
-                    <p className="fs-5 mb-0 text-center text-link-custom" 
-                        onClick={() => navigate("/signup")}
-                        style={{ cursor: 'pointer'}}
-                    >
-                        Crie uma conta
-                    </p>
+                <div className="d-flex flex-column align-items-center justify-content-center gap-3">
+                    <div className="d-flex align-items-center justify-content-center">
+                        <img height={30} src="/fromBrand/baldan-principal.png" alt="Logotipo da marca" />
+                    </div>
+                    <p className="fs-2 mb-0 fw-semibold text-black text-center">Adicionar conta</p>
                 </div>
                 
                 <div className="d-flex flex-column gap-3">
@@ -79,8 +75,7 @@ export default function LoginForm()
                         name="email" 
                         type="text" 
                         placeholder="conta@gmail.com" 
-                        className="py-2 px-3 fs-5 rounded-2" 
-                        style={{ border: '1px solid var(--gray00)'}} 
+                        className="border py-2 px-3 fs-5 rounded-2" 
                         onChange={(e) => setEmail(e.target.value)} 
                         required
                     />
@@ -105,8 +100,7 @@ export default function LoginForm()
                         name="password" 
                         type="password" 
                         placeholder="Insira a sua senha"
-                        className="py-2 px-3 fs-5 rounded-2" 
-                        style={{ border: '1px solid var(--gray00)'}} 
+                        className="border py-2 px-3 fs-5 rounded-2" 
                         onChange={(e) => setPassword(e.target.value)}
                         required 
                     />

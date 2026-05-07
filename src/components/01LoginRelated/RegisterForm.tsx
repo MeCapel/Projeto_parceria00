@@ -68,32 +68,47 @@ export default function SignInForm()
         <div className="container-fluid vh-100 d-flex align-items-center justify-content-center flex-column"
             style={{ backgroundImage: "url(/fromBrand/background-pattern.png)"}}>
             <form className="container bg-light p-5 d-flex flex-column rounded-3 gap-4" style={{ maxWidth: '30rem' }} onSubmit={handleCreateAccount}>
-                <div className="">
-                        <p className="fs-2 mb-0 fw-bold text-custom-black text-center">Adicionar conta</p>
-                        <p className="fs-5 mb-0 text-center text-link-custom" onClick={() => navigate("/login")}
-                            style={{ cursor: 'pointer'}}>
-                            Entrar na sua conta
-                        </p>
+                <div className="d-flex flex-column align-items-center justify-content-center gap-3">
+                    <div className="d-flex align-items-center justify-content-center">
+                        <img height={30} src="/fromBrand/baldan-principal.png" alt="Logotipo da marca" />
+                    </div>
+                    <p className="fs-2 mb-0 fw-semibold text-black text-center">Adicionar conta</p>
                 </div>
                 
                 <div className="d-flex flex-column gap-3">
                     <label htmlFor="username" className="fs-5">Nome</label>
-                    <input type="text" name="" id="username" className="py-2 px-3 fs-5 rounded-2"  placeholder="Seu nome"
-                           style={{ border: '1px solid var(--gray00)'}} onChange={(e) => setUsername(e.target.value)} required/>
+                    <input 
+                        type="text" 
+                        name="" 
+                        id="username" 
+                        className="border py-2 px-3 fs-5 rounded-2" 
+                        placeholder="Seu nome"
+                        onChange={(e) => setUsername(e.target.value)} 
+                        required
+                    />
                 </div>
 
                 <div className="d-flex flex-column gap-3">
-                    <label htmlFor="emailInput" className="fs-5">Email</label>
-                    <input type="text" name="" id="emailInput" placeholder="conta@gmail.com" className="py-2 px-3 fs-5 rounded-2" 
-                           style={{ border: '1px solid var(--gray00)'}} onChange={(e) => setEmail(e.target.value)} required/>
+                    <label htmlFor="email" className="fs-5">Email</label>
+                    <input 
+                        type="text" 
+                        name="" 
+                        id="email" 
+                        placeholder="conta@gmail.com" 
+                        className="border py-2 px-3 fs-5 rounded-2" 
+                        onChange={(e) => setEmail(e.target.value)} 
+                        required
+                    />
                 </div>
                 
-
-                <div className="d-flex flex-column gap-3">
-                    <label htmlFor="role" className="fs-5">Pápel</label>
-                    <input type="text" name="" id="role" className="py-2 px-3 fs-5 rounded-2" required placeholder="Insira o papel do usuário novo"
-                           style={{ border: '1px solid var(--gray00)'}} onChange={(e) => setRole(e.target.value)}/>
-                </div>
+                <FormRadioGroup
+                    label="Pápel"
+                    name="role"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    options={["admin", "coordenador de validacao", "integrador", "po", "tecnico de campo"]}
+                    required
+                />
 
                 <button className="btn-custom btn-custom-outline-black fs-5 mt-4" type="submit" disabled={loading}>
                     <p className='mb-0'>{loading ? "Criando..." : "Criar"}</p>
@@ -102,4 +117,70 @@ export default function SignInForm()
             </form>
         </div>
     )
+}
+
+interface Props {
+    label: string;
+    name: string;
+    value: string | number;
+    options: string[];
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    required?: boolean;
+    error?: string;
+}
+
+function FormRadioGroup({
+    label,
+    name,
+    value,
+    options,
+    onChange,
+    required = false,
+    error
+}: Props) {
+
+    return (
+        <fieldset className={`w-100 mt-4 p-3 border rounded-3 position-relative ${
+                error ? "border-danger" : ""
+            }`} >
+
+            {/* Label flutuante */}
+            <legend 
+                className="w-auto py-1 px-3 text-white fs-6 position-absolute bg-custom-gray00 rounded-pill"
+                style={{ top: "-1rem", left: "1rem" }}>
+                {label}
+            </legend>
+
+            {/* Radios */}
+            <div className="d-flex flex-column gap-3 justify-content-center align-items-start mt-3">
+
+                {options.map((opt, index) => (
+                    <label
+                        key={opt}
+                        className="d-flex align-items-center gap-2 px-3 py-2 border rounded-3 w-100 w-md-auto"
+                        style={{ cursor: "pointer" }}
+                    >
+                        <input
+                            type="radio"
+                            name={name}
+                            value={opt}
+                            checked={value === opt}
+                            onChange={onChange}
+                            className={`form-check-input ${error ? "is-invalid" : ""}`}
+                            required={required && index === 0}
+                        />
+
+                        <span>{opt}</span>
+                    </label>
+                ))}
+
+            </div>
+
+            {/* Feedback Bootstrap */}
+            <div className="invalid-feedback">
+                {error || `Selecione uma opção`}
+            </div>
+
+        </fieldset>
+    );
 }

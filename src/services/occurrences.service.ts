@@ -9,18 +9,18 @@ export interface OccurrenceProps {
   prototypeId: string;
   image?: string;
   status: "pendente" | "em andamento" | "concluido";
-  dueOn: string; // ISO string for API
+  dueOn: Date | string; // Keep as Date for API
   createdBy?: string;
-  createdAt?: string;
+  createdAt?: string | Date;
 }
 
 // ===== CREATE (requires prototypeId) =====
 export const createOccurrence = async (data: Omit<OccurrenceProps, "id">) => {
   const payload = {
     ...data,
-    dueOn: data.dueOn instanceof Date ? data.dueOn.toISOString() : data.dueOn,
-    createdAt: data.createdAt instanceof Date ? data.createdAt.toISOString() : data.createdAt,
+    // createdAt is handled by API (server timestamp)
   };
+  // Keep dueOn as-is (Date object) for API
   const res = await api.post("/occurrences", payload);
   return res.data;
 };
@@ -28,12 +28,6 @@ export const createOccurrence = async (data: Omit<OccurrenceProps, "id">) => {
 // ===== UPDATE =====
 export const updateOccurrence = async (id: string, data: Partial<OccurrenceProps>) => {
   const payload = { ...data };
-  if (payload.dueOn instanceof Date) {
-    payload.dueOn = payload.dueOn.toISOString() as any;
-  }
-  if (payload.createdAt instanceof Date) {
-    payload.createdAt = payload.createdAt.toISOString() as any;
-  }
   const res = await api.patch(`/occurrences/${id}`, payload);
   return res.data;
 };
@@ -57,5 +51,5 @@ export const getOccurrence = async (id: string): Promise<OccurrenceProps | null>
 // ===== GET BY PROTOTYPE ID =====
 export const getPrototypeOccurrences = async (prototypeId: string) => {
   const res = await api.get(`/prototypes/${prototypeId}/occurrences`);
-  return res.data;
+  return res.data.data || res.data; 
 };

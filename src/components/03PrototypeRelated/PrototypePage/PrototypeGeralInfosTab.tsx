@@ -81,7 +81,7 @@ export default function PrototypeGeralInfosTab({
           </div>
 
         {/* Seção Condicional: Validação de Campo 🌾 */}
-        {prototype.stage === "Validação de campo" && (
+        {prototype.stage === "validacao de campo" && (
           <ClientSelector
             value={prototype.clientId}
             onSelect={(client) => {

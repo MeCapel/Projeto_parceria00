@@ -115,13 +115,13 @@ export default function OccurrencesPage({ prototypeId }: Props)
     const saveOccurrence = async () => {
         const payload = {
             ...values,
-            dueOn: values.dueOn ? (values.dueOn instanceof Date ? values.dueOn.toISOString() : values.dueOn) : "",
+            // Keep dueOn as Date object for API
         };
-
+        
         if (editingOccurrenceId) {
             return update(editingOccurrenceId, payload);
         }
-
+        
         return create(payload);
     };
 

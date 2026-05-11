@@ -73,9 +73,12 @@ export default function AddNewMember({ projectId }: Props) {
         );
     };
 
-  return (
-    <div className="d-flex flex-column overflow-auto" style={{ maxHeight: "50vh" }}>
-        <ul className="list-unstyled d-flex flex-column gap-2">
+ return (
+    <div
+        className="d-flex flex-column overflow-auto mt-2"
+        style={{ maxHeight: "50vh" }}
+    >
+        <ul className="list-unstyled d-flex flex-column gap-3">
 
             {users.map(user => {
 
@@ -84,43 +87,56 @@ export default function AddNewMember({ projectId }: Props) {
                 return (
                     <li
                         key={user.id}
-                        className="d-flex align-items-center gap-2"
-                        style={{ width: "100%" }}
+                        className="d-flex align-items-center justify-content-between border rounded p-2"
                     >
 
-                        {/* EMAIL */}
-                        <div
-                            className="text-truncate"
-                            style={{ flex: 1, minWidth: 0 }}
-                        >
-                            {user.email}
+                        {/* ESQUERDA */}
+                        <div className="d-flex flex-column" style={{ minWidth: 0 }}>
+                            <span className="fw-semibold">
+                                {user.username || "Sem nome"}
+                            </span>
+
+                            <span
+                                className="text-muted text-truncate"
+                                style={{ fontSize: "0.9rem", maxWidth: "180px" }}
+                            >
+                                {user.email}
+                            </span>
                         </div>
 
                         {/* DIREITA */}
                         <div
-                            className="d-flex align-items-center gap-2 shrink-0 position-relative"
+                            className="d-flex align-items-center gap-2 position-relative"
                             ref={openUserId === user.id ? dropdownRef : null}
                         >
 
-                            {/* caret */}
+                            {/* SELECT ROLE */}
                             <div
-                                className="pointer p-1"
+                                className="d-flex align-items-center gap-1 pointer"
                                 onClick={() => toggleDropdown(user.id)}
+                                style={{
+                                    cursor: "pointer",
+                                    minWidth: "90px"
+                                }}
                             >
+                                <span style={{ fontSize: "0.9rem" }}>
+                                    {user.role}
+                                </span>
+
                                 {openUserId === user.id
                                     ? <CaretUp size={16} />
                                     : <CaretDown size={16} />
                                 }
                             </div>
 
-                            {/* dropdown */}
+                            {/* DROPDOWN */}
                             {openUserId === user.id && (
                                 <div
                                     className="d-flex flex-column gap-2 p-2 border rounded shadow-sm bg-white"
                                     style={{
                                         position: "absolute",
-                                        top: "2rem",
-                                        right: "0",
+                                        top: "2.5rem",
+                                        right: "90px",
                                         zIndex: 100,
                                         minWidth: "120px"
                                     }}
@@ -128,7 +144,7 @@ export default function AddNewMember({ projectId }: Props) {
                                     {["Membro", "Admin"].map(role => (
                                         <label
                                             key={role}
-                                            className="d-flex gap-2 align-items-center form-check-label"
+                                            className="d-flex gap-2 align-items-center"
                                         >
                                             <input
                                                 type="radio"
@@ -141,25 +157,19 @@ export default function AddNewMember({ projectId }: Props) {
                                                         role as UserProps["role"]
                                                     )
                                                 }
-                                                className="form-check-input"
                                             />
+
                                             {role}
                                         </label>
                                     ))}
                                 </div>
                             )}
 
-                            {/* TEXTO */}
-                            <span style={{ fontSize: "0.8rem", whiteSpace: "nowrap" }}>
-                                {user.role}
-                            </span>
-
                             {/* BOTÃO */}
                             <button
                                 type="button"
                                 onClick={() => handleNewMember(user)}
-                                className="btn-custom btn-custom-outline-black p-2"
-                                style={{ whiteSpace: "nowrap" }}
+                                className="btn btn-danger btn-sm"
                             >
                                 Adicionar
                             </button>

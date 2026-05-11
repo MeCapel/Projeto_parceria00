@@ -11,6 +11,7 @@ import NewMemberModal from "./NewMemberModal";
 import type { ProjectProps } from "../../services/projectServices";
 import DisplayProjectMembers from "../07UsersRelated/DisplayProjectMembers";
 
+
 export default function ProjectItem()
 {
     const { projectid } = useParams();

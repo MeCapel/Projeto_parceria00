@@ -1,0 +1,22 @@
+// Função adicionar termos técnicos ao Dicionário
+// - Clique na palavra
+// - Vai aparecer uma lâmpada amarela (ou aperte Ctrl + .)
+// - Escolha "Add Word to Folder Settings"
+// - Pronto! Ela entra para a "lista de palavras permitidas" e o erro some.
+
+{
+    "version": "0.2",
+    "language": "en,pt,pt-BR",
+    "words": [
+        "Baldan",
+        "Fatec",
+        "tsx",
+        "Firebase",
+        "Firestore"
+    ],
+    "ignorePaths": [
+        "node_modules/**",
+        "dist/**",
+        "build/**"
+    ]
+}

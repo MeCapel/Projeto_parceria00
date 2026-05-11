@@ -384,3 +384,32 @@ export const dropMember = async (projectId: string, userId: string) => {
         console.error(err);
     }
 }
+
+// ----- This function searches for users by email and ensures they can be added -----
+export const searchUsersNotInProject = (
+    _projectId: string, // Adicionado underline para silenciar o erro de "não utilizado"
+    email: string,
+    callback: (users: UserProps[]) => void // Trocado 'any' por 'UserProps'
+) => {
+    const q = query(collection(db, "users"));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+        const users = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        })) as UserProps[]; 
+
+        let filtered = users;
+
+        // Filtra se tiver texto
+        if (email) {
+            filtered = users.filter((user) =>
+                user.email?.toLowerCase().includes(email.toLowerCase())
+            );
+        }
+
+        callback(filtered);
+    });
+
+    return unsubscribe;
+};

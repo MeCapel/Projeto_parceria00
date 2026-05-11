@@ -1,4 +1,6 @@
+/*Comentado devido a erro ESLINT
 import { PlusLg } from "react-bootstrap-icons"
+*/
 import { Modal } from "react-bootstrap"
 import {  useRef, useState } from "react"
 import AddNewMember from "./AddNewMember";
@@ -13,7 +15,9 @@ export default function NewMemberModal({ projectId } : Props)
     // const [ username, setUsername ] = useState<string>(""); // falta finalizar, FUNÇÃO PARA PODER PESQUISAR USERS  
     const formRef = useRef<HTMLFormElement | null>(null);
 
+    /*Comentado devido a erro ESLINT
     const openModal = () => setIsOpen(true);
+    */
     const closeModal = () => {
         if(formRef.current) formRef.current.classList.remove("was-validated");
         setIsOpen(false);
@@ -40,12 +44,7 @@ export default function NewMemberModal({ projectId } : Props)
 
     return(
         <>
-            <button className="btn-custom btn-custom-outline-black px-4 shadow-sm" onClick={openModal}>
-                <div className="mb-0 fs-6 d-flex gap-2 align-items-center fw-bold">
-                    <PlusLg size={20} />
-                    Adicionar membro
-                </div>
-            </button>
+            
 
             <Modal 
                 show={isOpen} 

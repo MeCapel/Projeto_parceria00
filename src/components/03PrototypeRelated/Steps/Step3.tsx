@@ -8,29 +8,29 @@ export default function Step3({ values, onChange, isFieldRequired }: StepProps) 
     const isInvalid = !!values.vertical && values.checklistsIds.length === 0;
     const isValid = !!values.vertical && values.checklistsIds.length > 0;
 
+    // Sincroniza o estado local com o formulário pai
     useEffect(() => {
         onChange("checklistsIds", checklistsIds);
-    }, [checklistsIds]);
+    }, [checklistsIds, onChange]); // Adicionado onChange aqui
 
+    // Limpa a seleção se a vertical mudar
     useEffect(() => {
         setChecklistsIds([]);
         onChange("checklistsIds", []);
-    }, [values.vertical]);
+    }, [values.vertical, onChange]); // Adicionado onChange aqui
 
     return (
         <div>
-
-        <FormRadioGroup
-            label="Vertical"
-            name="vertical"
-            value={values.vertical}
-            options={["Preparo", "Plantio", "Pulverização"]}
-            onChange={e => onChange("vertical", e.target.value)}
-            required={isFieldRequired("vertical")}
-        />
+            <FormRadioGroup
+                label="Vertical"
+                name="vertical"
+                value={values.vertical}
+                options={["Preparo", "Plantio", "Pulverização"]}
+                onChange={e => onChange("vertical", e.target.value)}
+                required={isFieldRequired("vertical")}
+            />
 
             <div className="position-relative mt-4">
-
                 <input
                     type="text"
                     className={`form-control position-absolute opacity-0 ${
@@ -40,19 +40,17 @@ export default function Step3({ values, onChange, isFieldRequired }: StepProps) 
                     tabIndex={-1}
                     required
                     value={isValid ? "ok" : ""}
-                    onChange={() => {}}
+                    readOnly // Melhor usar readOnly do que onChange vazio
                 />
-
             </div>
 
-        <div className="my-5">
-            <ChooseChecklists
-            vertical={values.vertical}
-            onValueChange={setChecklistsIds}
-            isInvalid={isInvalid}
-            />
-        </div>
-
+            <div className="my-5">
+                <ChooseChecklists
+                    vertical={values.vertical}
+                    onValueChange={setChecklistsIds}
+                    isInvalid={isInvalid}
+                />
+            </div>
         </div>
     );
 }

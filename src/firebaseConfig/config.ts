@@ -1,5 +1,7 @@
 import { initializeApp } from "firebase/app";
+/*Comentado para parar de dar erro no AppCheck
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+*/
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
  

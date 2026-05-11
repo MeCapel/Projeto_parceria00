@@ -22,6 +22,9 @@ export interface ProjectProps {
 export const createProject = async ( projectName: string, projectDescription: string, userId: string ) => {
     try
     {
+        // Puxa os dados do usuário atual para garantir que o owner tenha nome e email
+        const user = getCurrentUser();
+
         const collectionRef = collection(db, "projects");
         const docRef = await addDoc(collectionRef, { 
             name: projectName, 
@@ -34,6 +37,9 @@ export const createProject = async ( projectName: string, projectDescription: st
             projectId: docRef.id,
             userId,
             role: "owner",
+            username: user?.displayName || "Sem nome", // Novo: garante consistência com colaboradores
+            email: user?.email || "",                   // Novo: garante consistência com colaboradores
+            image: user?.photoURL || null,             // Novo: garante consistência com colaboradores
             joinedAt: serverTimestamp(),
         });
         
@@ -43,7 +49,7 @@ export const createProject = async ( projectName: string, projectDescription: st
     }
     catch (err)
     {
-        toast.error(`❌ Erro ao criar um novo projeto`);
+        toast.error(`Erro ao criar um novo projeto`);
         console.error(`${err}`);
     }
 }
@@ -150,7 +156,7 @@ export const getProject = async ( id: string ) => {
     }
     else
     {
-        toast.error("❌ Nenhum projeto encontrado.");
+        toast.error("Nenhum projeto encontrado.");
         return null;
     }
 }
@@ -190,11 +196,11 @@ export const deleteProjectNPrototypes = async ( projectId: string ) => {
 
         await dropMember(projectId, userId);
 
-        toast.info("ℹ️ Projeto e respectivos protótipos excluídos com sucesso!");
+        toast.info("Projeto e respectivos protótipos excluídos com sucesso!");
     }
     catch (err)
     {
-        toast.error(`❌ Erro ao excluir projeto e seus protótipos`);
+        toast.error(`Erro ao excluir projeto e seus protótipos`);
         console.error(`${err}`);
     }
 }

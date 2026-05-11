@@ -3,15 +3,17 @@ import { Archive, PencilSquare, ThreeDotsVertical, Trash3Fill } from "react-boot
 import { useNavigate } from "react-router";
 
 interface Props {
-    projectName: string,
-    projectDescription: string,
+    projectName: string;
+    projectDescription: string;
+    // Removido o membersList daqui se ele não for usado dentro do Card. 
+    // O 'element' já cuida de renderizar os círculos.
+    
+    subtitle?: string | number;
+    element?: React.ReactNode; 
+    location: string;
 
-    subtitle?: string | number,
-    element?: React.ReactNode,
-    location: string,
-
-    onEdit?: () => void,
-    onDelete?: () => void,
+    onEdit?: () => void;
+    onDelete?: () => void;
 }
 
 export default function ProjectCard({
@@ -22,10 +24,8 @@ export default function ProjectCard({
     onEdit,
     onDelete
 }: Props) {
-
     const navigate = useNavigate();
     const menuRef = useRef<HTMLDivElement | null>(null);
-
     const [moreOptions, setMoreOptions] = useState(false);
 
     useEffect(() => {
@@ -34,11 +34,9 @@ export default function ProjectCard({
                 setMoreOptions(false);
             }
         }
-
         if (moreOptions) {
             document.addEventListener("mousedown", handleClickOutside);
         }
-
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
@@ -50,7 +48,6 @@ export default function ProjectCard({
             style={{ cursor: "pointer" }}
             onClick={() => navigate(location)}
         >
-
             {/* MENU */}
             <div 
                 className="position-absolute" 
@@ -70,7 +67,6 @@ export default function ProjectCard({
                         style={{ top: "25px", right: 0, minWidth: "9rem", zIndex: 100 }}
                         className="position-absolute rounded-3 shadow-lg p-2 bg-white border"
                     >
-
                         {onEdit && (
                             <button 
                                 onClick={onEdit}
@@ -90,14 +86,12 @@ export default function ProjectCard({
                                 <span>Excluir</span>
                             </button>
                         )}
-
                     </div>
                 )}
             </div>
 
             {/* CONTEÚDO */}
             <div className="d-flex flex-column align-items-center text-center">
-
                 <div 
                     className="rounded-circle d-flex align-items-center justify-content-center mb-2"
                     style={{ width: "50px", height: "50px", backgroundColor: "#fdeef1" }}
@@ -124,9 +118,9 @@ export default function ProjectCard({
                 </p>
 
                 <div className="w-100 mt-2 d-flex justify-content-center align-items-center">
+                    {/* O componente MembersCircles será injetado aqui via prop 'element' */}
                     {element}
                 </div>
-
             </div>
         </div>
     );

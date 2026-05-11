@@ -28,11 +28,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
  
 // Inicializa App Check
+/* Parar de dar erro no Console sobre AppCheck
 const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider(import.meta.env.APP_CHECK_PROVIDER),
   isTokenAutoRefreshEnabled: true
 });
  
-export { app, appCheck };
+export { app, appCheck };*/
 export const auth = getAuth(app);
 export const db = getFirestore(app);

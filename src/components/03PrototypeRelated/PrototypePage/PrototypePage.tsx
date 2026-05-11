@@ -5,7 +5,7 @@ import { deleteAllPrototypeChecklists, type PrototypeProps } from "../../../serv
 import type { ChecklistProps } from "../../../services/checklistServices";
 import PrototypeGeralInfosTab from "./PrototypeGeralInfosTab";
 import PrototypeChecklistsTab from "./PrototypeChecklistsTab";
-import OccurrencesPage from "../../06OccurrenceRelated/OccurenecesPage";
+import OccurrencesPage from "../../06OccurrenceRelated/OccurrencesPage";
 import { ArrowLeftCircleFill, Floppy2Fill, Trash3Fill, TrashFill } from "react-bootstrap-icons";
 import { Modal } from "react-bootstrap";
 

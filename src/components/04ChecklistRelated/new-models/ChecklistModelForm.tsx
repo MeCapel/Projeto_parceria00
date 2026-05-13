@@ -15,13 +15,34 @@ interface Props {
 
 export default function ChecklistModelForm({ initialData, loading, onSubmit }: Props) {
 
-  const [checklist, setChecklist] = useState<ChecklistModelInput>(
-    initialData || {
-      name: "",
-      vertical: "",
-      categories: [],
+  const [checklist, setChecklist] = useState<ChecklistModelInput>(() => {
+
+    if (!initialData) {
+      return {
+        name: "",
+        vertical: "",
+        categories: [],
+      }
     }
-  )
+
+    return {
+      ...initialData,
+
+      categories: initialData.categories.map(category => ({
+        ...category,
+
+        // guarantee category id
+        id: category.id || crypto.randomUUID(),
+
+        // guarantee item ids
+        items: category.items.map(item => ({
+          ...item,
+          id: item.id || crypto.randomUUID(),
+        }))
+      }))
+    }
+  })
+
 
   const [itemInputs, setItemInputs] = useState<Record<number, string>>({})
   const [newCategoryName, setNewCategoryName] = useState("")
@@ -178,11 +199,10 @@ export default function ChecklistModelForm({ initialData, loading, onSubmit }: P
             </div>
 
             {/* ITEMS */}
-            {cat.items.map(item => (
-              <div key={item.id} className="d-flex justify-content-between align-items-center ps-3 py-1">
+            {cat.items.map((item, index) => (
+              <div key={item.id ?? `${catIndex}-${index}`} className="d-flex justify-content-between align-items-center ps-3 py-1">
 
                 <div className="d-flex gap-2">
-                  <input type="checkbox" checked={item.checked} readOnly />
                   <span>{item.label}</span>
                 </div>
 

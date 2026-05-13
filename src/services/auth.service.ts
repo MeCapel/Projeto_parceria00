@@ -66,6 +66,38 @@ export const getCurrentUser = async (): Promise<UserProps> => {
     return response.data;
 };
 
+export const listenCurrentUser = (callback: (user: UserProps | null) => void) => {
+    try 
+    {
+        const currentUser = auth.currentUser;
+
+        if (!currentUser) 
+        {
+            callback(null);
+            return () => {};
+        }
+
+        const docRef = doc(db, "users", currentUser.uid);
+
+        return onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                callback({
+                    id: docSnap.id,
+                    ...docSnap.data(),
+                } as UserProps);
+            } else {
+                callback(null);
+            }
+        });
+    } 
+    catch (err) 
+    {
+        console.error("Erro ao ouvir usuário:", err);
+        callback(null);
+        return () => {};
+    }
+};
+
 export const getUserById = async (userId: string) => {
     const response = await api.get(`/users/${userId}`);
     return response.data;

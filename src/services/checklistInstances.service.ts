@@ -23,7 +23,7 @@ export interface ChecklistInstance {
   categories: ChecklistCategory[];
 
   prototypeId: string;
-  originalModelId?: string;
+  originalModel?: string;
 
   createdAt?: Date | Timestamp;
 }
@@ -40,11 +40,11 @@ export const getPrototypeChecklists = async (prototypeId: string) => {
 
 export const createChecklistInstance = async (
   prototypeId: string,
-  checklistModelIds: string[]
+  checklistModelId: string
 ) => {
   const res = await api.post(
     `/prototypes/${prototypeId}/checklists`,
-    { checklistModelIds }
+    { checklistModelId }
   );
 
   return res.data;

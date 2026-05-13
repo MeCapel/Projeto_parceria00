@@ -103,6 +103,7 @@ export default function LoginForm()
                         className="border py-2 px-3 fs-5 rounded-2" 
                         onChange={(e) => setPassword(e.target.value)}
                         required 
+                        autoComplete="on"
                     />
                 </div>
 

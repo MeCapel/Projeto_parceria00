@@ -35,14 +35,13 @@ export function useChecklistInstances({ prototypeId }: Params) {
 
   // ===== CRIAR LINK MODEL -> INSTANCE =====
   const linkChecklist = async (checklistModelIds: string[]) => {
-    const newChecklist = await createChecklistInstance(
-      prototypeId,
-      checklistModelIds
+    const results = await Promise.all(
+      checklistModelIds.map(id => createChecklistInstance(prototypeId, id))
     );
 
-    setChecklists(prev => [...prev, newChecklist]);
+    setChecklists(prev => [...prev, ...results]);
 
-    return newChecklist;
+    return results;
   };
 
   // ===== TOGGLE ITEM =====

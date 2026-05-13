@@ -12,6 +12,7 @@ import FormRadioGroup from "../forms/FormRadioGroup"
 import { Paperclip, Trash3Fill, XCircleFill } from "react-bootstrap-icons"
 import { Modal } from "react-bootstrap"
 import FormDatePicker from "../forms/FormDatePicker"
+import type { Timestamp } from "firebase/firestore"
 
 interface OccurrenceForm {
     name: string;
@@ -21,7 +22,7 @@ interface OccurrenceForm {
     prototypeId: string;
     status: "pendente" | "em andamento" | "concluido" ,
     dueOn: Date | null,
-    createdAt: string;
+    createdAt: Date | Timestamp;
 }
 
 interface Props {
@@ -40,15 +41,14 @@ export default function OccurrencesPage({ prototypeId }: Props)
     const formRef = useRef<HTMLFormElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const { values, setValues, handleChange, reset } = useForm<OccurrenceForm>({
+    const { values, setValues, handleChange, reset } = useForm<Omit<OccurrenceForm, "createdAt">>({
         name: "",
         description: "",
         criticity: "",
         image: "",
         prototypeId,
-            status: "pendente",
+        status: "pendente",
         dueOn: null,
-        createdAt: new Date().toISOString()
     });
 
     const {
@@ -83,7 +83,6 @@ export default function OccurrencesPage({ prototypeId }: Props)
             prototypeId,
             status: "pendente",
             dueOn: null,
-            createdAt: new Date().toISOString()
         });
 
         clearImage();
@@ -106,8 +105,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
             criticity: occurrence.criticity,
             prototypeId: occurrence.prototypeId || "",
             status: occurrence.status,
-            dueOn: occurrence.dueOn ? new Date(occurrence.dueOn) : null,
-            createdAt: occurrence.createdAt || "",
+            dueOn: occurrence.dueOn || null,
         });
     };
 
@@ -118,9 +116,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
             // Keep dueOn as Date object for API
         };
         
-        if (editingOccurrenceId) {
-            return update(editingOccurrenceId, payload);
-        }
+        if (editingOccurrenceId) return update(editingOccurrenceId, payload);
         
         return create(payload);
     };

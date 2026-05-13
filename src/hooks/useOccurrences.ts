@@ -22,7 +22,14 @@ export function useOccurrences({ prototypeId }: Params) {
     setLoading(true);
     try {
       const data = await getPrototypeOccurrences(prototypeId);
-      setOccurrences(data || []);
+
+      const parsed = data.map((o: any) => ({
+          ...o,
+          createdAt: o.createdAt ? new Date(o.createdAt) : null,
+          dueOn: o.dueOn ? new Date(o.dueOn) : null,
+      }));
+
+      setOccurrences(parsed);
     } catch (err) {
       console.error("Error fetching occurrences:", err);
     } finally {

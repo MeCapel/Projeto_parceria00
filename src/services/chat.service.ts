@@ -64,3 +64,7 @@ export const subscribeToMessages = (projectId: string,callback: (messages: Messa
         callback(messages);
     });
 };
+
+export const deleteMessage = async (projectId: string, messageId: string) => {
+    await api.delete(`/projects/${projectId}/messages/${messageId}`);
+};

@@ -21,7 +21,7 @@ const clientsCollectionRef = collection(db, "clients");
 // ===== GET =====
 
 // ----- Função para listar em tempo real -----
-export const lisenClients = (callback: (clients: ClientProps[]) => void) => {
+export const listenClients = (callback: (clients: ClientProps[]) => void) => {
     return onSnapshot(clientsCollectionRef, (snapshot) => {
         const clientesData = snapshot.docs.map(doc => ({
             id: doc.id,
@@ -31,7 +31,7 @@ export const lisenClients = (callback: (clients: ClientProps[]) => void) => {
     });
 }
 
-export const lisenClient = async (clientId: string): Promise<ClientProps | null> => {
+export const listenClient = async (clientId: string): Promise<ClientProps | null> => {
     try
     {
         const docRef = doc(clientsCollectionRef, clientId);
@@ -51,13 +51,13 @@ export const lisenClient = async (clientId: string): Promise<ClientProps | null>
     }
 }
 
-// 🔹 listar clientes
+// listar clientes
 export const getClients = async () => {
   const response = await api.get("/clients");
   return response.data;
 };
 
-// 🔹 pegar cliente por id
+// pegar cliente por id
 export const getClient = async (clientId: string): Promise<ClientProps> => {
   const response = await api.get(`/clients/${clientId}`);
   return response.data;
@@ -65,7 +65,7 @@ export const getClient = async (clientId: string): Promise<ClientProps> => {
 
 // ===== POST =====
 
-// 🔹 criar cliente
+// criar cliente
 export const createClient = async (data: Omit<ClientProps, "id">) => {
   const response = await api.post("/clients", data);
   return response.data;
@@ -73,7 +73,7 @@ export const createClient = async (data: Omit<ClientProps, "id">) => {
 
 // ===== PATCH =====
 
-// 🔹 atualizar cliente
+// atualizar cliente
 export const updateClient = async (
   clientId: string,
   data: Partial<ClientProps>
@@ -84,7 +84,7 @@ export const updateClient = async (
 
 // ===== DELETE =====
 
-// 🔹 deletar cliente
+// deletar cliente
 export const deleteClient = async (clientId: string) => {
   const response = await api.delete(`/clients/${clientId}`);
   return response.data;

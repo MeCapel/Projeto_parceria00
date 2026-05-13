@@ -16,7 +16,7 @@ export default function ManageChecklistsModal({ vertical, selectedChecklists, on
 
   // re-sincroniza sempre que prop mudar
   useEffect(() => {
-    const ids = selectedChecklists.map(c => c.originalModelId).filter((id): id is string => !!id);
+    const ids = selectedChecklists.map(c => c.originalModel).filter((id): id is string => !!id);
     setSelectedModelIds(ids);
   }, [selectedChecklists]);
 

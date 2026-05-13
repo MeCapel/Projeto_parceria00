@@ -76,7 +76,7 @@ export const lisenUserProjects = (
 // Buscar membros do projeto
 export const getProjectMembers = async (projectId: string): Promise<ProjectMember[]> => {
     const response = await api.get(`/project/${projectId}/projectMembers`);
-    return response.data;
+    return response.data.data;
 };
 
 // Buscar membro específico
@@ -87,7 +87,7 @@ export const getProjectMember = async (projectId: string, userId: string) => {
 
 export const getUsersNotInProject = async (projectId: string) => {
     const response = await api.get(`/project/${projectId}/users-not-in-project`);
-    return response.data;
+    return response.data.data;
 };
 
 // ===== POST =====

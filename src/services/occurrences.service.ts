@@ -1,3 +1,4 @@
+import type { Timestamp } from "firebase/firestore";
 import { api } from "./api";
 
 // ===== TYPES (matching API) =====
@@ -9,9 +10,9 @@ export interface OccurrenceProps {
   prototypeId: string;
   image?: string;
   status: "pendente" | "em andamento" | "concluido";
-  dueOn: Date | string; // Keep as Date for API
+  dueOn: Date | null; // Keep as Date for API
   createdBy?: string;
-  createdAt?: string | Date;
+  createdAt?: Date | Timestamp;
 }
 
 // ===== CREATE (requires prototypeId) =====

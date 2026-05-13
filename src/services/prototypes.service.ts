@@ -51,7 +51,10 @@ export const createPrototype = async (
 // 🔹 atualizar protótipo
 export const updatePrototype = async (
   prototypeId: string,
-  data: Partial<PrototypeProps>
+  data: Partial<PrototypeProps> & {
+    addChecklistModelIds?: string[];
+    removeChecklistIds?: string[];
+  }
 ) => {
   const response = await api.patch(`/prototypes/${prototypeId}`, data);
   return response.data;

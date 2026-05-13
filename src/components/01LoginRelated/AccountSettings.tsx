@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { useState, useEffect, useContext } from "react";
 import { PersonCircle, BoxArrowRight, InfoCircle, PersonAdd } from "react-bootstrap-icons";
 import { AuthContext } from "../../context/AuthContext";
-import { getCurrentUser, logout, type UserProps } from "../../services/auth.service";
+import { listenCurrentUser, logout, type UserProps } from "../../services/auth.service";
 
 // ===== INTERFACE TYPES =====
 interface AccountSettingsProps {
@@ -22,23 +22,14 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Só busca dados se o menu estiver aberto e o user autenticado no Firebase
-        if (loading || !user || !isOpen) return;
+        if (loading || !user) return;
 
-        const fetchUserData = async () => {
-            try
-            {
-                const data = await getCurrentUser();
-                setUserData(data);
-            }
-            catch (error)
-            {
-                console.error("Erro ao buscar dados do usuário atual: ", error);
-            }
-        };
+        const unsubscribe = listenCurrentUser((data) => {
+            setUserData(data);
+        });
 
-        fetchUserData();
-    }, [user, loading, isOpen]);
+        return () => unsubscribe();
+    }, [user, loading]);
 
     return(
         <div className="d-flex justify-content-center">

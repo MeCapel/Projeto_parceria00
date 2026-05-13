@@ -1,4 +1,5 @@
 import { useChecklistInstances } from "../../../hooks/useChecklistInstances";
+import { updatePrototype } from "../../../services/prototypes.service";
 import DisplayPrototypeChecklists from "../../04ChecklistRelated/instanced/DisplayPrototypeChecklists";
 import ManageChecklistsModal from "../../04ChecklistRelated/instanced/ManageChecklists";
 
@@ -13,8 +14,6 @@ export default function PrototypeChecklistsTab({
 }: Props) {
   const {
     checklists,
-    linkChecklist,
-    removeChecklist,
     fetchChecklists,
   } = useChecklistInstances({ prototypeId });
 
@@ -27,14 +26,14 @@ export default function PrototypeChecklistsTab({
         vertical={vertical}
         selectedChecklists={checklists}
         onUpdate={async (modelIds) => {
-          const existing = new Set(checklists.map(c => c.originalModelId).filter(Boolean));
-          const toAdd = modelIds.filter(id => !existing.has(id));
-          const toRemove = checklists.filter(c => c.originalModelId && !modelIds.includes(c.originalModelId));
+          const existingModels = new Set(checklists.map(c => c.originalModel).filter(Boolean));
+          const addChecklistModelIds = modelIds.filter(id => !existingModels.has(id));
+          const removeChecklistIds = checklists
+            .filter(c => c.originalModel && !modelIds.includes(c.originalModel))
+            .map(c => c.id);
 
-          if (toAdd.length > 0) {
-            await linkChecklist(toAdd);
-          }
-          await Promise.all(toRemove.map(c => removeChecklist(c.id)));
+          await updatePrototype(prototypeId, { addChecklistModelIds, removeChecklistIds });
+          await fetchChecklists();
         }}
         onClose={() => {}}
       />

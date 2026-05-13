@@ -1,5 +1,5 @@
 import { collection, doc, getDoc, getDocs, onSnapshot, orderBy, query, where, type Timestamp } from "firebase/firestore";
-import { api } from "./api"; // seu axios configurado
+import { api } from "./api";
 import { db } from "../firebaseConfig/config";
 
 export interface ChecklistItem {
@@ -26,7 +26,7 @@ export interface ChecklistModelProps {
 }
 
 // ----- ESTA FUNÇÃO PEGA TODOS OS MODELOS DE CHECKLIST -----
-export const getChecklistsModel = (callback: (items: (ChecklistModelProps & { id: string })[]) => void) => {
+export const listenChecklistModels = (callback: (items: (ChecklistModelProps & { id: string })[]) => void) => {
     const docRef = collection(db, "checklistModels");
     const q = query(
         docRef,
@@ -44,7 +44,7 @@ export const getChecklistsModel = (callback: (items: (ChecklistModelProps & { id
 } 
 
 // ----- ESTA FUNÇÃO PEGA UM ÚNICO MODELE DE CHECKLIST -----
-export const lisenChecklistModel = async ( checklistModelId: string ) : Promise<(ChecklistModelProps & { id: string }) | null> => {
+export const listenChecklistModel = async ( checklistModelId: string ) : Promise<(ChecklistModelProps & { id: string }) | null> => {
     try 
     {
         const docRef = doc(db, "checklistModels", checklistModelId);

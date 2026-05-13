@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
 import { usePrototypes } from "./usePrototypes";
-import type { PrototypeProps } from "../services/prototypes.service";
 
 export const usePrototypeWithProgress = (projectId: string) => {
     const { prototypes, loading: loadingPrototypes } = usePrototypes(projectId);

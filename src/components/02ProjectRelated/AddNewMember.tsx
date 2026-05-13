@@ -1,15 +1,20 @@
-import { useEffect, useState } from "react";
-import { getUsersNotInProject, addProjectMember } from "../../services/projectMembers.service";
-import type { UserProps } from "../../services/auth.service";
+// ===== GERAL IMPORTS =====
+import { useEffect, useRef, useState } from "react";
+import { type UserProps } from "../../services/auth.service";
+import { addProjectMember, getUsersNotInProject } from "../../services/projectMembers.service";
 
+// ===== INTERFACE TYPES =====
 interface Props {
     projectId: string;
 }
 
+// ===== MAIN COMPONENT =====
+// ----- Componente responsável por exibir usuários cadastrados e não presentes em determinado projeto, permitindo selecionna-los e assim adiciona-los ao projeto atual -----
 export default function AddNewMember({ projectId }: Props) {
-
     const [users, setUsers] = useState<UserProps[]>([]);
     const [loading, setLoading] = useState(true);
+    const [openUserId, setOpenUserId] = useState<string | null>(null);
+    const dropdownRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -26,7 +31,26 @@ export default function AddNewMember({ projectId }: Props) {
         fetchUsers();
     }, [projectId]);
 
-    const handleAdd = async (userId: string) => {
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if(dropdownRef.current && !dropdownRef.current.contains(event.target as Node))
+            {
+                setOpenUserId(null);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
+    }, [])
+
+    const handleNewMember = async (user: UserProps) => {
+        const userId = user.id;
+
+        if (!userId) return;
+
         try {
             await addProjectMember(projectId, userId);
 
@@ -38,46 +62,62 @@ export default function AddNewMember({ projectId }: Props) {
         }
     };
 
-    return (
-        <div className="d-flex flex-column overflow-auto" style={{ maxHeight: "50vh" }}>
+ return (
+    <div
+        className="d-flex flex-column overflow-auto mt-2"
+        style={{ maxHeight: "50vh" }}
+    >
+        {loading && <p>Carregando...</p>}
 
-            {loading && <p>Carregando...</p>}
+        <ul className="list-unstyled d-flex flex-column gap-3">
 
-            <ul className="list-unstyled d-flex flex-column gap-2">
+            {users.map(user => {
 
-                {users.map(user => {
+                if (!user.id) return null;
 
-                    if (!user.id) return null;
+                return (
+                    <li
+                        key={user.id}
+                        className="d-flex align-items-center justify-content-between border rounded p-2"
+                    >
 
-                    return (
-                        <li
-                            key={user.id}
-                            className="d-flex align-items-center justify-content-between"
-                        >
+                        {/* ESQUERDA */}
+                        <div className="d-flex flex-column" style={{ minWidth: 0 }}>
+                            <span className="fw-semibold">
+                                {user.username || "Sem nome"}
+                            </span>
 
-                            {/* EMAIL */}
-                            <span className="text-truncate">
+                            <span
+                                className="text-muted text-truncate"
+                                style={{ fontSize: "0.9rem", maxWidth: "180px" }}
+                            >
                                 {user.email}
                             </span>
+                        </div>
+
+                        {/* DIREITA */}
+                        <div
+                            className="d-flex align-items-center gap-2 position-relative"
+                            ref={openUserId === user.id ? dropdownRef : null}
+                        >
 
                             {/* BOTÃO */}
                             <button
                                 type="button"
-                                onClick={() => handleAdd(user.id)}
-                                className="btn-custom btn-custom-outline-black p-2"
+                                onClick={() => handleNewMember(user)}
+                                className="btn btn-danger btn-sm"
                             >
                                 Adicionar
                             </button>
 
-                        </li>
-                    );
-                })}
+                        </div>
 
-                {!loading && users.length === 0 && (
-                    <p className="text-muted">Nenhum usuário disponível</p>
-                )}
+                    </li>
+                );
 
-            </ul>
-        </div>
-    );
+            })}
+
+        </ul>
+    </div>
+);
 }

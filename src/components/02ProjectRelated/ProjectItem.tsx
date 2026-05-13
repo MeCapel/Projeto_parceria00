@@ -7,8 +7,7 @@ import { doc, onSnapshot } from 'firebase/firestore'
 import MainFrame from "../03PrototypeRelated/MainFrame";
 import ProtoMultiForm from "../03PrototypeRelated/ProtoMultiForm";
 import DividedByProgress from "./DividedByProgress";
-import NewMemberModal from "./NewMemberModal";
-import DisplayProjectMembers from "../07UsersRelated/DisplayProjectMembers";
+import DisplayProjectMembersModal from "../07UsersRelated/DisplayProjectMembersModal";
 import type { ProjectProps } from "../../services/projects.service";
 
 export default function ProjectItem()
@@ -91,8 +90,7 @@ export default function ProjectItem()
                     </p>
 
                     <div className="actions d-flex gap-3">
-                        <NewMemberModal projectId={projectid!} />
-                        <DisplayProjectMembers projectId={projectid!} />
+                        <DisplayProjectMembersModal projectId={projectid!} />
                     </div>
                 </div>
 

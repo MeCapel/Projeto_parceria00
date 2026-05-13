@@ -10,11 +10,18 @@ interface Props {
   onVerticalChange?: (id: string) => void;
 }
 
-export default function PrototypeGeralInfosTab({
-  prototype,
-  onChange,
-  onVerticalChange,
-}: Props) {
+export default function PrototypeGeralInfosTab({ prototype, onChange, onVerticalChange }: Props) {
+  const stageArray = [
+    {label: "Preparo", value: "preparo"},
+    {label: "Plantio", value: "plantio"},
+    {label: "Pulverização", value: "pulverizacao"},
+  ];
+
+  const verticalArray = [
+    {label: "Fabricação", value: "fabricacao"},
+    {label: "Montagem", value: "montagem"},
+    {label: "Validação de campo", value: "pulverizacao"},
+  ];
 
   const handleVerticalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleFieldChange(e);
@@ -23,9 +30,7 @@ export default function PrototypeGeralInfosTab({
     }
   };
 
-  function handleFieldChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) {
+  function handleFieldChange( e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     const { name, value } = e.target;
     onChange({ [name]: value });
   }
@@ -65,7 +70,7 @@ export default function PrototypeGeralInfosTab({
                 label="Etapa"
                 name="stage"
                 value={prototype.stage}
-                options={["fabricacao", "montagem", "validacao de campo"]}
+                options={stageArray}
                 onChange={handleFieldChange}
               />
             </div>
@@ -74,7 +79,7 @@ export default function PrototypeGeralInfosTab({
                 label="Vertical"
                 name="vertical"
                 value={prototype.vertical}
-                options={["preparo", "plantio", "pulverizacao"]}
+                options={verticalArray}
                 onChange={handleVerticalChange}
               />
             </div>

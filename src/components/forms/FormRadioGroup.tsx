@@ -1,8 +1,13 @@
+interface OptionsProps {
+    label: string,
+    value: string
+}
+
 interface Props {
     label: string;
     name: string;
     value: string | number;
-    options: string[];
+    options: OptionsProps[];
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     required?: boolean;
     error?: string;
@@ -35,21 +40,21 @@ export default function FormRadioGroup({
 
                 {options.map((opt, index) => (
                     <label
-                        key={opt}
+                        key={opt.label}
                         className="d-flex align-items-center gap-2 px-3 py-2 border rounded-3 w-100 w-md-auto"
                         style={{ cursor: "pointer" }}
                     >
                         <input
                             type="radio"
                             name={name}
-                            value={opt}
-                            checked={value === opt}
+                            value={opt.value}
+                            checked={value === opt.value}
                             onChange={onChange}
                             className={`form-check-input ${error ? "is-invalid" : ""}`}
                             required={required && index === 0}
                         />
 
-                        <span>{opt}</span>
+                        <span>{opt.label}</span>
                     </label>
                 ))}
 

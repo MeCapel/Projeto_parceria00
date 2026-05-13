@@ -31,6 +31,18 @@ interface Props {
 
 export default function OccurrencesPage({ prototypeId }: Props)
 {
+    const criticityArray = [    
+        {label: "A", value: "a"},
+        {label: "B", value: "b"},
+        {label: "C", value: "c"},
+    ];
+
+    const statusArray = [    
+        {label: "Pendente", value: "pendente"},
+        {label: "Em andamento", value: "em andamento"},
+        {label: "Concluído", value: "concluido"},
+    ];
+
     const { occurrences, create, update, remove } = useOccurrences({ prototypeId });
 
     const [showModal, setShowModal] = useState(false);
@@ -235,7 +247,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
                             name="criticity"
                             value={values.criticity}
                             onChange={handleChange}
-                            options={["A", "B", "C"]}
+                            options={criticityArray}
                             required
                         />
 
@@ -244,7 +256,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
                             name="status"
                             value={values.status}
                             onChange={handleChange}
-                            options={["pendente", "em andamento", "concluido"]}
+                            options={statusArray}
                             required
                         />
 

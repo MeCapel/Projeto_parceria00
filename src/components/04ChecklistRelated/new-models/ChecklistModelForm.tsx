@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { PlusLg, Trash3Fill, Dash } from "react-bootstrap-icons"
 import type { ChecklistModelProps } from "../../../services/checklistModels.service"
+import FormRadioGroup from "../../forms/FormRadioGroup";
 
 export type ChecklistModelInput = Omit<
   ChecklistModelProps,
@@ -14,6 +15,11 @@ interface Props {
 }
 
 export default function ChecklistModelForm({ initialData, loading, onSubmit }: Props) {
+  const verticalArray = [
+    {label: "Fabricação", value: "fabricacao"},
+    {label: "Montagem", value: "montagem"},
+    {label: "Validação de campo", value: "pulverizacao"},
+  ];
 
   const [checklist, setChecklist] = useState<ChecklistModelInput>(() => {
 
@@ -138,28 +144,24 @@ export default function ChecklistModelForm({ initialData, loading, onSubmit }: P
       </div>
 
       {/* ===== VERTICAL ===== */}
-      <fieldset className="border rounded p-3">
-        <legend className="fw-bold">Vertical</legend>
 
-        <div className="d-flex gap-4">
-          {["Preparo", "Plantio", "Pulverização"].map(v => (
-            <label key={v} className="d-flex gap-2">
-              <input
-                type="radio"
-                value={v}
-                checked={checklist.vertical === v}
-                onChange={(e) =>
-                  setChecklist(prev => ({
-                    ...prev,
-                    vertical: e.target.value
-                  }))
-                }
-              />
-              {v}
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <div className="col-12">
+        <FormRadioGroup
+          label="Vertical"
+          name="vertical"
+          value={checklist.vertical}
+          options={verticalArray}
+          onChange={(e) =>
+            setChecklist(prev => ({
+              ...prev,
+              vertical: e.target.value
+          }))}
+        />
+      </div>
+
+      {/* <p>
+        {checklist.vertical}
+      </p> */}
 
       {/* ===== NOVA CATEGORIA ===== */}
       <div className="d-flex gap-2">

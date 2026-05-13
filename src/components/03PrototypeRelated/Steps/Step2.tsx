@@ -4,8 +4,12 @@ import FormInput from "../../forms/FormInput";
 import SelectLocation from "../../Others/SelectLocation";
 
 export default function Step2({ values, errors, onChange, isFieldRequired }: StepProps) {
-    const options = ["Fabricação", "Montagem", "Validação de campo"];
- 
+    const stageArray = [
+        {label: "Preparo", value: "preparo"},
+        {label: "Plantio", value: "plantio"},
+        {label: "Pulverização", value: "pulverizacao"},
+    ];
+    
     return (
         <div className="">
             {/* 🔵 Radio select div status */}
@@ -13,7 +17,7 @@ export default function Step2({ values, errors, onChange, isFieldRequired }: Ste
                 label="Etapa"
                 name="stage"
                 value={values.stage}
-                options={options}
+                options={stageArray}
                 onChange={(e) => onChange("stage", e.target.value)}
                 required={isFieldRequired("stage")}
                 error={errors.stage}

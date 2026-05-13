@@ -4,6 +4,12 @@ import ChooseChecklists from "../../04ChecklistRelated/instanced/ChooseChecklist
 import type { StepProps } from "../ProtoMultiForm";
 
 export default function Step3({ values, onChange, isFieldRequired }: StepProps) {
+  const verticalArray = [
+    {label: "Fabricação", value: "fabricacao"},
+    {label: "Montagem", value: "montagem"},
+    {label: "Validação de campo", value: "pulverizacao"},
+  ];
+  
   const isInvalid =
     !!values.vertical && (!values.checklistsIds || values.checklistsIds.length === 0);
 
@@ -21,7 +27,7 @@ export default function Step3({ values, onChange, isFieldRequired }: StepProps) 
         label="Vertical"
         name="vertical"
         value={values.vertical}
-        options={["preparo", "plantio", "pulverizacao"]}
+        options={verticalArray}
         onChange={e => onChange("vertical", e.target.value)}
         required={isFieldRequired("vertical")}
       />

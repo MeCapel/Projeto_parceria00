@@ -15,6 +15,7 @@ import { Modal } from "react-bootstrap"
 import FormDatePicker from "../forms/FormDatePicker"
 import { calcularOpenDays } from "../../utils/dateUtils";
 
+
 interface OccurrenceForm {
     name: string
     description: string
@@ -98,10 +99,16 @@ export default function OccurrencesPage({ prototypeId }: Props)
 
         setImage(occurrence.image || null);
 
-        setValues(prev => ({
-            ...prev,
+        setValues({
+            name: occurrence.name,
+            description: occurrence.description,
+            criticity: occurrence.criticity || "",
+            image: occurrence.image || "",
+            prototypeId: occurrence.prototypeId,
+            status: occurrence.status,
             dueOn: occurrence.dueOn ? occurrence.dueOn.toDate() : null,
-        }));
+            createdAt: occurrence.createdAt || new Date().toISOString()
+        });
     };
 
     // ================= SAVE =================
@@ -154,6 +161,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
     // ================= RENDER =================
     return (
         <div>
+
             <CrudHeader
                 title="Ocorrências do protótipo"
                 subtitle="Gerencie as ocorrências"

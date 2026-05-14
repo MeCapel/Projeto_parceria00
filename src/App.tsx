@@ -9,6 +9,7 @@ import AuthProvider from './context/AuthProvider'
 import ProtectedRoute from './components/Others/ProtectedRoute'
 import Layout from './components/00Geral/Layout'
 import Clients from './pages/Clients';
+import Dashboard from './pages/Dashboard' // ISIS
 
 // ====== IMPORTING FULL PAGES =====
 import Home from './pages/Home'
@@ -49,6 +50,8 @@ export default function App() {
           <Route path='/profile' element={<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>}/>
           <Route path="/projects/:projectid" element={<ProtectedRoute><Layout><Project /></Layout></ProtectedRoute>} />
           <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><Layout><PrototypePage /></Layout></ProtectedRoute>} />
+          <Route path='/dashboard' element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} // ISIS
+/>
         </Routes>
 
       </main>

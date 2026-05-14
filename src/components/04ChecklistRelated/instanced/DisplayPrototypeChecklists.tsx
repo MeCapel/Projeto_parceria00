@@ -31,7 +31,7 @@ export default function DisplayPrototypeChecklists({ checklists, prototypeId, on
                         style={{ width: "18rem", cursor: "pointer" }}
                     >
                         <h5>{cl.name} • v{cl.version}</h5>
-                        <p>{cl.vertical}</p>
+                        <p><strong>Vertical:</strong> {cl.vertical}</p>
                         <p>{cl.categories.length} categorias</p>
                     </div>
                 ))}

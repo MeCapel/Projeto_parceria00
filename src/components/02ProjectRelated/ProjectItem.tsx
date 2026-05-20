@@ -9,6 +9,7 @@ import ProtoMultiForm from "../03PrototypeRelated/ProtoMultiForm";
 import DividedByProgress from "./DividedByProgress";
 import DisplayProjectMembersModal from "../07UsersRelated/DisplayProjectMembersModal";
 import type { ProjectProps } from "../../services/projects.service";
+// import KPIsPage from "./ProjectKPIsPage";
 
 export default function ProjectItem()
 {
@@ -62,6 +63,8 @@ export default function ProjectItem()
                 return <MainFrame projectId={projectid!}/>
             case 1:
                 return <DividedByProgress projectId={projectid!}/>
+            // case 2:
+            //     return <KPIsPage projectId={projectid!}/>
             default:
                 return <MainFrame projectId={projectid!}/>
         }

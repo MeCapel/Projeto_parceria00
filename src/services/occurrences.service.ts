@@ -11,7 +11,7 @@ export interface OccurrenceProps {
   image?: string;
   // progress: "pendente" | "em andamento" | "concluido";
   // status: string;
-  status: "pendente" | "em andamento" | "concluido";
+  progress: "pendente" | "em andamento" | "concluido";
   dueOn: Date | null; // Keep as Date for API
   createdBy?: string;
   createdAt?: Date | Timestamp;

@@ -7,6 +7,7 @@ import PrototypeChecklistsTab from "./PrototypeChecklistsTab";
 import { ArrowLeftCircleFill, Floppy2Fill, Trash3Fill, TrashFill } from "react-bootstrap-icons";
 import { Modal } from "react-bootstrap";
 import OccurrencesPage from "./OccurrencesPage";
+import PrototypeKPIsPage from "./PrototypeKPIsPage";
 
 export default function PrototypePage() {
     const navigate = useNavigate();
@@ -91,6 +92,13 @@ export default function PrototypePage() {
                 <OccurrencesPage prototypeId={prototype.id!} />
             ),
             i: 2,
+        },
+        {
+            label: "KPI's",
+            component: (
+                <PrototypeKPIsPage prototypeId={prototype.id!}/>
+            ),
+            i: 3,
         },
     ];
 

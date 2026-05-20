@@ -19,6 +19,7 @@ interface Params {
 export function useOccurrences({ prototypeId }: Params) {
   const [occurrence, setOccurrence] = useState<OccurrenceProps | null>(null);
   const [occurrences, setOccurrences] = useState<OccurrenceProps[]>([]);
+  const [prototypeOccurrences, setPrototypeOccurrences] = useState<OccurrenceProps[]>([]);
   const [loading, setLoading] = useState(false);
 
   // ----- Get all  -----
@@ -41,7 +42,7 @@ export function useOccurrences({ prototypeId }: Params) {
   };
 
   // ----- Get prototype occurrences -----
-  const fetchOccurrencesByPrototype = (async () => {
+  const fetchOccurrencesByPrototype = async () => {
     if (!prototypeId) return;
 
     try 
@@ -50,7 +51,7 @@ export function useOccurrences({ prototypeId }: Params) {
 
       const data = await getPrototypeOccurrencesService(prototypeId);
 
-      setOccurrences(data || []);
+      setPrototypeOccurrences(data || []);
     } 
     catch (err) 
     {
@@ -60,7 +61,7 @@ export function useOccurrences({ prototypeId }: Params) {
     {
       setLoading(false);
     }
-  });
+  };
 
   useEffect(() => {
     if (prototypeId) 
@@ -92,7 +93,13 @@ export function useOccurrences({ prototypeId }: Params) {
     {
       const result = await createOccurrenceService(data);
 
-      setOccurrences(prev => [...prev, result]);
+      // setOccurrences(prev => [...prev, result]);
+      // setPrototypeOccurrences(prev => [...prev, result]);
+
+      if (prototypeId) 
+        fetchOccurrencesByPrototype();
+      else
+        fetchOccurrences();
       
       return result;
     } 
@@ -109,7 +116,12 @@ export function useOccurrences({ prototypeId }: Params) {
     {
       await updateOccurrenceService(id, data);
       
-      setOccurrences(prev => prev.map(o => (o.id === id ? { ...o, ...data } : o)));
+      // setOccurrences(prev => prev.map(o => (o.id === id ? { ...o, ...data } : o)));
+
+      if (prototypeId) 
+        fetchOccurrencesByPrototype();
+      else
+        fetchOccurrences();
     } 
     catch (err) 
     {
@@ -124,7 +136,11 @@ export function useOccurrences({ prototypeId }: Params) {
     {
       await deleteOccurrenceService(id);
 
-      setOccurrences(prev => prev.filter(o => o.id !== id));
+      // setOccurrences(prev => prev.filter(o => o.id !== id));
+      if (prototypeId) 
+        fetchOccurrencesByPrototype();
+      else
+        fetchOccurrences();
     } 
     catch (err) 
     {
@@ -136,6 +152,7 @@ export function useOccurrences({ prototypeId }: Params) {
   return {
     occurrence,
     occurrences,
+    prototypeOccurrences,
     loading,
     fetchOccurrences,
     fetchOccurrencesByPrototype,

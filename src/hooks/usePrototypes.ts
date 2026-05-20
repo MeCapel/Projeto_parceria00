@@ -67,7 +67,7 @@ export const usePrototypes = (projectId: string) => {
     } 
     catch (err) 
     {
-      console.error("Erro ao buscar protótipos:", err);
+      console.error("Erro ao buscar protótipos do projeto:", err);
     } 
     finally 
     {
@@ -76,7 +76,14 @@ export const usePrototypes = (projectId: string) => {
   };
 
   useEffect(() => {
-    fetchPrototypes();
+    if (projectId) 
+    {
+      fetchProjectPrototypes();
+    } 
+    else 
+    {
+      fetchPrototypes();
+    }
   }, [projectId]);
 
   // ----- Create -----

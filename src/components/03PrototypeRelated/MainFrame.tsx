@@ -11,7 +11,7 @@ interface MainFrameProps {
 
 export default function MainFrame({ projectId } : MainFrameProps)
 {
-    const { prototypes, deletePrototype } = usePrototypes(projectId);
+    const { projectPrototypes, deletePrototype } = usePrototypes(projectId);
     const [ prototypeToDelete, setPrototypeToDelete] = useState<string | null>(null);
     const navigate = useNavigate();
 
@@ -30,7 +30,7 @@ export default function MainFrame({ projectId } : MainFrameProps)
         setPrototypeToDelete(null);
     };
 
-    if (!prototypes || prototypes.length === 0)
+    if (!projectPrototypes || projectPrototypes.length === 0)
     {
         return <p>Nenhum protótipo encontrado!</p>;
     }
@@ -40,7 +40,7 @@ export default function MainFrame({ projectId } : MainFrameProps)
             <CrudTable
                 headers={["Nome", "Descrição", "Etapa", "Vertical"]}
 
-                data={prototypes}
+                data={projectPrototypes}
 
                 getId={(p) => p.id!} 
 

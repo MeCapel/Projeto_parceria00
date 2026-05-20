@@ -59,6 +59,37 @@
     box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
+/* CARD PADRÃO PARA GRÁFICOS */
+.card-chart {
+    background: #fff;
+    border: 1px solid #e1dfdd;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+    padding: 1.25rem;
+
+    display: flex;
+    flex-direction: column;
+
+    position: relative;
+
+    /* IMPORTANTE */
+    overflow: visible;
+
+    transition:
+        box-shadow 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+/* HOVER ESPECÍFICO */
+.card-chart:hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 12px 20px rgba(0, 0, 0, 0.1);
+}
+
 /* REFINED CHAT STYLES */
 .chat-container {
     background-color: #f0f2f5;

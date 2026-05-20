@@ -138,6 +138,7 @@ export const logout = async () => {
     {
         await api.post("/logout"); // backend invalida sessão
         await signOut(auth);       // limpa client
+        
     } 
     catch (err) 
     {

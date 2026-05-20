@@ -20,7 +20,7 @@ interface OccurrenceForm {
     criticity: string;
     image?: string;
     prototypeId: string;
-    status: "pendente" | "em andamento" | "concluido" ,
+    progress: "pendente" | "em andamento" | "concluido" ,
     dueOn: Date | null,
     createdAt: Date | Timestamp;
 }
@@ -43,7 +43,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
         {label: "Concluído", value: "concluido"},
     ];
 
-    const { occurrences, createOccurrence, updateOccurrence, deleteOccurrence } = useOccurrences({ prototypeId });
+    const { prototypeOccurrences, createOccurrence, updateOccurrence, deleteOccurrence } = useOccurrences({ prototypeId });
 
     const [showModal, setShowModal] = useState(false);
     const [editingOccurrenceId, setEditingOccurrence] = useState<string | null>(null);
@@ -59,7 +59,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
         criticity: "",
         image: "",
         prototypeId,
-        status: "pendente",
+        progress: "pendente",
         dueOn: null,
     });
 
@@ -93,7 +93,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
             criticity: "",
             image: "",
             prototypeId,
-            status: "pendente",
+            progress: "pendente",
             dueOn: null,
         });
 
@@ -104,7 +104,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
 
     // ================= EDIT =================
     const handleEdit = (id: string) => {
-        const occurrence = occurrences.find(o => o.id === id);
+        const occurrence = prototypeOccurrences.find(o => o.id === id);
         if (!occurrence) return;
 
         setEditingOccurrence(id);
@@ -116,7 +116,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
             description: occurrence.description,
             criticity: occurrence.criticity,
             prototypeId: occurrence.prototypeId || "",
-            status: occurrence.status,
+            progress: occurrence.progress,
             dueOn: occurrence.dueOn || null,
         });
     };
@@ -180,7 +180,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
             <CrudTable
                 headers={["Nome", "Descrição", "Criticidade", "Status", "Data", "Data de vencimento"]}
 
-                data={occurrences}
+                data={prototypeOccurrences}
 
                 getId={(o) => o.id!}
 
@@ -195,7 +195,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
                             </span>
                         </td>
 
-                        <td className="px-4 text-secondary">{o.status}</td>
+                        <td className="px-4 text-secondary">{o.progress}</td>
 
                         <td className="px-4 text-secondary">
                             {formatDateBR(o.createdAt!)}
@@ -253,8 +253,8 @@ export default function OccurrencesPage({ prototypeId }: Props)
 
                         <FormRadioGroup
                             label="Status"
-                            name="status"
-                            value={values.status}
+                            name="progress"
+                            value={values.progress}
                             onChange={handleChange}
                             options={statusArray}
                             required

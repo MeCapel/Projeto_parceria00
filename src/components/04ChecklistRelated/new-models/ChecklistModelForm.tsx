@@ -2,6 +2,7 @@ import { useState } from "react"
 import { PlusLg, Trash3Fill, Dash } from "react-bootstrap-icons"
 import type { ChecklistModelProps } from "../../../services/checklistModels.service"
 import FormRadioGroup from "../../forms/FormRadioGroup";
+import FormInput from "../../forms/FormInput";
 
 export type ChecklistModelInput = Omit<
   ChecklistModelProps,
@@ -16,9 +17,9 @@ interface Props {
 
 export default function ChecklistModelForm({ initialData, loading, onSubmit }: Props) {
   const verticalArray = [
-    {label: "Fabricação", value: "fabricacao"},
-    {label: "Montagem", value: "montagem"},
-    {label: "Validação de campo", value: "pulverizacao"},
+    {label: "Preparo", value: "preparo"},
+    {label: "Plantio", value: "plantio"},
+    {label: "Pulverização", value: "pulverizacao"},
   ];
 
   const [checklist, setChecklist] = useState<ChecklistModelInput>(() => {
@@ -114,17 +115,25 @@ export default function ChecklistModelForm({ initialData, loading, onSubmit }: P
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (
-      !checklist.name ||
-      !checklist.vertical ||
-      checklist.categories.length === 0 ||
-      checklist.categories.some(cat => cat.items.length === 0)
-    ) {
-      alert("Preencha todos os campos, categorias e itens.")
-      return
-    }
+     try 
+     {
+        if (
+          !checklist.name ||
+          !checklist.vertical ||
+          checklist.categories.length === 0 ||
+          checklist.categories.some(cat => cat.items.length === 0)
+        ) {
+          alert("Preencha todos os campos, categorias e itens.")
+          return
+        }
 
-    onSubmit(checklist)
+        console.log(checklist)
+
+        onSubmit(checklist)
+
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   return (
@@ -132,15 +141,16 @@ export default function ChecklistModelForm({ initialData, loading, onSubmit }: P
 
       {/* ===== NOME ===== */}
       <div className="form-floating">
-        <input
-          className="form-control"
-          value={checklist.name}
-          required
-          onChange={(e) =>
-            setChecklist(prev => ({ ...prev, name: e.target.value }))
-          }
+        <FormInput
+            label="Nome"
+            name="name"
+            value={checklist.name}
+            onChange={
+              (e) => setChecklist(prev => ({ ...prev, name: e.target.value }))
+            }
+            required
+            minLength={3}
         />
-        <label>Nome da checklist</label>
       </div>
 
       {/* ===== VERTICAL ===== */}
@@ -165,12 +175,19 @@ export default function ChecklistModelForm({ initialData, loading, onSubmit }: P
 
       {/* ===== NOVA CATEGORIA ===== */}
       <div className="d-flex gap-2">
-        <input
-          className="form-control"
-          placeholder="Nova categoria..."
-          value={newCategoryName}
-          onChange={(e) => setNewCategoryName(e.target.value)}
-        />
+        <div className="form-floating w-100">
+                <input 
+                    name="newCategory"
+                    value={newCategoryName}
+                    placeholder="Nova categoria..."
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    minLength={3}
+                    maxLength={55}
+                    className="form-control"
+                />
+
+            <label>Nova categoria...</label>
+        </div>
 
         <button
           type="button"

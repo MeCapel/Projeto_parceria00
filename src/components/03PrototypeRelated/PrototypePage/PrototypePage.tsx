@@ -4,9 +4,9 @@ import { useProjectPrototypes } from "../../../hooks/useProjectPrototypes";
 import type { PrototypeProps } from "../../../services/prototypes.service";
 import PrototypeGeralInfosTab from "./PrototypeGeralInfosTab";
 import PrototypeChecklistsTab from "./PrototypeChecklistsTab";
-import OccurrencesPage from "../../06OccurrenceRelated/OccurrencesPage";
 import { ArrowLeftCircleFill, Floppy2Fill, Trash3Fill, TrashFill } from "react-bootstrap-icons";
 import { Modal } from "react-bootstrap";
+import OccurrencesPage from "./OccurrencesPage";
 
 export default function PrototypePage() {
     const navigate = useNavigate();

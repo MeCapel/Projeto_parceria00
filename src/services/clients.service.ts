@@ -1,6 +1,4 @@
-import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { api } from "./api";
-import { db } from "../firebaseConfig/config";
 
 // ===== TYPES =====
 export interface ClientProps {
@@ -16,40 +14,7 @@ export interface ClientProps {
   createdAt?: string;
 }
 
-const clientsCollectionRef = collection(db, "clients");
-
 // ===== GET =====
-
-// ----- Função para listar em tempo real -----
-export const listenClients = (callback: (clients: ClientProps[]) => void) => {
-    return onSnapshot(clientsCollectionRef, (snapshot) => {
-        const clientesData = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-        }) as ClientProps);
-        callback(clientesData);
-    });
-}
-
-export const listenClient = async (clientId: string): Promise<ClientProps | null> => {
-    try
-    {
-        const docRef = doc(clientsCollectionRef, clientId);
-        const docSnap = await getDoc(docRef) 
-
-        if (!docSnap.exists()) return null;
-
-        return {
-            id: docSnap.id,
-            ...docSnap.data()
-        } as ClientProps;
-    }
-    catch (err)
-    {
-        console.error(err);
-        return null;
-    }
-}
 
 // listar clientes
 export const getClients = async () => {

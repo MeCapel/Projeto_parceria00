@@ -7,6 +7,14 @@ import { inviteUser } from "../../services/auth.service";
 // ----- Componente responsável pelo formulário de registro dos usuários / criação de conta -----
 export default function SignInForm()
 {
+    const roleArray = [
+        {label: "Adiministrador", value: "admin"},
+        {label: "Coordenador de validação", value: "coordenador de validacao"},
+        {label: "Integrador", value: "integrador"},
+        {label: "Po", value: "po"},
+        {label: "Técnico de campo", value: "tecnico de campo"},
+    ];
+
     const [ username, setUsername ] = useState("");
     const [ email, setEmail ] = useState("");
     const [ role, setRole ] = useState("");
@@ -69,9 +77,6 @@ export default function SignInForm()
             style={{ backgroundImage: "url(/fromBrand/background-pattern.png)"}}>
             <form className="container bg-light p-5 d-flex flex-column rounded-3 gap-4" style={{ maxWidth: '30rem' }} onSubmit={handleCreateAccount}>
                 <div className="d-flex flex-column align-items-center justify-content-center gap-3">
-                    <div className="d-flex align-items-center justify-content-center">
-                        <img height={30} src="/fromBrand/baldan-principal.png" alt="Logotipo da marca" />
-                    </div>
                     <p className="fs-2 mb-0 fw-semibold text-black text-center">Adicionar conta</p>
                 </div>
                 
@@ -106,7 +111,7 @@ export default function SignInForm()
                     name="role"
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
-                    options={["admin", "coordenador de validacao", "integrador", "po", "tecnico de campo"]}
+                    options={roleArray}
                     required
                 />
 
@@ -119,11 +124,16 @@ export default function SignInForm()
     )
 }
 
+interface OptionsProps {
+    label: string,
+    value: string
+}
+
 interface Props {
     label: string;
     name: string;
     value: string | number;
-    options: string[];
+    options: OptionsProps[];
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     required?: boolean;
     error?: string;
@@ -152,25 +162,25 @@ function FormRadioGroup({
             </legend>
 
             {/* Radios */}
-            <div className="d-flex flex-column gap-3 justify-content-center align-items-start mt-3">
+            <div className="d-flex flex-wrap gap-3 justify-content-center align-items-start mt-3">
 
                 {options.map((opt, index) => (
                     <label
-                        key={opt}
+                        key={opt.label}
                         className="d-flex align-items-center gap-2 px-3 py-2 border rounded-3 w-100 w-md-auto"
                         style={{ cursor: "pointer" }}
                     >
                         <input
                             type="radio"
                             name={name}
-                            value={opt}
-                            checked={value === opt}
+                            value={opt.value}
+                            checked={value === opt.value}
                             onChange={onChange}
                             className={`form-check-input ${error ? "is-invalid" : ""}`}
                             required={required && index === 0}
                         />
 
-                        <span>{opt}</span>
+                        <span>{opt.label}</span>
                     </label>
                 ))}
 

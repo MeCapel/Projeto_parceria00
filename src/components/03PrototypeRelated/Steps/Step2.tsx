@@ -5,9 +5,9 @@ import SelectLocation from "../../Others/SelectLocation";
 
 export default function Step2({ values, errors, onChange, isFieldRequired }: StepProps) {
     const stageArray = [
-        {label: "Preparo", value: "preparo"},
-        {label: "Plantio", value: "plantio"},
-        {label: "Pulverização", value: "pulverizacao"},
+        {label: "Fabricação", value: "fabricacao"},
+        {label: "Montagem", value: "montagem"},
+        {label: "Validação de campo", value: "validacao de campo"},
     ];
     
     return (

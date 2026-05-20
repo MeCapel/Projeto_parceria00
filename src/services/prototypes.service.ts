@@ -16,6 +16,10 @@ export interface PrototypeProps {
   createdAt?: string;
 }
 
+export interface PrototypeWithProgress extends PrototypeProps {
+  progress: number;
+}
+
 // ===== GET =====
 
 // 🔹 listar todos protótipos

@@ -6,7 +6,7 @@ import {
     query,
     orderBy,
     onSnapshot,
-    Timestamp
+    type Timestamp,
 } from "firebase/firestore";
 
 // ===== TYPES =====
@@ -25,14 +25,7 @@ export interface MessageProps {
 
 // Enviar mensagem
 export const sendMessage = async (projectId: string, text: string, base64Image?: string) => {
-    const payload: any = {};
-
-    if (text) payload.text = text;
-    if (base64Image) payload.base64Image = base64Image;
-
-    // console.log("PAYLOAD:", { text, base64Image });
-
-    await api.post(`/projects/${projectId}/messages`, {
+await api.post(`/projects/${projectId}/messages`, {
         text,
         base64Image
     });

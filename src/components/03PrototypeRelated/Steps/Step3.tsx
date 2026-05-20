@@ -5,9 +5,9 @@ import type { StepProps } from "../ProtoMultiForm";
 
 export default function Step3({ values, onChange, isFieldRequired }: StepProps) {
   const verticalArray = [
-    {label: "Fabricação", value: "fabricacao"},
-    {label: "Montagem", value: "montagem"},
-    {label: "Validação de campo", value: "pulverizacao"},
+    {label: "Preparo", value: "preparo"},
+    {label: "Plantio", value: "plantio"},
+    {label: "Pulverização", value: "pulverizacao"},
   ];
   
   const isInvalid =

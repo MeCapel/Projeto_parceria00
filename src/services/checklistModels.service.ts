@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, onSnapshot, orderBy, query, where, type Timestamp } from "firebase/firestore";
+import { collection, getDocs, orderBy, query, where, type Timestamp } from "firebase/firestore";
 import { api } from "./api";
 import { db } from "../firebaseConfig/config";
 
@@ -23,49 +23,6 @@ export interface ChecklistModelProps {
   baseModelId: string;
   createdAt?: Date | Timestamp;
   createdBy?: string;
-}
-
-// ----- ESTA FUNÇÃO PEGA TODOS OS MODELOS DE CHECKLIST -----
-export const listenChecklistModels = (callback: (items: (ChecklistModelProps & { id: string })[]) => void) => {
-    const docRef = collection(db, "checklistModels");
-    const q = query(
-        docRef,
-        orderBy("version", "desc")
-    );
-
-    return onSnapshot(q, (snapshot) => {
-        const data = snapshot.docs.map((d) => ({
-            id: d.id,
-            ...d.data(),
-        })) as (ChecklistModelProps & { id: string })[];
-
-        callback(data);
-    });
-} 
-
-// ----- ESTA FUNÇÃO PEGA UM ÚNICO MODELE DE CHECKLIST -----
-export const listenChecklistModel = async ( checklistModelId: string ) : Promise<(ChecklistModelProps & { id: string }) | null> => {
-    try 
-    {
-        const docRef = doc(db, "checklistModels", checklistModelId);
-        const docSnap = await getDoc(docRef);
-
-        if (!docSnap.exists())
-        {
-            console.error("Checklist modelo não encontrada!");
-            return null;
-        }
-
-        return { 
-          ...(docSnap.data() as ChecklistModelProps), 
-          id: docSnap.id, 
-        };
-    }
-    catch (err)
-    {
-        console.error("Erro na tentativa de pegar a checklist modelo: " + err);
-        return null;
-    }
 }
 
 // ================= GET ALL =================

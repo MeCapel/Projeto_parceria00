@@ -16,14 +16,14 @@ export default function ChecklistModelCard({ checklist, onEdit, onDelete }: Prop
 
         <div>
           <h6 className="fw-bold mb-0">
-            {checklist.name}
+            {checklist.name || "Sem nome"}
           </h6>
 
           <span
             className="badge bg-light text-danger border border-danger-subtle rounded-pill mt-1"
             style={{ fontSize: "0.7rem" }}
           >
-            v{checklist.version}
+            v{checklist.version || "Versão não definida"}
           </span>
         </div>
 
@@ -50,7 +50,7 @@ export default function ChecklistModelCard({ checklist, onEdit, onDelete }: Prop
         className="mt-auto mb-0 fw-semibold"
         style={{ color: "var(--red00)", fontSize: "0.85rem" }}
       >
-        {checklist.categories.length} categorias
+        {checklist.categories?.length || 0} categorias
       </p>
 
     </div>

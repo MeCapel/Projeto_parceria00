@@ -1,5 +1,5 @@
-import type { Timestamp } from "firebase/firestore";
 import { api } from "./api";
+import type { Timestamp } from "firebase/firestore";
 
 // ===== TYPES =====
 

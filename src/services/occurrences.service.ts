@@ -9,11 +9,45 @@ export interface OccurrenceProps {
   criticity: string;
   prototypeId: string;
   image?: string;
+  // progress: "pendente" | "em andamento" | "concluido";
+  // status: string;
   status: "pendente" | "em andamento" | "concluido";
   dueOn: Date | null; // Keep as Date for API
   createdBy?: string;
   createdAt?: Date | Timestamp;
 }
+
+// ===== GET occurrences =====
+export const getOccurrences = async () => {
+  try 
+  {
+    const res = await api.get(`/occurrences`);
+    return res.data;
+  } 
+  catch 
+  {
+    return null;
+  }
+};
+
+// ===== GET BY PROTOTYPE ID =====
+export const getPrototypeOccurrences = async (prototypeId: string) => {
+  const res = await api.get(`/prototypes/${prototypeId}/occurrences`);
+  return res.data.data || res.data; 
+};
+
+// ===== GET BY ID =====
+export const getOccurrence = async (id: string): Promise<OccurrenceProps | null> => {
+  try 
+  {
+    const res = await api.get(`/occurrences/${id}`);
+    return res.data;
+  } 
+  catch 
+  {
+    return null;
+  }
+};
 
 // ===== CREATE (requires prototypeId) =====
 export const createOccurrence = async (data: Omit<OccurrenceProps, "id">) => {
@@ -37,20 +71,4 @@ export const updateOccurrence = async (id: string, data: Partial<OccurrenceProps
 export const deleteOccurrence = async (id: string) => {
   const res = await api.delete(`/occurrences/${id}`);
   return res.data;
-};
-
-// ===== GET BY ID =====
-export const getOccurrence = async (id: string): Promise<OccurrenceProps | null> => {
-  try {
-    const res = await api.get(`/occurrences/${id}`);
-    return res.data;
-  } catch {
-    return null;
-  }
-};
-
-// ===== GET BY PROTOTYPE ID =====
-export const getPrototypeOccurrences = async (prototypeId: string) => {
-  const res = await api.get(`/prototypes/${prototypeId}/occurrences`);
-  return res.data.data || res.data; 
 };

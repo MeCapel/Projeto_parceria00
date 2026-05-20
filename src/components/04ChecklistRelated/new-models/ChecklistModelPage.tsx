@@ -19,8 +19,9 @@ export default function ChecklistModelPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<string | null>(null);
 
-  const filtered = checklistModels.filter(c =>
-    c.name.toLowerCase().includes(search.toLowerCase())
+  const filtered = checklistModels.filter(model =>
+    (model.name?.toLowerCase() || "")
+      .includes(search.toLowerCase())
   );
 
   const handleNew = () => {
@@ -81,8 +82,8 @@ export default function ChecklistModelPage() {
                     </p>
                 </div>
             ) : (
-                filtered.map(c => ( // E aqui também
-                    <div className="" key={c.id}>
+                filtered.map((c, index) => ( // E aqui também
+                    <div className="" key={c.id ?? index}>
                         <ChecklistModelCard
                             checklist={c}
                             onEdit={() => handleEdit(c.id)}

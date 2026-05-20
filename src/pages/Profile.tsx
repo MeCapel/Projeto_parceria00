@@ -121,7 +121,7 @@ export default function Profile() {
                             <div className="d-flex flex-wrap gap-3 align-items-center justify-content-between mb-4">
                                 <div>
                                     <h2 className='text-custom-black fw-bold mb-1'>{userData?.username || "Usuário"}</h2>
-                                    <p className="text-muted fs-6 mb-0">Colaborador Baldan</p>
+                                    <p className="text-muted fs-6 mb-0">{userData?.role || "Colaborador(a) Baldan"}</p>
                                 </div>
 
                                 <button className="btn-custom btn-custom-gray shadow-sm border d-flex gap-3 align-items-center px-4 shadow-sm"

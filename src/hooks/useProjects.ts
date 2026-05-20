@@ -1,3 +1,4 @@
+// ===== GERAL IMPORTS =====
 import { useEffect, useState } from "react"
 import {
   createProject as createProjectService,
@@ -9,6 +10,7 @@ import {
 import { getUserProjects } from "../services/projectMembers.service";
 import { getCurrentUser } from "../services/auth.service"
 
+// ===== INTERFACES =====
 interface CreateProjectDTO {
   name: string,
   description: string,
@@ -20,54 +22,40 @@ interface UpdateProjectDTO {
   description: string,
 }
 
+// ===== HOOK ===== 
 export const useProjects = () => {
   const [projects, setProjects] = useState<ProjectProps[]>([]);
   const [userProjects, setUserProjects] = useState<ProjectProps[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(false);
   const [loadingUserProjects, setLoadingUserProjects] = useState(false);
 
+  // ----- Get all -----
   const fetchProjects = async () => {
-    const { data } = await getProjects();
-    setProjects(data);
+    try 
+    {
+      setLoadingProjects(true);
+
+      const response = await getProjects();
+      setProjects(response.data || []);
+    } 
+    catch (err) 
+    {
+      console.error("Erro ao buscar clientes:", err);
+    } 
+    finally 
+    {
+      setLoadingProjects(false);
+    }
   };
 
   // Carregar todos os projetos
   useEffect(() => {
-    const fetchProjects = async () => {
-      try 
-      {
-        setLoadingProjects(true);
-
-        const response = await getProjects();
-        setProjects(response.data || []);
-      } 
-      catch (err) 
-      {
-        console.error("Erro ao buscar projetos:", err);
-      } 
-      finally
-      {
-        setLoadingProjects(false);
-      }
-    };
-
     fetchProjects();
   }, []);
   
-  // Carregar todos os projetos do user
+  // ----- Get all user projects -----
   useEffect(() => {
     const fetchUserProjects = async () => {
-      // const user = await getCurrentUser();
-
-      // console.log("USER:", user);
-      // console.log("USER ID:", user?.id);   
-
-      // if (!user) 
-      // {
-      //   setUserProjects([]);
-      //   return;
-      // }
-
       try 
       {
         const user = await getCurrentUser();

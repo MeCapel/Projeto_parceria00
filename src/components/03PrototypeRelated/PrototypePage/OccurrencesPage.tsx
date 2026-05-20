@@ -1,18 +1,18 @@
 import { useRef, useState } from "react"
-import { useOccurrences } from "../../hooks/useOccurrences"
-import { useForm } from "../../hooks/useForm"
-import { useImageUpload } from "../../hooks/useImageUpload"
-import CrudHeader from "../Others/CrudHeader"
-import { CrudTable } from "../Others/CrudTable"
-import { formatDateBR } from "../../utils/date"
-import CrudModal from "../Others/CrudModal"
-import FormInput from "../forms/FormInput"
-import FormTextarea from "../forms/FormTextarea"
-import FormRadioGroup from "../forms/FormRadioGroup"
 import { Paperclip, Trash3Fill, XCircleFill } from "react-bootstrap-icons"
 import { Modal } from "react-bootstrap"
-import FormDatePicker from "../forms/FormDatePicker"
 import type { Timestamp } from "firebase/firestore"
+import { useOccurrences } from "../../../hooks/useOccurrences"
+import { useForm } from "../../../hooks/useForm"
+import { useImageUpload } from "../../../hooks/useImageUpload"
+import CrudHeader from "../../Others/CrudHeader"
+import { CrudTable } from "../../Others/CrudTable"
+import { formatDateBR } from "../../../utils/date"
+import CrudModal from "../../Others/CrudModal"
+import FormInput from "../../forms/FormInput"
+import FormTextarea from "../../forms/FormTextarea"
+import FormRadioGroup from "../../forms/FormRadioGroup"
+import FormDatePicker from "../../forms/FormDatePicker"
 
 interface OccurrenceForm {
     name: string;
@@ -43,7 +43,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
         {label: "Concluído", value: "concluido"},
     ];
 
-    const { occurrences, create, update, remove } = useOccurrences({ prototypeId });
+    const { occurrences, createOccurrence, updateOccurrence, deleteOccurrence } = useOccurrences({ prototypeId });
 
     const [showModal, setShowModal] = useState(false);
     const [editingOccurrenceId, setEditingOccurrence] = useState<string | null>(null);
@@ -128,9 +128,9 @@ export default function OccurrencesPage({ prototypeId }: Props)
             // Keep dueOn as Date object for API
         };
         
-        if (editingOccurrenceId) return update(editingOccurrenceId, payload);
+        if (editingOccurrenceId) return updateOccurrence(editingOccurrenceId, payload);
         
-        return create(payload);
+        return createOccurrence(payload);
     };
 
     const handleSave = async (e: React.FormEvent) => {
@@ -164,7 +164,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
     const confirmDelete = async () => {
         if (!occurrenceToDelete) return;
 
-        await remove(occurrenceToDelete);
+        await deleteOccurrence(occurrenceToDelete);
         setOccurrenceToDelete(null);
     };
 

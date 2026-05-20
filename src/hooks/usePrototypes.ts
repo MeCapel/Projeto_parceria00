@@ -1,12 +1,15 @@
+// ===== GERAL IMPORTS =====
 import { useEffect, useState } from "react";
 import {
+  getPrototypes,
+  getPrototypesByProject,
   createPrototype as createPrototypeService,
   updatePrototype as updatePrototypeService,
   deletePrototype as deletePrototypeService,
-  getPrototypesByProject,
   type PrototypeProps,
 } from "../services/prototypes.service";
 
+// ===== INTERFACES =====
 interface CreatePrototypeDTO {
     code: string;
     name: string;
@@ -26,22 +29,48 @@ interface UpdatePrototypeDTO extends Partial<CreatePrototypeDTO> {
     id: string;
 }
 
+// ===== HOOK ===== 
 export const usePrototypes = (projectId: string) => {
   const [prototypes, setPrototypes] = useState<PrototypeProps[]>([]);
+  const [projectPrototypes, setProjectPrototypes] = useState<PrototypeProps[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 fetch
+  // ----- Get all  -----
   const fetchPrototypes = async () => {
+    try 
+    {
+      setLoading(true);
+
+      const data = await getPrototypes();
+      setPrototypes(data.data || []);
+    } 
+    catch (err)
+    {
+      console.error("Erro ao buscar protótipos:", err);
+    } 
+    finally 
+    {
+      setLoading(false);
+    }
+  };
+
+  // ----- Get all by project -----
+  const fetchProjectPrototypes = async () => {
     if (!projectId) return;
 
-    try {
+    try 
+    {
       setLoading(true);
 
       const data = await getPrototypesByProject(projectId);
-      setPrototypes(data || []);
-    } catch (err) {
+      setProjectPrototypes(data || []);
+    } 
+    catch (err) 
+    {
       console.error("Erro ao buscar protótipos:", err);
-    } finally {
+    } 
+    finally 
+    {
       setLoading(false);
     }
   };
@@ -50,41 +79,48 @@ export const usePrototypes = (projectId: string) => {
     fetchPrototypes();
   }, [projectId]);
 
-  // 🔹 criar
+  // ----- Create -----
   const createPrototype = async (data: CreatePrototypeDTO) => {
-    try {
+    try 
+    {
       const result = await createPrototypeService(data);
 
-      await fetchPrototypes(); // refresh
+      await fetchPrototypes();
 
       return result;
-    } catch (err) {
+    } 
+    catch (err) 
+    {
       console.error("Erro ao criar protótipo:", err);
       throw err;
     }
   };
 
-  // 🔹 update
+  // ----- Update -----
   const updatePrototype = async (data: UpdatePrototypeDTO) => {
-    try {
-      await updatePrototypeService(data.id, data as any);
+    try 
+    {
+      await updatePrototypeService(data.id, data);
 
-      setPrototypes(prev =>
-        prev.map(p => (p.id === data.id ? { ...p, ...data } as PrototypeProps : p))
-      );
-    } catch (err) {
+      setPrototypes(prev => prev.map(p => (p.id === data.id ? { ...p, ...data } as PrototypeProps : p)));
+    } 
+    catch (err) 
+    {
       console.error("Erro ao atualizar protótipo:", err);
       throw err;
     }
   };
 
-  // 🔹 delete
+  // ----- Delete -----
   const deletePrototype = async (id: string) => {
-    try {
+    try 
+    {
       await deletePrototypeService(id);
 
       setPrototypes(prev => prev.filter(p => p.id !== id));
-    } catch (err) {
+    } 
+    catch (err) 
+    {
       console.error("Erro ao deletar protótipo:", err);
       throw err;
     }
@@ -92,7 +128,10 @@ export const usePrototypes = (projectId: string) => {
 
   return {
     prototypes,
+    projectPrototypes,
     loading,
+    fetchPrototypes,
+    fetchProjectPrototypes,
     createPrototype,
     updatePrototype,
     deletePrototype,

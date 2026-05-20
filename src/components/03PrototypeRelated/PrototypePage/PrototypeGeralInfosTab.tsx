@@ -11,16 +11,16 @@ interface Props {
 }
 
 export default function PrototypeGeralInfosTab({ prototype, onChange, onVerticalChange }: Props) {
-  const stageArray = [
+  const verticalArray = [
     {label: "Preparo", value: "preparo"},
     {label: "Plantio", value: "plantio"},
     {label: "Pulverização", value: "pulverizacao"},
   ];
 
-  const verticalArray = [
+  const stageArray = [
     {label: "Fabricação", value: "fabricacao"},
     {label: "Montagem", value: "montagem"},
-    {label: "Validação de campo", value: "pulverizacao"},
+    {label: "Validação de campo", value: "validacao de campo"},
   ];
 
   const handleVerticalChange = (e: React.ChangeEvent<HTMLInputElement>) => {

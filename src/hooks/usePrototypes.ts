@@ -92,7 +92,11 @@ export const usePrototypes = (projectId: string) => {
     {
       const result = await createPrototypeService(data);
 
-      await fetchPrototypes();
+      // await fetchPrototypes();
+      // if (projectId) 
+        fetchProjectPrototypes();
+      // else
+        fetchPrototypes();
 
       return result;
     } 
@@ -109,7 +113,11 @@ export const usePrototypes = (projectId: string) => {
     {
       await updatePrototypeService(data.id, data);
 
-      setPrototypes(prev => prev.map(p => (p.id === data.id ? { ...p, ...data } as PrototypeProps : p)));
+      // setPrototypes(prev => prev.map(p => (p.id === data.id ? { ...p, ...data } as PrototypeProps : p)));
+      if (projectId) 
+        fetchProjectPrototypes();
+      else
+        fetchPrototypes();
     } 
     catch (err) 
     {
@@ -124,7 +132,11 @@ export const usePrototypes = (projectId: string) => {
     {
       await deletePrototypeService(id);
 
-      setPrototypes(prev => prev.filter(p => p.id !== id));
+      // setPrototypes(prev => prev.filter(p => p.id !== id));
+      if (projectId) 
+        fetchProjectPrototypes();
+      else
+        fetchPrototypes();
     } 
     catch (err) 
     {

@@ -1,7 +1,10 @@
+// ===== GERAL IMPORTS =====
 import { collection, getDocs, orderBy, query, where, type Timestamp } from "firebase/firestore";
 import { api } from "./api";
 import { db } from "../firebaseConfig/config";
+import type { Pagination } from "../utils/pagination.types";
 
+// ===== INTERFACES =====
 export interface ChecklistItem {
   id?: string;
   label: string;
@@ -17,53 +20,88 @@ export interface ChecklistCategory {
 export interface ChecklistModelProps {
   id: string;
   name: string;
+  normalizedName?: string,
+
   vertical: string;
+  
   categories: ChecklistCategory[];
+  
   version: number;
   baseModelId: string;
+
+  status: "active" | "disabled",
+  
   createdAt?: Date | Timestamp;
   createdBy?: string;
 }
 
-// ================= GET ALL =================
-export const getChecklistModels = async (vertical?: string) => {
-  const url = vertical
-    ? `/checklist-models?vertical=${encodeURIComponent(vertical)}`
-    : "/checklist-models";
-  const response = await api.get(url);
-  return response.data.data || response.data;
+export interface PaginatedChecklistModelsResponse {
+  data: ChecklistModelProps[];
+  pagination: Pagination;
+}
+
+// ===== API ENDPOINTS =====
+
+// ----- GET ALL -----
+export const getChecklistModels = async (
+  params?: {
+    limit?: number;
+    cursor?: string | null;
+    status?: "active" | "disabled";
+    vertical?: string;
+  }
+): Promise<PaginatedChecklistModelsResponse> => {
+  const searchParams = new URLSearchParams();
+
+  if (params?.limit) searchParams.append("limit", String(params.limit));
+
+  if (params?.cursor) searchParams.append("cursor", params.cursor);
+
+  if (params?.status) searchParams.append("status", params.status);
+
+  if (params?.vertical) searchParams.append("vertical", params.vertical);
+
+  const response = await api.get(`/checklist-models?${searchParams.toString()}`);
+  return response.data;
 };
 
-// ================= GET ONE =================
-export const getChecklistModel = async (id: string) => {
+// ----- GET ONE -----
+export const getChecklistModel = async (id: string): Promise<ChecklistModelProps> => {
   const response = await api.get(`/checklist-models/${id}`);
   return response.data;
 };
 
-// ================= CREATE =================
-export const createChecklistModel = async (data: {
-  name: string;
-  vertical: string;
-  categories: ChecklistCategory[];
-}) => {
+// ----- CREATE -----
+export const createChecklistModel = async (
+  data: { 
+    name: string, 
+    vertical: string, 
+    categories: ChecklistCategory[] 
+  } ) => {
+
   const response = await api.post("/checklist-models", data);
   return response.data;
 };
 
-// ================= UPDATE (cria nova versão) =================
-export const updateChecklistModel = async (
-  id: string,
+// ----- UPDATE (cria nova versão) -----
+export const updateChecklistModel = async (id: string,
   data: Partial<{
     name: string;
     vertical: string;
     categories: ChecklistCategory[];
-  }>
-) => {
+  }> ) => {
+
   const response = await api.patch(`/checklist-models/${id}`, data);
   return response.data;
 };
 
-// ================= DELETE =================
+// ----- Change status -----
+export const changeChecklistModelStatus = async (id: string, status: "active" | "disabled") => {
+  const response = await api.patch(`/checklist-models/change-status/${id}`, { status });
+  return response.data;
+};
+
+// ----- DELETE -----
 export const deleteChecklistModel = async (id: string) => {
   await api.delete(`/checklist-models/${id}`);
 };

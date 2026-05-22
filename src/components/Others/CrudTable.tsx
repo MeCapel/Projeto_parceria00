@@ -1,12 +1,15 @@
 import type React from "react";
 import { PencilSquare, Trash3Fill } from "react-bootstrap-icons";
 
+export type Status = "active" | "disabled";
+
 interface CrudTableProps<T> {
     headers: string[];
     data: T[];
     renderRow: (item: T) => React.ReactNode;
 
     onEdit?: (id: string) => void;
+    onStatusChange?: (id: string, currentStatus: Status) => void;
     onDelete?: (id: string) => void;
 
     getId: (item: T) => string;
@@ -17,6 +20,7 @@ export function CrudTable<T>({
     data,
     renderRow,
     onEdit,
+    onStatusChange,
     onDelete,
     getId
 }: CrudTableProps<T>) {
@@ -61,6 +65,31 @@ export function CrudTable<T>({
                                                     className="btn-custom btn-custom-inside-primary px-2 py-1 border-0 bg-transparent"
                                                 >
                                                     <PencilSquare />
+                                                </button>
+                                            )}
+
+                                            {onStatusChange && (
+                                                <button
+                                                    onClick={() => {
+                                                        const status = (item as unknown as { status?: "active" | "disabled" }).status;
+                                                        if (!status) return;
+
+                                                        onStatusChange(id, status);
+                                                    }}
+                                                    className="btn-custom btn-custom-inside-primary px-2 py-1 border-0 bg-transparent"
+                                                    title="Alternar status"
+                                                >
+                                                    <div className="form-check form-switch m-0">
+                                                        <input
+                                                            className="form-check-input"
+                                                            type="checkbox"
+                                                            role="switch"
+                                                            checked={
+                                                                (item as unknown as { status?: "active" | "disabled" }).status === "active"
+                                                            }
+                                                            readOnly
+                                                        />
+                                                    </div>
                                                 </button>
                                             )}
 

@@ -1,7 +1,7 @@
 // ===== GERAL IMPORTS =====
 import { useEffect, useRef, useState } from "react";
 import { type UserProps } from "../../services/auth.service";
-import { addProjectMember, getUsersNotInProject } from "../../services/projectMembers.service";
+import { useProjectMembers } from "../../hooks/useProjectMembers";
 
 // ===== INTERFACE TYPES =====
 interface Props {
@@ -11,25 +11,14 @@ interface Props {
 // ===== MAIN COMPONENT =====
 // ----- Componente responsável por exibir usuários cadastrados e não presentes em determinado projeto, permitindo selecionna-los e assim adiciona-los ao projeto atual -----
 export default function AddNewMember({ projectId }: Props) {
-    const [users, setUsers] = useState<UserProps[]>([]);
-    const [loading, setLoading] = useState(true);
     const [openUserId, setOpenUserId] = useState<string | null>(null);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const data = await getUsersNotInProject(projectId);
-                setUsers(data || []);
-            } catch (err) {
-                console.error("Erro ao buscar usuários:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUsers();
-    }, [projectId]);
+    const {
+        usersNotInProject,
+        loadingUsersNotInProject,
+        addProjectMember
+    } = useProjectMembers(projectId);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -48,76 +37,83 @@ export default function AddNewMember({ projectId }: Props) {
 
     const handleNewMember = async (user: UserProps) => {
         const userId = user.id;
-
         if (!userId) return;
 
-        try {
-            await addProjectMember(projectId, userId);
-
-            // remove da lista após adicionar
-            setUsers(prev => prev.filter(u => u.id !== userId));
-
-        } catch (err) {
+        try 
+        {
+            await addProjectMember(userId);
+        } 
+        catch (err) 
+        {
             console.error("Erro ao adicionar membro:", err);
         }
+
     };
 
  return (
     <div
-        className="d-flex flex-column overflow-auto mt-2"
-        style={{ maxHeight: "50vh" }}
-    >
-        {loading && <p>Carregando...</p>}
+            className="d-flex flex-column overflow-auto mt-2"
+            style={{ maxHeight: "50vh" }}
+        >
 
-        <ul className="list-unstyled d-flex flex-column gap-3">
+            {loadingUsersNotInProject && (
+                <p>Carregando...</p>
+            )}
 
-            {users.map(user => {
+            <ul className="list-unstyled d-flex flex-column gap-3">
 
-                if (!user.id) return null;
+                {usersNotInProject.map((user: any) => {
 
-                return (
-                    <li
-                        key={user.id}
-                        className="d-flex align-items-center justify-content-between border rounded p-2"
-                    >
+                    if (!user.id) return null;
 
-                        {/* ESQUERDA */}
-                        <div className="d-flex flex-column" style={{ minWidth: 0 }}>
-                            <span className="fw-semibold">
-                                {user.username || "Sem nome"}
-                            </span>
-
-                            <span
-                                className="text-muted text-truncate"
-                                style={{ fontSize: "0.9rem", maxWidth: "180px" }}
-                            >
-                                {user.email}
-                            </span>
-                        </div>
-
-                        {/* DIREITA */}
-                        <div
-                            className="d-flex align-items-center gap-2 position-relative"
-                            ref={openUserId === user.id ? dropdownRef : null}
+                    return (
+                        <li
+                            key={user.id}
+                            className="d-flex align-items-center justify-content-between border rounded p-2"
                         >
 
-                            {/* BOTÃO */}
-                            <button
-                                type="button"
-                                onClick={() => handleNewMember(user)}
-                                className="btn btn-danger btn-sm"
+                            {/* ESQUERDA */}
+                            <div className="d-flex flex-column" style={{ minWidth: 0 }}>
+
+                                <span className="fw-semibold">
+                                    {user.username || "Sem nome"}
+                                </span>
+
+                                <span
+                                    className="text-muted text-truncate"
+                                    style={{
+                                        fontSize: "0.9rem",
+                                        maxWidth: "180px"
+                                    }}
+                                >
+                                    {user.email}
+                                </span>
+
+                            </div>
+
+                            {/* DIREITA */}
+                            <div
+                                className="d-flex align-items-center gap-2 position-relative"
+                                ref={openUserId === user.id ? dropdownRef : null}
                             >
-                                Adicionar
-                            </button>
 
-                        </div>
+                                <button
+                                    type="button"
+                                    onClick={() => handleNewMember(user)}
+                                    className="btn btn-danger btn-sm"
+                                >
+                                    Adicionar
+                                </button>
 
-                    </li>
-                );
+                            </div>
 
-            })}
+                        </li>
+                    );
 
-        </ul>
-    </div>
-);
+                })}
+
+            </ul>
+
+        </div>
+    );
 }

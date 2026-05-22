@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react"
-import {
-    getProjectMembers,
-    removeProjectMember
-} from "../../services/projectMembers.service"
 import { People, XCircleFill } from "react-bootstrap-icons"
 import { Modal } from "react-bootstrap"
-import { getCurrentUser, type UserProps } from "../../services/auth.service"
+import { getCurrentUser } from "../../services/auth.service"
 import AddNewMember from "../02ProjectRelated/AddNewMember"
 import ProjectMembersCard from "../02ProjectRelated/ProjectMembersCard"
+import { useProjectMembers } from "../../hooks/useProjectMembers"
 
 // ===== TYPES =====
 
@@ -16,12 +13,15 @@ interface Props {
 }
 
 export default function DisplayProjectMembersModal({ projectId }: Props) {
-
     const [isOpen, setIsOpen] = useState(false)
     const [activeTab, setActiveTab] = useState<"members" | "add">("members")
-    const [members, setMembers] = useState<UserProps[]>([])
     const [currentUserId, setCurrentUserId] = useState<string | null>(null)
     const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
+
+    const {
+        members,
+        removeProjectMember
+    } = useProjectMembers(projectId);
     
     const canManage = currentUserRole === "admin";
 
@@ -52,41 +52,22 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
             }
         };
 
-            fetchUserData();
-        }, [currentUserRole]);
-
-
-    // Carrega membros quando abre
-    useEffect(() => {
-        if (!isOpen || !projectId) return
-
-        const fetchMembers = async () => {
-            const data = await getProjectMembers(projectId)
-
-            const formatted = data.map((member: any) => ({
-                id: member.userId,
-                username: member.username || "Sem nome",
-                email: member.email || "",
-                profileImage: member.profileImage || undefined,
-                status: member.status || "Ativo",
-                role: member.role || "Técnico de campo"
-            }))
-
-            setMembers(formatted)
-        }
-
-        fetchMembers()
-    }, [projectId, isOpen])
+        fetchUserData();
+    }, [currentUserRole]);
 
     // Remover membro
     const handleRemove = async (userId: string) => {
-        if (userId === currentUserId) return
+        if (userId === currentUserId) return;
 
-        await removeProjectMember(projectId, userId)
-
-        // Atualiza lista após remoção
-        setMembers(prev => prev.filter(m => m.id !== userId))
-    }
+        try 
+        {
+            await removeProjectMember(userId);
+        } 
+        catch (error) 
+        {
+            console.error("Erro ao remover membro:", error);
+        }
+    };
 
     return (
         <>
@@ -166,24 +147,33 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
                                         </p>
                                     )}
 
-                                    {members.map(member => {
+                                    {members.map((member: any) => {
 
-                                        const isSelf = member.id === currentUserId
+                                        const isSelf = member.userId === currentUserId
 
                                         return (
-                                            <ProjectMembersCard
-                                                key={member.id}
-                                                user={member}
-                                                onDelete={
-                                                    canManage && !isSelf
+                                            <div key={member.userId}>
+                                                <ProjectMembersCard
+                                                    key={member.id}
+                                                    user={{
+                                                        id: member.userId,
+                                                        username: member.username,
+                                                        email: member.email,
+                                                        role: member.role,
+                                                        profileImage: member.profileImage,
+                                                        status: member.status
+                                                    }}
+                                                    onDelete={
+                                                        canManage && !isSelf
                                                         ? handleRemove
                                                         : undefined
-                                                }
-                                                subtitle={
-                                                    isSelf ? "Você" : undefined
-                                                }
-                                            >
-                                            </ProjectMembersCard>
+                                                    }
+                                                    subtitle={
+                                                        isSelf ? "Você" : undefined
+                                                    }
+                                                >
+                                                </ProjectMembersCard>
+                                            </div>
                                         )
                                     })}
 

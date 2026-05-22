@@ -8,7 +8,7 @@ import {
     Check2All
 } from "react-bootstrap-icons";
 import { markMessageAsRead, sendMessage, subscribeToMessages, updateMessage, type MessageProps } from "../../services/chat.service";
-import { getProjectMembers } from "../../services/projectMembers.service";
+import { useProjectMembers } from "../../hooks/useProjectMembers";
 
 // ===== TYPE INTERFACE =====
 interface ChatProps {
@@ -20,35 +20,24 @@ interface ChatProps {
 // ===== MAIN COMPONENT =====
 // ----- Componente responsável pelo chat -----
 export default function Chat({ projectId, userId }: ChatProps) {
-    const [messages, setMessages] = useState<MessageProps[]>([]);
+        const [messages, setMessages] = useState<MessageProps[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [showViewersId, setShowViewersId] = useState<string | null>(null);
-    const [membersMap, setMembersMap] = useState<Record<string, string>>({});
 
     const scrollRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Carregar membros para mapear nomes
-    useEffect(() => {
-        if (!projectId) return;
+    // ===== HOOK =====
+    const { members } = useProjectMembers(projectId);
 
-        const fetchMembers = async () => {
-            const members = await getProjectMembers(projectId);
-
-            const map: Record<string, string> = {};
-
-            members.forEach(m => {
-                map[m.userId] = m.username || "Usuário";
-            });
-
-            setMembersMap(map);
-        };
-
-        fetchMembers();
-    }, [projectId]);
+    // ===== MEMBERS MAP =====
+    const membersMap = members.reduce((acc, member) => {
+        acc[member.userId] = member.username || "Usuário";
+        return acc;
+    }, {} as Record<string, string>);
 
     // Carregar mensagens em tempo real
     useEffect(() => {
@@ -61,10 +50,9 @@ export default function Chat({ projectId, userId }: ChatProps) {
             data.forEach((msg) => {
                 const isViewed = msg.viewedBy?.includes(userId);
 
-                if (!isViewed && msg.senderId !== userId) {
-                    markMessageAsRead(projectId, msg.id);
-                }
+                if (!isViewed && msg.senderId !== userId) markMessageAsRead(projectId, msg.id);
             });
+
         });
 
         return () => unsubscribe();
@@ -72,24 +60,32 @@ export default function Chat({ projectId, userId }: ChatProps) {
 
     // Scroll automático
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        }
+        if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }, [messages, loading]);
 
     const formatTime = (timestamp: Date | { toDate: () => Date } | string | number | unknown) => {
         if (!timestamp) return "";
-        
+
         let date: Date;
+
         if (timestamp instanceof Date) {
             date = timestamp;
-        } else if (typeof timestamp === 'object' && timestamp !== null && 'toDate' in timestamp && typeof (timestamp as { toDate: () => Date }).toDate === 'function') {
-            date = (timestamp as { toDate: () => Date }).toDate();
-        } else {
-            date = new Date(timestamp as string | number);
         }
-        
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        else if (
+            typeof timestamp === 'object' &&
+            timestamp !== null &&
+            'toDate' in timestamp &&
+            typeof (timestamp as { toDate: () => Date }).toDate === 'function'
+        ) {
+            date = (timestamp as { toDate: () => Date }).toDate();
+        }
+        else
+            date = new Date(timestamp as string | number);
+
+        return date.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     };
 
     const handleSend = async (e: React.FormEvent) => {
@@ -101,7 +97,9 @@ export default function Chat({ projectId, userId }: ChatProps) {
             await updateMessage(projectId, editingId, newMessage);
             setEditingId(null);
             setNewMessage("");
-        } else {
+        }
+        else {
+
             const text = newMessage;
             const image = selectedImage;
 
@@ -110,6 +108,7 @@ export default function Chat({ projectId, userId }: ChatProps) {
 
             await sendMessage(projectId, text, image || undefined);
         }
+
     };
 
     const startEditing = (msg: MessageProps) => {

@@ -48,50 +48,47 @@ export const useProjects = () => {
     }
   };
 
+  const fetchUserProjects = async () => {
+    try 
+    {
+      const user = await getCurrentUser();
+
+      if (!user) 
+      {
+        setUserProjects([]);
+        return;
+      }
+
+      setLoadingUserProjects(true);
+
+      const result = await getUserProjects(user.id);
+      // const result = response.data;
+
+      setUserProjects(result || []);
+    } 
+    catch (err) 
+    {
+      console.error("Erro ao buscar projetos do usuário:", err);
+    } 
+    finally 
+    {
+      setLoadingUserProjects(false);
+    }
+  };
+
   // Carregar todos os projetos
   useEffect(() => {
     fetchProjects();
-  }, []);
-  
-  // ----- Get all user projects -----
-  useEffect(() => {
-    const fetchUserProjects = async () => {
-      try 
-      {
-        const user = await getCurrentUser();
-
-        if (!user) 
-        {
-          setUserProjects([]);
-          return;
-        }
-
-        setLoadingUserProjects(true);
-
-        const result = await getUserProjects(user.id);
-        // const result = response.data;
-
-        setUserProjects(result || []);
-      } 
-      catch (err) 
-      {
-        console.error("Erro ao buscar projetos do usuário:", err);
-      } 
-      finally 
-      {
-        setLoadingUserProjects(false);
-      }
-    };
-
     fetchUserProjects();
   }, []);
-
+  
   const createProject = async (data: CreateProjectDTO) => {
     try 
     {
       const result = await createProjectService(data);
 
       await fetchProjects();
+      await fetchUserProjects();
 
       return result;
     } 
@@ -110,9 +107,12 @@ export const useProjects = () => {
         description: data.description,
       });
 
-      setProjects(prev =>
-        prev.map(p => (p.id === data.id ? updated : p))
-      );
+      // setProjects(prev =>
+      //   prev.map(p => (p.id === data.id ? updated : p))
+      // );
+
+      await fetchProjects();
+      await fetchUserProjects();
 
       return updated;
     } 
@@ -129,8 +129,11 @@ export const useProjects = () => {
       await deleteProjectService(projectId);
 
       // atualiza estado local (UX melhor)
-      setProjects(prev => prev.filter(p => p.id !== projectId));
-      setUserProjects(prev => prev.filter(p => p.id !== projectId));
+      // setProjects(prev => prev.filter(p => p.id !== projectId));
+      // setUserProjects(prev => prev.filter(p => p.id !== projectId));
+
+      await fetchProjects();
+      await fetchUserProjects();
     } 
     catch (err) 
     {

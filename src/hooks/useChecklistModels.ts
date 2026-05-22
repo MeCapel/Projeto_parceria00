@@ -2,124 +2,198 @@
 import { useEffect, useState } from "react";
 import {
   type ChecklistModelProps,
-  getChecklistModel as getChecklistModelService,
+  type ChecklistCategory,
   getChecklistModels as getChecklistModelsService,
+  getChecklistModel as getChecklistModelService,
+  changeChecklistModelStatus as changeChecklistModelStatusService,
   createChecklistModel as createChecklistModelService,
   updateChecklistModel as updateChecklistModelService,
-  deleteChecklistModel as deleteChecklistModelSevice,
-  type ChecklistCategory,
+  deleteChecklistModel as deleteChecklistModelService,
 } from "../services/checklistModels.service";
 import type { ChecklistModelInput } from "../components/04ChecklistRelated/new-models/ChecklistModelForm";
 
-// ===== HOOK ===== 
+// ===== TYPES =====
+interface FetchChecklistModelsOptions {
+  reset?: boolean;
+  limit?: number;
+  filters?: {
+    vertical?: string;
+    status?: "active" | "disabled";
+  };
+}
+
+// ===== HOOK =====
 export const useChecklistModels = () => {
+  // ===== STATES =====
   const [checklistModel, setChecklistModel] = useState<ChecklistModelProps | null>(null);
   const [checklistModels, setChecklistModels] = useState<ChecklistModelProps[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
 
-  // ----- Get all  -----
-  const fetchChecklistModels = async () => {
+  // salva os filtros atuais
+  const [filters, setFilters] = useState<{
+    vertical?: string;
+    status?: "active" | "disabled";
+  }>({});
+
+  // ===== GET ALL =====
+  const fetchChecklistModels = async (options?: FetchChecklistModelsOptions) => {
     try 
     {
       setLoading(true);
 
-      const response = await getChecklistModelsService();
+      const isReset = options?.reset ?? false;
 
-      // console.log(response);
-      setChecklistModels(response || []);
-    } 
+      // filtros novos OU mantém antigos
+      const currentFilters = options?.filters ?? filters;
+
+      // se resetar:
+      // limpa cursor e salva filtros
+      if (isReset) {
+        setCursor(null);
+        setHasMore(true);
+        setFilters(currentFilters);
+      }
+
+      const response = await getChecklistModelsService({
+        limit: options?.limit ?? 10,
+        cursor: isReset
+          ? null
+          : cursor,
+        vertical: currentFilters.vertical,
+        status: currentFilters.status,
+      });
+
+      // RESET
+      if (isReset) setChecklistModels(response.data);
+
+      // LOAD MORE
+      else 
+        {
+        setChecklistModels(prev => [
+          ...prev,
+          ...response.data,
+        ]);
+      }
+
+      setCursor(response.pagination.nextCursor);
+      setHasMore(response.pagination.hasMore);
+    }
     catch (err) 
     {
-      console.error("Erro ao buscar checklists modelos:", err);
-    } 
+      console.error("Erro ao buscar checklist models:", err);
+    }
     finally 
     {
       setLoading(false);
     }
   };
 
+  // ===== LOAD MORE =====
+  const loadMore = async () => {
+    if (!hasMore || loading) return;
+    await fetchChecklistModels({ filters });
+  };
+
+  // ===== INITIAL LOAD =====
   useEffect(() => {
-    fetchChecklistModels();
+    fetchChecklistModels({ reset: true });
   }, []);
 
-  // ----- Get one -----
-  const getChecklistModel = async (clientId: string) => {
-    try 
-    {
-      const data = await getChecklistModelService(clientId);
+  // ===== GET ONE =====
+  const getChecklistModel = async (id: string) => {
+    try {
+      const data = await getChecklistModelService(id);
       setChecklistModel(data);
-    } 
+    }
     catch (err) 
     {
       console.error("Erro ao buscar checklist modelo:", err);
     }
   };
 
-  // ----- Create -----
-  const createChecklistModel = async (data: { name: string, vertical: string, categories: ChecklistCategory[] }) => {
-    try
+  // ===== CREATE =====
+  const createChecklistModel = async (
+    data: {
+      name: string;
+      vertical: string;
+      categories: ChecklistCategory[];
+    }
+  ) => {
+    try 
     {
       const result = await createChecklistModelService(data);
-  
-      fetchChecklistModels();
-  
+
+      // refetch usando filtros atuais
+      await fetchChecklistModels({ reset: true, filters });
       return result;
     }
-    catch (err)
+    catch (err) 
     {
       console.error("Erro ao criar checklist modelo:", err);
       throw err;
     }
   };
 
-  // ----- Update -----
+  // ===== UPDATE =====
   const updateChecklistModel = async (id: string, data: Partial<ChecklistModelInput>) => {
-    try
+    try 
     {
       const result = await updateChecklistModelService(id, data);
-  
-      setChecklistModels((prev) =>
-        prev.map((m) =>
-          m.id === id ? result : m
-        )
-      );
-  
-      // await fetchChecklistModels();
-  
+      await fetchChecklistModels({ reset: true, filters });
       return result;
     }
-    catch (err)
+    catch (err) 
     {
       console.error("Erro ao atualizar checklist modelo:", err);
       throw err;
     }
   };
 
-  // ----- Delete -----
-  const deleteChecklistModel = async (id: string) => {
-    try
-    {
-      await deleteChecklistModelSevice(id);
-  
-      setChecklistModels((prev) => prev.filter((m) => m.id !== id));
-  
-      // await fetchChecklistModels();
-    }
-    catch (err)
-    {
-      console.error("Erro ao deletar checjlist modelo:", err);
+  // ===== CHANGE STATUS =====
+  const changeChecklistModelStatus = async (id: string, status: "active" | "disabled") => {
+    try {
+      const result = await changeChecklistModelStatusService(id, status);
+
+      // mantém consistência da lista (recarrega com filtros atuais)
+      await fetchChecklistModels({ reset: true, filters });
+
+      return result;
+    } catch (err) {
+      console.error("Erro ao alterar status do checklist modelo:", err);
       throw err;
     }
   };
 
+  // ===== DELETE =====
+  const deleteChecklistModel = async (id: string) => {
+    try 
+    {
+      await deleteChecklistModelService(id);
+      await fetchChecklistModels({ reset: true, filters });
+    }
+    catch (err)
+    {
+      console.error("Erro ao deletar checklist modelo:", err);
+      throw err;
+    }
+  };
+
+  // ===== RETURN =====
   return {
     checklistModel,
     checklistModels,
     loading,
+    cursor,
+    hasMore,
+    filters,
     fetchChecklistModels,
+    loadMore,
     getChecklistModel,
     createChecklistModel,
     updateChecklistModel,
+    changeChecklistModelStatus,
     deleteChecklistModel,
   };
 };

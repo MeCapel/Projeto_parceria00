@@ -21,6 +21,8 @@ import ResetPassword from './pages/ResetPassword'
 import ConfirmResetPassword from './pages/ConfirmResetPassword'
 import PrototypePage from './components/03PrototypeRelated/PrototypePage/PrototypePage';
 import ProjectsPage from './pages/ProjectsPage';
+import ChecklistModelsTab from './components/dashboard/ChecklistModelsTab';
+import ClientsTab from './components/dashboard/ClientsTab';
 
 // App.tsx component
 export default function App() {
@@ -49,6 +51,8 @@ export default function App() {
           <Route path='/profile' element={<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>}/>
           <Route path="/projects/:projectid" element={<ProtectedRoute><Layout><Project /></Layout></ProtectedRoute>} />
           <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><Layout><PrototypePage /></Layout></ProtectedRoute>} />
+          <Route path="/test" element={<ProtectedRoute><Layout><ChecklistModelsTab /></Layout></ProtectedRoute>} />
+          <Route path="/test0" element={<ProtectedRoute><Layout><ClientsTab /></Layout></ProtectedRoute>} />
         </Routes>
 
       </main>

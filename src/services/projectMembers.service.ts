@@ -4,6 +4,10 @@ import { api } from "./api";
 export interface ProjectMember {
     userId: string;
     username: string;
+    email?: string;
+    profileImage?: string;
+    role?: string;
+    status?: string;
 }
 
 // ===== GET =====

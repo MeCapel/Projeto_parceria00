@@ -7,7 +7,7 @@ interface Props {
 }
 
 export default function PrototypeKPIsPage({ prototypeId }: Props) {
-  const { prototypeOccurrences } = useOccurrences({ prototypeId });
+  const { occurrences } = useOccurrences({ prototypeId });
 
   const occurrencesByProgress = useMemo(() => {
     const data: PieData[] = [
@@ -16,7 +16,7 @@ export default function PrototypeKPIsPage({ prototypeId }: Props) {
       { name: "Concluída", value: 0 },
     ];
 
-    prototypeOccurrences.forEach((occurrence) => {
+    occurrences.forEach((occurrence) => {
       switch (occurrence.progress) {
         case "pendente":
           data[0].value += 1;
@@ -33,11 +33,37 @@ export default function PrototypeKPIsPage({ prototypeId }: Props) {
     });
 
     return data;
-  }, [prototypeOccurrences]);
+  }, [occurrences]);
+
+  const occurrencesByCriticity = useMemo(() => {
+    const data: PieData[] = [
+      { name: "A", value: 0 },
+      { name: "B", value: 0 },
+      { name: "C", value: 0 },
+    ];
+
+    occurrences.forEach((occurrence) => {
+      switch (occurrence.criticity) {
+        case "a":
+          data[0].value += 1;
+          break;
+
+        case "b":
+          data[1].value += 1;
+          break;
+
+        case "c":
+          data[2].value += 1;
+          break;
+      }
+    });
+
+    return data;
+  }, [occurrences]);
 
   if (
-    !prototypeOccurrences ||
-    prototypeOccurrences.length === 0
+    !occurrences ||
+    occurrences.length === 0
   ) {
     return <p>Nenhuma ocorrência encontrada!</p>;
   }
@@ -47,6 +73,12 @@ export default function PrototypeKPIsPage({ prototypeId }: Props) {
       <PieChart
         title="Progresso das ocorrências do protótipo"
         data={occurrencesByProgress}
+        width={450}
+        height={450}
+      />
+      <PieChart
+        title="Criticidade das ocorrências do protótipo"
+        data={occurrencesByCriticity}
         width={450}
         height={450}
       />

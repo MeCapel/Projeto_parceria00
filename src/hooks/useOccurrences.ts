@@ -1,164 +1,300 @@
-// ===== GERAL IMPORTS =====
 import { useEffect, useState } from "react";
+
 import {
-  getOccurrence as getOccurrenceSevice,
+  type OccurrenceProps,
+
+  getOccurrence as getOccurrenceService,
   getOccurrences as getOccurrencesService,
-  getPrototypeOccurrences as getPrototypeOccurrencesService,
+
   createOccurrence as createOccurrenceService,
   updateOccurrence as updateOccurrenceService,
+
   deleteOccurrence as deleteOccurrenceService,
-  type OccurrenceProps,
 } from "../services/occurrences.service";
 
-// ===== INTERFACES =====
-interface Params {
-  prototypeId: string;
+// ===== TYPES =====
+
+interface FetchOccurrencesOptions {
+  reset?: boolean;
+  limit?: number;
+
+  filters?: {
+    prototypeId?: string;
+    status?: "active" | "disabled";
+  };
+}
+
+interface UseOccurrencesProps {
+  prototypeId?: string;
 }
 
 // ===== HOOK =====
-export function useOccurrences({ prototypeId }: Params) {
-  const [occurrence, setOccurrence] = useState<OccurrenceProps | null>(null);
-  const [occurrences, setOccurrences] = useState<OccurrenceProps[]>([]);
-  const [prototypeOccurrences, setPrototypeOccurrences] = useState<OccurrenceProps[]>([]);
-  const [loading, setLoading] = useState(false);
+export const useOccurrences = (
+  props?: UseOccurrencesProps
+) => {
 
-  // ----- Get all  -----
-  const fetchOccurrences = async () => {
-    try 
+  // ===== PARAMS =====
+  const prototypeId =
+    props?.prototypeId;
+
+  // ===== STATES =====
+  const [occurrence, setOccurrence] =
+    useState<OccurrenceProps | null>(null);
+
+  const [occurrences, setOccurrences] =
+    useState<OccurrenceProps[]>([]);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [cursor, setCursor] =
+    useState<string | null>(null);
+
+  const [hasMore, setHasMore] =
+    useState(true);
+
+  const [filters, setFilters] =
+    useState<{
+      prototypeId?: string;
+      status?: "active" | "disabled";
+    }>({});
+
+  // ===== GET ALL =====
+  const fetchOccurrences = async (
+    options?: FetchOccurrencesOptions
+  ) => {
+
+    try
     {
       setLoading(true);
 
-      const response = await getOccurrencesService();
-      setOccurrences(response.data || []);
-    } 
-    catch (err) 
+      const isReset =
+        options?.reset ?? false;
+
+      const currentFilters =
+        options?.filters ?? filters;
+
+      if (isReset)
+      {
+        setCursor(null);
+
+        setHasMore(true);
+
+        setFilters(currentFilters);
+      }
+
+      const response =
+        await getOccurrencesService({
+          limit:
+            options?.limit ?? 10,
+
+          cursor:
+            isReset
+              ? null
+              : cursor,
+
+          prototypeId:
+            prototypeId
+              ?? currentFilters.prototypeId,
+
+          status:
+            currentFilters.status,
+        });
+
+      if (isReset)
+      {
+        setOccurrences(
+          response.data || []
+        );
+      }
+      else
+      {
+        setOccurrences(prev => [
+          ...prev,
+          ...response.data,
+        ]);
+      }
+
+      setCursor(
+        response.pagination.nextCursor
+      );
+
+      setHasMore(
+        response.pagination.hasMore
+      );
+    }
+    catch (err)
     {
-      console.error("Erro ao buscar ocorrências:", err);
-    } 
-    finally 
+      console.error(
+        "Erro ao buscar ocorrências:",
+        err
+      );
+
+      setOccurrences([]);
+    }
+    finally
     {
       setLoading(false);
     }
   };
 
-  // ----- Get prototype occurrences -----
-  const fetchOccurrencesByPrototype = async () => {
-    if (!prototypeId) return;
+  // ===== LOAD MORE =====
+  const loadMore = async () => {
 
-    try 
-    {
-      setLoading(true);
+    if (
+      !hasMore ||
+      loading
+    ) return;
 
-      const data = await getPrototypeOccurrencesService(prototypeId);
+    await fetchOccurrences({
+      filters,
+    });
 
-      setPrototypeOccurrences(data || []);
-    } 
-    catch (err) 
-    {
-      console.error("Erro ao buscar ocorrências:", err);
-    } 
-    finally 
-    {
-      setLoading(false);
-    }
   };
 
+  // ===== INITIAL LOAD =====
   useEffect(() => {
-    if (prototypeId) 
-    {
-      fetchOccurrencesByPrototype();
-    } 
-    else 
-    {
-      fetchOccurrences();
-    }
+
+    fetchOccurrences({
+      reset: true,
+
+      filters: {
+        prototypeId,
+      },
+    });
+
   }, [prototypeId]);
 
-  // ----- Get one -----
-  const getOccurrence = async (clientId: string) => {
-    try 
+  // ===== GET ONE =====
+  const getOccurrence = async (
+    id: string
+  ) => {
+
+    try
     {
-      const data = await getOccurrenceSevice(clientId);
+      const data =
+        await getOccurrenceService(id);
+
       setOccurrence(data);
-    } 
-    catch (err) 
+    }
+    catch (err)
     {
-      console.error("Erro ao buscar ocorrência:", err);
+      console.error(
+        "Erro ao buscar ocorrência:",
+        err
+      );
     }
   };
 
-  // ----- Create -----
-  const createOccurrence = async (data: Omit<OccurrenceProps, "id">) => {
-    try 
+  // ===== CREATE =====
+  const createOccurrence = async (
+    data: Omit<OccurrenceProps, "id">
+  ) => {
+
+    try
     {
-      const result = await createOccurrenceService(data);
+      const result =
+        await createOccurrenceService(data);
 
-      // setOccurrences(prev => [...prev, result]);
-      // setPrototypeOccurrences(prev => [...prev, result]);
+      await fetchOccurrences({
+        reset: true,
+        filters,
+      });
 
-      if (prototypeId) 
-        fetchOccurrencesByPrototype();
-      else
-        fetchOccurrences();
-      
       return result;
-    } 
-    catch (err) 
+    }
+    catch (err)
     {
-      console.error("Erro ao criar ocorrência:", err);
+      console.error(
+        "Erro ao criar ocorrência:",
+        err
+      );
+
       throw err;
     }
   };
 
-  // ----- Update -----
-  const updateOccurrence = async (id: string, data: Partial<OccurrenceProps>) => {
-    try 
-    {
-      await updateOccurrenceService(id, data);
-      
-      // setOccurrences(prev => prev.map(o => (o.id === id ? { ...o, ...data } : o)));
+  // ===== UPDATE =====
+  const updateOccurrence = async (
+    id: string,
+    data: Partial<OccurrenceProps>
+  ) => {
 
-      if (prototypeId) 
-        fetchOccurrencesByPrototype();
-      else
-        fetchOccurrences();
-    } 
-    catch (err) 
+    try
     {
-      console.error("Erro ao atualizar ocorrência:", err);
+      const result =
+        await updateOccurrenceService(
+          id,
+          data
+        );
+
+      await fetchOccurrences({
+        reset: true,
+        filters,
+      });
+
+      return result;
+    }
+    catch (err)
+    {
+      console.error(
+        "Erro ao atualizar ocorrência:",
+        err
+      );
+
       throw err;
     }
   };
 
-  // ----- Delete -----
-  const deleteOccurrence = async (id: string) => {
-    try 
+  // ===== DELETE =====
+  const deleteOccurrence = async (
+    id: string
+  ) => {
+
+    try
     {
       await deleteOccurrenceService(id);
 
-      // setOccurrences(prev => prev.filter(o => o.id !== id));
-      if (prototypeId) 
-        fetchOccurrencesByPrototype();
-      else
-        fetchOccurrences();
-    } 
-    catch (err) 
+      await fetchOccurrences({
+        reset: true,
+        filters,
+      });
+    }
+    catch (err)
     {
-      console.error("Erro ao deletar ocorrência:", err);
+      console.error(
+        "Erro ao deletar ocorrência:",
+        err
+      );
+
       throw err;
     }
   };
 
+  // ===== RETURN =====
   return {
+
+    // states
     occurrence,
     occurrences,
-    prototypeOccurrences,
+
     loading,
+
+    cursor,
+    hasMore,
+
+    filters,
+
+    // fetch
     fetchOccurrences,
-    fetchOccurrencesByPrototype,
+    loadMore,
+
+    // crud
     getOccurrence,
+
     createOccurrence,
     updateOccurrence,
+
     deleteOccurrence,
   };
-}
+};

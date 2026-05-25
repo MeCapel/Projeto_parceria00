@@ -23,6 +23,10 @@ import PrototypePage from './components/03PrototypeRelated/PrototypePage/Prototy
 import ProjectsPage from './pages/ProjectsPage';
 import ChecklistModelsTab from './components/dashboard/ChecklistModelsTab';
 import ClientsTab from './components/dashboard/ClientsTab';
+import ProjectsTab from './components/dashboard/ProjectsTab';
+import PrototypesTab from './components/dashboard/PrototypesTab';
+import OccurrencesTab from './components/dashboard/OccurrencesTab';
+import UsersTab from './components/dashboard/UsersTab';
 
 // App.tsx component
 export default function App() {
@@ -53,6 +57,10 @@ export default function App() {
           <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><Layout><PrototypePage /></Layout></ProtectedRoute>} />
           <Route path="/test" element={<ProtectedRoute><Layout><ChecklistModelsTab /></Layout></ProtectedRoute>} />
           <Route path="/test0" element={<ProtectedRoute><Layout><ClientsTab /></Layout></ProtectedRoute>} />
+          <Route path="/test1" element={<ProtectedRoute><Layout><ProjectsTab /></Layout></ProtectedRoute>} />
+          <Route path="/test2" element={<ProtectedRoute><Layout><PrototypesTab /></Layout></ProtectedRoute>} />
+          <Route path="/test3" element={<ProtectedRoute><Layout><OccurrencesTab/></Layout></ProtectedRoute>} />
+          <Route path="/test4" element={<ProtectedRoute><Layout><UsersTab/></Layout></ProtectedRoute>} />
         </Routes>
 
       </main>

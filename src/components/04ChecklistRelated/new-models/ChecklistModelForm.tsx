@@ -6,7 +6,7 @@ import FormInput from "../../forms/FormInput";
 
 export type ChecklistModelInput = Omit<
   ChecklistModelProps,
-  "id" | "baseModelId" | "version" | "createdAt" | "createdBy"
+  "id" | "baseModelId" | "version" | "createdAt" | "createdBy" | "status"
 >;
 
 interface Props {

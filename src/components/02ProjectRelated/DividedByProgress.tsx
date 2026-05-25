@@ -4,13 +4,15 @@ import { Modal } from "react-bootstrap";
 import { useNavigate } from "react-router";
 import { usePrototypeWithProgress } from "../../hooks/usePrototyteWProgress";
 import { CrudTable } from "../Others/CrudTable";
+import { usePrototypes } from "../../hooks/usePrototypes";
 
 interface Props {
     projectId: string;
 }
 
 export default function DividedByProgress({ projectId }: Props) {
-    const { prototypes, loading } = usePrototypeWithProgress(projectId);
+    const { prototypes, loading } = usePrototypeWithProgress({projectId});
+    const { deletePrototype } = usePrototypes({projectId});
     const [open, setOpen] = useState<Record<number, boolean>>({
         1: false,
         2: false,
@@ -35,7 +37,7 @@ export default function DividedByProgress({ projectId }: Props) {
 
     const confirmDelete = async () => {
         if (!prototypeToDelete) return;
-        // chamar seu deletePrototype aqui
+        await deletePrototype(prototypeToDelete);
         setPrototypeToDelete(null);
     };
 

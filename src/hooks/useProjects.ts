@@ -1,154 +1,353 @@
-// ===== GERAL IMPORTS =====
-import { useEffect, useState } from "react"
+// ===== IMPORTS =====
+import { useEffect, useState } from "react";
 import {
+  type ProjectProps,
+  getProjects as getProjectsService,
+  getProject as getProjectService,
   createProject as createProjectService,
   updateProject as updateProjectService,
+  changeProjectStatus as changeProjectStatusService,
   deleteProject as deleteProjectService,
-  getProjects,
-  type ProjectProps
-} from "../services/projects.service"
-import { getUserProjects } from "../services/projectMembers.service";
-import { getCurrentUser } from "../services/auth.service"
+} from "../services/projects.service";
 
-// ===== INTERFACES =====
+import {
+  getUserProjects,
+} from "../services/projectMembers.service";
+
+// ===== TYPES =====
+
 interface CreateProjectDTO {
-  name: string,
-  description: string,
+  name: string;
+  description?: string;
 }
 
-interface UpdateProjectDTO {
-  id: string,
-  name: string,
-  description: string,
+interface UpdateProjectDTO extends CreateProjectDTO {
+  id: string;
 }
 
-// ===== HOOK ===== 
-export const useProjects = () => {
-  const [projects, setProjects] = useState<ProjectProps[]>([]);
-  const [userProjects, setUserProjects] = useState<ProjectProps[]>([]);
-  const [loadingProjects, setLoadingProjects] = useState(false);
-  const [loadingUserProjects, setLoadingUserProjects] = useState(false);
-
-  // ----- Get all -----
-  const fetchProjects = async () => {
-    try 
-    {
-      setLoadingProjects(true);
-
-      const response = await getProjects();
-      setProjects(response.data || []);
-    } 
-    catch (err) 
-    {
-      console.error("Erro ao buscar clientes:", err);
-    } 
-    finally 
-    {
-      setLoadingProjects(false);
-    }
+interface FetchProjectsOptions {
+  reset?: boolean;
+  limit?: number;
+  filters?: {
+    status?: "active" | "disabled";
   };
+}
 
-  const fetchUserProjects = async () => {
-    try 
+interface UseProjectsProps {
+  userId?: string;
+  skip?: boolean;
+}
+
+// ===== HOOK =====
+export const useProjects = (props?: UseProjectsProps) => {
+
+  // ===== PARAMS =====
+  const userId = props?.userId;
+  const skip = props?.skip;
+
+  // ===== STATES =====
+  const [project, setProject] = useState<ProjectProps | null>(null);
+
+  const [projects, setProjects] = useState<ProjectProps[]>([]);
+
+  const [loading, setLoading] = useState(false);
+
+  const [cursor, setCursor] = useState<string | null>(null);
+
+  const [hasMore, setHasMore] = useState(true);
+
+  // filtros atuais
+  const [filters, setFilters] =
+    useState<{
+      status?: "active" | "disabled";
+    }>({});
+
+  // ===== GET ALL =====
+  const fetchProjects = async (options?: FetchProjectsOptions) => {
+    try
     {
-      const user = await getCurrentUser();
+      setLoading(true);
 
-      if (!user) 
+      const isReset = options?.reset ?? false;
+
+      const currentFilters = options?.filters ?? filters;
+
+      // reset paginação
+      if (isReset)
       {
-        setUserProjects([]);
+        setCursor(null);
+        setHasMore(true);
+        setFilters(currentFilters);
+      }
+
+      // ===== USER PROJECTS =====
+      if (userId)
+      {
+        const response =
+          await getUserProjects(userId);
+
+        const projects =
+          Array.isArray(response)
+            ? response
+            : response.data || [];
+
+        const filteredData =
+          currentFilters.status
+            ? projects.filter(
+                (p: ProjectProps) =>
+                  p.status === currentFilters.status
+              )
+            : projects;
+
+        setProjects(filteredData);
+
+        setHasMore(false);
+
         return;
       }
 
-      setLoadingUserProjects(true);
+      // ===== NORMAL PROJECTS =====
+      const response =
+        await getProjectsService({
+          limit: options?.limit ?? 10,
 
-      const result = await getUserProjects(user.id);
-      // const result = response.data;
+          cursor:
+            isReset
+              ? null
+              : cursor,
 
-      setUserProjects(result || []);
-    } 
-    catch (err) 
+          status:
+            currentFilters.status,
+        });
+
+      // RESET
+      if (isReset)
+      {
+        setProjects(response.data || []);
+      }
+
+      // LOAD MORE
+      else
+      {
+        setProjects(prev => [
+          ...prev,
+          ...response.data,
+        ]);
+      }
+
+      setCursor(
+        response.pagination.nextCursor
+      );
+
+      setHasMore(
+        response.pagination.hasMore
+      );
+    }
+    catch (err)
     {
-      console.error("Erro ao buscar projetos do usuário:", err);
-    } 
-    finally 
+      console.error(
+        "Erro ao buscar projetos:",
+        err
+      );
+    }
+    finally
     {
-      setLoadingUserProjects(false);
+      setLoading(false);
     }
   };
 
-  // Carregar todos os projetos
+  // ===== LOAD MORE =====
+  const loadMore = async () => {
+
+    if (
+      !hasMore ||
+      loading ||
+      userId
+    ) return;
+
+    await fetchProjects({
+      filters,
+    });
+  };
+
+  // ===== INITIAL LOAD =====
   useEffect(() => {
-    fetchProjects();
-    fetchUserProjects();
-  }, []);
-  
-  const createProject = async (data: CreateProjectDTO) => {
-    try 
-    {
-      const result = await createProjectService(data);
+    if (skip) return;
 
-      await fetchProjects();
-      await fetchUserProjects();
+    fetchProjects({
+      reset: true,
+    });
 
-      return result;
-    } 
-    catch (err) 
+  }, [userId, skip]);
+
+  // ===== GET ONE =====
+  const getProject = async (
+    id: string
+  ) => {
+
+    try
     {
-      console.error("Erro ao criar projeto:", err);
-      throw err;
+      const data =
+        await getProjectService(id);
+
+      setProject(data);
     }
-  }
-
-  const updateProject = async (data: UpdateProjectDTO) => {
-    try 
+    catch (err)
     {
-      const updated = await updateProjectService(data.id, {
-        name: data.name,
-        description: data.description,
+      console.error(
+        "Erro ao buscar projeto:",
+        err
+      );
+    }
+  };
+
+  // ===== CREATE =====
+  const createProject = async (
+    data: CreateProjectDTO
+  ) => {
+
+    try
+    {
+      const result =
+        await createProjectService(data);
+
+      await fetchProjects({
+        reset: true,
+        filters,
       });
 
-      // setProjects(prev =>
-      //   prev.map(p => (p.id === data.id ? updated : p))
-      // );
-
-      await fetchProjects();
-      await fetchUserProjects();
-
-      return updated;
-    } 
-    catch (err) 
+      return result;
+    }
+    catch (err)
     {
-      console.error("Erro ao atualizar projeto:", err);
+      console.error(
+        "Erro ao criar projeto:",
+        err
+      );
+
       throw err;
     }
-  }
+  };
 
-  const deleteProject = async (projectId: string) => {
-    try 
+  // ===== UPDATE =====
+  const updateProject = async (
+    data: UpdateProjectDTO
+  ) => {
+
+    try
     {
-      await deleteProjectService(projectId);
+      const result =
+        await updateProjectService(
+          data.id,
+          {
+            name: data.name,
+            description: data.description,
+          }
+        );
 
-      // atualiza estado local (UX melhor)
-      // setProjects(prev => prev.filter(p => p.id !== projectId));
-      // setUserProjects(prev => prev.filter(p => p.id !== projectId));
+      await fetchProjects({
+        reset: true,
+        filters,
+      });
 
-      await fetchProjects();
-      await fetchUserProjects();
-    } 
-    catch (err) 
+      return result;
+    }
+    catch (err)
     {
-      console.error("Erro ao deletar projeto:", err);
+      console.error(
+        "Erro ao atualizar projeto:",
+        err
+      );
+
       throw err;
     }
-  }
+  };
 
+  // ===== CHANGE STATUS =====
+  const changeProjectStatus = async (
+    id: string,
+    status: "active" | "disabled"
+  ) => {
+
+    try
+    {
+      const result =
+        await changeProjectStatusService(
+          id,
+          status
+        );
+
+      await fetchProjects({
+        reset: true,
+        filters,
+      });
+
+      return result;
+    }
+    catch (err)
+    {
+      console.error(
+        "Erro ao alterar status do projeto:",
+        err
+      );
+
+      throw err;
+    }
+  };
+
+  // ===== DELETE =====
+  const deleteProject = async (
+    projectId: string
+  ) => {
+
+    try
+    {
+      await deleteProjectService(
+        projectId
+      );
+
+      await fetchProjects({
+        reset: true,
+        filters,
+      });
+    }
+    catch (err)
+    {
+      console.error(
+        "Erro ao deletar projeto:",
+        err
+      );
+
+      throw err;
+    }
+  };
+
+  // ===== RETURN =====
   return {
+
+    // states
+    project,
     projects,
-    userProjects,
-    loadingProjects,
-    loadingUserProjects,
+
+    loading,
+
+    cursor,
+    hasMore,
+
+    filters,
+
+    // fetch
+    fetchProjects,
+    loadMore,
+
+    // crud
+    getProject,
+
     createProject,
     updateProject,
-    deleteProject
-  }
-}
+
+    changeProjectStatus,
+
+    deleteProject,
+  };
+};

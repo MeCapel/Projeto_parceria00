@@ -43,7 +43,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
         {label: "Concluído", value: "concluido"},
     ];
 
-    const { prototypeOccurrences, createOccurrence, updateOccurrence, deleteOccurrence } = useOccurrences({ prototypeId });
+    const { occurrences, createOccurrence, updateOccurrence, deleteOccurrence } = useOccurrences({ prototypeId });
 
     const [showModal, setShowModal] = useState(false);
     const [editingOccurrenceId, setEditingOccurrence] = useState<string | null>(null);
@@ -104,7 +104,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
 
     // ================= EDIT =================
     const handleEdit = (id: string) => {
-        const occurrence = prototypeOccurrences.find(o => o.id === id);
+        const occurrence = occurrences.find(o => o.id === id);
         if (!occurrence) return;
 
         setEditingOccurrence(id);
@@ -180,7 +180,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
             <CrudTable
                 headers={["Nome", "Descrição", "Criticidade", "Status", "Data", "Data de vencimento"]}
 
-                data={prototypeOccurrences}
+                data={occurrences}
 
                 getId={(o) => o.id!}
 

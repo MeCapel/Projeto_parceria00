@@ -154,14 +154,14 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
                                         return (
                                             <div key={member.userId}>
                                                 <ProjectMembersCard
-                                                    key={member.id}
+                                                    key={member.userId}
                                                     user={{
                                                         id: member.userId,
                                                         username: member.username,
-                                                        email: member.email,
-                                                        role: member.role,
+                                                        email: member.email || "Sem email",
+                                                        role: member.role || "Sem papél",
                                                         profileImage: member.profileImage,
-                                                        status: member.status
+                                                        status: member.status || "Sem status"
                                                     }}
                                                     onDelete={
                                                         canManage && !isSelf

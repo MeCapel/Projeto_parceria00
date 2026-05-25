@@ -66,7 +66,7 @@ export const useChecklistModels = () => {
       });
 
       // RESET
-      if (isReset) setChecklistModels(response.data);
+      if (isReset) setChecklistModels(response.data || []);
 
       // LOAD MORE
       else 

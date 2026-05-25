@@ -1,3 +1,5 @@
+import type { CreatePrototypeDTO } from "../hooks/usePrototypes";
+import type { Pagination } from "../utils/pagination.types";
 import { api } from "./api";
 
 // ===== TYPES =====
@@ -12,6 +14,7 @@ export interface PrototypeProps {
   clientId?: string;
   location?: { state?: string; city?: string };
   areaSize?: number;
+  status?: "active" | "disabled",
   createdBy?: string;
   createdAt?: string;
 }
@@ -20,18 +23,33 @@ export interface PrototypeWithProgress extends PrototypeProps {
   progress: number;
 }
 
+export interface PaginatedPrototypesResponse {
+  data: PrototypeProps[];
+  pagination: Pagination;
+}
+
 // ===== GET =====
 
-// 🔹 listar todos protótipos
-export const getPrototypes = async () => {
-  const response = await api.get("/prototypes");
-  return response.data; // { data, lastDoc }
-};
+export const getPrototypes = async (
+  params?: {
+    limit?: number;
+    cursor?: string | null;
+    status?: "active" | "disabled";
+    projectId?: string;
+  }
+): Promise<PaginatedPrototypesResponse> => {
+  const searchParams = new URLSearchParams();
 
-// 🔹 protótipos de um projeto
-export const getPrototypesByProject = async (projectId: string) => {
-  const response = await api.get(`/prototypes/project/${projectId}`);
-  return response.data.data || response.data;
+  if (params?.limit) searchParams.append("limit", String(params.limit));
+
+  if (params?.cursor) searchParams.append("cursor", params.cursor);
+
+  if (params?.status) searchParams.append("status", params.status);
+
+  if (params?.projectId) searchParams.append("projectId", params.projectId);
+
+  const response = await api.get(`/prototypes?${searchParams.toString()}`);
+  return response.data;
 };
 
 // 🔹 pegar protótipo específico
@@ -44,7 +62,7 @@ export const getPrototype = async (prototypeId: string): Promise<PrototypeProps>
 
 // 🔹 criar protótipo
 export const createPrototype = async (
-  data: Omit<PrototypeProps, "id"> & { checklistModelIds?: string[] }
+  data: CreatePrototypeDTO
 ) => {
   const response = await api.post("/prototypes", data);
   return response.data;
@@ -61,6 +79,12 @@ export const updatePrototype = async (
   }
 ) => {
   const response = await api.patch(`/prototypes/${prototypeId}`, data);
+  return response.data;
+};
+
+// ----- Change status -----
+export const changePrototypeStatus = async (id: string, status: "active" | "disabled") => {
+  const response = await api.patch(`/prototypes/change-status/${id}`, { status });
   return response.data;
 };
 

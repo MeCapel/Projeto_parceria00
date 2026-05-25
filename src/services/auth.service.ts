@@ -1,7 +1,8 @@
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth, db } from "../firebaseConfig/config";
 import { api } from "./api";
-import { collection, doc, getDoc, onSnapshot, query, where } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
+import type { Pagination } from "../utils/pagination.types";
 
 export type Role = 'admin' | 'coordenador de validacao' | 'po' | 'tecnico de campo' | 'tecnico de desenvolvimento de producao';
 export type Status = 'active' | 'inactive';
@@ -15,51 +16,33 @@ export interface UserProps {
     status: Status
 }
 
-// ----- This function returns the user selected by its id -----
-export const lisenUserById = async (userId: string): Promise<UserProps | null> => {
-    try {
-        const docRef = doc(db, "users", userId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            return { id: docSnap.id, ...docSnap.data() } as UserProps;
-        }
-        return null;
-    } catch (err) {
-        console.error("Erro ao buscar usuário:", err);
-        return null;
-    }
+export interface PaginatedUsersResponse {
+  data: UserProps[];
+  pagination: Pagination;
 }
 
-// ----- This function returns a list of users selected by their ids in reaal time -----
-export const getUsersByIds = (userIds: string[], callback: (users: UserProps[]) => void) => {
-    if (userIds.length === 0) {
-        callback([]);
-        return () => {};
-    }
+// listar users
+export const getUsers = async (
+  params?: {
+    limit?: number;
+    cursor?: string | null;
+    status?: "active" | "disabled";
+  }
+): Promise<PaginatedUsersResponse> => {
+  const searchParams = new URLSearchParams();
 
-    // O Firestore tem um limite de 30 IDs no operador 'in'
-    const chunks = [];
-    for (let i = 0; i < userIds.length; i += 30) {
-        chunks.push(userIds.slice(i, i + 30));
-    }
+  if (params?.limit) searchParams.append("limit", String(params.limit));
 
-    const docRef = collection(db, "users");
-    
-    // Para simplificar e manter o tempo real, vamos usar múltiplos snapshots se necessário
-    // mas para a maioria dos casos de projetos, userIds será pequeno.
-    const unsubscribes = chunks.map(chunk => {
-        const q = query(docRef, where("uid", "in", chunk));
-        return onSnapshot(q, (snapshot) => {
-            const usersList = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            })) as UserProps[];
-            callback(usersList);
-        });
-    });
+  if (params?.cursor) searchParams.append("cursor", params.cursor);
 
-    return () => unsubscribes.forEach(unsub => unsub());
-}
+  if (params?.status) searchParams.append("status", params.status);
+
+
+  const response = await api.get(`/users?${searchParams.toString()}`);
+  return response.data;
+};
+
+
 
 export const getCurrentUser = async (): Promise<UserProps> => {
     const response = await api.get("/users/me");
@@ -165,7 +148,19 @@ export const updateProfile = async (userId: string, data: { username?: string, p
     return await api.patch(`/users/${userId}`, data);
 };
 
+// ----- Change status -----
+export const changeUserStatus = async (id: string, status: "active" | "disabled") => {
+  const response = await api.patch(`/users/change-status/${id}`, { status });
+  return response.data;
+};
+
 export const updateMyProfile = async (data: { username?: string; profileImage?: string }) => {
     // A API saberá quem é você pelo cookie de sessão
     return await api.patch("/users/me", data);
+};
+
+// ===== DELETE =====
+export const deleteUser = async (userId: string) => {
+  const response = await api.delete(`/users/${userId}`);
+  return response.data;
 };

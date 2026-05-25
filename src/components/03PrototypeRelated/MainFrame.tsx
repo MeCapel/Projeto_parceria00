@@ -11,7 +11,7 @@ interface MainFrameProps {
 
 export default function MainFrame({ projectId } : MainFrameProps)
 {
-    const { projectPrototypes, deletePrototype } = usePrototypes(projectId);
+    const { prototypes, loading, deletePrototype } = usePrototypes({projectId, status: "active"});
     const [ prototypeToDelete, setPrototypeToDelete] = useState<string | null>(null);
     const navigate = useNavigate();
 
@@ -30,17 +30,16 @@ export default function MainFrame({ projectId } : MainFrameProps)
         setPrototypeToDelete(null);
     };
 
-    if (!projectPrototypes || projectPrototypes.length === 0)
-    {
-        return <p>Nenhum protótipo encontrado!</p>;
-    }
+    if (loading) return <p>Carregando protótipos...</p>;
+    if (!prototypes || prototypes.length === 0)
+    return <p>Nenhum protótipo encontrado!</p>;
 
     return(
         <div className="">
             <CrudTable
                 headers={["Nome", "Descrição", "Etapa", "Vertical"]}
 
-                data={projectPrototypes}
+                data={prototypes}
 
                 getId={(p) => p.id!} 
 

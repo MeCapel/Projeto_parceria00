@@ -1,5 +1,6 @@
 import type { Timestamp } from "firebase/firestore";
 import { api } from "./api";
+import type { Pagination } from "../utils/pagination.types";
 
 // ===== TYPES (matching API) =====
 export interface OccurrenceProps {
@@ -9,31 +10,38 @@ export interface OccurrenceProps {
   criticity: string;
   prototypeId: string;
   image?: string;
-  // progress: "pendente" | "em andamento" | "concluido";
-  // status: string;
   progress: "pendente" | "em andamento" | "concluido";
   dueOn: Date | null; // Keep as Date for API
   createdBy?: string;
   createdAt?: Date | Timestamp;
 }
 
-// ===== GET occurrences =====
-export const getOccurrences = async () => {
-  try 
-  {
-    const res = await api.get(`/occurrences`);
-    return res.data;
-  } 
-  catch 
-  {
-    return null;
-  }
-};
+export interface PaginatedOccurrencesResponse {
+  data: OccurrenceProps[];
+  pagination: Pagination;
+}
 
-// ===== GET BY PROTOTYPE ID =====
-export const getPrototypeOccurrences = async (prototypeId: string) => {
-  const res = await api.get(`/prototypes/${prototypeId}/occurrences`);
-  return res.data.data || res.data; 
+// ----- GET ALL -----
+export const getOccurrences = async (
+  params?: {
+    limit?: number;
+    cursor?: string | null;
+    status?: "active" | "disabled";
+    prototypeId?: string;
+  }
+): Promise<PaginatedOccurrencesResponse> => {
+  const searchParams = new URLSearchParams();
+
+  if (params?.limit) searchParams.append("limit", String(params.limit));
+
+  if (params?.cursor) searchParams.append("cursor", params.cursor);
+
+  if (params?.status) searchParams.append("status", params.status);
+
+  if (params?.prototypeId) searchParams.append("prototypeId", params.prototypeId);
+
+  const response = await api.get(`/occurrences?${searchParams.toString()}`);
+  return response.data;
 };
 
 // ===== GET BY ID =====
@@ -66,6 +74,13 @@ export const updateOccurrence = async (id: string, data: Partial<OccurrenceProps
   const res = await api.patch(`/occurrences/${id}`, payload);
   return res.data;
 };
+
+// ----- Change status -----
+export const changeOccurrenceStatus = async (id: string, status: "active" | "disabled") => {
+  const response = await api.patch(`/occurrences/change-status/${id}`, { status });
+  return response.data;
+};
+
 
 // ===== DELETE =====
 export const deleteOccurrence = async (id: string) => {

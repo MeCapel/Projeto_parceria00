@@ -13,7 +13,6 @@ import ChecklistModelForm from "../04ChecklistRelated/new-models/ChecklistModelF
 import { formatDateBR } from "../../utils/date";
 
 export default function ChecklistModelsTab() {
-
   const {
     checklistModels,
 

@@ -74,7 +74,7 @@ export const useClients = () => {
     });
 
     // RESET
-    if (isReset) setClients(response.data);
+    if (isReset) setClients(response.data || []);
 
     // LOAD MORE
     else 

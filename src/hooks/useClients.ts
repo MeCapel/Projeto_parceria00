@@ -9,6 +9,7 @@ import {
   changeClientStatus as changeClientStatusService,
   deleteClient as deleteClientService,
 } from "../services/clients.service";
+import { showErrorToast } from "../utils/errorToast";
 
 // ===== INTERFACES =====
 interface CreateClientDTO {
@@ -128,13 +129,14 @@ export const useClients = () => {
     {
       const result = await createClientService(data);
 
-      // setClients(prev => [...prev, result]);
-      await fetchClients();
+      setClients(prev => [...prev, result]);
+      // await fetchClients();
 
       return result;
     } 
     catch (err) 
     {
+      showErrorToast(err);
       console.error("Erro ao criar cliente:", err);
       throw err;
     }
@@ -146,12 +148,13 @@ export const useClients = () => {
     {
       await updateClientService(data.id, data);
 
-      // setClients(prev => prev.map(c => (c.id === data.id ? { ...c, ...data } : c)));
+      setClients(prev => prev.map(c => (c.id === data.id ? { ...c, ...data } : c)));
 
       await fetchClients();
     } 
     catch (err) 
     {
+      showErrorToast(err);
       console.error("Erro ao atualizar cliente:", err);
       throw err;
     }
@@ -163,10 +166,14 @@ export const useClients = () => {
       const result = await changeClientStatusService(id, status);
 
       // mantém consistência da lista (recarrega com filtros atuais)
-      await fetchClients({ reset: true, filters });
+      // await fetchClients({ reset: true, filters });
+
+      setClients(prev => [ ...prev, result]);
 
       return result;
-    } catch (err) {
+    } catch (err) 
+    {
+      showErrorToast(err);
       console.error("Erro ao alterar status do cliente:", err);
       throw err;
     }
@@ -178,12 +185,13 @@ export const useClients = () => {
     {
       await deleteClientService(clientId);
 
-      // setClients(prev => prev.filter(c => c.id !== clientId));
+      setClients(prev => prev.filter(c => c.id !== clientId));
 
-      await fetchClients();
+      // await fetchClients();
     } 
     catch (err) 
     {
+      showErrorToast(err);
       console.error("Erro ao deletar cliente:", err);
       throw err;
     }

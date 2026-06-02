@@ -16,6 +16,7 @@ import {
 
   deletePrototype as deletePrototypeService,
 } from "../services/prototypes.service";
+import { showErrorToast } from "../utils/errorToast";
 
 // ===== TYPES =====
 
@@ -63,34 +64,24 @@ export const usePrototypes = (props?: UsePrototypesProps) => {
     props?.projectId;
 
   // ===== STATES =====
-  const [prototype, setPrototype] =
-    useState<PrototypeProps | null>(null);
+  const [prototype, setPrototype] = useState<PrototypeProps | null>(null);
 
-  const [prototypes, setPrototypes] =
-    useState<PrototypeProps[]>([]);
+  const [prototypes, setPrototypes] = useState<PrototypeProps[]>([]);
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [cursor, setCursor] =
-    useState<string | null>(null);
+  const [cursor, setCursor] = useState<string | null>(null);
 
-  const [hasMore, setHasMore] =
-    useState(true);
+  const [hasMore, setHasMore] = useState(true);
 
   // filtros atuais
-  const [filters, setFilters] =
-    useState<{
+  const [filters, setFilters] = useState<{
       projectId?: string;
-
       status?: "active" | "disabled";
     }>({});
 
   // ===== GET ALL =====
-  const fetchPrototypes = async (
-    options?: FetchPrototypesOptions
-  ) => {
-
+  const fetchPrototypes = async (options?: FetchPrototypesOptions) => {
     try
     {
       setLoading(true);
@@ -169,24 +160,16 @@ export const usePrototypes = (props?: UsePrototypesProps) => {
 
   // ===== LOAD MORE =====
   const loadMore = async () => {
+    if (!hasMore || loading) return;
 
-    if (
-      !hasMore ||
-      loading
-    ) return;
-
-    await fetchPrototypes({
-      filters,
-    });
+    await fetchPrototypes({ filters });
 
   };
 
   // ===== INITIAL LOAD =====
   useEffect(() => {
-
     fetchPrototypes({
       reset: true,
-
       filters: {
         projectId,
         status: props?.status
@@ -196,10 +179,7 @@ export const usePrototypes = (props?: UsePrototypesProps) => {
   }, [projectId, props?.status]);
 
   // ===== GET ONE =====
-  const getPrototype = async (
-    id: string
-  ) => {
-
+  const getPrototype = async (id: string) => {
     try
     {
       setLoading(true);
@@ -223,9 +203,7 @@ export const usePrototypes = (props?: UsePrototypesProps) => {
   };
 
   // ===== PATCH SINGLE =====
-  const patchPrototype = (
-    data: Partial<PrototypeProps>
-  ) => {
+  const patchPrototype = (data: Partial<PrototypeProps>) => {
 
     setPrototype(prev =>
       prev
@@ -239,46 +217,29 @@ export const usePrototypes = (props?: UsePrototypesProps) => {
   };
 
   // ===== CREATE =====
-  const createPrototype = async (
-    data: CreatePrototypeDTO
-  ) => {
-
+  const createPrototype = async (data: CreatePrototypeDTO) => {
     try
     {
-      const result =
-        await createPrototypeService(data);
+      const result = await createPrototypeService(data);
 
-        // ===== UPDATE LIST =====
-        setPrototypes(prev => [
-          result,
-          ...prev,
-        ]);
+      // ===== UPDATE LIST =====
+      setPrototypes(prev => [ result, ...prev ]);
 
       return result;
     }
     catch (err)
     {
-      console.error(
-        "Erro ao criar protótipo:",
-        err
-      );
-
+      showErrorToast(err);
+      console.error("Erro ao criar protótipo:", err);
       throw err;
     }
   };
 
   // ===== UPDATE =====
-  const updatePrototype = async (
-    data: UpdatePrototypeDTO
-  ) => {
-
+  const updatePrototype = async (data: UpdatePrototypeDTO) => {
     try
     {
-      const result =
-        await updatePrototypeService(
-          data.id,
-          data
-        );
+      const result = await updatePrototypeService(data.id, data);
 
       // ===== UPDATE SINGLE =====
       setPrototype(prev =>
@@ -306,29 +267,17 @@ export const usePrototypes = (props?: UsePrototypesProps) => {
     }
     catch (err)
     {
-      console.error(
-        "Erro ao atualizar protótipo:",
-        err
-      );
-
+      showErrorToast(err);
+      console.error("Erro ao atualizar protótipo:", err);
       throw err;
     }
   };
 
   // ===== CHANGE STATUS =====
-  const changePrototypeStatus = async (
-    id: string,
-
-    status: "active" | "disabled"
-  ) => {
-
+  const changePrototypeStatus = async (id: string, status: "active" | "disabled") => {
     try
     {
-      const result =
-        await changePrototypeStatusService(
-          id,
-          status
-        );
+      const result = await changePrototypeStatusService(id, status);
 
       // ===== UPDATE SINGLE =====
       setPrototype(prev =>
@@ -356,25 +305,17 @@ export const usePrototypes = (props?: UsePrototypesProps) => {
     }
     catch (err)
     {
-      console.error(
-        "Erro ao alterar status do protótipo:",
-        err
-      );
-
+      showErrorToast(err);
+      console.error("Erro ao alterar status do protótipo:", err);
       throw err;
     }
   };
 
   // ===== DELETE =====
-  const deletePrototype = async (
-    prototypeId: string
-  ) => {
-
+  const deletePrototype = async (prototypeId: string) => {
     try
     {
-      await deletePrototypeService(
-        prototypeId
-      );
+      await deletePrototypeService(prototypeId);
 
       // ===== REMOVE FROM LIST =====
       setPrototypes(prev =>
@@ -392,11 +333,8 @@ export const usePrototypes = (props?: UsePrototypesProps) => {
     }
     catch (err)
     {
-      console.error(
-        "Erro ao deletar protótipo:",
-        err
-      );
-
+      showErrorToast(err);
+      console.error("Erro ao deletar protótipo:", err);
       throw err;
     }
   };

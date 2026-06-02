@@ -9,6 +9,7 @@ import {
   removeProjectMember as removeProjectMemberService,
   type ProjectMember,
 } from "../services/projectMembers.service";
+import { showErrorToast } from "../utils/errorToast";
 
 // ===== HOOK =====
 export const useProjectMembers = (projectId: string) => {
@@ -106,6 +107,7 @@ export const useProjectMembers = (projectId: string) => {
     } 
     catch (err) 
     {
+      showErrorToast(err);
       console.error("Erro ao adicionar membro ao projeto:", err);
       throw err;
     }
@@ -122,6 +124,7 @@ export const useProjectMembers = (projectId: string) => {
     } 
     catch (err) 
     {
+      showErrorToast(err);
       console.error("Erro ao remover membro do projeto:", err);
       throw err;
     }

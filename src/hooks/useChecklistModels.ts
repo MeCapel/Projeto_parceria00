@@ -11,6 +11,7 @@ import {
   deleteChecklistModel as deleteChecklistModelService,
 } from "../services/checklistModels.service";
 import type { ChecklistModelInput } from "../components/04ChecklistRelated/new-models/ChecklistModelForm";
+import { showErrorToast } from "../utils/errorToast";
 
 // ===== TYPES =====
 interface FetchChecklistModelsOptions {
@@ -70,7 +71,7 @@ export const useChecklistModels = () => {
 
       // LOAD MORE
       else 
-        {
+      {
         setChecklistModels(prev => [
           ...prev,
           ...response.data,
@@ -114,23 +115,25 @@ export const useChecklistModels = () => {
   };
 
   // ===== CREATE =====
-  const createChecklistModel = async (
-    data: {
+  const createChecklistModel = async (data: {
       name: string;
       vertical: string;
       categories: ChecklistCategory[];
-    }
-  ) => {
+    }) => {
     try 
     {
       const result = await createChecklistModelService(data);
 
       // refetch usando filtros atuais
-      await fetchChecklistModels({ reset: true, filters });
-      return result;
+      // await fetchChecklistModels({ reset: true, filters });
+
+      setChecklistModels(prev => [ result, ...prev ]);
+
+      return result.data;
     }
     catch (err) 
     {
+      showErrorToast(err);
       console.error("Erro ao criar checklist modelo:", err);
       throw err;
     }
@@ -141,11 +144,15 @@ export const useChecklistModels = () => {
     try 
     {
       const result = await updateChecklistModelService(id, data);
-      await fetchChecklistModels({ reset: true, filters });
+      // await fetchChecklistModels({ reset: true, filters });
+
+      setChecklistModels(prev => [ result, ...prev ]);
+
       return result;
     }
     catch (err) 
     {
+      showErrorToast(err);
       console.error("Erro ao atualizar checklist modelo:", err);
       throw err;
     }
@@ -157,10 +164,14 @@ export const useChecklistModels = () => {
       const result = await changeChecklistModelStatusService(id, status);
 
       // mantém consistência da lista (recarrega com filtros atuais)
-      await fetchChecklistModels({ reset: true, filters });
+      // await fetchChecklistModels({ reset: true, filters });
+
+      setChecklistModels(prev => [ result, ...prev ]);
 
       return result;
-    } catch (err) {
+    } catch (err) 
+    {
+      showErrorToast(err);
       console.error("Erro ao alterar status do checklist modelo:", err);
       throw err;
     }
@@ -171,10 +182,13 @@ export const useChecklistModels = () => {
     try 
     {
       await deleteChecklistModelService(id);
-      await fetchChecklistModels({ reset: true, filters });
+      // await fetchChecklistModels({ reset: true, filters });
+
+      setChecklistModels(prev => prev.filter(c => c.id !== id));
     }
     catch (err)
     {
+      showErrorToast(err);
       console.error("Erro ao deletar checklist modelo:", err);
       throw err;
     }

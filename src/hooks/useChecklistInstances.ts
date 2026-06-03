@@ -6,7 +6,9 @@ import {
   updateChecklistInstance,
   deleteChecklistInstance,
   type ChecklistInstance,
+  type ChecklistCategory,
 } from "../services/checklistInstances.service";
+import { showErrorToast } from "../utils/errorToast";
 
 // ===== INTERFACES =====
 interface Params {
@@ -50,13 +52,14 @@ export function useChecklistInstances({ prototypeId }: Params) {
     }
     catch (err)
     {
+      showErrorToast(err);
       console.error("Erro ao criar vinculo entre protótipo e checklist:", err);
       throw err;
     }
   };
 
   // ----- Toggle do item -----
-  const toggleItem = async (checklistId: string, categories: any[]) => {
+  const toggleItem = async (checklistId: string, categories: ChecklistCategory[]) => {
     try
     {
       await updateChecklistInstance(prototypeId, checklistId, categories);
@@ -69,6 +72,7 @@ export function useChecklistInstances({ prototypeId }: Params) {
     }
     catch (err)
     {
+      showErrorToast(err);
       console.error("Erro ao atualizar item da checklist:", err);
       throw err; 
     }
@@ -84,6 +88,7 @@ export function useChecklistInstances({ prototypeId }: Params) {
     }
     catch (err)
     {
+      showErrorToast(err);
       console.error("Erro ao deletar checklist do protótipo:", err);
       throw err;
     }

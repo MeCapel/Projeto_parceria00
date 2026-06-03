@@ -9,16 +9,15 @@ import {
   changeProjectStatus as changeProjectStatusService,
   deleteProject as deleteProjectService,
 } from "../services/projects.service";
-
-import {
-  getUserProjects,
-} from "../services/projectMembers.service";
+import { getUserProjects } from "../services/projectMembers.service";
+import { showErrorToast } from "../utils/errorToast";
 
 // ===== TYPES =====
 
 interface CreateProjectDTO {
   name: string;
   description?: string;
+  leader: string
 }
 
 interface UpdateProjectDTO extends CreateProjectDTO {
@@ -47,13 +46,9 @@ export const useProjects = (props?: UseProjectsProps) => {
 
   // ===== STATES =====
   const [project, setProject] = useState<ProjectProps | null>(null);
-
   const [projects, setProjects] = useState<ProjectProps[]>([]);
-
   const [loading, setLoading] = useState(false);
-
   const [cursor, setCursor] = useState<string | null>(null);
-
   const [hasMore, setHasMore] = useState(true);
 
   // filtros atuais
@@ -145,10 +140,7 @@ export const useProjects = (props?: UseProjectsProps) => {
     }
     catch (err)
     {
-      console.error(
-        "Erro ao buscar projetos:",
-        err
-      );
+      console.error("Erro ao buscar projetos:", err);
     }
     finally
     {
@@ -158,166 +150,110 @@ export const useProjects = (props?: UseProjectsProps) => {
 
   // ===== LOAD MORE =====
   const loadMore = async () => {
-
-    if (
-      !hasMore ||
-      loading ||
-      userId
-    ) return;
-
-    await fetchProjects({
-      filters,
-    });
+    if (!hasMore || loading || userId) return;
+    await fetchProjects({ filters });
   };
 
   // ===== INITIAL LOAD =====
   useEffect(() => {
     if (skip) return;
-
-    fetchProjects({
-      reset: true,
-    });
-
+    fetchProjects({ reset: true });
   }, [userId, skip]);
 
   // ===== GET ONE =====
-  const getProject = async (
-    id: string
-  ) => {
-
+  const getProject = async (id: string) => {
     try
     {
-      const data =
-        await getProjectService(id);
+      const data = await getProjectService(id);
 
       setProject(data);
     }
     catch (err)
     {
-      console.error(
-        "Erro ao buscar projeto:",
-        err
-      );
+      console.error("Erro ao buscar projeto:", err);
     }
   };
 
   // ===== CREATE =====
-  const createProject = async (
-    data: CreateProjectDTO
-  ) => {
-
+  const createProject = async (data: CreateProjectDTO) => {
     try
     {
-      const result =
-        await createProjectService(data);
+      const result = await createProjectService(data);
 
-      await fetchProjects({
-        reset: true,
-        filters,
-      });
+      await fetchProjects({ reset: true, filters });
+
+      // setProjects(prev => [ result, ...prev]);
 
       return result;
     }
     catch (err)
     {
-      console.error(
-        "Erro ao criar projeto:",
-        err
-      );
-
+      showErrorToast(err);
+      console.error("Erro ao criar projeto:", err);
       throw err;
     }
   };
 
   // ===== UPDATE =====
-  const updateProject = async (
-    data: UpdateProjectDTO
-  ) => {
-
+  const updateProject = async (data: UpdateProjectDTO) => {
     try
     {
-      const result =
-        await updateProjectService(
-          data.id,
-          {
-            name: data.name,
-            description: data.description,
-          }
-        );
+      const result = await updateProjectService(
+        data.id,
+        {
+          name: data.name,
+          description: data.description,
+        }
+      );
 
-      await fetchProjects({
-        reset: true,
-        filters,
-      });
+      await fetchProjects({ reset: true, filters });
+
+      // setProjects(prev => [ result, ...prev]);
 
       return result;
     }
     catch (err)
     {
-      console.error(
-        "Erro ao atualizar projeto:",
-        err
-      );
-
+      showErrorToast(err);
+      console.error("Erro ao atualizar projeto:", err);
       throw err;
     }
   };
 
   // ===== CHANGE STATUS =====
-  const changeProjectStatus = async (
-    id: string,
-    status: "active" | "disabled"
-  ) => {
-
+  const changeProjectStatus = async (id: string, status: "active" | "disabled") => {
     try
     {
-      const result =
-        await changeProjectStatusService(
-          id,
-          status
-        );
+      const result = await changeProjectStatusService(id, status);
 
-      await fetchProjects({
-        reset: true,
-        filters,
-      });
+      await fetchProjects({ reset: true, filters });
+
+      // setProjects(prev => [ result, ...prev]);
 
       return result;
     }
     catch (err)
     {
-      console.error(
-        "Erro ao alterar status do projeto:",
-        err
-      );
-
+      showErrorToast(err);
+      console.error("Erro ao alterar status do projeto:", err);
       throw err;
     }
   };
 
   // ===== DELETE =====
-  const deleteProject = async (
-    projectId: string
-  ) => {
-
+  const deleteProject = async (projectId: string) => {
     try
     {
-      await deleteProjectService(
-        projectId
-      );
+      await deleteProjectService(projectId);
 
-      await fetchProjects({
-        reset: true,
-        filters,
-      });
+      await fetchProjects({ reset: true, filters });
+
+      // setProjects(prev => prev.filter(c => c.id !== projectId));
     }
     catch (err)
     {
-      console.error(
-        "Erro ao deletar projeto:",
-        err
-      );
-
+      showErrorToast(err);
+      console.error("Erro ao deletar projeto:", err);
       throw err;
     }
   };

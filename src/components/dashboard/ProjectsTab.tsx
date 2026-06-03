@@ -17,6 +17,7 @@ import { formatDateBR } from "../../utils/date";
 interface ProjectForm {
   name: string;
   description: string;
+  leader: string
 }
 
 export default function ProjectsTab() {
@@ -66,6 +67,7 @@ export default function ProjectsTab() {
   } = useForm<ProjectForm>({
     name: "",
     description: "",
+    leader: ""
   });
 
   // ===== API FILTERS =====
@@ -146,8 +148,8 @@ export default function ProjectsTab() {
 
     setValues({
       name: project.name,
-      description:
-        project.description || "",
+      description: project.description || "",
+      leader: project.leader
     });
 
   };
@@ -196,9 +198,7 @@ export default function ProjectsTab() {
     // ===== CREATE =====
     else
     {
-
       await createProject(values);
-
     }
 
     await fetchProjects({

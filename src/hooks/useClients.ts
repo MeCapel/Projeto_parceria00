@@ -9,6 +9,7 @@ import {
   changeClientStatus as changeClientStatusService,
   deleteClient as deleteClientService,
 } from "../services/clients.service";
+import { showErrorToast } from "../utils/errorToast";
 
 // ===== INTERFACES =====
 interface CreateClientDTO {
@@ -128,13 +129,14 @@ export const useClients = () => {
     {
       const result = await createClientService(data);
 
-      // setClients(prev => [...prev, result]);
+      // setClients(prev => [result, ...prev]);
       await fetchClients();
 
       return result;
     } 
     catch (err) 
     {
+      showErrorToast(err);
       console.error("Erro ao criar cliente:", err);
       throw err;
     }
@@ -152,6 +154,7 @@ export const useClients = () => {
     } 
     catch (err) 
     {
+      showErrorToast(err);
       console.error("Erro ao atualizar cliente:", err);
       throw err;
     }
@@ -165,8 +168,12 @@ export const useClients = () => {
       // mantém consistência da lista (recarrega com filtros atuais)
       await fetchClients({ reset: true, filters });
 
+      // setClients(prev => [ ...prev, result]);
+
       return result;
-    } catch (err) {
+    } catch (err) 
+    {
+      showErrorToast(err);
       console.error("Erro ao alterar status do cliente:", err);
       throw err;
     }
@@ -184,6 +191,7 @@ export const useClients = () => {
     } 
     catch (err) 
     {
+      showErrorToast(err);
       console.error("Erro ao deletar cliente:", err);
       throw err;
     }

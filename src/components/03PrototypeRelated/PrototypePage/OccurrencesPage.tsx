@@ -1,5 +1,5 @@
 import { useRef, useState } from "react"
-import { Paperclip, Trash3Fill, XCircleFill } from "react-bootstrap-icons"
+import { FiletypeDocx, Paperclip, Trash3Fill, XCircleFill } from "react-bootstrap-icons"
 import { Modal } from "react-bootstrap"
 import type { Timestamp } from "firebase/firestore"
 import { useOccurrences } from "../../../hooks/useOccurrences"
@@ -8,6 +8,8 @@ import { useImageUpload } from "../../../hooks/useImageUpload"
 import CrudHeader from "../../Others/CrudHeader"
 import { CrudTable } from "../../Others/CrudTable"
 import { formatDateBR } from "../../../utils/date"
+import { showErrorToast } from "../../../utils/errorToast"
+import { generateOccurrenceReport } from "../../../services/reports.service"
 import CrudModal from "../../Others/CrudModal"
 import FormInput from "../../forms/FormInput"
 import FormTextarea from "../../forms/FormTextarea"
@@ -49,6 +51,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
     const [editingOccurrenceId, setEditingOccurrence] = useState<string | null>(null);
     const [occurrenceToDelete, setOccurrenceToDelete] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [generatingId, setGeneratingId] = useState<string | null>(null);
 
     const formRef = useRef<HTMLFormElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -168,6 +171,47 @@ export default function OccurrencesPage({ prototypeId }: Props)
         setOccurrenceToDelete(null);
     };
 
+    // ================= DOWNLOAD =================
+    function downloadBlob(blob: Blob, filename: string) {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }
+
+    // ================= GENERATE REPORT =================
+    const handleGenerateReport = async (occurrenceId: string) => {
+        try {
+            setGeneratingId(occurrenceId);
+
+            const response = await generateOccurrenceReport(occurrenceId);
+
+            const disposition = response.headers["content-disposition"] || "";
+            const match = disposition.match(/filename=([^;]+)/);
+            const filename = match?.[1] || `Relatorio_${occurrenceId}.docx`;
+
+            downloadBlob(response.data, filename);
+        } catch (err: any) {
+            if (err.response?.data instanceof Blob) {
+                try {
+                    const text = await err.response.data.text();
+                    const json = JSON.parse(text);
+                    showErrorToast(new Error(json.message || "Erro ao gerar relatório"));
+                } catch {
+                    showErrorToast(err);
+                }
+            } else {
+                showErrorToast(err);
+            }
+        } finally {
+            setGeneratingId(null);
+        }
+    };
+
     // ================= RENDER =================
     return (
         <div>
@@ -209,6 +253,16 @@ export default function OccurrencesPage({ prototypeId }: Props)
 
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                renderActions={(id) => (
+                    <button
+                        onClick={() => handleGenerateReport(id)}
+                        disabled={generatingId === id}
+                        className="btn-custom btn-custom-inside-primary px-2 py-1 border-0 bg-transparent"
+                        title="Gerar laudo"
+                    >
+                        <FiletypeDocx size={18} />
+                    </button>
+                )}
             />
 
             {/* ================= MODAL ================= */}

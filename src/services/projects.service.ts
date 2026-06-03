@@ -8,6 +8,7 @@ export interface ProjectProps {
   description?: string;
   membersCount: number;
   prototypesCount: number;
+  leader: string;
   status?: "active" | "disabled";
   createdBy: string;
   createdAt: string;

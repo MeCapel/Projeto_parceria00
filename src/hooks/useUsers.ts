@@ -158,10 +158,7 @@ export const useUsers = () => {
   }, []);
 
   // ===== GET ONE =====
-  const getUser = async (
-    id: string
-  ) => {
-
+  const getUser = async (id: string) => {
     try
     {
       const data =
@@ -179,19 +176,13 @@ export const useUsers = () => {
   };
 
   // ===== CREATE =====
-  const inviteUser = async (
-    data: InviteUserDTO
-  ) => {
-
+  const inviteUser = async (data: InviteUserDTO) => {
     try
     {
       const result =
         await inviteUserService(data);
 
-      await fetchUsers({
-        reset: true,
-        filters,
-      });
+      await fetchUsers({ reset: true, filters });
 
       return result;
     }
@@ -207,10 +198,7 @@ export const useUsers = () => {
   };
 
   // ===== UPDATE =====
-  const updateUser = async (
-    data: UpdateUserDTO
-  ) => {
-
+  const updateUser = async (data: UpdateUserDTO) => {
     try
     {
       const result =
@@ -244,11 +232,7 @@ export const useUsers = () => {
   };
 
   // ===== CHANGE STATUS =====
-  const changeUserStatus = async (
-    id: string,
-    status: "active" | "disabled"
-  ) => {
-
+  const changeUserStatus = async (id: string,status: "active" | "disabled") => {
     try
     {
       const result =

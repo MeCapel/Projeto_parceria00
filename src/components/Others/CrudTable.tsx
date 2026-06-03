@@ -12,6 +12,8 @@ interface CrudTableProps<T> {
     onStatusChange?: (id: string, currentStatus: Status) => void;
     onDelete?: (id: string) => void;
 
+    renderActions?: (id: string, item: T) => React.ReactNode;
+
     getId: (item: T) => string;
 }
 
@@ -22,6 +24,7 @@ export function CrudTable<T>({
     onEdit,
     onStatusChange,
     onDelete,
+    renderActions,
     getId
 }: CrudTableProps<T>) {
     return (
@@ -101,6 +104,8 @@ export function CrudTable<T>({
                                                     <Trash3Fill />
                                                 </button>
                                             )}
+
+                                            {renderActions && renderActions(id, item)}
 
                                         </div>
                                     </td>

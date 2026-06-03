@@ -125,9 +125,9 @@ export const useChecklistModels = () => {
       const result = await createChecklistModelService(data);
 
       // refetch usando filtros atuais
-      // await fetchChecklistModels({ reset: true, filters });
+      await fetchChecklistModels({ reset: true, filters });
 
-      setChecklistModels(prev => [ result, ...prev ]);
+      // setChecklistModels(prev => [ result, ...prev ]);
 
       return result.data;
     }
@@ -144,9 +144,9 @@ export const useChecklistModels = () => {
     try 
     {
       const result = await updateChecklistModelService(id, data);
-      // await fetchChecklistModels({ reset: true, filters });
+      await fetchChecklistModels({ reset: true, filters });
 
-      setChecklistModels(prev => [ result, ...prev ]);
+      // setChecklistModels(prev => [ result, ...prev ]);
 
       return result;
     }
@@ -164,9 +164,9 @@ export const useChecklistModels = () => {
       const result = await changeChecklistModelStatusService(id, status);
 
       // mantém consistência da lista (recarrega com filtros atuais)
-      // await fetchChecklistModels({ reset: true, filters });
+      await fetchChecklistModels({ reset: true, filters });
 
-      setChecklistModels(prev => [ result, ...prev ]);
+      // setChecklistModels(prev => [ result, ...prev ]);
 
       return result;
     } catch (err) 
@@ -182,9 +182,9 @@ export const useChecklistModels = () => {
     try 
     {
       await deleteChecklistModelService(id);
-      // await fetchChecklistModels({ reset: true, filters });
+      await fetchChecklistModels({ reset: true, filters });
 
-      setChecklistModels(prev => prev.filter(c => c.id !== id));
+      // setChecklistModels(prev => prev.filter(c => c.id !== id));
     }
     catch (err)
     {

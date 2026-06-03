@@ -166,7 +166,13 @@ export const useOccurrences = (props?: UseOccurrencesProps) => {
 
       // await fetchOccurrences({ reset: true, filters });
 
-      setOccurrences(prev => [ result, ...prev ]);
+      setOccurrences(prev =>
+        prev.map(occurrence =>
+          occurrence.id === id
+            ? result
+            : occurrence
+        )
+      );
 
       return result;
     }
@@ -186,7 +192,13 @@ export const useOccurrences = (props?: UseOccurrencesProps) => {
       // mantém consistência da lista (recarrega com filtros atuais)
       // await fetchClients({ reset: true, filters });
 
-      setOccurrences(prev => [ ...prev, result]);
+      setOccurrences(prev =>
+        prev.map(occurrence =>
+          occurrence.id === id
+            ? result
+            : occurrence
+        )
+      );
 
       return result;
     } catch (err) 

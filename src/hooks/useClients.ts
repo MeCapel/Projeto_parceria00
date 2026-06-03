@@ -129,8 +129,8 @@ export const useClients = () => {
     {
       const result = await createClientService(data);
 
-      setClients(prev => [...prev, result]);
-      // await fetchClients();
+      // setClients(prev => [result, ...prev]);
+      await fetchClients();
 
       return result;
     } 
@@ -148,7 +148,7 @@ export const useClients = () => {
     {
       await updateClientService(data.id, data);
 
-      setClients(prev => prev.map(c => (c.id === data.id ? { ...c, ...data } : c)));
+      // setClients(prev => prev.map(c => (c.id === data.id ? { ...c, ...data } : c)));
 
       await fetchClients();
     } 
@@ -166,9 +166,9 @@ export const useClients = () => {
       const result = await changeClientStatusService(id, status);
 
       // mantém consistência da lista (recarrega com filtros atuais)
-      // await fetchClients({ reset: true, filters });
+      await fetchClients({ reset: true, filters });
 
-      setClients(prev => [ ...prev, result]);
+      // setClients(prev => [ ...prev, result]);
 
       return result;
     } catch (err) 
@@ -185,9 +185,9 @@ export const useClients = () => {
     {
       await deleteClientService(clientId);
 
-      setClients(prev => prev.filter(c => c.id !== clientId));
+      // setClients(prev => prev.filter(c => c.id !== clientId));
 
-      // await fetchClients();
+      await fetchClients();
     } 
     catch (err) 
     {

@@ -17,6 +17,7 @@ import { showErrorToast } from "../utils/errorToast";
 interface CreateProjectDTO {
   name: string;
   description?: string;
+  leader: string
 }
 
 interface UpdateProjectDTO extends CreateProjectDTO {
@@ -179,9 +180,9 @@ export const useProjects = (props?: UseProjectsProps) => {
     {
       const result = await createProjectService(data);
 
-      // await fetchProjects({ reset: true, filters });
+      await fetchProjects({ reset: true, filters });
 
-      setProjects(prev => [ result, ...prev]);
+      // setProjects(prev => [ result, ...prev]);
 
       return result;
     }
@@ -205,9 +206,9 @@ export const useProjects = (props?: UseProjectsProps) => {
         }
       );
 
-      // await fetchProjects({ reset: true, filters });
+      await fetchProjects({ reset: true, filters });
 
-      setProjects(prev => [ result, ...prev]);
+      // setProjects(prev => [ result, ...prev]);
 
       return result;
     }
@@ -225,9 +226,9 @@ export const useProjects = (props?: UseProjectsProps) => {
     {
       const result = await changeProjectStatusService(id, status);
 
-      // await fetchProjects({ reset: true, filters });
+      await fetchProjects({ reset: true, filters });
 
-      setProjects(prev => [ result, ...prev]);
+      // setProjects(prev => [ result, ...prev]);
 
       return result;
     }
@@ -245,9 +246,9 @@ export const useProjects = (props?: UseProjectsProps) => {
     {
       await deleteProjectService(projectId);
 
-      // await fetchProjects({ reset: true, filters });
+      await fetchProjects({ reset: true, filters });
 
-      setProjects(prev => prev.filter(c => c.id !== projectId));
+      // setProjects(prev => prev.filter(c => c.id !== projectId));
     }
     catch (err)
     {

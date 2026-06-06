@@ -11,6 +11,8 @@ export interface OccurrenceProps {
   prototypeId: string;
   image?: string;
   progress: "pendente" | "em andamento" | "concluido";
+  actions: string;
+  results: string;
   dueOn: Date | null; // Keep as Date for API
   createdBy?: string;
   createdAt?: Date | Timestamp;

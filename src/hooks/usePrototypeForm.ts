@@ -6,6 +6,7 @@ export interface PrototypeFormValues {
   code: string;
   name: string;
   description: string;
+  image?: string;
   stage: string;
   state?: string;
   city?: string;
@@ -24,6 +25,7 @@ export function usePrototypeForm(projectId: string) {
     code: "",
     name: "",
     description: "",
+    image: "",
     stage: "",
     state: "",
     city: "",
@@ -156,6 +158,7 @@ export function usePrototypeForm(projectId: string) {
       code: "",
       name: "",
       description: "",
+      image: "",
       stage: "",
       state: "",
       city: "",
@@ -179,6 +182,7 @@ export function usePrototypeForm(projectId: string) {
         code: values.code,
         name: values.name,
         description: values.description,
+        image: values.image,
         stage: values.stage.toLowerCase(), // API expects lowercase
         vertical: values.vertical,
         checklistModelIds: values.checklistsIds, // Add checklist models to create with prototype

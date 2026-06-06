@@ -16,13 +16,15 @@ import FormTextarea from "../../forms/FormTextarea"
 import FormRadioGroup from "../../forms/FormRadioGroup"
 import FormDatePicker from "../../forms/FormDatePicker"
 
-interface OccurrenceForm {
+export interface OccurrenceForm {
     name: string;
     description: string;
     criticity: string;
     image?: string;
     prototypeId: string;
-    progress: "pendente" | "em andamento" | "concluido" ,
+    progress: "pendente" | "em andamento" | "concluido",
+    actions: string;
+    results: string;
     dueOn: Date | null,
     createdAt: Date | Timestamp;
 }
@@ -63,6 +65,8 @@ export default function OccurrencesPage({ prototypeId }: Props)
         image: "",
         prototypeId,
         progress: "pendente",
+        actions: "",
+        results: "",
         dueOn: null,
     });
 
@@ -97,6 +101,8 @@ export default function OccurrencesPage({ prototypeId }: Props)
             image: "",
             prototypeId,
             progress: "pendente",
+            actions: "",
+            results: "",
             dueOn: null,
         });
 
@@ -120,6 +126,8 @@ export default function OccurrencesPage({ prototypeId }: Props)
             criticity: occurrence.criticity,
             prototypeId: occurrence.prototypeId || "",
             progress: occurrence.progress,
+            actions: occurrence.actions,
+            results: occurrence.results,
             dueOn: occurrence.dueOn || null,
         });
     };
@@ -311,6 +319,22 @@ export default function OccurrencesPage({ prototypeId }: Props)
                             value={values.progress}
                             onChange={handleChange}
                             options={statusArray}
+                            required
+                        />
+
+                        <FormTextarea
+                            label="Ações necessárias"
+                            name="actions"
+                            value={values.actions}
+                            onChange={handleChange}
+                            required
+                        />
+
+                        <FormTextarea
+                            label="Resultados esperados"
+                            name="results"
+                            value={values.results}
+                            onChange={handleChange}
                             required
                         />
 

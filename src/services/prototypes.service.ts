@@ -8,6 +8,7 @@ export interface PrototypeProps {
   code: string;
   name: string;
   description: string;
+  image?: string;
   stage: string;
   vertical: string;
   projectId: string;

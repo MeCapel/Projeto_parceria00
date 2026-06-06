@@ -34,13 +34,10 @@ interface OccurrenceForm {
   criticity: string;
   image?: string;
   prototypeId: string;
-  progress:
-    | "pendente"
-    | "em andamento"
-    | "concluido";
-
+  progress: "pendente" | "em andamento" | "concluido";
+  actions: string;
+  results: string;
   dueOn: Date | null;
-
   createdAt?: Date | Timestamp;
 }
 
@@ -61,8 +58,7 @@ export default function OccurrencesTab() {
   } = useOccurrences();
 
   // ===== STATES =====
-  const [search, setSearch] =
-    useState("");
+  const [search, setSearch] = useState("");
 
   const [statusFilter, setStatusFilter] =
     useState<
@@ -72,24 +68,18 @@ export default function OccurrencesTab() {
       | "concluido"
     >("all");
 
-  const [showModal, setShowModal] =
-    useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-  const [editingId, setEditingId] =
-    useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const [toDelete, setToDelete] =
-    useState<string | null>(null);
+  const [toDelete, setToDelete] = useState<string | null>(null);
 
-  const [isSaving, setIsSaving] =
-    useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // ===== FORM =====
-  const formRef =
-    useRef<HTMLFormElement | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
 
-  const fileInputRef =
-    useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     values,
@@ -103,6 +93,8 @@ export default function OccurrencesTab() {
     image: "",
     prototypeId: "",
     progress: "pendente",
+    actions: "",
+    results: "",
     dueOn: null,
   });
 
@@ -116,7 +108,6 @@ export default function OccurrencesTab() {
 
   // ===== FILTERS =====
   useEffect(() => {
-
     fetchOccurrences({
       reset: true,
       limit: 10,
@@ -129,24 +120,13 @@ export default function OccurrencesTab() {
 
     return occurrences.filter((o) => {
 
-      const q =
-        search.toLowerCase();
+      const q = search.toLowerCase();
 
-      const matchesSearch =
-        o.name
-          .toLowerCase()
-          .includes(q)
-
+      const matchesSearch = o.name.toLowerCase().includes(q)
         ||
+        o.description?.toLowerCase().includes(q);
 
-        o.description
-          ?.toLowerCase()
-          .includes(q);
-
-      const matchesStatus =
-        statusFilter === "all"
-          ? true
-          : o.progress === statusFilter;
+      const matchesStatus = statusFilter === "all" ? true : o.progress === statusFilter;
 
       return (
         matchesSearch &&
@@ -193,42 +173,28 @@ export default function OccurrencesTab() {
   ];
 
   // ===== IMAGE =====
-  const onFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-
-    const file =
-      e.target.files?.[0];
+  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
 
     if (!file) return;
 
-    const base64 =
-      await handleImageChange(file);
+    const base64 = await handleImageChange(file);
 
     setValues(prev => ({
       ...prev,
       image: base64,
     }));
-
   };
 
   // ===== ACTIONS =====
   const handleNew = () => {
-
     reset();
-
     clearImage();
-
     setEditingId(null);
-
     setShowModal(true);
-
   };
 
-  const handleEdit = (
-    id: string
-  ) => {
-
+  const handleEdit = (id: string) => {
     const occurrence =
       occurrences.find(
         o => o.id === id
@@ -237,62 +203,35 @@ export default function OccurrencesTab() {
     if (!occurrence) return;
 
     setEditingId(id);
-
     setShowModal(true);
-
-    setImage(
-      occurrence.image || null
-    );
+    setImage(occurrence.image || null);
 
     setValues({
       name: occurrence.name,
-      description:
-        occurrence.description,
-
-      criticity:
-        occurrence.criticity,
-
-      image:
-        occurrence.image || "",
-
-      prototypeId:
-        occurrence.prototypeId,
-
-      progress:
-        occurrence.progress,
-
-      dueOn:
-        occurrence.dueOn || null,
+      description: occurrence.description,
+      criticity: occurrence.criticity,
+      image: occurrence.image || "",
+      prototypeId: occurrence.prototypeId,
+      progress: occurrence.progress,
+      actions: occurrence.actions,
+      results: occurrence.results,
+      dueOn: occurrence.dueOn || null,
     });
-
   };
 
-  const handleSave = async (
-    e: React.FormEvent
-  ) => {
-
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const form =
-      formRef.current;
+    const form = formRef.current;
 
     if (!form) return;
 
-    form.classList.add(
-      "was-validated"
-    );
+    form.classList.add("was-validated");
 
     if (!form.checkValidity())
     {
-      const firstInvalid =
-        form.querySelector<HTMLElement>(
-          ":invalid"
-        );
-
-      if (firstInvalid)
-      {
-        firstInvalid.focus();
-      }
+      const firstInvalid = form.querySelector<HTMLElement>(":invalid");
+      if (firstInvalid) firstInvalid.focus();
 
       return;
     }
@@ -303,25 +242,14 @@ export default function OccurrencesTab() {
 
       if (editingId)
       {
-
-        await updateOccurrence(
-          editingId,
-          values
-        );
-
+        await updateOccurrence(editingId, values);
       }
       else
       {
-
         await createOccurrence(values);
-
       }
 
-      await fetchOccurrences({
-        reset: true,
-        limit: 10,
-      });
-
+      await fetchOccurrences({ reset: true, limit: 10 });
       setShowModal(false);
     }
     finally
@@ -331,27 +259,15 @@ export default function OccurrencesTab() {
 
   };
 
-  const handleDelete = (
-    id: string
-  ) => {
-
-    setToDelete(id);
-
-  };
+  const handleDelete = (id: string) => { setToDelete(id)};
 
   const confirmDelete = async () => {
-
     if (!toDelete) return;
 
     await deleteOccurrence(toDelete);
-
-    await fetchOccurrences({
-      reset: true,
-      limit: 10,
-    });
+    await fetchOccurrences({ reset: true, limit: 10 });
 
     setToDelete(null);
-
   };
 
   // ===== JSX =====
@@ -561,71 +477,48 @@ export default function OccurrencesTab() {
 
             <form
               ref={formRef}
-
               onSubmit={handleSave}
-
               noValidate
-
               className="d-flex flex-column gap-3"
             >
 
               <FormInput
                 label="Nome"
-
                 name="name"
-
                 value={values.name}
-
                 onChange={handleChange}
-
                 required
               />
 
               <FormTextarea
                 label="Descrição"
-
                 name="description"
-
                 value={values.description}
-
                 onChange={handleChange}
-
                 required
               />
 
               <FormRadioGroup
                 label="Criticidade"
-
                 name="criticity"
-
                 value={values.criticity}
-
                 onChange={handleChange}
-
                 options={criticityArray}
-
                 required
               />
 
               <FormRadioGroup
                 label="Status"
-
                 name="progress"
-
                 value={values.progress}
-
                 onChange={handleChange}
-
                 options={statusArray}
-
                 required
               />
 
               <FormDatePicker
                 label="Data limite"
-
                 value={values.dueOn}
-
                 onChange={(date) =>
                   setValues(prev => ({
                     ...prev,

@@ -144,9 +144,9 @@ export const useOccurrences = (props?: UseOccurrencesProps) => {
     {
       const result = await createOccurrenceService(data);
 
-      // await fetchOccurrences({ reset: true, filters });
+      await fetchOccurrences({ reset: true, filters });
 
-      setOccurrences(prev => [ result, ...prev ]);
+      // setOccurrences(prev => [ result, ...prev ]);
 
       return result;
     }
@@ -164,15 +164,15 @@ export const useOccurrences = (props?: UseOccurrencesProps) => {
     {
       const result = await updateOccurrenceService(id, data);
 
-      // await fetchOccurrences({ reset: true, filters });
+      await fetchOccurrences({ reset: true, filters });
 
-      setOccurrences(prev =>
-        prev.map(occurrence =>
-          occurrence.id === id
-            ? result
-            : occurrence
-        )
-      );
+      // setOccurrences(prev =>
+      //   prev.map(occurrence =>
+      //     occurrence.id === id
+      //       ? result
+      //       : occurrence
+      //   )
+      // );
 
       return result;
     }

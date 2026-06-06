@@ -83,35 +83,16 @@ export default function PrototypePage() {
     {
       await updatePrototype({
         id: prototype.id,
-
-        code:
-          prototype.code,
-
-        name:
-          prototype.name,
-
-        description:
-          prototype.description,
-
-        stage:
-          prototype.stage
-            ?.toLowerCase() || "",
-
-        vertical:
-          prototype.vertical
-            ?.toLowerCase() || "",
-
-        projectId:
-          prototype.projectId,
-
-        clientId:
-          prototype.clientId || undefined,
-
-        location:
-          prototype.location,
-
-        areaSize:
-          prototype.areaSize
+        code: prototype.code,
+        name: prototype.name,
+        description: prototype.description,
+        image:prototype.image,
+        stage: prototype.stage ?.toLowerCase() || "",
+        vertical: prototype.vertical ?.toLowerCase() || "",
+        projectId: prototype.projectId,
+        clientId: prototype.clientId || undefined,
+        location: prototype.location,
+        areaSize: prototype.areaSize
             ? Number(prototype.areaSize)
             : undefined,
       });

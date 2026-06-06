@@ -24,6 +24,7 @@ interface PrototypeForm {
   stage: string,
   projectId: string;
   areaSize?: number;
+  image: string
 }
 
 interface PrototypesTabProps {
@@ -66,6 +67,7 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
     vertical: "",
     projectId: projectId || "",
     areaSize: undefined,
+    image: ""
   });
 
   // ===== API FILTERS =====

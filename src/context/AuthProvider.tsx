@@ -1,10 +1,10 @@
 import { AuthContext } from "./AuthContext";
 import React, { useEffect, useState } from "react";
 import { api } from "../services/api";
-import type { User } from "firebase/auth";
+import type { UserProps } from "../services/auth.service";
 
 export default function AuthProvider({ children } : { children: React.ReactNode }) {
-    const [ user, setUser ] = useState<User | null>(null);
+    const [ user, setUser ] = useState<UserProps | null>(null);
     const [ loading, setLoading ] = useState(true);
 
     const checkAuth = async () => {

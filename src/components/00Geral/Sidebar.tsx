@@ -1,7 +1,8 @@
 // ===== GERAL IMPORTS ======
 import { NavLink } from 'react-router'
-import { useState, useRef, useLayoutEffect } from "react";
-import { LayoutSidebar, LayoutSidebarReverse, HouseFill, CollectionFill, PeopleFill } from 'react-bootstrap-icons'
+import { useState, useContext, useRef, useLayoutEffect } from "react";
+import { LayoutSidebar, LayoutSidebarReverse, HouseFill, CollectionFill, PeopleFill, GearFill } from 'react-bootstrap-icons'
+import { AuthContext } from '../../context/AuthContext'
 
 // ====== INTERFACE TYPES ====== 
 interface SidebarProps {
@@ -15,6 +16,7 @@ interface SidebarProps {
 // ------ Componente responsável por exibir a sidebar e calcular o espaço disponivel para a exibição dos outros conteúdos das páginas -----
 export default function Sidebar({ onWidthChange, isMobile, isOpen, onClose }: SidebarProps)
 {
+    const { user } = useContext(AuthContext);
     const [isCollapsed, setIsCollapsed] = useState(false); 
     const navRef = useRef<HTMLElement | null>(null);
 
@@ -56,7 +58,10 @@ export default function Sidebar({ onWidthChange, isMobile, isOpen, onClose }: Si
     const navItems = [
                       { to: '/home', label: 'Home', icon: <HouseFill size={25} /> },
                       { to: '/projects', label: 'Projects', icon: <CollectionFill size={25} /> },
-                      { to: '/clientes', label: 'Clientes', icon: <PeopleFill size={25} /> }, 
+                      { to: '/clientes', label: 'Clientes', icon: <PeopleFill size={25} /> },
+                      ...(user?.role === "admin"
+                        ? [{ to: '/admin-dashboard', label: 'Admin', icon: <GearFill size={25} /> }]
+                        : []),
                      ];
 
     // 🔥 MOBILE (OVERLAY)

@@ -1,10 +1,10 @@
-import type { User } from "firebase/auth";
+import type { UserProps } from "../services/auth.service";
 import { createContext } from "react";
 
 interface AuthContextProps {
-    user: User | null;                 // Usamos os dados que vêm da API
+    user: UserProps | null;
     loading: boolean;
-    checkAuth: () => Promise<void>;     // Adicionando essa função
+    checkAuth: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextProps>({

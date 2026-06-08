@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 // ===== IMPORTING COMPONENTS =====
 import AuthProvider from './context/AuthProvider'
 import ProtectedRoute from './components/Others/ProtectedRoute'
+import AdminRoute from './components/Others/AdminRoute'
 import Layout from './components/00Geral/Layout'
 import Clients from './pages/Clients';
 
@@ -21,6 +22,7 @@ import ResetPassword from './pages/ResetPassword'
 import ConfirmResetPassword from './pages/ConfirmResetPassword'
 import PrototypePage from './components/03PrototypeRelated/PrototypePage/PrototypePage';
 import ProjectsPage from './pages/ProjectsPage';
+import AdminDashboard from './pages/AdminDashboard';
 import ChecklistModelsTab from './components/dashboard/ChecklistModelsTab';
 import ClientsTab from './components/dashboard/ClientsTab';
 import ProjectsTab from './components/dashboard/ProjectsTab';
@@ -55,12 +57,13 @@ export default function App() {
           <Route path='/profile' element={<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>}/>
           <Route path="/projects/:projectid" element={<ProtectedRoute><Layout><Project /></Layout></ProtectedRoute>} />
           <Route path="/projects/:projectid/:prototypeid" element={<ProtectedRoute><Layout><PrototypePage /></Layout></ProtectedRoute>} />
-          <Route path="/test" element={<ProtectedRoute><Layout><ChecklistModelsTab /></Layout></ProtectedRoute>} />
-          <Route path="/test0" element={<ProtectedRoute><Layout><ClientsTab /></Layout></ProtectedRoute>} />
-          <Route path="/test1" element={<ProtectedRoute><Layout><ProjectsTab /></Layout></ProtectedRoute>} />
-          <Route path="/test2" element={<ProtectedRoute><Layout><PrototypesTab /></Layout></ProtectedRoute>} />
-          <Route path="/test3" element={<ProtectedRoute><Layout><OccurrencesTab/></Layout></ProtectedRoute>} />
-          <Route path="/test4" element={<ProtectedRoute><Layout><UsersTab/></Layout></ProtectedRoute>} />
+          <Route path="/admin-dashboard" element={<AdminRoute><Layout><AdminDashboard /></Layout></AdminRoute>} />
+          <Route path="/users-dashboard" element={<AdminRoute><Layout><UsersTab/></Layout></AdminRoute>} />
+          <Route path="/projects-dashboard" element={<AdminRoute><Layout><ProjectsTab /></Layout></AdminRoute>} />
+          <Route path="/clients-dashboard" element={<AdminRoute><Layout><ClientsTab /></Layout></AdminRoute>} />
+          <Route path="/prototypes-dashboard" element={<AdminRoute><Layout><PrototypesTab /></Layout></AdminRoute>} />
+          <Route path="/checklist-models-dashboard" element={<AdminRoute><Layout><ChecklistModelsTab /></Layout></AdminRoute>} />
+          <Route path="/occurrences-dashboard" element={<AdminRoute><Layout><OccurrencesTab/></Layout></AdminRoute>} />
         </Routes>
 
       </main>

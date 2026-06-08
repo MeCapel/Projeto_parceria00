@@ -1,7 +1,7 @@
 // ===== GERAL IMPORTS =====
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Modal } from "react-bootstrap";
-import { Trash3Fill } from "react-bootstrap-icons";
+import { ArrowLeftCircleFill, Trash3Fill } from "react-bootstrap-icons";
 import { useProjects } from "../../hooks/useProjects";
 import { useForm } from "../../hooks/useForm";
 import CrudPageLayout from "../Others/CrudPageLayout";
@@ -12,6 +12,7 @@ import { CrudTable } from "../Others/CrudTable";
 import CrudModal from "../Others/CrudModal";
 import FormInput from "../forms/FormInput";
 import { formatDateBR } from "../../utils/date";
+import { useNavigate } from "react-router";
 
 // ===== TYPES =====
 interface ProjectForm {
@@ -21,6 +22,7 @@ interface ProjectForm {
 }
 
 export default function ProjectsTab() {
+  const navigate = useNavigate();
 
   // ===== HOOK =====
   const {
@@ -263,6 +265,18 @@ export default function ProjectsTab() {
   // ===== JSX =====
   return (
     <>
+      <div className="ps-5 pt-5 pb-0 pe-0">
+          <button 
+              className="btn-custom btn-custom-link d-flex gap-3 align-items-center border-0 bg-transparent p-0" 
+              onClick={() => navigate(`/admin-dashboard`)}
+          >
+              <ArrowLeftCircleFill size={30} className="text-custom-black" />
+              <p className="text-custom-black fs-5 mb-0 fw-semibold">
+                  voltar
+              </p>
+          </button>
+      </div>
+
       <CrudPageLayout
 
         // ===== HEADER =====

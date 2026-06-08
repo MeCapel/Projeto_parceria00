@@ -1,7 +1,7 @@
 // ===== GERAL IMPORTS =====
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Modal } from "react-bootstrap";
-import { Trash3Fill } from "react-bootstrap-icons";
+import { ArrowLeftCircleFill, Trash3Fill } from "react-bootstrap-icons";
 import { useClients } from "../../hooks/useClients";
 import { useForm } from "../../hooks/useForm";
 import CrudPageLayout from "../Others/CrudPageLayout";
@@ -13,6 +13,7 @@ import CrudModal from "../Others/CrudModal";
 import FormInput from "../forms/FormInput";
 import FormFoneInput from "../forms/FormInputFone";
 import SelectLocation from "../Others/SelectLocation";
+import { useNavigate } from "react-router";
 
 // ===== TYPES =====
 interface ClientForm {
@@ -26,6 +27,8 @@ interface ClientForm {
 }
 
 export default function ClientsTab() {
+  const navigate = useNavigate();
+
   // ===== HOOK =====
   const {
     clients,
@@ -185,6 +188,18 @@ export default function ClientsTab() {
   // ===== JSX =====
   return (
     <>
+      <div className="ps-5 pt-5 pb-0 pe-0">
+          <button 
+              className="btn-custom btn-custom-link d-flex gap-3 align-items-center border-0 bg-transparent p-0" 
+              onClick={() => navigate(`/admin-dashboard`)}
+          >
+              <ArrowLeftCircleFill size={30} className="text-custom-black" />
+              <p className="text-custom-black fs-5 mb-0 fw-semibold">
+                  voltar
+              </p>
+          </button>
+      </div>
+
       <CrudPageLayout
         header={
           <>
@@ -196,7 +211,7 @@ export default function ClientsTab() {
 
             {/* FILTERS */}
             <div className="d-flex flex-wrap gap-3 pb-3 align-items-center">
-              <div className="flex-grow-1" style={{ minWidth: 260 }}>
+              <div className="grow" style={{ minWidth: 260 }}>
                 <SearchInput
                   value={search}
                   onChange={setSearch}

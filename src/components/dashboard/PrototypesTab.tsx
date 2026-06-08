@@ -12,7 +12,7 @@ import CrudList from "../Others/CrudList";
 import { CrudTable } from "../Others/CrudTable";
 import { formatDateBR } from "../../utils/date";
 import { Modal } from "react-bootstrap";
-import { Trash3Fill } from "react-bootstrap-icons";
+import { ArrowLeftCircleFill, Trash3Fill } from "react-bootstrap-icons";
 import { useNavigate } from "react-router";
 
 // ===== TYPES =====
@@ -33,6 +33,7 @@ interface PrototypesTabProps {
 
 export default function PrototypesTab({ projectId }: PrototypesTabProps) {
   const navigate = useNavigate();
+
   // ===== HOOK =====
   const {
     prototypes,
@@ -238,6 +239,18 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
   // ===== JSX =====
   return (
     <>
+      <div className="ps-5 pt-5 pb-0 pe-0">
+          <button 
+              className="btn-custom btn-custom-link d-flex gap-3 align-items-center border-0 bg-transparent p-0" 
+              onClick={() => navigate(`/admin-dashboard`)}
+          >
+              <ArrowLeftCircleFill size={30} className="text-custom-black" />
+              <p className="text-custom-black fs-5 mb-0 fw-semibold">
+                  voltar
+              </p>
+          </button>
+      </div>
+
       <CrudPageLayout
 
         header={

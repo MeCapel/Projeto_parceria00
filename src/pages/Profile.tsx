@@ -44,7 +44,7 @@ export default function Profile() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const userId = userData?.id || user?.uid;
+        const userId = userData?.id || user?.id;
 
         if (!userId || !newUsername.trim()) {
             toast.error("Dados inválidos para atualização.");

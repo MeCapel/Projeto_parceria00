@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Modal } from "react-bootstrap";
 import {
+  ArrowLeftCircleFill,
   Paperclip,
   Trash3Fill,
   XCircleFill,
@@ -26,6 +27,7 @@ import FormDatePicker from "../forms/FormDatePicker";
 import { formatDateBR } from "../../utils/date";
 
 import type { Timestamp } from "firebase/firestore";
+import { useNavigate } from "react-router";
 
 // ===== TYPES =====
 interface OccurrenceForm {
@@ -42,6 +44,7 @@ interface OccurrenceForm {
 }
 
 export default function OccurrencesTab() {
+  const navigate = useNavigate();
 
   // ===== HOOK =====
   const {
@@ -273,6 +276,18 @@ export default function OccurrencesTab() {
   // ===== JSX =====
   return (
     <>
+      <div className="ps-5 pt-5 pb-0 pe-0">
+          <button 
+              className="btn-custom btn-custom-link d-flex gap-3 align-items-center border-0 bg-transparent p-0" 
+              onClick={() => navigate(`/admin-dashboard`)}
+          >
+              <ArrowLeftCircleFill size={30} className="text-custom-black" />
+              <p className="text-custom-black fs-5 mb-0 fw-semibold">
+                  voltar
+              </p>
+          </button>
+      </div>
+
       <CrudPageLayout
         header={
           <>

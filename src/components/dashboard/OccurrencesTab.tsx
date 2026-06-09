@@ -36,9 +36,11 @@ interface OccurrenceForm {
   name: string;
   description: string;
   criticity: string;
+  criticityLabel: string;
   image?: string;
   prototypeId: string;
   progress: "pendente" | "em andamento" | "concluido";
+  progressLabel: string;
   actions: string;
   results: string;
   dueOn: Date | null;
@@ -133,9 +135,11 @@ export default function OccurrencesTab() {
     name: "",
     description: "",
     criticity: "",
+    criticityLabel: "",
     image: "",
     prototypeId: "",
     progress: "pendente",
+    progressLabel: "Pendente",
     actions: "",
     results: "",
     dueOn: null,
@@ -263,9 +267,11 @@ export default function OccurrencesTab() {
       name: occurrence.name,
       description: occurrence.description,
       criticity: occurrence.criticity,
+      criticityLabel: occurrence.criticityLabel,
       image: occurrence.image || "",
       prototypeId: occurrence.prototypeId,
       progress: occurrence.progress,
+      progressLabel: occurrence.progressLabel,
       actions: occurrence.actions,
       results: occurrence.results,
       dueOn: occurrence.dueOn || null,
@@ -438,7 +444,7 @@ export default function OccurrencesTab() {
                         <td className="px-4 text-secondary">
 
                           <span className="badge bg-danger-subtle text-danger px-3 py-2 rounded-3">
-                            {o.criticity}
+                            {o.criticityLabel}
                           </span>
 
                         </td>
@@ -454,7 +460,7 @@ export default function OccurrencesTab() {
                                 : "bg-secondary-subtle text-secondary"
                             }`}
                           >
-                            {o.progress}
+                            {o.progressLabel}
                           </span>
 
                         </td>

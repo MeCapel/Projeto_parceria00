@@ -49,10 +49,10 @@ export default function MainFrame({ projectId } : MainFrameProps)
                         <td className="px-4 text-secondary">{p.description}</td>
                         <td className="px-4 text-secondary">
                             <span className="badge bg-danger-subtle text-danger px-3 py-2 rounded-3">
-                                {p.stage}
+                                {p.stageLabel}
                             </span>
                         </td>
-                        <td className="px-4 text-secondary">{p.vertical}</td>
+                        <td className="px-4 text-secondary">{p.verticalLabel}</td>
                     </>
                 )}
 

@@ -293,11 +293,11 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
                         </td>
 
                         <td className="px-4 text-secondary">
-                          {p.vertical}
+                          {p.verticalLabel}
                         </td>
 
                         <td className="px-4 text-secondary">
-                          {p.stage}
+                          {p.stageLabel}
                         </td>
 
                         <td className="px-4 text-secondary">

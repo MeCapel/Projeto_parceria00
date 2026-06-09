@@ -60,7 +60,7 @@ export default function Sidebar({ onWidthChange, isMobile, isOpen, onClose }: Si
                       { to: '/projects', label: 'Projects', icon: <CollectionFill size={25} /> },
                       { to: '/clientes', label: 'Clientes', icon: <PeopleFill size={25} /> },
                       ...(user?.role === "admin"
-                        ? [{ to: '/admin-dashboard', label: 'Admin', icon: <GearFill size={25} /> }]
+                        ? [{ to: '/admin-dashboard', label: 'Painel administrador', icon: <GearFill size={25} /> }]
                         : []),
                      ];
 

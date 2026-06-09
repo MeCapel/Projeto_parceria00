@@ -338,7 +338,7 @@ export default function ChecklistModelsTab() {
 
                         {/* VERTICAL */}
                         <td className="px-4 text-secondary">
-                          {c.vertical}
+                          {c.verticalLabel}
                         </td>
 
                         {/* VERSION */}

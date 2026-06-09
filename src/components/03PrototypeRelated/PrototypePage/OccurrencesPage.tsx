@@ -20,9 +20,11 @@ export interface OccurrenceForm {
     name: string;
     description: string;
     criticity: string;
+    criticityLabel: string;
     image?: string;
     prototypeId: string;
     progress: "pendente" | "em andamento" | "concluido",
+    progressLabel: string;
     actions: string;
     results: string;
     dueOn: Date | null,
@@ -62,9 +64,11 @@ export default function OccurrencesPage({ prototypeId }: Props)
         name: "",
         description: "",
         criticity: "",
+        criticityLabel: "",
         image: "",
         prototypeId,
         progress: "pendente",
+        progressLabel: "Pendente",
         actions: "",
         results: "",
         dueOn: null,
@@ -98,9 +102,11 @@ export default function OccurrencesPage({ prototypeId }: Props)
             name: "",
             description: "",
             criticity: "",
+            criticityLabel: "",
             image: "",
             prototypeId,
             progress: "pendente",
+            progressLabel: "Pendente",
             actions: "",
             results: "",
             dueOn: null,
@@ -124,8 +130,10 @@ export default function OccurrencesPage({ prototypeId }: Props)
             name: occurrence.name,
             description: occurrence.description,
             criticity: occurrence.criticity,
+            criticityLabel: occurrence.criticityLabel,
             prototypeId: occurrence.prototypeId || "",
             progress: occurrence.progress,
+            progressLabel: occurrence.progressLabel,
             actions: occurrence.actions,
             results: occurrence.results,
             dueOn: occurrence.dueOn || null,
@@ -247,7 +255,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
                             </span>
                         </td>
 
-                        <td className="px-4 text-secondary">{o.progress}</td>
+                        <td className="px-4 text-secondary">{o.progressLabel}</td>
 
                         <td className="px-4 text-secondary">
                             {formatDateBR(o.createdAt!)}

@@ -28,6 +28,7 @@ export default function ChecklistModelForm({ initialData, loading, onSubmit }: P
       return {
         name: "",
         vertical: "",
+        verticalLabel: "",
         categories: [],
       }
     }

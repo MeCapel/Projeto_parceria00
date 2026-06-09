@@ -43,7 +43,7 @@ export default function ChecklistModelCard({ checklist, onEdit, onDelete }: Prop
 
       {/* BODY */}
       <p className="text-muted small mb-2">
-        {checklist.vertical || "Vertical não definida"}
+        {checklist.verticalLabel || "Vertical não definida"}
       </p>
 
       <p

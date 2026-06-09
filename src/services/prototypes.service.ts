@@ -10,7 +10,9 @@ export interface PrototypeProps {
   description: string;
   image?: string;
   stage: string;
+  stageLabel: string;
   vertical: string;
+  verticalLabel: string;
   projectId: string;
   clientId?: string;
   location?: { state?: string; city?: string };

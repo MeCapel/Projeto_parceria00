@@ -11,6 +11,7 @@ interface Props {
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     required?: boolean;
     error?: string;
+    vertical?: boolean; 
 }
 
 export default function FormRadioGroup({
@@ -20,7 +21,8 @@ export default function FormRadioGroup({
     options,
     onChange,
     required = false,
-    error
+    error,
+    vertical
 }: Props) {
 
     return (
@@ -36,7 +38,7 @@ export default function FormRadioGroup({
             </legend>
 
             {/* Radios */}
-            <div className="d-flex flex-column flex-md-row gap-3 justify-content-center align-items-start mt-3">
+        <div className={`d-flex gap-3 justify-content-center align-items-start mt-3 ${vertical ? `flex-column` : `flex-row flex-md-row`}`}>
 
                 {options.map((opt, index) => (
                     <label

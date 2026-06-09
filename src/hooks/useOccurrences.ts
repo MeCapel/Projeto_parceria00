@@ -22,6 +22,7 @@ interface FetchOccurrencesOptions {
 
 interface UseOccurrencesProps {
   prototypeId?: string;
+  status?: "active" | "disabled";
 }
 
 // ===== HOOK =====
@@ -119,10 +120,11 @@ export const useOccurrences = (props?: UseOccurrencesProps) => {
       reset: true,
       filters: {
         prototypeId,
+        status: props?.status,
       },
     });
 
-  }, [prototypeId]);
+  }, [prototypeId, props?.status]);
 
   // ===== GET ONE =====
   const getOccurrence = async (id: string) => {

@@ -37,6 +37,12 @@ export default function ProjectsTab() {
     deleteProject,
   } = useProjects();
 
+  // ===== STATUS LABEL MAP =====
+  const statusLabel: Record<string, string> = {
+    active: "Ativo",
+    disabled: "Desativado",
+  };
+
   // ===== STATES =====
   const [search, setSearch] =
     useState("");
@@ -56,6 +62,9 @@ export default function ProjectsTab() {
 
   const [toDelete, setToDelete] =
     useState<string | null>(null);
+
+  const [isSaving, setIsSaving] =
+    useState(false);
 
   // ===== FORM =====
   const formRef =
@@ -186,31 +195,39 @@ export default function ProjectsTab() {
       return;
     }
 
-    // ===== UPDATE =====
-    if (editingId)
+      try
     {
+      setIsSaving(true);
 
-      await updateProject({
-        id: editingId,
-        ...values,
+      // ===== UPDATE =====
+      if (editingId)
+      {
+
+        await updateProject({
+          id: editingId,
+          ...values,
+        });
+
+      }
+
+      // ===== CREATE =====
+      else
+      {
+        await createProject(values);
+      }
+
+      await fetchProjects({
+        reset: true,
+        limit: 10,
+        filters: apiFilters,
       });
 
+      setShowModal(false);
     }
-
-    // ===== CREATE =====
-    else
+    finally
     {
-      await createProject(values);
+      setIsSaving(false);
     }
-
-    await fetchProjects({
-      reset: true,
-      limit: 10,
-      filters: apiFilters,
-    });
-
-    setShowModal(false);
-
   };
 
   const handleDelete = (
@@ -332,11 +349,11 @@ export default function ProjectsTab() {
                 </option>
 
                 <option value="active">
-                  Active
+                  Ativos
                 </option>
 
                 <option value="disabled">
-                  Disabled
+                  Desativados
                 </option>
 
               </select>
@@ -419,7 +436,7 @@ export default function ProjectsTab() {
                                 : "bg-secondary-subtle text-secondary"
                             }`}
                           >
-                            {p.status}
+                            {statusLabel[p.status ?? ""] ?? p.status}
                           </span>
 
                         </td>
@@ -521,8 +538,9 @@ export default function ProjectsTab() {
                 <button
                   type="submit"
                   className="btn-custom btn-custom-success px-4"
+                  disabled={isSaving}
                 >
-                  Salvar
+                  {isSaving ? "Salvando..." : "Salvar"}
                 </button>
 
               </div>

@@ -2,7 +2,7 @@
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
 import { useContext } from "react";
-import { PersonCircle, BoxArrowRight, InfoCircle, PersonAdd } from "react-bootstrap-icons";
+import { PersonCircle, BoxArrowRight, InfoCircle } from "react-bootstrap-icons";
 import { AuthContext } from "../../context/AuthContext";
 import { logout } from "../../services/auth.service";
 
@@ -70,16 +70,6 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
                                 </div>
 
                                 <div className="d-flex flex-column gap-2">
-                                    <button
-                                        className="btn-custom btn-custom-gray d-flex gap-3 align-items-center w-100 justify-content-start py-2 border-0 rounded-3"
-                                        onClick={() => {
-                                            onClose();
-                                            navigate("/signup");
-                                        }}
-                                    >
-                                        <PersonAdd size={20}/>
-                                        <span className="fw-semibold">Convidar</span>
-                                    </button>
                                     <button
                                         className="btn-custom btn-custom-gray d-flex gap-3 align-items-center w-100 justify-content-start py-2 border-0 rounded-3"
                                         onClick={() => {

@@ -25,11 +25,9 @@ interface ProjectForm {
 export default function ProjectsPage() {
 
   // ===== USER =====
-  const [userId, setUserId] =
-    useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
-  const [loadingUser, setLoadingUser] =
-    useState(true);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   // ===== LOAD USER =====
   useEffect(() => {
@@ -59,7 +57,7 @@ export default function ProjectsPage() {
     createProject,
     updateProject,
     deleteProject,
-  } = useProjects({ userId: userId ?? undefined, skip: !userId });
+  } = useProjects({ userId: userId ?? undefined, skip: !userId, status: "active" });
 
   // ===== STATES =====
   const [search, setSearch] = useState("");
@@ -71,6 +69,8 @@ export default function ProjectsPage() {
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
 
   const [editing, setEditing] = useState(false);
+
+  const [isSaving, setIsSaving] = useState(false);
 
   // ===== FORM =====
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -136,19 +136,28 @@ export default function ProjectsPage() {
       return;
     }
 
-    if (editingProjectId)
+    try
     {
-      await updateProject({ id: editingProjectId, ...values });
-    }
-    else
-    {
-      await createProject(values);
-    }
+      setIsSaving(true);
 
-    setShowModal(false);
-    reset();
-    setEditing(false);
-    setEditingProjectId(null);
+      if (editingProjectId)
+      {
+        await updateProject({ id: editingProjectId, ...values });
+      }
+      else
+      {
+        await createProject(values);
+      }
+
+      setShowModal(false);
+      reset();
+      setEditing(false);
+      setEditingProjectId(null);
+    }
+    finally
+    {
+      setIsSaving(false);
+    }
   };
 
   // DELETE
@@ -338,8 +347,9 @@ export default function ProjectsPage() {
                     btn-custom-success
                     px-4
                   "
+                  disabled={isSaving}
                 >
-                  Salvar
+                  {isSaving ? "Salvando..." : "Salvar"}
                 </button>
 
               </div>

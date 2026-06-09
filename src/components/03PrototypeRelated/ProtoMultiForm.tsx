@@ -51,7 +51,9 @@ export default function ProtoMultiForm({ projectId }: Props) {
         reset();
     }
 
-    function onSubmit(e: React.FormEvent) {
+    const [isSaving, setIsSaving] = useState(false);
+
+    async function onSubmit(e: React.FormEvent) {
         e.preventDefault();
 
         const form = formRef.current;
@@ -65,9 +67,17 @@ export default function ProtoMultiForm({ projectId }: Props) {
             return;
         }
 
-        handleSubmit(() => {
-            setShow(false);
-        });
+        try
+        {
+            setIsSaving(true);
+            await handleSubmit(() => {
+                setShow(false);
+            });
+        }
+        finally
+        {
+            setIsSaving(false);
+        }
     }
 
     return (
@@ -146,8 +156,8 @@ export default function ProtoMultiForm({ projectId }: Props) {
                             )}
 
                             {isLastStep && (
-                                <button type="submit" className="btn-custom btn-custom-success">
-                                    Finalizar
+                                <button type="submit" className="btn-custom btn-custom-success" disabled={isSaving}>
+                                    {isSaving ? "Finalizando..." : "Finalizar"}
                                 </button>
                             )}
 

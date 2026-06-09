@@ -13,6 +13,7 @@ import CrudList from "../Others/CrudList";
 import { CrudTable } from "../Others/CrudTable";
 import CrudModal from "../Others/CrudModal";
 import FormInput from "../forms/FormInput";
+import InviteUserModal from "../01LoginRelated/RegisterForm";
 import { useNavigate } from "react-router";
 
 // ===== TYPES =====
@@ -44,6 +45,12 @@ export default function UsersTab() {
     deleteUser
   } = useUsers();
 
+  // ===== STATUS LABEL MAP =====
+  const statusLabel: Record<string, string> = {
+    active: "Ativo",
+    disabled: "Desativado",
+  };
+
   // ===== STATES =====
   const [search, setSearch] =
     useState("");
@@ -54,6 +61,9 @@ export default function UsersTab() {
       "active" |
       "disabled"
     >("all");
+
+  const [showInviteModal, setShowInviteModal] =
+    useState(false);
 
   const [showModal, setShowModal] =
     useState(false);
@@ -70,11 +80,12 @@ export default function UsersTab() {
 
     const [toDelete, setToDelete] = useState<string | null>(null);
 
+    const [isSaving, setIsSaving] = useState(false);
+
   const {
     values,
     setValues,
     handleChange,
-    reset,
   } = useForm<UserForm>({
     username: "",
     email: "",
@@ -138,13 +149,7 @@ export default function UsersTab() {
 
   // ===== ACTIONS =====
   const handleNew = () => {
-
-    reset();
-
-    setEditingId(null);
-
-    setShowModal(true);
-
+    setShowInviteModal(true);
   };
 
   const handleEdit = (
@@ -205,36 +210,45 @@ export default function UsersTab() {
       return;
     }
 
-    // ===== UPDATE =====
-    if (editingId)
+    try
     {
+      setIsSaving(true);
 
-      await updateUser({
-        id: editingId,
-        username: values.username,
+      // ===== UPDATE =====
+      if (editingId)
+      {
+
+        await updateUser({
+          id: editingId,
+          username: values.username,
+        });
+
+      }
+
+      // ===== CREATE =====
+      else
+      {
+
+        await inviteUser({
+          username: values.username,
+          email: values.email,
+          role: values.role,
+        });
+
+      }
+
+      await fetchUsers({
+        reset: true,
+        limit: 10,
+        filters: apiFilters,
       });
 
+      setShowModal(false);
     }
-
-    // ===== CREATE =====
-    else
+    finally
     {
-
-      await inviteUser({
-        username: values.username,
-        email: values.email,
-        role: values.role,
-      });
-
+      setIsSaving(false);
     }
-
-    await fetchUsers({
-      reset: true,
-      limit: 10,
-      filters: apiFilters,
-    });
-
-    setShowModal(false);
 
   };
 
@@ -353,11 +367,11 @@ export default function UsersTab() {
                 </option>
 
                 <option value="active">
-                  Active
+                  Ativos
                 </option>
 
                 <option value="disabled">
-                  Disabled
+                  Desativados
                 </option>
 
               </select>
@@ -426,7 +440,7 @@ export default function UsersTab() {
                                 : "bg-secondary-subtle text-secondary"
                             }`}
                           >
-                            {u.status}
+                            {statusLabel[u.status ?? ""] ?? u.status}
                           </span>
 
                         </td>
@@ -572,8 +586,9 @@ export default function UsersTab() {
                 <button
                   type="submit"
                   className="btn-custom btn-custom-success px-4"
+                  disabled={isSaving}
                 >
-                  Salvar
+                  {isSaving ? "Salvando..." : "Salvar"}
                 </button>
 
               </div>
@@ -670,6 +685,15 @@ export default function UsersTab() {
           </div>
         </Modal.Body>
       </Modal>
+
+      {/* INVITE MODAL */}
+      <InviteUserModal
+        show={showInviteModal}
+        onClose={() => {
+          setShowInviteModal(false);
+          fetchUsers({ reset: true });
+        }}
+      />
     </>
   );
 }

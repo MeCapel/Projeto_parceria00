@@ -24,7 +24,7 @@ export interface ClientForm {
 
 export default function Clients()
 {
-    const { clients, createClient, updateClient, deleteClient } = useClients();
+    const { clients, createClient, updateClient, deleteClient } = useClients({ status: "active" });
     // Consulta Clientes pelo searchTerm
     const [search, setSearch] = useState("");
     // Filtra a lista baseada no nome ou na revenda
@@ -38,6 +38,8 @@ export default function Clients()
     const [showModal, setShowModal] = useState<boolean>(false);
     const [editingClientId, setEditingClientId] = useState<string | null>(null);
     const [clientToDelete, setClientToDelete] = useState<string | null>(null);
+
+    const [isSaving, setIsSaving] = useState(false);
 
     const formRef = useRef<HTMLFormElement | null>(null);
     const { values, setValues, handleChange, reset } = useForm<ClientForm>({
@@ -89,16 +91,25 @@ export default function Clients()
             return;
         }
 
-        if (editingClientId) {
-            await updateClient({
-                id: editingClientId,
-                ...values
-            });
-        } else {
-            await createClient(values);
-        }
+        try
+        {
+            setIsSaving(true);
 
-        setShowModal(false);
+            if (editingClientId) {
+                await updateClient({
+                    id: editingClientId,
+                    ...values
+                });
+            } else {
+                await createClient(values);
+            }
+
+            setShowModal(false);
+        }
+        finally
+        {
+            setIsSaving(false);
+        }
     };
 
     const handleDelete = (id: string) => {
@@ -223,8 +234,9 @@ export default function Clients()
                                 <button 
                                     type="submit"
                                     className='btn-custom btn-custom-success px-4'
+                                    disabled={isSaving}
                                 >
-                                    Salvar
+                                    {isSaving ? "Salvando..." : "Salvar"}
                                 </button>
                             </div>
 

@@ -31,6 +31,12 @@ export default function ChecklistModelsTab() {
     deleteChecklistModel,
   } = useChecklistModels();
 
+  // ===== STATUS LABEL MAP =====
+  const statusLabel: Record<string, string> = {
+    active: "Ativo",
+    disabled: "Desativado",
+  };
+
   // ===== STATES =====
 
   const [search, setSearch] = useState("");
@@ -50,6 +56,9 @@ export default function ChecklistModelsTab() {
 
   const [toDelete, setToDelete] =
     useState<string | null>(null);
+
+  const [isSaving, setIsSaving] =
+    useState(false);
 
   // ===== AVAILABLE VERTICALS =====
 
@@ -164,27 +173,36 @@ export default function ChecklistModelsTab() {
     data: ChecklistModelInput
   ) => {
 
-    if (editingId) {
+    try
+    {
+      setIsSaving(true);
 
-      await updateChecklistModel(
-        editingId,
-        data
-      );
+      if (editingId) {
 
+        await updateChecklistModel(
+          editingId,
+          data
+        );
+
+      }
+      else {
+
+        await createChecklistModel(data);
+
+      }
+
+      await fetchChecklistModels({
+        reset: true,
+        limit: 10,
+        filters: apiFilters,
+      });
+
+      setShowModal(false);
     }
-    else {
-
-      await createChecklistModel(data);
-
+    finally
+    {
+      setIsSaving(false);
     }
-
-    await fetchChecklistModels({
-      reset: true,
-      limit: 10,
-      filters: apiFilters,
-    });
-
-    setShowModal(false);
   };
 
   const confirmDelete = async () => {
@@ -302,11 +320,11 @@ export default function ChecklistModelsTab() {
                   </option>
 
                   <option value="active">
-                    Active
+                    Ativos
                   </option>
 
                   <option value="disabled">
-                    Disabled
+                    Desativados
                   </option>
 
                 </select>
@@ -434,7 +452,7 @@ export default function ChecklistModelsTab() {
                                 : "bg-secondary-subtle text-secondary"
                             }`}
                           >
-                            {c.status}
+                            {statusLabel[c.status ?? ""] ?? c.status}
                           </span>
 
                         </td>
@@ -509,6 +527,8 @@ export default function ChecklistModelsTab() {
               initialData={editingItem}
 
               onSubmit={handleSave}
+
+              loading={isSaving}
             />
 
           </CrudModal>

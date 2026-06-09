@@ -35,7 +35,7 @@ interface UpdateClientDTO extends CreateClientDTO {
 }
 
 // ===== HOOK ===== 
-export const useClients = () => {
+export const useClients = (props?: { status?: "active" | "disabled" }) => {
   const [client, setClient] = useState<ClientProps | null>(null);
   const [clients, setClients] = useState<ClientProps[]>([]);
   const [loading, setLoading] = useState(false);
@@ -107,8 +107,8 @@ export const useClients = () => {
 
   // ===== INITIAL LOAD =====
   useEffect(() => {
-    fetchClients({ reset: true });
-  }, []);
+    fetchClients({ reset: true, filters: { status: props?.status } });
+  }, [props?.status]);
 
   // ----- Get one -----
   const getClient = async (clientId: string) => {

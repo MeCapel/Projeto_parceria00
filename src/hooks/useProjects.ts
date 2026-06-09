@@ -35,6 +35,7 @@ interface FetchProjectsOptions {
 interface UseProjectsProps {
   userId?: string;
   skip?: boolean;
+  status?: "active" | "disabled";
 }
 
 // ===== HOOK =====
@@ -157,8 +158,8 @@ export const useProjects = (props?: UseProjectsProps) => {
   // ===== INITIAL LOAD =====
   useEffect(() => {
     if (skip) return;
-    fetchProjects({ reset: true });
-  }, [userId, skip]);
+    fetchProjects({ reset: true, filters: { status: props?.status } });
+  }, [userId, skip, props?.status]);
 
   // ===== GET ONE =====
   const getProject = async (id: string) => {

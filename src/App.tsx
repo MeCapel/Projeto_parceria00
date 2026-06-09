@@ -14,7 +14,6 @@ import Clients from './pages/Clients';
 // ====== IMPORTING FULL PAGES =====
 import Home from './pages/Home'
 import Login from './pages/Login'
-import SignUp from './pages/SignUp'
 import Project from './pages/Project'
 import Profile from './pages/Profile'
 import NotFoundPage from './pages/NotFoundPage'
@@ -50,7 +49,6 @@ export default function App() {
           <Route path='/confirmresetpassword' element={<ConfirmResetPassword />}/>
           
           {/* Rotas Protegidas que usam o Layout do sistema */}
-          <Route path='/signup' element={<ProtectedRoute><SignUp /></ProtectedRoute>}/>
           <Route path='/home' element={<ProtectedRoute><Layout><Home /></Layout></ProtectedRoute>}/>
           <Route path='/clientes' element={<ProtectedRoute><Layout><Clients /></Layout></ProtectedRoute>}/>
           <Route path="/projects" element={<ProtectedRoute><Layout><ProjectsPage /></Layout></ProtectedRoute>} />

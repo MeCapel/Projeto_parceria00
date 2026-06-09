@@ -47,7 +47,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
         {label: "Concluído", value: "concluido"},
     ];
 
-    const { occurrences, createOccurrence, updateOccurrence, deleteOccurrence } = useOccurrences({ prototypeId });
+    const { occurrences, createOccurrence, updateOccurrence, deleteOccurrence } = useOccurrences({ prototypeId, status: "active" });
 
     const [showModal, setShowModal] = useState(false);
     const [editingOccurrenceId, setEditingOccurrence] = useState<string | null>(null);

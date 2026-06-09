@@ -52,6 +52,7 @@ export default function ClientsTab() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // ===== FORM =====
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -65,6 +66,12 @@ export default function ClientsTab() {
     city: "",
     area: "",
   });
+
+  // ===== STATUS LABEL MAP =====
+  const statusLabel: Record<string, string> = {
+    active: "Ativo",
+    disabled: "Desativado",
+  };
 
   // ===== API FILTERS =====
   const apiFilters = useMemo(() => {
@@ -133,22 +140,31 @@ export default function ClientsTab() {
       return;
     }
 
-    if (editingId) {
-      await updateClient({
-        id: editingId,
-        ...values,
+    try
+    {
+      setIsSaving(true);
+
+      if (editingId) {
+        await updateClient({
+          id: editingId,
+          ...values,
+        });
+      } else {
+        await createClient(values);
+      }
+
+      await fetchClients({
+        reset: true,
+        limit: 10,
+        filters: apiFilters,
       });
-    } else {
-      await createClient(values);
+
+      setShowModal(false);
     }
-
-    await fetchClients({
-      reset: true,
-      limit: 10,
-      filters: apiFilters,
-    });
-
-    setShowModal(false);
+    finally
+    {
+      setIsSaving(false);
+    }
   };
 
   const handleDelete = (id: string) => {
@@ -230,8 +246,8 @@ export default function ClientsTab() {
                 }
               >
                 <option value="all">Todos status</option>
-                <option value="active">Active</option>
-                <option value="disabled">Disabled</option>
+                <option value="active">Ativos</option>
+                <option value="disabled">Desativados</option>
               </select>
             </div>
           </>
@@ -278,7 +294,7 @@ export default function ClientsTab() {
                                 : "bg-secondary-subtle text-secondary"
                             }`}
                           >
-                            {c.status}
+                            {statusLabel[c.status ?? ""] ?? c.status}
                           </span>
                         </td>
                       </>
@@ -370,8 +386,9 @@ export default function ClientsTab() {
                 <button
                   type="submit"
                   className="btn-custom btn-custom-success px-4"
+                  disabled={isSaving}
                 >
-                  Salvar
+                  {isSaving ? "Salvando..." : "Salvar"}
                 </button>
               </div>
             </form>

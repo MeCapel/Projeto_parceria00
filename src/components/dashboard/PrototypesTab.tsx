@@ -47,6 +47,12 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
     deletePrototype,
   } = usePrototypes({ projectId });
 
+  // ===== STATUS LABEL MAP =====
+  const statusLabel: Record<string, string> = {
+    active: "Ativo",
+    disabled: "Desativado",
+  };
+
   // ===== STATES =====
   const [search, setSearch] = useState("");
 
@@ -57,6 +63,8 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [toDelete, setToDelete] = useState<string | null>(null);
+
+  const [isSaving, setIsSaving] = useState(false);
 
   // ===== FORM =====
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -168,25 +176,34 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
       return;
     }
 
-    if (editingId)
+    try
     {
-      await updatePrototype({
-        id: editingId,
-        ...values,
+      setIsSaving(true);
+
+      if (editingId)
+      {
+        await updatePrototype({
+          id: editingId,
+          ...values,
+        });
+      }
+      else
+      {
+        await createPrototype(values);
+      }
+
+      await fetchPrototypes({
+        reset: true,
+        limit: 10,
+        filters: apiFilters,
       });
+
+      setShowModal(false);
     }
-    else
+    finally
     {
-      await createPrototype(values);
+      setIsSaving(false);
     }
-
-    await fetchPrototypes({
-      reset: true,
-      limit: 10,
-      filters: apiFilters,
-    });
-
-    setShowModal(false);
   };
 
   const handleDelete = (
@@ -299,11 +316,11 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
                 </option>
 
                 <option value="active">
-                  Active
+                  Ativos
                 </option>
 
                 <option value="disabled">
-                  Disabled
+                  Desativados
                 </option>
 
               </select>
@@ -368,7 +385,7 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
                                 : "bg-secondary-subtle text-secondary"
                             }`}
                           >
-                            {p.status}
+                            {statusLabel[p.status ?? ""] ?? p.status}
                           </span>
 
                         </td>
@@ -514,8 +531,9 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
                 <button
                   type="submit"
                   className="btn-custom btn-custom-success px-4"
+                  disabled={isSaving}
                 >
-                  Salvar
+                  {isSaving ? "Salvando..." : "Salvar"}
                 </button>
 
               </div>

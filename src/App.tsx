@@ -61,6 +61,7 @@ export default function App() {
           <Route path="/clients-dashboard" element={<AdminRoute><Layout><ClientsTab /></Layout></AdminRoute>} />
           <Route path="/prototypes-dashboard" element={<AdminRoute><Layout><PrototypesTab /></Layout></AdminRoute>} />
           <Route path="/checklist-models-dashboard" element={<AdminRoute><Layout><ChecklistModelsTab /></Layout></AdminRoute>} />
+          <Route path="/admin-prototype/:prototypeid" element={<AdminRoute><Layout><PrototypePage /></Layout></AdminRoute>} />
           <Route path="/occurrences-dashboard" element={<AdminRoute><Layout><OccurrencesTab/></Layout></AdminRoute>} />
         </Routes>
 

@@ -6,6 +6,7 @@ import type { ChecklistModelInput } from "../04ChecklistRelated/new-models/Check
 import CrudPageLayout from "../Others/CrudPageLayout";
 import CrudHeader from "../Others/CrudHeader";
 import SearchInput from "../forms/SearchInput";
+import MultiCheckFilter from "../forms/MultiCheckFilter";
 import CrudList from "../Others/CrudList";
 import { CrudTable } from "../Others/CrudTable";
 import CrudModal from "../Others/CrudModal";
@@ -41,8 +42,8 @@ export default function ChecklistModelsTab() {
 
   const [search, setSearch] = useState("");
 
-  const [statusFilter, setStatusFilter] =
-    useState<"all" | "active" | "disabled">("all");
+  const [statusFilters, setStatusFilters] =
+    useState<string[]>([]);
 
   // MULTI SELECT VERTICALS
   const [verticalFilters, setVerticalFilters] =
@@ -60,14 +61,14 @@ export default function ChecklistModelsTab() {
   const [isSaving, setIsSaving] =
     useState(false);
 
-  // ===== AVAILABLE VERTICALS =====
+  // ===== VERTICAL OPTIONS =====
 
-  const availableVerticals = useMemo(() => {
+  const verticalOptions = useMemo(() => {
 
     const verticals =
-      checklistModels.map(c => c.vertical);
+      [...new Set(checklistModels.map(c => c.vertical))];
 
-    return [...new Set(verticals)];
+    return verticals.map(v => ({ label: v, value: v }));
 
   }, [checklistModels]);
 
@@ -75,16 +76,16 @@ export default function ChecklistModelsTab() {
 
   const apiFilters = useMemo(() => {
 
-    return {
+    let status: "active" | "disabled" | undefined;
+    if (statusFilters.length === 0 || statusFilters.length === 2) {
+      status = undefined;
+    } else {
+      status = statusFilters[0] as "active" | "disabled";
+    }
 
-      status:
-        statusFilter === "all"
-          ? undefined
-          : statusFilter,
+    return { status };
 
-    };
-
-  }, [statusFilter]);
+  }, [statusFilters]);
 
   // ===== INITIAL FETCH =====
 
@@ -222,24 +223,6 @@ export default function ChecklistModelsTab() {
 
   // ===== CHECKBOX FILTER =====
 
-  const toggleVerticalFilter = (
-    vertical: string
-  ) => {
-
-    setVerticalFilters(prev => {
-
-      if (prev.includes(vertical)) {
-
-        return prev.filter(v => v !== vertical);
-
-      }
-
-      return [...prev, vertical];
-
-    });
-
-  };
-
   // ===== EDITING ITEM =====
 
   const editingItem =
@@ -277,111 +260,32 @@ export default function ChecklistModelsTab() {
 
             {/* ===== FILTERS ===== */}
 
-            <div className="d-flex flex-column gap-3 pb-3">
+            <div className="d-flex flex-wrap gap-3 pb-3">
 
-              {/* TOP ROW */}
-              <div className="d-flex flex-wrap gap-3 align-items-start">
-
-                {/* SEARCH */}
-                <div
-                  className="grow"
-                  style={{
-                    minWidth: 260
-                  }}
-                >
-                  <SearchInput
-                    value={search}
-                    onChange={setSearch}
-                    placeholder="Buscar checklist..."
-                  />
-                </div>
-
-                {/* STATUS */}
-                <select
-                  className="form-select rounded-3"
-
-                  style={{
-                    width: 220
-                  }}
-
-                  value={statusFilter}
-
-                  onChange={(e) =>
-                    setStatusFilter(
-                      e.target.value as
-                        | "all"
-                        | "active"
-                        | "disabled"
-                    )
-                  }
-                >
-                  <option value="all">
-                    Todos status
-                  </option>
-
-                  <option value="active">
-                    Ativos
-                  </option>
-
-                  <option value="disabled">
-                    Desativados
-                  </option>
-
-                </select>
-
+              <div className="flex-grow-1">
+                <SearchInput
+                  value={search}
+                  onChange={setSearch}
+                  placeholder="Buscar checklist..."
+                />
               </div>
 
-              {/* VERTICAL CHECKBOXES */}
-              {availableVerticals.length > 0 && (
+              <MultiCheckFilter
+                label="Status"
+                options={[
+                  { label: "Ativos", value: "active" },
+                  { label: "Desativados", value: "disabled" },
+                ]}
+                selected={statusFilters}
+                onChange={setStatusFilters}
+              />
 
-                <div className="d-flex flex-wrap gap-3">
-
-                  {availableVerticals.map(vertical => {
-
-                    const checked =
-                      verticalFilters.includes(vertical);
-
-                    return (
-                      <label
-                        key={vertical}
-                        className="
-                          d-flex
-                          align-items-center
-                          gap-2
-                          border
-                          rounded-3
-                          px-3
-                          py-2
-                          bg-white
-                          cursor-pointer
-                        "
-                        style={{
-                          cursor: "pointer"
-                        }}
-                      >
-
-                        <input
-                          type="checkbox"
-
-                          checked={checked}
-
-                          onChange={() =>
-                            toggleVerticalFilter(vertical)
-                          }
-                        />
-
-                        <span className="text-secondary">
-                          {vertical}
-                        </span>
-
-                      </label>
-                    );
-
-                  })}
-
-                </div>
-
-              )}
+              <MultiCheckFilter
+                label="Vertical"
+                options={verticalOptions}
+                selected={verticalFilters}
+                onChange={setVerticalFilters}
+              />
 
             </div>
           </>

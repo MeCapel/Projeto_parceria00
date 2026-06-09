@@ -290,17 +290,11 @@ export default function ProjectsPage() {
                 ? "Editar Projeto"
                 : "Novo Projeto"
             }
-
             onClose={() => {
-
               setShowModal(false);
-
               setEditing(false);
-
               setEditingProjectId(null);
-
             }}
-
             edit={editing}
           >
 

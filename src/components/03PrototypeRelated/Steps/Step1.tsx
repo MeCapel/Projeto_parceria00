@@ -1,5 +1,6 @@
 import { type StepProps } from "../ProtoMultiForm";
 import FormInput from "../../forms/FormInput";
+import FormRadioGroup from "../../forms/FormRadioGroup";
 import FormTextarea from "../../forms/FormTextarea";
 import { useImageUpload } from "../../../hooks/useImageUpload";
 import { useEffect, useRef } from "react";
@@ -8,7 +9,7 @@ import {
     XCircleFill
 } from "react-bootstrap-icons";
 
-export default function Step1({ values, onChange, isFieldRequired }: StepProps) {
+export default function Step1({ values, onChange, isFieldRequired, projectOptions }: StepProps) {
         const fileInputRef = useRef<HTMLInputElement>(null);
         
         const {
@@ -43,6 +44,19 @@ export default function Step1({ values, onChange, isFieldRequired }: StepProps) 
                 
                         {/* --- 🔵 Inputs div --- */}
                         <div className="d-flex flex-column my-4 gap-3">
+
+                                {projectOptions && projectOptions.length > 0 && (
+                                        <FormRadioGroup
+                                                label="Projeto"
+                                                name="projectId"
+                                                value={values.projectId}
+                                                options={projectOptions}
+                                                required
+                                                vertical
+                                                scrollableMaxHeight="200px"
+                                                onChange={e => onChange("projectId", e.target.value)}
+                                        />
+                                )}
 
                                 <FormInput
                                         label="N° de série"

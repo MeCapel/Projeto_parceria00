@@ -8,7 +8,7 @@ interface SearchInputProps {
 
 export default function SearchInput({ value, onChange, placeholder = "Pesquisar..." }: SearchInputProps) {
     return (
-        <div className="position-relative mb-4" style={{ maxWidth: "400px" }}>
+        <div className="position-relative">
             <div className="input-group">
                 <span 
                     className="input-group-text bg-white border-end-0 ps-3"

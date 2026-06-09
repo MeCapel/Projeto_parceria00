@@ -15,13 +15,13 @@ export interface PrototypeFormValues {
   checklistsIds: string[];
 }
 
-export function usePrototypeForm(projectId: string) {
+export function usePrototypeForm(projectId?: string) {
 
   // ----- Variables and states -----
   const [currentStep, setCurrentStep] = useState(0);
 
   const [values, setValues] = useState<PrototypeFormValues>({
-    projectId,
+    projectId: projectId ?? "",
     code: "",
     name: "",
     description: "",
@@ -41,6 +41,7 @@ export function usePrototypeForm(projectId: string) {
     {
       id: "general",
       fields: [
+        ...(!projectId ? [{ name: "projectId", required: true }] : []),
         { name: "name", required: true },
         { name: "description", required: true },
       ],
@@ -154,7 +155,7 @@ export function usePrototypeForm(projectId: string) {
   // ----- Function to reset all prototype data fields -----
   function reset() {
     setValues({
-      projectId,
+      projectId: projectId ?? "",
       code: "",
       name: "",
       description: "",

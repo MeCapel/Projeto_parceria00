@@ -1,6 +1,6 @@
 // ===== IMPORTS =====
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useLocation } from "react-router";
 
 import { Modal } from "react-bootstrap";
 
@@ -29,6 +29,14 @@ export default function PrototypePage() {
 
   const { prototypeid } =
     useParams();
+
+  const location =
+    useLocation();
+
+  const isAdminContext =
+    location.pathname.startsWith(
+      "/admin-prototype"
+    );
 
   const {
     prototype,
@@ -115,7 +123,9 @@ export default function PrototypePage() {
       );
 
       navigate(
-        `/projects/${prototype.projectId}`
+        isAdminContext
+          ? "/prototypes-dashboard"
+          : `/projects/${prototype.projectId}`
       );
     }
     catch (err)
@@ -203,7 +213,9 @@ export default function PrototypePage() {
 
           onClick={() =>
             navigate(
-              `/projects/${prototype.projectId}`
+              isAdminContext
+                ? "/prototypes-dashboard"
+                : `/projects/${prototype.projectId}`
             )
           }
         >
@@ -214,7 +226,7 @@ export default function PrototypePage() {
           />
 
           <p className="text-custom-black fs-5 mb-0 fw-semibold">
-            voltar ao projeto
+            {isAdminContext ? "voltar aos protótipos" : "voltar ao projeto"}
           </p>
 
         </button>

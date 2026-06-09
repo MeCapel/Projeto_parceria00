@@ -9,6 +9,7 @@ import {
 } from "react-bootstrap-icons";
 
 import { useOccurrences } from "../../hooks/useOccurrences";
+import { usePrototypes } from "../../hooks/usePrototypes";
 import { useForm } from "../../hooks/useForm";
 import { useImageUpload } from "../../hooks/useImageUpload";
 
@@ -19,6 +20,7 @@ import { CrudTable } from "../Others/CrudTable";
 import CrudModal from "../Others/CrudModal";
 
 import SearchInput from "../forms/SearchInput";
+import MultiCheckFilter from "../forms/MultiCheckFilter";
 import FormInput from "../forms/FormInput";
 import FormTextarea from "../forms/FormTextarea";
 import FormRadioGroup from "../forms/FormRadioGroup";
@@ -46,7 +48,7 @@ interface OccurrenceForm {
 export default function OccurrencesTab() {
   const navigate = useNavigate();
 
-  // ===== HOOK =====
+  // ===== HOOKS =====
   const {
     occurrences,
     loading,
@@ -58,18 +60,45 @@ export default function OccurrencesTab() {
     createOccurrence,
     updateOccurrence,
     deleteOccurrence,
+    changeOccurrencesStatus,
   } = useOccurrences();
+
+  const {
+    prototypes: allPrototypes,
+  } = usePrototypes({});
+
+  // ===== PROTOTYPE OPTIONS =====
+  const prototypeOptions = useMemo(() =>
+    allPrototypes.map(p => ({
+      label: `${p.name}${p.code ? ` (${p.code})` : ""}`,
+      value: p.id,
+    })),
+    [allPrototypes]
+  );
 
   // ===== STATES =====
   const [search, setSearch] = useState("");
 
-  const [statusFilter, setStatusFilter] =
-    useState<
-      "all"
-      | "pendente"
-      | "em andamento"
-      | "concluido"
-    >("all");
+  const [progressFilters, setProgressFilters] =
+    useState<string[]>([]);
+
+  const [criticityFilters, setCriticityFilters] =
+    useState<string[]>([]);
+
+  const progressOptions = [
+    { label: "Pendente", value: "pendente" },
+    { label: "Em andamento", value: "em andamento" },
+    { label: "Concluído", value: "concluido" },
+  ];
+
+  const criticityOptions = [
+    { label: "A", value: "a" },
+    { label: "B", value: "b" },
+    { label: "C", value: "c" },
+  ];
+
+  const [statusFilters, setStatusFilters] =
+    useState<string[]>([]);
 
   const [showModal, setShowModal] = useState(false);
 
@@ -78,6 +107,17 @@ export default function OccurrencesTab() {
   const [toDelete, setToDelete] = useState<string | null>(null);
 
   const [isSaving, setIsSaving] = useState(false);
+
+  // ===== API FILTERS =====
+  const apiFilters = useMemo(() => {
+    let status: "active" | "disabled" | undefined;
+    if (statusFilters.length === 0 || statusFilters.length === 2) {
+      status = undefined;
+    } else {
+      status = statusFilters[0] as "active" | "disabled";
+    }
+    return { status };
+  }, [statusFilters]);
 
   // ===== FORM =====
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -114,9 +154,10 @@ export default function OccurrencesTab() {
     fetchOccurrences({
       reset: true,
       limit: 10,
+      filters: apiFilters,
     });
 
-  }, []);
+  }, [apiFilters]);
 
   // ===== SEARCH FILTER =====
   const filtered = useMemo(() => {
@@ -129,11 +170,18 @@ export default function OccurrencesTab() {
         ||
         o.description?.toLowerCase().includes(q);
 
-      const matchesStatus = statusFilter === "all" ? true : o.progress === statusFilter;
+      const matchesProgress =
+        progressFilters.length === 0
+          || progressFilters.includes(o.progress);
+
+      const matchesCriticity =
+        criticityFilters.length === 0
+          || criticityFilters.includes(o.criticity);
 
       return (
         matchesSearch &&
-        matchesStatus
+        matchesProgress &&
+        matchesCriticity
       );
 
     });
@@ -141,7 +189,8 @@ export default function OccurrencesTab() {
   }, [
     occurrences,
     search,
-    statusFilter,
+    progressFilters,
+    criticityFilters,
   ]);
 
   // ===== ARRAYS =====
@@ -194,6 +243,7 @@ export default function OccurrencesTab() {
     reset();
     clearImage();
     setEditingId(null);
+    setValues(prev => ({ ...prev, prototypeId: "" }));
     setShowModal(true);
   };
 
@@ -252,7 +302,7 @@ export default function OccurrencesTab() {
         await createOccurrence(values);
       }
 
-      await fetchOccurrences({ reset: true, limit: 10 });
+      await fetchOccurrences({ reset: true, limit: 10, filters: apiFilters });
       setShowModal(false);
     }
     finally
@@ -262,13 +312,19 @@ export default function OccurrencesTab() {
 
   };
 
+  const handleStatusChange = async (id: string, currentStatus: "active" | "disabled") => {
+    const newStatus = currentStatus === "active" ? "disabled" : "active";
+    await changeOccurrencesStatus(id, newStatus);
+    await fetchOccurrences({ reset: true, limit: 10, filters: apiFilters });
+  };
+
   const handleDelete = (id: string) => { setToDelete(id)};
 
   const confirmDelete = async () => {
     if (!toDelete) return;
 
     await deleteOccurrence(toDelete);
-    await fetchOccurrences({ reset: true, limit: 10 });
+    await fetchOccurrences({ reset: true, limit: 10, filters: apiFilters });
 
     setToDelete(null);
   };
@@ -297,60 +353,39 @@ export default function OccurrencesTab() {
               onNew={handleNew}
             />
 
-            <div className="d-flex flex-wrap gap-3 pb-3 align-items-center">
+            <div className="d-flex flex-wrap gap-3 pb-3">
 
-              <div
-                className="flex-grow-1"
-                style={{
-                  minWidth: 260,
-                }}
-              >
-
+              <div className="flex-grow-1">
                 <SearchInput
                   value={search}
                   onChange={setSearch}
                   placeholder="Pesquisar ocorrência..."
                 />
-
               </div>
 
-              <select
-                className="form-select rounded-3"
+              <MultiCheckFilter
+                label="Status"
+                options={[
+                  { label: "Ativos", value: "active" },
+                  { label: "Desativados", value: "disabled" },
+                ]}
+                selected={statusFilters}
+                onChange={setStatusFilters}
+              />
 
-                style={{
-                  width: 220,
-                }}
+              <MultiCheckFilter
+                label="Progresso"
+                options={progressOptions}
+                selected={progressFilters}
+                onChange={setProgressFilters}
+              />
 
-                value={statusFilter}
-
-                onChange={(e) =>
-                  setStatusFilter(
-                    e.target.value as
-                      | "all"
-                      | "pendente"
-                      | "em andamento"
-                      | "concluido"
-                  )
-                }
-              >
-
-                <option value="all">
-                  Todos status
-                </option>
-
-                <option value="pendente">
-                  Pendente
-                </option>
-
-                <option value="em andamento">
-                  Em andamento
-                </option>
-
-                <option value="concluido">
-                  Concluído
-                </option>
-
-              </select>
+              <MultiCheckFilter
+                label="Criticidade"
+                options={criticityOptions}
+                selected={criticityFilters}
+                onChange={setCriticityFilters}
+              />
 
             </div>
           </>
@@ -380,7 +415,7 @@ export default function OccurrencesTab() {
                       "Nome",
                       "Descrição",
                       "Criticidade",
-                      "Status",
+                      "Progresso",
                       "Vencimento",
                       "Criado em",
                     ]}
@@ -442,6 +477,8 @@ export default function OccurrencesTab() {
                     onEdit={handleEdit}
 
                     onDelete={handleDelete}
+
+                    onStatusChange={handleStatusChange}
                   />
 
                 </div>
@@ -496,6 +533,17 @@ export default function OccurrencesTab() {
               noValidate
               className="d-flex flex-column gap-3"
             >
+
+              <FormRadioGroup
+                label="Protótipo"
+                name="prototypeId"
+                value={values.prototypeId}
+                options={prototypeOptions}
+                onChange={handleChange}
+                required
+                vertical
+                scrollableMaxHeight="220px"
+              />
 
               <FormInput
                 label="Nome"

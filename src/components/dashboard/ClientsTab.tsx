@@ -7,6 +7,7 @@ import { useForm } from "../../hooks/useForm";
 import CrudPageLayout from "../Others/CrudPageLayout";
 import CrudHeader from "../Others/CrudHeader";
 import SearchInput from "../forms/SearchInput";
+import MultiCheckFilter from "../forms/MultiCheckFilter";
 import CrudList from "../Others/CrudList";
 import { CrudTable } from "../Others/CrudTable";
 import CrudModal from "../Others/CrudModal";
@@ -45,9 +46,7 @@ export default function ClientsTab() {
   // ===== STATES =====
   const [search, setSearch] = useState("");
 
-  const [statusFilter, setStatusFilter] = useState<
-    "all" | "active" | "disabled"
-  >("all");
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
 
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -75,10 +74,14 @@ export default function ClientsTab() {
 
   // ===== API FILTERS =====
   const apiFilters = useMemo(() => {
-    return {
-      status: statusFilter === "all" ? undefined : statusFilter,
-    };
-  }, [statusFilter]);
+    let status: "active" | "disabled" | undefined;
+    if (statusFilters.length === 0 || statusFilters.length === 2) {
+      status = undefined;
+    } else {
+      status = statusFilters[0] as "active" | "disabled";
+    }
+    return { status };
+  }, [statusFilters]);
 
   // ===== INITIAL FETCH =====
   useEffect(() => {
@@ -226,8 +229,8 @@ export default function ClientsTab() {
             />
 
             {/* FILTERS */}
-            <div className="d-flex flex-wrap gap-3 pb-3 align-items-center">
-              <div className="grow" style={{ minWidth: 260 }}>
+            <div className="d-flex flex-wrap gap-3 pb-3">
+              <div className="flex-grow-1">
                 <SearchInput
                   value={search}
                   onChange={setSearch}
@@ -235,20 +238,15 @@ export default function ClientsTab() {
                 />
               </div>
 
-              <select
-                className="form-select rounded-3"
-                style={{ width: 220 }}
-                value={statusFilter}
-                onChange={(e) =>
-                  setStatusFilter(
-                    e.target.value as "all" | "active" | "disabled"
-                  )
-                }
-              >
-                <option value="all">Todos status</option>
-                <option value="active">Ativos</option>
-                <option value="disabled">Desativados</option>
-              </select>
+              <MultiCheckFilter
+                label="Status"
+                options={[
+                  { label: "Ativos", value: "active" },
+                  { label: "Desativados", value: "disabled" },
+                ]}
+                selected={statusFilters}
+                onChange={setStatusFilters}
+              />
             </div>
           </>
         }

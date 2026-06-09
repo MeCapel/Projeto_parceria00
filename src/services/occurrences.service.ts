@@ -16,6 +16,7 @@ export interface OccurrenceProps {
   dueOn: Date | null; // Keep as Date for API
   createdBy?: string;
   createdAt?: Date | Timestamp;
+  status?: "active" | "disabled";
 }
 
 export interface PaginatedOccurrencesResponse {

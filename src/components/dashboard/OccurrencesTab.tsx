@@ -71,7 +71,7 @@ export default function OccurrencesTab() {
 
   const {
     prototypes: allPrototypes,
-  } = usePrototypes({});
+  } = usePrototypes({ pageSize: 100 });
 
   // ===== PROTOTYPE OPTIONS =====
   const prototypeOptions = useMemo(() =>
@@ -81,6 +81,13 @@ export default function OccurrencesTab() {
     })),
     [allPrototypes]
   );
+
+  // ===== PROTOTYPE MAP =====
+  const prototypeMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    allPrototypes.forEach(p => { map[p.id] = p.name; });
+    return map;
+  }, [allPrototypes]);
 
   // ===== STATES =====
   const [search, setSearch] = useState("");
@@ -468,6 +475,7 @@ export default function OccurrencesTab() {
                     headers={[
                       "Nome",
                       "Descrição",
+                      "Protótipo",
                       "Criticidade",
                       "Progresso",
                       "Vencimento",
@@ -487,6 +495,10 @@ export default function OccurrencesTab() {
 
                         <td className="px-4 text-secondary">
                           {o.description && o.description.length > 25 ? o.description.substring(0, 25) + "..." : o.description}
+                        </td>
+
+                        <td className="px-4 text-secondary text-link-custom cursor-pointer" onClick={() => navigate("/prototypes-dashboard")}>
+                          {prototypeMap[o.prototypeId] || "—"}
                         </td>
 
                         <td className="px-4 text-secondary">
@@ -642,6 +654,22 @@ export default function OccurrencesTab() {
                 onChange={handleChange}
                 options={statusArray}
                 required
+              />
+
+              <FormTextarea
+                  label="Ações necessárias"
+                  name="actions"
+                  value={values.actions}
+                  onChange={handleChange}
+                  required
+              />
+
+              <FormTextarea
+                  label="Resultados esperados"
+                  name="results"
+                  value={values.results}
+                  onChange={handleChange}
+                  required
               />
 
               <FormDatePicker

@@ -55,6 +55,7 @@ interface FetchPrototypesOptions {
 interface UsePrototypesProps {
   projectId?: string;
   status?: "active" | "disabled";
+  pageSize?: number;
 }
 
 // ===== HOOK =====
@@ -62,6 +63,7 @@ export const usePrototypes = (props?: UsePrototypesProps) => {
 
   // ===== PARAMS =====
   const projectId = props?.projectId;
+  const pageSize = props?.pageSize ?? 10;
 
   // ===== STATES =====
   const [prototype, setPrototype] = useState<PrototypeProps | null>(null);
@@ -168,13 +170,14 @@ export const usePrototypes = (props?: UsePrototypesProps) => {
   useEffect(() => {
     fetchPrototypes({
       reset: true,
+      limit: pageSize,
       filters: {
         projectId,
         status: props?.status
       },
     });
 
-  }, [projectId, props?.status]);
+  }, [projectId, props?.status, pageSize]);
 
   // ===== GET ONE =====
   const getPrototype = async (id: string) => {

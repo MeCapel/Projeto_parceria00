@@ -77,9 +77,9 @@ export default function MainFrame({ projectId, prototypes, loading, onDelete } :
                         <Modal.Body className="text-center p-5">
                             <Trash3Fill size={50} className="text-danger mb-4" />
 
-                            <h4 className="fw-bold mb-3">Excluir protótipo?</h4>
+                            <h4 className="fw-bold mb-3">Desativar protótipo?</h4>
                             <p className="text-muted mb-5">
-                                Esta ação não pode ser desfeita.
+                                Este protótipo será desativado.
                             </p>
 
                             <div className="d-flex gap-3 justify-content-center">

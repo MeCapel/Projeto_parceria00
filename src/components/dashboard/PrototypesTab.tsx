@@ -217,7 +217,7 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
 
             <div className="d-flex flex-wrap gap-3 pb-3">
 
-              <div className="flex-grow-1">
+              <div className="grow">
                 <SearchInput
                   value={search}
                   onChange={setSearch}

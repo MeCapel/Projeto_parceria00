@@ -23,7 +23,7 @@ export default function ProjectItem()
     const {
         prototypes,
         loading: prototypesLoading,
-        deletePrototype,
+        changePrototypeStatus,
         fetchPrototypes,
     } = usePrototypes({ projectId: projectid!, status: "active" });
 
@@ -63,6 +63,11 @@ export default function ProjectItem()
         );
     }
 
+    const handleSoftDeletePrototype = async (id: string) => {
+        await changePrototypeStatus(id, "disabled");
+        await fetchPrototypes({ reset: true });
+    };
+
     function renderView(current: number)
     {
         switch(current)
@@ -73,7 +78,7 @@ export default function ProjectItem()
                         projectId={projectid!}
                         prototypes={prototypes}
                         loading={prototypesLoading}
-                        onDelete={deletePrototype}
+                        onDelete={handleSoftDeletePrototype}
                     />
                 )
             case 1:
@@ -86,7 +91,7 @@ export default function ProjectItem()
                         projectId={projectid!}
                         prototypes={prototypes}
                         loading={prototypesLoading}
-                        onDelete={deletePrototype}
+                        onDelete={handleSoftDeletePrototype}
                     />
                 )
         }

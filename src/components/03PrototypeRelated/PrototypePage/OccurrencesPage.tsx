@@ -48,7 +48,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
         {label: "Concluído", value: "concluido"},
     ];
 
-    const { occurrences, createOccurrence, updateOccurrence, deleteOccurrence } = useOccurrences({ prototypeId, status: "active" });
+    const { occurrences, createOccurrence, updateOccurrence, changeOccurrencesStatus, fetchOccurrences } = useOccurrences({ prototypeId, status: "active" });
 
     const [showModal, setShowModal] = useState(false);
     const [editingOccurrenceId, setEditingOccurrence] = useState<string | null>(null);
@@ -182,7 +182,8 @@ export default function OccurrencesPage({ prototypeId }: Props)
     const confirmDelete = async () => {
         if (!occurrenceToDelete) return;
 
-        await deleteOccurrence(occurrenceToDelete);
+        await changeOccurrencesStatus(occurrenceToDelete, "disabled");
+        await fetchOccurrences({ reset: true });
         setOccurrenceToDelete(null);
     };
 
@@ -460,10 +461,10 @@ export default function OccurrencesPage({ prototypeId }: Props)
                 <Modal.Body className="text-center p-5">
                     <Trash3Fill size={50} className="text-danger mb-4" />
 
-                    <h4 className="fw-bold mb-3">Excluir ocorrência?</h4>
+                    <h4 className="fw-bold mb-3">Desativar ocorrência?</h4>
 
                     <p className="text-muted mb-5">
-                        Esta ação não pode ser desfeita.
+                        A ocorrência será desativada.
                     </p>
 
                     <div className="d-flex gap-3 justify-content-center">
@@ -478,7 +479,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
                             className="btn-custom btn-custom-outline-primary px-4"
                             onClick={confirmDelete}
                         >
-                            Excluir
+                            Desativar
                         </button>
                     </div>
                 </Modal.Body>

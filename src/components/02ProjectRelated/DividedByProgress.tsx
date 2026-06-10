@@ -12,7 +12,7 @@ interface Props {
 
 export default function DividedByProgress({ projectId }: Props) {
     const { prototypes, loading } = usePrototypeWithProgress({projectId});
-    const { deletePrototype } = usePrototypes({projectId});
+    const { changePrototypeStatus } = usePrototypes({projectId});
     const [open, setOpen] = useState<Record<number, boolean>>({
         1: false,
         2: false,
@@ -37,7 +37,7 @@ export default function DividedByProgress({ projectId }: Props) {
 
     const confirmDelete = async () => {
         if (!prototypeToDelete) return;
-        await deletePrototype(prototypeToDelete);
+        await changePrototypeStatus(prototypeToDelete, "disabled");
         setPrototypeToDelete(null);
     };
 
@@ -143,9 +143,9 @@ export default function DividedByProgress({ projectId }: Props) {
                 <Modal.Body className="text-center p-5">
                     <Trash3Fill size={50} className="text-danger mb-4" />
 
-                    <h4 className="fw-bold mb-3">Excluir protótipo?</h4>
+                    <h4 className="fw-bold mb-3">Desativar protótipo?</h4>
                     <p className="text-muted mb-5">
-                        Esta ação não pode ser desfeita.
+                        O protótipo será desativado.
                     </p>
 
                     <div className="d-flex gap-3 justify-content-center">
@@ -160,7 +160,7 @@ export default function DividedByProgress({ projectId }: Props) {
                             className="btn-custom btn-custom-outline-primary px-4"
                             onClick={confirmDelete}
                         >
-                            Excluir
+                            Desativar
                         </button>
                     </div>
                 </Modal.Body>

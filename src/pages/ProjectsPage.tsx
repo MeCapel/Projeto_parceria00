@@ -56,7 +56,7 @@ export default function ProjectsPage() {
     projects,
     createProject,
     updateProject,
-    deleteProject,
+    changeProjectStatus,
   } = useProjects({ userId: userId ?? undefined, skip: !userId, status: "active" });
 
   // ===== STATES =====
@@ -167,7 +167,7 @@ export default function ProjectsPage() {
   const confirmDelete = async () => {
     if (!projectToDelete) return;
 
-    await deleteProject(projectToDelete);
+    await changeProjectStatus(projectToDelete, "disabled");
 
     setProjectToDelete(null);
   };
@@ -374,11 +374,11 @@ export default function ProjectsPage() {
           />
 
           <h4 className="fw-bold mb-3">
-            Excluir Projeto?
+            Desativar Projeto?
           </h4>
 
           <p className="text-muted mb-5">
-            Esta ação não pode ser desfeita.
+            O projeto será desativado.
           </p>
 
           <div className="d-flex gap-3 justify-content-center">
@@ -407,7 +407,7 @@ export default function ProjectsPage() {
 
               onClick={confirmDelete}
             >
-              Excluir
+              Desativar
             </button>
 
           </div>

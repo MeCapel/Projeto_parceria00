@@ -47,7 +47,7 @@ export default function PrototypePage() {
     updatePrototype,
     patchPrototype,
 
-    deletePrototype,
+    changePrototypeStatus,
   } = usePrototypes();
 
   // ===== STATES =====
@@ -118,8 +118,9 @@ export default function PrototypePage() {
 
     try
     {
-      await deletePrototype(
-        prototype.id
+      await changePrototypeStatus(
+        prototype.id,
+        "disabled"
       );
 
       navigate(
@@ -351,11 +352,11 @@ export default function PrototypePage() {
             />
 
             <h4 className="fw-bold mb-3">
-              Excluir protótipo?
+              Desativar protótipo?
             </h4>
 
             <p className="text-muted mb-5">
-              Esta ação não pode ser desfeita.
+              O protótipo será desativado.
             </p>
 
             <div className="d-flex gap-3 justify-content-center">
@@ -373,7 +374,7 @@ export default function PrototypePage() {
 
                 onClick={handleDelete}
               >
-                Excluir
+                Desativar
               </button>
 
             </div>

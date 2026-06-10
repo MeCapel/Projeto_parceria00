@@ -24,7 +24,7 @@ export interface ClientForm {
 
 export default function Clients()
 {
-    const { clients, createClient, updateClient, deleteClient } = useClients({ status: "active" });
+    const { clients, createClient, updateClient, changeClientStatus } = useClients({ status: "active" });
     // Consulta Clientes pelo searchTerm
     const [search, setSearch] = useState("");
     // Filtra a lista baseada no nome ou na revenda
@@ -119,7 +119,7 @@ export default function Clients()
     const confirmDelete = async () => {
         if (!clientToDelete) return;
 
-        await deleteClient(clientToDelete);
+        await changeClientStatus(clientToDelete, "disabled");
         setClientToDelete(null);
     };
 
@@ -257,9 +257,9 @@ export default function Clients()
                 <Modal.Body className="text-center p-5">
                     <Trash3Fill size={50} className="text-danger mb-4" />
 
-                    <h4 className="fw-bold mb-3">Excluir cliente?</h4>
+                    <h4 className="fw-bold mb-3">Desativar cliente?</h4>
                     <p className="text-muted mb-5">
-                        Esta ação não pode ser desfeita.
+                        O cliente será desativado.
                     </p>
 
                     <div className="d-flex gap-3 justify-content-center">
@@ -274,7 +274,7 @@ export default function Clients()
                             className="btn-custom btn-custom-outline-primary px-4 rounded-3 shadow-sm"
                             onClick={confirmDelete}
                         >
-                            Excluir
+                            Desativar
                         </button>
                     </div>
                 </Modal.Body>

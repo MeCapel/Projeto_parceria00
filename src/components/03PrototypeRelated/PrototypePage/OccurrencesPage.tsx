@@ -1,11 +1,10 @@
 import { useRef, useState } from "react"
-import { FiletypeDocx, Paperclip, Trash3Fill, XCircleFill } from "react-bootstrap-icons"
+import { FiletypeDocx, Paperclip, PlusLg, Trash3Fill, XCircleFill } from "react-bootstrap-icons"
 import { Modal } from "react-bootstrap"
 import type { Timestamp } from "firebase/firestore"
 import { useOccurrences } from "../../../hooks/useOccurrences"
 import { useForm } from "../../../hooks/useForm"
 import { useImageUpload } from "../../../hooks/useImageUpload"
-import CrudHeader from "../../Others/CrudHeader"
 import { CrudTable } from "../../Others/CrudTable"
 import { formatDateBR } from "../../../utils/date"
 import { showErrorToast } from "../../../utils/errorToast"
@@ -231,11 +230,27 @@ export default function OccurrencesPage({ prototypeId }: Props)
     // ================= RENDER =================
     return (
         <div>
-            <CrudHeader
-                title="Ocorrências do protótipo"
-                subtitle="Gerencie as ocorrências"
-                onNew={handleNew}
-            />
+            <div className="d-flex align-items-center justify-content-between mb-3">
+              <div>
+                <h4 className="fw-bold text-custom-black mb-0">Ocorrências do protótipo</h4>
+                <small className="text-muted">Gerencie as ocorrências</small>
+              </div>
+              <button
+                className="btn-custom btn-custom-outline-black d-flex gap-3 align-items-center"
+                onClick={handleNew}
+              >
+                <PlusLg size={18} />
+                Nova ocorrência
+              </button>
+            </div>
+
+            {occurrences.length === 0 ? (
+
+                <div className="w-100 py-5 text-center border rounded bg-light">
+                    <p className="text-muted mb-0">Nenhuma ocorrência encontrada.</p>
+                </div>
+
+            ) : (
 
             <CrudTable
                 headers={["Nome", "Descrição", "Criticidade", "Status", "Data", "Data de vencimento"]}
@@ -247,7 +262,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
                 renderRow={(o) => (
                     <>
                         <td className="px-4 text-secondary">{o.name}</td>
-                        <td className="px-4 text-secondary">{o.description}</td>
+                        <td className="px-4 text-secondary">{o.description && o.description.length > 25 ? o.description.substring(0, 25) + "..." : o.description}</td>
 
                         <td className="px-4 text-secondary">
                             <span className="badge bg-danger-subtle text-danger px-3 py-2 rounded-3">
@@ -280,6 +295,8 @@ export default function OccurrencesPage({ prototypeId }: Props)
                     </button>
                 )}
             />
+
+            )}
 
             {/* ================= MODAL ================= */}
             <CrudModal

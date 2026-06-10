@@ -246,7 +246,7 @@ export default function ProjectsTab() {
             {/* ===== FILTERS ===== */}
             <div className="d-flex flex-wrap gap-3 pb-3">
 
-              <div className="flex-grow-1">
+              <div className="grow">
                 <SearchInput
                   value={search}
                   onChange={setSearch}
@@ -313,7 +313,7 @@ export default function ProjectsTab() {
 
                         {/* DESCRIPTION */}
                         <td className="px-4 text-secondary">
-                          {p.description || "-"}
+                          {(p.description && p.description.length > 25 ? p.description.substring(0, 25) + "..." : p.description) || "-"}
                         </td>
 
                         {/* MEMBERS */}

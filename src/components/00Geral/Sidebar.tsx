@@ -123,7 +123,7 @@ export default function Sidebar({ onWidthChange, isMobile, isOpen, onClose }: Si
 
                 <div className={`d-flex pt-3 ${isCollapsed ? "justify-content-between" : "flex-column"}`}>
                     <button className="btn-custom text-secondary" onClick={() => setIsCollapsed(!isCollapsed)}>
-                        {isCollapsed ? <LayoutSidebar /> : <LayoutSidebarReverse />}
+                        {isCollapsed ? <LayoutSidebar size={25}/> : <LayoutSidebarReverse size={25}/>}
                     </button>
                 </div>
 

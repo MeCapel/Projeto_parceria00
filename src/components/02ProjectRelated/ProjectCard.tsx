@@ -120,7 +120,7 @@ export default function ProjectCard({
                         lineHeight: "1.2"
                     }}
                 >
-                    {projectDescription}
+                    {projectDescription && projectDescription.length > 25 ? projectDescription.substring(0, 25) + "..." : projectDescription}
                 </p>
 
                 <div className="w-100 mt-2 d-flex justify-content-center align-items-center">

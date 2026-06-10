@@ -438,7 +438,7 @@ export default function OccurrencesTab() {
                         </td>
 
                         <td className="px-4 text-secondary">
-                          {o.description}
+                          {o.description && o.description.length > 25 ? o.description.substring(0, 25) + "..." : o.description}
                         </td>
 
                         <td className="px-4 text-secondary">

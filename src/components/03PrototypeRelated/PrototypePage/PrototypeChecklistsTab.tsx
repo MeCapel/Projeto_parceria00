@@ -19,8 +19,11 @@ export default function PrototypeChecklistsTab({
 
   return (
     <>
-      <div className="d-flex justify-content-between">
-        <h4>Checklists</h4>
+      <div className="d-flex align-items-center justify-content-between mb-3">
+        <div>
+          <h4 className="fw-bold text-custom-black mb-0">Checklists</h4>
+          <small className="text-muted">Gerencie os checklists do protótipo</small>
+        </div>
 
       <ManageChecklistsModal
         vertical={vertical}

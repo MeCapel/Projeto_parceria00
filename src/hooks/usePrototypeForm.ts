@@ -11,6 +11,7 @@ export interface PrototypeFormValues {
   state?: string;
   city?: string;
   areaSize?: string;
+  clientId: string;
   vertical: string;
   checklistsIds: string[];
 }
@@ -30,6 +31,7 @@ export function usePrototypeForm(projectId?: string) {
     state: "",
     city: "",
     areaSize: "",
+    clientId: "",
     vertical: "",
     checklistsIds: [],
   });
@@ -52,19 +54,9 @@ export function usePrototypeForm(projectId?: string) {
         { name: "stage", required: true },
 
         {
-          name: "state",
+          name: "clientId",
           required: (values: PrototypeFormValues) =>
-            values.stage === "Validação de campo"
-        },
-        {
-          name: "city",
-          required: (values: PrototypeFormValues) =>
-            values.stage === "Validação de campo"
-        },
-        {
-          name: "areaSize",
-          required: (values: PrototypeFormValues) =>
-            values.stage === "Validação de campo"
+            values.stage === "validacao de campo"
         },
       ],
     },
@@ -164,6 +156,7 @@ export function usePrototypeForm(projectId?: string) {
       state: "",
       city: "",
       areaSize: "",
+      clientId: "",
       vertical: "",
       checklistsIds: [],
     });
@@ -185,6 +178,7 @@ export function usePrototypeForm(projectId?: string) {
         description: values.description,
         image: values.image,
         stage: values.stage.toLowerCase(), // API expects lowercase
+        clientId: values.clientId || undefined,
         vertical: values.vertical,
         checklistModelIds: values.checklistsIds, // Add checklist models to create with prototype
       };

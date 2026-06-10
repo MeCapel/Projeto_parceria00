@@ -61,8 +61,7 @@ interface UsePrototypesProps {
 export const usePrototypes = (props?: UsePrototypesProps) => {
 
   // ===== PARAMS =====
-  const projectId =
-    props?.projectId;
+  const projectId = props?.projectId;
 
   // ===== STATES =====
   const [prototype, setPrototype] = useState<PrototypeProps | null>(null);
@@ -77,9 +76,9 @@ export const usePrototypes = (props?: UsePrototypesProps) => {
 
   // filtros atuais
   const [filters, setFilters] = useState<{
-      projectId?: string;
-      status?: "active" | "disabled";
-    }>({});
+    projectId?: string;
+    status?: "active" | "disabled";
+  }>({});
 
   // ===== GET ALL =====
   const fetchPrototypes = async (options?: FetchPrototypesOptions) => {
@@ -87,11 +86,9 @@ export const usePrototypes = (props?: UsePrototypesProps) => {
     {
       setLoading(true);
 
-      const isReset =
-        options?.reset ?? false;
+      const isReset = options?.reset ?? false;
 
-      const currentFilters =
-        options?.filters ?? filters;
+      const currentFilters = options?.filters ?? filters;
 
       // reset paginação
       if (isReset)
@@ -185,8 +182,7 @@ export const usePrototypes = (props?: UsePrototypesProps) => {
     {
       setLoading(true);
 
-      const data =
-        await getPrototypeService(id);
+      const data = await getPrototypeService(id);
 
       setPrototype(data);
     }
@@ -224,7 +220,9 @@ export const usePrototypes = (props?: UsePrototypesProps) => {
       const result = await createPrototypeService(data);
 
       // ===== UPDATE LIST =====
-      setPrototypes(prev => [ result, ...prev ]);
+      // setPrototypes(prev => [ result, ...prev ]);
+
+      await fetchPrototypes({ reset: true, filters });
 
       return result;
     }

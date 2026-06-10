@@ -88,6 +88,7 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
                                         onClick={async () => {
                                             onClose();
                                             await logout();
+                                            navigate("/login");
                                         }}
                                     >
                                         <BoxArrowRight size={20}/>

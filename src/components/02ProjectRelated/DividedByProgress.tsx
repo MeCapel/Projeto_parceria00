@@ -106,7 +106,7 @@ export default function DividedByProgress({ projectId }: Props) {
                                         <td className="px-4">{p.name}</td>
                                         <td className="px-4">
                                             {
-                                                p.description && p.description.length > 35 ? p.description.substring(0, 35) + "..." : p.description 
+                                                p.description && p.description.length > 25 ? p.description.substring(0, 25) + "..." : p.description 
                                             }
                                         </td>
 

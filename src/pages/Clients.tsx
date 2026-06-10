@@ -143,7 +143,11 @@ export default function Clients()
                 </>
                 }
 
-                list={
+                list={filteredData.length === 0 ? (
+                    <div className="w-100 py-5 text-center border rounded bg-light">
+                        <p className="text-muted mb-0">Nenhum cliente encontrado.</p>
+                    </div>
+                ) : (
                     <CrudTable
                         headers={["Nome", "Telefone do cliente", "Revenda", "Telefone da revenda", "Estado", "Cidade", "Área"]}
 
@@ -166,7 +170,7 @@ export default function Clients()
                         onEdit={handleEdit}
                         onDelete={handleDelete}
                     />
-                }
+                )}
 
                 modal={
                     <CrudModal

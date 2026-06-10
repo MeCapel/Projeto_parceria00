@@ -6,6 +6,7 @@ import { db } from '../../firebaseConfig/config'
 import { doc, onSnapshot } from 'firebase/firestore'
 import MainFrame from "../03PrototypeRelated/MainFrame";
 import ProtoMultiForm from "../03PrototypeRelated/ProtoMultiForm";
+import { usePrototypes } from "../../hooks/usePrototypes";
 import DividedByProgress from "./DividedByProgress";
 import DisplayProjectMembersModal from "../07UsersRelated/DisplayProjectMembersModal";
 import type { ProjectProps } from "../../services/projects.service";
@@ -18,6 +19,13 @@ export default function ProjectItem()
     const [ projectData, setProjectData ] = useState<ProjectProps | null>(null);
     const [ currentView, setCurrentView ] = useState<number>(0);
     const [ loading, setLoading ] = useState(true);
+
+    const {
+        prototypes,
+        loading: prototypesLoading,
+        deletePrototype,
+        fetchPrototypes,
+    } = usePrototypes({ projectId: projectid!, status: "active" });
 
     useEffect(() => {
         if (!projectid) {
@@ -60,13 +68,27 @@ export default function ProjectItem()
         switch(current)
         {
             case 0:
-                return <MainFrame projectId={projectid!}/>
+                return (
+                    <MainFrame
+                        projectId={projectid!}
+                        prototypes={prototypes}
+                        loading={prototypesLoading}
+                        onDelete={deletePrototype}
+                    />
+                )
             case 1:
                 return <DividedByProgress projectId={projectid!}/>
             // case 2:
             //     return <KPIsPage projectId={projectid!}/>
             default:
-                return <MainFrame projectId={projectid!}/>
+                return (
+                    <MainFrame
+                        projectId={projectid!}
+                        prototypes={prototypes}
+                        loading={prototypesLoading}
+                        onDelete={deletePrototype}
+                    />
+                )
         }
     }
 
@@ -92,8 +114,12 @@ export default function ProjectItem()
                         {projectData.name || "Nome do projeto"}
                     </p>
 
-                    <div className="actions d-flex gap-3">
+                    <div className="d-flex flex-column flex-sm-row gap-3 flex-wrap">
                         <DisplayProjectMembersModal projectId={projectid!} />
+                        <ProtoMultiForm
+                            projectId={projectid}
+                            onSuccess={() => fetchPrototypes({ reset: true })}
+                        />
                     </div>
                 </div>
 
@@ -117,10 +143,6 @@ export default function ProjectItem()
                         </button>
                     </div>
                     <div className="w-100" style={{ borderBottom: "1px solid var(--gray02)", marginTop: "-1px" }}></div>
-                    
-                    <div className="mt-4 w-100">
-                         <ProtoMultiForm projectId={projectid}/>
-                    </div>
                 </div>
 
                 <div className="my-3">

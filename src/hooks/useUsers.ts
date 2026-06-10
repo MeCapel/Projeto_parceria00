@@ -179,8 +179,7 @@ export const useUsers = () => {
   const inviteUser = async (data: InviteUserDTO) => {
     try
     {
-      const result =
-        await inviteUserService(data);
+      const result = await inviteUserService(data);
 
       await fetchUsers({ reset: true, filters });
 

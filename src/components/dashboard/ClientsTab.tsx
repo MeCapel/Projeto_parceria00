@@ -230,7 +230,7 @@ export default function ClientsTab() {
 
             {/* FILTERS */}
             <div className="d-flex flex-wrap gap-3 pb-3">
-              <div className="grow">
+              <div className="flex-grow-1">
                 <SearchInput
                   value={search}
                   onChange={setSearch}

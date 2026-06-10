@@ -365,6 +365,7 @@ export default function OccurrencesTab() {
       const filename = match?.[1] || `Relatorio_${occurrenceId}.docx`;
 
       downloadBlob(response.data, filename);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       if (err.response?.data instanceof Blob) {
         try {

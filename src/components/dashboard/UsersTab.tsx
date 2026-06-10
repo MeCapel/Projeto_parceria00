@@ -39,7 +39,6 @@ export default function UsersTab() {
     fetchUsers,
     loadMore,
 
-    inviteUser,
     updateUser,
 
     changeUserStatus,
@@ -238,24 +237,10 @@ export default function UsersTab() {
       // ===== UPDATE =====
       if (editingId)
       {
-
         await updateUser({
           id: editingId,
           username: values.username,
         });
-
-      }
-
-      // ===== CREATE =====
-      else
-      {
-
-        await inviteUser({
-          username: values.username,
-          email: values.email,
-          role: values.role,
-        });
-
       }
 
       await fetchUsers({
@@ -663,7 +648,7 @@ export default function UsersTab() {
           <h4 className="fw-bold mb-3">Excluir usuário?</h4>
 
           <p className="text-muted mb-5">
-            Esta ação não pode ser desfeita.
+            ATENÇÃO! Esta ação não pode ser desfeita. Todos os projetos aos quais este usuário for o líder serão EXCLUÍDOS com todos os protótipos e ocorrências respectivas. Caso não tenha certeza simplesmente desative o usuário, ele perderá aceso ao sistema.
           </p>
 
           <div className="d-flex gap-3 justify-content-center">

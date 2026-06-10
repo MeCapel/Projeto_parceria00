@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Modal } from "react-bootstrap";
 import {
   ArrowLeftCircleFill,
+  FiletypeDocx,
   Paperclip,
   Trash3Fill,
   XCircleFill,
@@ -12,6 +13,8 @@ import { useOccurrences } from "../../hooks/useOccurrences";
 import { usePrototypes } from "../../hooks/usePrototypes";
 import { useForm } from "../../hooks/useForm";
 import { useImageUpload } from "../../hooks/useImageUpload";
+
+import { generateOccurrenceReport } from "../../services/reports.service";
 
 import CrudPageLayout from "../Others/CrudPageLayout";
 import CrudHeader from "../Others/CrudHeader";
@@ -27,6 +30,7 @@ import FormRadioGroup from "../forms/FormRadioGroup";
 import FormDatePicker from "../forms/FormDatePicker";
 
 import { formatDateBR } from "../../utils/date";
+import { showErrorToast } from "../../utils/errorToast";
 
 import type { Timestamp } from "firebase/firestore";
 import { useNavigate } from "react-router";
@@ -109,6 +113,8 @@ export default function OccurrencesTab() {
   const [toDelete, setToDelete] = useState<string | null>(null);
 
   const [isSaving, setIsSaving] = useState(false);
+
+  const [generatingId, setGeneratingId] = useState<string | null>(null);
 
   // ===== API FILTERS =====
   const apiFilters = useMemo(() => {
@@ -335,6 +341,47 @@ export default function OccurrencesTab() {
     setToDelete(null);
   };
 
+  // ================= DOWNLOAD =================
+  function downloadBlob(blob: Blob, filename: string) {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
+
+  // ================= GENERATE REPORT =================
+  const handleGenerateReport = async (occurrenceId: string) => {
+    try {
+      setGeneratingId(occurrenceId);
+
+      const response = await generateOccurrenceReport(occurrenceId);
+
+      const disposition = response.headers["content-disposition"] || "";
+      const match = disposition.match(/filename=([^;]+)/);
+      const filename = match?.[1] || `Relatorio_${occurrenceId}.docx`;
+
+      downloadBlob(response.data, filename);
+    } catch (err: any) {
+      if (err.response?.data instanceof Blob) {
+        try {
+          const text = await err.response.data.text();
+          const json = JSON.parse(text);
+          showErrorToast(new Error(json.message || "Erro ao gerar relatório"));
+        } catch {
+          showErrorToast(err);
+        }
+      } else {
+        showErrorToast(err);
+      }
+    } finally {
+      setGeneratingId(null);
+    }
+  };
+
   // ===== JSX =====
   return (
     <>
@@ -485,6 +532,17 @@ export default function OccurrencesTab() {
                     onDelete={handleDelete}
 
                     onStatusChange={handleStatusChange}
+
+                    renderActions={(id) => (
+                      <button
+                        onClick={() => handleGenerateReport(id)}
+                        disabled={generatingId === id}
+                        className="btn-custom btn-custom-inside-primary px-2 py-1 border-0 bg-transparent"
+                        title="Gerar laudo"
+                      >
+                        <FiletypeDocx size={18} />
+                      </button>
+                    )}
                   />
 
                 </div>

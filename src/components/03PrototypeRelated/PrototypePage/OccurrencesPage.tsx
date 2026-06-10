@@ -267,7 +267,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
 
                         <td className="px-4 text-secondary">
                             <span className="badge bg-danger-subtle text-danger px-3 py-2 rounded-3">
-                                {o.criticity}
+                                {o.criticityLabel}
                             </span>
                         </td>
 

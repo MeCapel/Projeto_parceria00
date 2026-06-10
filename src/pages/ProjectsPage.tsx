@@ -25,11 +25,9 @@ interface ProjectForm {
 export default function ProjectsPage() {
 
   // ===== USER =====
-  const [userId, setUserId] =
-    useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
-  const [loadingUser, setLoadingUser] =
-    useState(true);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   // ===== LOAD USER =====
   useEffect(() => {
@@ -58,8 +56,8 @@ export default function ProjectsPage() {
     projects,
     createProject,
     updateProject,
-    deleteProject,
-  } = useProjects({ userId: userId ?? undefined, skip: !userId });
+    changeProjectStatus,
+  } = useProjects({ userId: userId ?? undefined, skip: !userId, status: "active" });
 
   // ===== STATES =====
   const [search, setSearch] = useState("");
@@ -71,6 +69,8 @@ export default function ProjectsPage() {
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
 
   const [editing, setEditing] = useState(false);
+
+  const [isSaving, setIsSaving] = useState(false);
 
   // ===== FORM =====
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -136,19 +136,28 @@ export default function ProjectsPage() {
       return;
     }
 
-    if (editingProjectId)
+    try
     {
-      await updateProject({ id: editingProjectId, ...values });
-    }
-    else
-    {
-      await createProject(values);
-    }
+      setIsSaving(true);
 
-    setShowModal(false);
-    reset();
-    setEditing(false);
-    setEditingProjectId(null);
+      if (editingProjectId)
+      {
+        await updateProject({ id: editingProjectId, ...values });
+      }
+      else
+      {
+        await createProject(values);
+      }
+
+      setShowModal(false);
+      reset();
+      setEditing(false);
+      setEditingProjectId(null);
+    }
+    finally
+    {
+      setIsSaving(false);
+    }
   };
 
   // DELETE
@@ -158,7 +167,7 @@ export default function ProjectsPage() {
   const confirmDelete = async () => {
     if (!projectToDelete) return;
 
-    await deleteProject(projectToDelete);
+    await changeProjectStatus(projectToDelete, "disabled");
 
     setProjectToDelete(null);
   };
@@ -281,17 +290,11 @@ export default function ProjectsPage() {
                 ? "Editar Projeto"
                 : "Novo Projeto"
             }
-
             onClose={() => {
-
               setShowModal(false);
-
               setEditing(false);
-
               setEditingProjectId(null);
-
             }}
-
             edit={editing}
           >
 
@@ -338,8 +341,9 @@ export default function ProjectsPage() {
                     btn-custom-success
                     px-4
                   "
+                  disabled={isSaving}
                 >
-                  Salvar
+                  {isSaving ? "Salvando..." : "Salvar"}
                 </button>
 
               </div>
@@ -370,11 +374,11 @@ export default function ProjectsPage() {
           />
 
           <h4 className="fw-bold mb-3">
-            Excluir Projeto?
+            Desativar Projeto?
           </h4>
 
           <p className="text-muted mb-5">
-            Esta ação não pode ser desfeita.
+            O projeto será desativado.
           </p>
 
           <div className="d-flex gap-3 justify-content-center">
@@ -403,7 +407,7 @@ export default function ProjectsPage() {
 
               onClick={confirmDelete}
             >
-              Excluir
+              Desativar
             </button>
 
           </div>

@@ -1,196 +1,155 @@
-// ===== GERAL IMPORTS =====
-import React, { useState } from "react"
-import { useNavigate } from "react-router"
+import { useState, useRef } from "react"
 import { inviteUser } from "../../services/auth.service";
+import CrudModal from "../Others/CrudModal";
+import ShareInviteLink from "../Others/ShareInviteLink";
+import FormInput from "../forms/FormInput";
+import FormRadioGroup from "../forms/FormRadioGroup";
 
-// ===== MAIN COMPONENT =====
-// ----- Componente responsável pelo formulário de registro dos usuários / criação de conta -----
-export default function SignInForm()
-{
-    const roleArray = [
-        {label: "Adiministrador", value: "admin"},
-        {label: "Coordenador de validação", value: "coordenador de validacao"},
-        {label: "Integrador", value: "integrador"},
-        {label: "Po", value: "po"},
-        {label: "Técnico de campo", value: "tecnico de campo"},
-    ];
+interface InviteUserModalProps {
+  show: boolean;
+  onClose: () => void;
+}
 
-    const [ username, setUsername ] = useState("");
-    const [ email, setEmail ] = useState("");
-    const [ role, setRole ] = useState("");
-    const [ loading, setLoading ] = useState(false);
+export default function InviteUserModal({ show, onClose }: InviteUserModalProps) {
+  const roleArray = [
+    { label: "Administrador", value: "admin" },
+    { label: "Coordenador de validação", value: "coordenador de validacao" },
+    { label: "Integrador", value: "integrador" },
+    { label: "PO", value: "po" },
+    { label: "Técnico de campo", value: "tecnico de campo" },
+  ];
 
-    const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState<"form" | "success">("form");
+  const [inviteLink, setInviteLink] = useState("");
 
-    const handleCreateAccount = async (e: React.FormEvent ) => {
-        e.preventDefault();
+  const formRef = useRef<HTMLFormElement | null>(null);
 
-        if (!email || !role || !username)
-        {
-            alert("Preencha os campos e email e senha!");
-            return;
-        }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (name === "username") setUsername(value);
+    if (name === "email") setEmail(value);
+    if (name === "role") setRole(value);
+  };
 
-        if (!/\S+@\S+\.\S+/.test(email))
-        {
-            alert("Poer favor, insira um email válido.");
-            setLoading(false);
-            return;
-        }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-        setLoading(true);
+    const form = formRef.current;
+    if (!form) return;
 
-        try 
-        {
-            const data = {
-                username: username.trim(),
-                email: email.trim(),
-                role: role,
-            }
-
-            await inviteUser(data);
-            alert("User created successfully!");
-            navigate("/home");
-        }
-        catch (error: unknown)
-        {
-            const err = error as { code?: string, message?: string };
-            switch (err.code) {
-                case "auth/email-already-in-use":
-                    alert("Este email já está em uso.");
-                    break;
-                case "auth/invalid-email":
-                    alert("O formato do email é inválido.");
-                    break;
-                default:
-                    alert("Ocorreu um erro ao criar a conta: " + (err.message || "Erro desconhecido"));
-            }
-        }
-        finally
-        {
-            setLoading(false)
-        }
+    form.classList.add("was-validated");
+    if (!form.checkValidity()) {
+      const firstInvalid = form.querySelector<HTMLElement>(":invalid");
+      if (firstInvalid) firstInvalid.focus();
+      return;
     }
 
-    return(
-        <div className="container-fluid vh-100 d-flex align-items-center justify-content-center flex-column"
-            style={{ backgroundImage: "url(/fromBrand/background-pattern.png)"}}>
-            <form className="container bg-light p-5 d-flex flex-column rounded-3 gap-4" style={{ maxWidth: '30rem' }} onSubmit={handleCreateAccount}>
-                <div className="d-flex flex-column align-items-center justify-content-center gap-3">
-                    <p className="fs-2 mb-0 fw-semibold text-black text-center">Adicionar conta</p>
-                </div>
-                
-                <div className="d-flex flex-column gap-3">
-                    <label htmlFor="username" className="fs-5">Nome</label>
-                    <input 
-                        type="text" 
-                        name="" 
-                        id="username" 
-                        className="border py-2 px-3 fs-5 rounded-2" 
-                        placeholder="Seu nome"
-                        onChange={(e) => setUsername(e.target.value)} 
-                        required
-                    />
-                </div>
+    setLoading(true);
 
-                <div className="d-flex flex-column gap-3">
-                    <label htmlFor="email" className="fs-5">Email</label>
-                    <input 
-                        type="text" 
-                        name="" 
-                        id="email" 
-                        placeholder="conta@gmail.com" 
-                        className="border py-2 px-3 fs-5 rounded-2" 
-                        onChange={(e) => setEmail(e.target.value)} 
-                        required
-                    />
-                </div>
-                
-                <FormRadioGroup
-                    label="Pápel"
-                    name="role"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    options={roleArray}
-                    required
-                />
+    try {
+      const data = {
+        username: username.trim(),
+        email: email.trim(),
+        role,
+      };
 
-                <button className="btn-custom btn-custom-outline-black fs-5 mt-4" type="submit" disabled={loading}>
-                    <p className='mb-0'>{loading ? "Criando..." : "Criar"}</p>
-                </button>
+      const result = await inviteUser(data);
+      setInviteLink(result.inviteLink);
+      setStep("success");
+    } catch (error: unknown) {
+      const err = error as { code?: string; message?: string };
+      switch (err.code) {
+        case "auth/email-already-in-use":
+          alert("Este email já está em uso.");
+          break;
+        case "auth/invalid-email":
+          alert("O formato do email é inválido.");
+          break;
+        default:
+          alert("Ocorreu um erro ao criar a conta: " + (err.message || "Erro desconhecido"));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            </form>
-        </div>
-    )
-}
+  const handleInviteAnother = () => {
+    setStep("form");
+    setInviteLink("");
+    setUsername("");
+    setEmail("");
+    setRole("");
+  };
 
-interface OptionsProps {
-    label: string,
-    value: string
-}
+  const handleClose = () => {
+    setStep("form");
+    setInviteLink("");
+    setUsername("");
+    setEmail("");
+    setRole("");
+    onClose();
+  };
 
-interface Props {
-    label: string;
-    name: string;
-    value: string | number;
-    options: OptionsProps[];
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    required?: boolean;
-    error?: string;
-}
+  return (
+    <CrudModal
+      show={show}
+      title={step === "form" ? "Convidar usuário" : "Usuário convidado"}
+      onClose={handleClose}
+    >
+      {step === "form" ? (
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          noValidate
+          className="d-flex flex-column gap-3"
+        >
+          <FormInput
+            label="Nome"
+            name="username"
+            value={username}
+            onChange={handleChange}
+            required
+          />
 
-function FormRadioGroup({
-    label,
-    name,
-    value,
-    options,
-    onChange,
-    required = false,
-    error
-}: Props) {
+          <FormInput
+            label="Email"
+            name="email"
+            value={email}
+            onChange={handleChange}
+            required
+          />
 
-    return (
-        <fieldset className={`w-100 mt-4 p-3 border rounded-3 position-relative ${
-                error ? "border-danger" : ""
-            }`} >
+          <FormRadioGroup
+            label="Função"
+            name="role"
+            value={role}
+            onChange={handleChange}
+            options={roleArray}
+            required
+            vertical={true}
+          />
 
-            {/* Label flutuante */}
-            <legend 
-                className="w-auto py-1 px-3 text-white fs-6 position-absolute bg-custom-gray00 rounded-pill"
-                style={{ top: "-1rem", left: "1rem" }}>
-                {label}
-            </legend>
-
-            {/* Radios */}
-            <div className="d-flex flex-wrap gap-3 justify-content-center align-items-start mt-3">
-
-                {options.map((opt, index) => (
-                    <label
-                        key={opt.label}
-                        className="d-flex align-items-center gap-2 px-3 py-2 border rounded-3 w-100 w-md-auto"
-                        style={{ cursor: "pointer" }}
-                    >
-                        <input
-                            type="radio"
-                            name={name}
-                            value={opt.value}
-                            checked={value === opt.value}
-                            onChange={onChange}
-                            className={`form-check-input ${error ? "is-invalid" : ""}`}
-                            required={required && index === 0}
-                        />
-
-                        <span>{opt.label}</span>
-                    </label>
-                ))}
-
-            </div>
-
-            {/* Feedback Bootstrap */}
-            <div className="invalid-feedback">
-                {error || `Selecione uma opção`}
-            </div>
-
-        </fieldset>
-    );
+          <div className="d-flex justify-content-end mt-4">
+            <button
+              type="submit"
+              className="btn-custom btn-custom-success px-4"
+              disabled={loading}
+            >
+              {loading ? "Convidando..." : "Convidar"}
+            </button>
+          </div>
+        </form>
+      ) : (
+        <ShareInviteLink
+          inviteLink={inviteLink}
+          onClose={handleClose}
+          onInviteAnother={handleInviteAnother}
+        />
+      )}
+    </CrudModal>
+  );
 }

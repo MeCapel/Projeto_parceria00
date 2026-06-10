@@ -1,7 +1,7 @@
 // ===== GERAL IMPORTS =====
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Modal } from "react-bootstrap";
-import { Trash3Fill } from "react-bootstrap-icons";
+import { ArrowLeftCircleFill, Trash3Fill } from "react-bootstrap-icons";
 
 import { useUsers } from "../../hooks/useUsers";
 import { useForm } from "../../hooks/useForm";
@@ -9,10 +9,13 @@ import { useForm } from "../../hooks/useForm";
 import CrudPageLayout from "../Others/CrudPageLayout";
 import CrudHeader from "../Others/CrudHeader";
 import SearchInput from "../forms/SearchInput";
+import MultiCheckFilter from "../forms/MultiCheckFilter";
 import CrudList from "../Others/CrudList";
 import { CrudTable } from "../Others/CrudTable";
 import CrudModal from "../Others/CrudModal";
 import FormInput from "../forms/FormInput";
+import InviteUserModal from "../01LoginRelated/RegisterForm";
+import { useNavigate } from "react-router";
 
 // ===== TYPES =====
 interface UserForm {
@@ -24,6 +27,8 @@ interface UserForm {
 // ===== COMPONENT =====
 export default function UsersTab() {
 
+  const navigate = useNavigate();
+
   // ===== HOOK =====
   const {
     users,
@@ -34,23 +39,43 @@ export default function UsersTab() {
     fetchUsers,
     loadMore,
 
-    inviteUser,
     updateUser,
 
     changeUserStatus,
     deleteUser
   } = useUsers();
 
+  // ===== STATUS LABEL MAP =====
+  const statusLabel: Record<string, string> = {
+    active: "Ativo",
+    disabled: "Desativado",
+  };
+
   // ===== STATES =====
   const [search, setSearch] =
     useState("");
 
-  const [statusFilter, setStatusFilter] =
-    useState<
-      "all" |
-      "active" |
-      "disabled"
-    >("all");
+  const [statusFilters, setStatusFilters] =
+    useState<string[]>([]);
+
+  const [roleFilters, setRoleFilters] =
+    useState<string[]>([]);
+
+  const roleLabels: Record<string, string> = {
+    "admin": "Administrador",
+    "coordenador de validacao": "Coordenador de validação",
+    "po": "PO",
+    "tecnico de campo": "Técnico de campo",
+    "tecnico de desenvolvimento de producao": "Integrador",
+  };
+
+  const roleOptions = useMemo(() => {
+    const roles = [...new Set(users.map(u => u.role))];
+    return roles.map(r => ({ label: roleLabels[r] ?? r, value: r }));
+  }, [users]);
+
+  const [showInviteModal, setShowInviteModal] =
+    useState(false);
 
   const [showModal, setShowModal] =
     useState(false);
@@ -67,11 +92,12 @@ export default function UsersTab() {
 
     const [toDelete, setToDelete] = useState<string | null>(null);
 
+    const [isSaving, setIsSaving] = useState(false);
+
   const {
     values,
     setValues,
     handleChange,
-    reset,
   } = useForm<UserForm>({
     username: "",
     email: "",
@@ -81,16 +107,16 @@ export default function UsersTab() {
   // ===== API FILTERS =====
   const apiFilters = useMemo(() => {
 
-    return {
+    let status: "active" | "disabled" | undefined;
+    if (statusFilters.length === 0 || statusFilters.length === 2) {
+      status = undefined;
+    } else {
+      status = statusFilters[0] as "active" | "disabled";
+    }
 
-      status:
-        statusFilter === "all"
-          ? undefined
-          : statusFilter,
+    return { status };
 
-    };
-
-  }, [statusFilter]);
+  }, [statusFilters]);
 
   // ===== INITIAL FETCH =====
   useEffect(() => {
@@ -111,7 +137,7 @@ export default function UsersTab() {
       const q =
         search.toLowerCase();
 
-      return (
+      const matchesSearch =
         u.username
           .toLowerCase()
           .includes(q)
@@ -126,22 +152,24 @@ export default function UsersTab() {
 
         u.role
           .toLowerCase()
-          .includes(q)
+          .includes(q);
+
+      const matchesRole =
+        roleFilters.length === 0
+          || roleFilters.includes(u.role);
+
+      return (
+        matchesSearch &&
+        matchesRole
       );
 
     });
 
-  }, [users, search]);
+  }, [users, search, roleFilters]);
 
   // ===== ACTIONS =====
   const handleNew = () => {
-
-    reset();
-
-    setEditingId(null);
-
-    setShowModal(true);
-
+    setShowInviteModal(true);
   };
 
   const handleEdit = (
@@ -202,36 +230,31 @@ export default function UsersTab() {
       return;
     }
 
-    // ===== UPDATE =====
-    if (editingId)
+    try
     {
+      setIsSaving(true);
 
-      await updateUser({
-        id: editingId,
-        username: values.username,
+      // ===== UPDATE =====
+      if (editingId)
+      {
+        await updateUser({
+          id: editingId,
+          username: values.username,
+        });
+      }
+
+      await fetchUsers({
+        reset: true,
+        limit: 10,
+        filters: apiFilters,
       });
 
+      setShowModal(false);
     }
-
-    // ===== CREATE =====
-    else
+    finally
     {
-
-      await inviteUser({
-        username: values.username,
-        email: values.email,
-        role: values.role,
-      });
-
+      setIsSaving(false);
     }
-
-    await fetchUsers({
-      reset: true,
-      limit: 10,
-      filters: apiFilters,
-    });
-
-    setShowModal(false);
 
   };
 
@@ -285,6 +308,18 @@ export default function UsersTab() {
   // ===== JSX =====
   return (
     <>
+      <div className="ps-5 pt-5 pb-0 pe-0">
+          <button 
+              className="btn-custom btn-custom-link d-flex gap-3 align-items-center border-0 bg-transparent p-0" 
+              onClick={() => navigate(`/admin-dashboard`)}
+          >
+              <ArrowLeftCircleFill size={30} className="text-custom-black" />
+              <p className="text-custom-black fs-5 mb-0 fw-semibold">
+                  voltar
+              </p>
+          </button>
+      </div>
+
       <CrudPageLayout
 
         // ===== HEADER =====
@@ -297,55 +332,32 @@ export default function UsersTab() {
             />
 
             {/* ===== FILTERS ===== */}
-            <div className="d-flex flex-wrap gap-3 pb-3 align-items-center">
+            <div className="d-flex flex-wrap gap-3 pb-3">
 
-              <div
-                className="grow"
-                style={{
-                  minWidth: 260,
-                }}
-              >
-
+              <div className="flex-grow-1">
                 <SearchInput
                   value={search}
                   onChange={setSearch}
                   placeholder="Pesquisar usuário..."
                 />
-
               </div>
 
-              <select
-                className="form-select rounded-3"
+              <MultiCheckFilter
+                label="Status"
+                options={[
+                  { label: "Ativos", value: "active" },
+                  { label: "Desativados", value: "disabled" },
+                ]}
+                selected={statusFilters}
+                onChange={setStatusFilters}
+              />
 
-                style={{
-                  width: 220,
-                }}
-
-                value={statusFilter}
-
-                onChange={(e) =>
-                  setStatusFilter(
-                    e.target.value as
-                      | "all"
-                      | "active"
-                      | "disabled"
-                  )
-                }
-              >
-
-                <option value="all">
-                  Todos status
-                </option>
-
-                <option value="active">
-                  Active
-                </option>
-
-                <option value="disabled">
-                  Disabled
-                </option>
-
-              </select>
+              <MultiCheckFilter
+                label="Função"
+                options={roleOptions}
+                selected={roleFilters}
+                onChange={setRoleFilters}
+              />
 
             </div>
           </>
@@ -411,7 +423,7 @@ export default function UsersTab() {
                                 : "bg-secondary-subtle text-secondary"
                             }`}
                           >
-                            {u.status}
+                            {statusLabel[u.status ?? ""] ?? u.status}
                           </span>
 
                         </td>
@@ -557,8 +569,9 @@ export default function UsersTab() {
                 <button
                   type="submit"
                   className="btn-custom btn-custom-success px-4"
+                  disabled={isSaving}
                 >
-                  Salvar
+                  {isSaving ? "Salvando..." : "Salvar"}
                 </button>
 
               </div>
@@ -635,7 +648,7 @@ export default function UsersTab() {
           <h4 className="fw-bold mb-3">Excluir usuário?</h4>
 
           <p className="text-muted mb-5">
-            Esta ação não pode ser desfeita.
+            ATENÇÃO! Esta ação não pode ser desfeita. Todos os projetos aos quais este usuário for o líder serão EXCLUÍDOS com todos os protótipos e ocorrências respectivas. Caso não tenha certeza simplesmente desative o usuário, ele perderá aceso ao sistema.
           </p>
 
           <div className="d-flex gap-3 justify-content-center">
@@ -655,6 +668,15 @@ export default function UsersTab() {
           </div>
         </Modal.Body>
       </Modal>
+
+      {/* INVITE MODAL */}
+      <InviteUserModal
+        show={showInviteModal}
+        onClose={() => {
+          setShowInviteModal(false);
+          fetchUsers({ reset: true });
+        }}
+      />
     </>
   );
 }

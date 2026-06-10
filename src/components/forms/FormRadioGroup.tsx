@@ -11,6 +11,8 @@ interface Props {
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     required?: boolean;
     error?: string;
+    vertical?: boolean;
+    scrollableMaxHeight?: string;
 }
 
 export default function FormRadioGroup({
@@ -20,23 +22,13 @@ export default function FormRadioGroup({
     options,
     onChange,
     required = false,
-    error
+    error,
+    vertical,
+    scrollableMaxHeight
 }: Props) {
 
-    return (
-        <fieldset className={`w-100 mt-4 p-3 border rounded-3 position-relative ${
-                error ? "border-danger" : ""
-            }`} >
-
-            {/* Label flutuante */}
-            <legend 
-                className="w-auto py-1 px-3 text-white fs-6 position-absolute bg-custom-gray00 rounded-pill"
-                style={{ top: "-1rem", left: "1rem" }}>
-                {label}
-            </legend>
-
-            {/* Radios */}
-            <div className="d-flex flex-column flex-md-row gap-3 justify-content-center align-items-start mt-3">
+    const radioList = (
+        <div className={`d-flex gap-3 justify-content-center align-items-start mt-3 ${vertical ? `flex-column` : `flex-row flex-md-row`}`}>
 
                 {options.map((opt, index) => (
                     <label
@@ -59,6 +51,28 @@ export default function FormRadioGroup({
                 ))}
 
             </div>
+    );
+
+    return (
+        <fieldset className={`w-100 mt-4 p-3 border rounded-3 position-relative ${
+                error ? "border-danger" : ""
+            }`} >
+
+            {/* Label flutuante */}
+            <legend 
+                className="w-auto py-1 px-3 text-white fs-6 position-absolute bg-custom-gray00 rounded-pill"
+                style={{ top: "-1rem", left: "1rem" }}>
+                {label}
+            </legend>
+
+            {/* Radios */}
+            {scrollableMaxHeight ? (
+                <div style={{ maxHeight: scrollableMaxHeight, overflowY: "auto" }}>
+                    {radioList}
+                </div>
+            ) : (
+                radioList
+            )}
 
             {/* Feedback Bootstrap */}
             <div className="invalid-feedback">

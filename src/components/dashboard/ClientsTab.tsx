@@ -1,18 +1,20 @@
 // ===== GERAL IMPORTS =====
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Modal } from "react-bootstrap";
-import { Trash3Fill } from "react-bootstrap-icons";
+import { ArrowLeftCircleFill, Trash3Fill } from "react-bootstrap-icons";
 import { useClients } from "../../hooks/useClients";
 import { useForm } from "../../hooks/useForm";
 import CrudPageLayout from "../Others/CrudPageLayout";
 import CrudHeader from "../Others/CrudHeader";
 import SearchInput from "../forms/SearchInput";
+import MultiCheckFilter from "../forms/MultiCheckFilter";
 import CrudList from "../Others/CrudList";
 import { CrudTable } from "../Others/CrudTable";
 import CrudModal from "../Others/CrudModal";
 import FormInput from "../forms/FormInput";
 import FormFoneInput from "../forms/FormInputFone";
 import SelectLocation from "../Others/SelectLocation";
+import { useNavigate } from "react-router";
 
 // ===== TYPES =====
 interface ClientForm {
@@ -26,6 +28,8 @@ interface ClientForm {
 }
 
 export default function ClientsTab() {
+  const navigate = useNavigate();
+
   // ===== HOOK =====
   const {
     clients,
@@ -42,13 +46,12 @@ export default function ClientsTab() {
   // ===== STATES =====
   const [search, setSearch] = useState("");
 
-  const [statusFilter, setStatusFilter] = useState<
-    "all" | "active" | "disabled"
-  >("all");
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
 
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // ===== FORM =====
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -63,12 +66,22 @@ export default function ClientsTab() {
     area: "",
   });
 
+  // ===== STATUS LABEL MAP =====
+  const statusLabel: Record<string, string> = {
+    active: "Ativo",
+    disabled: "Desativado",
+  };
+
   // ===== API FILTERS =====
   const apiFilters = useMemo(() => {
-    return {
-      status: statusFilter === "all" ? undefined : statusFilter,
-    };
-  }, [statusFilter]);
+    let status: "active" | "disabled" | undefined;
+    if (statusFilters.length === 0 || statusFilters.length === 2) {
+      status = undefined;
+    } else {
+      status = statusFilters[0] as "active" | "disabled";
+    }
+    return { status };
+  }, [statusFilters]);
 
   // ===== INITIAL FETCH =====
   useEffect(() => {
@@ -130,22 +143,31 @@ export default function ClientsTab() {
       return;
     }
 
-    if (editingId) {
-      await updateClient({
-        id: editingId,
-        ...values,
+    try
+    {
+      setIsSaving(true);
+
+      if (editingId) {
+        await updateClient({
+          id: editingId,
+          ...values,
+        });
+      } else {
+        await createClient(values);
+      }
+
+      await fetchClients({
+        reset: true,
+        limit: 10,
+        filters: apiFilters,
       });
-    } else {
-      await createClient(values);
+
+      setShowModal(false);
     }
-
-    await fetchClients({
-      reset: true,
-      limit: 10,
-      filters: apiFilters,
-    });
-
-    setShowModal(false);
+    finally
+    {
+      setIsSaving(false);
+    }
   };
 
   const handleDelete = (id: string) => {
@@ -185,6 +207,18 @@ export default function ClientsTab() {
   // ===== JSX =====
   return (
     <>
+      <div className="ps-5 pt-5 pb-0 pe-0">
+          <button 
+              className="btn-custom btn-custom-link d-flex gap-3 align-items-center border-0 bg-transparent p-0" 
+              onClick={() => navigate(`/admin-dashboard`)}
+          >
+              <ArrowLeftCircleFill size={30} className="text-custom-black" />
+              <p className="text-custom-black fs-5 mb-0 fw-semibold">
+                  voltar
+              </p>
+          </button>
+      </div>
+
       <CrudPageLayout
         header={
           <>
@@ -195,8 +229,8 @@ export default function ClientsTab() {
             />
 
             {/* FILTERS */}
-            <div className="d-flex flex-wrap gap-3 pb-3 align-items-center">
-              <div className="flex-grow-1" style={{ minWidth: 260 }}>
+            <div className="d-flex flex-wrap gap-3 pb-3">
+              <div className="flex-grow-1">
                 <SearchInput
                   value={search}
                   onChange={setSearch}
@@ -204,20 +238,15 @@ export default function ClientsTab() {
                 />
               </div>
 
-              <select
-                className="form-select rounded-3"
-                style={{ width: 220 }}
-                value={statusFilter}
-                onChange={(e) =>
-                  setStatusFilter(
-                    e.target.value as "all" | "active" | "disabled"
-                  )
-                }
-              >
-                <option value="all">Todos status</option>
-                <option value="active">Active</option>
-                <option value="disabled">Disabled</option>
-              </select>
+              <MultiCheckFilter
+                label="Status"
+                options={[
+                  { label: "Ativos", value: "active" },
+                  { label: "Desativados", value: "disabled" },
+                ]}
+                selected={statusFilters}
+                onChange={setStatusFilters}
+              />
             </div>
           </>
         }
@@ -263,7 +292,7 @@ export default function ClientsTab() {
                                 : "bg-secondary-subtle text-secondary"
                             }`}
                           >
-                            {c.status}
+                            {statusLabel[c.status ?? ""] ?? c.status}
                           </span>
                         </td>
                       </>
@@ -355,8 +384,9 @@ export default function ClientsTab() {
                 <button
                   type="submit"
                   className="btn-custom btn-custom-success px-4"
+                  disabled={isSaving}
                 >
-                  Salvar
+                  {isSaving ? "Salvando..." : "Salvar"}
                 </button>
               </div>
             </form>

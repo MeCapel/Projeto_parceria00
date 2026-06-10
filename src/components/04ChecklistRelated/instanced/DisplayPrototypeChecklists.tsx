@@ -36,8 +36,8 @@ export default function DisplayPrototypeChecklists({
     <>
       {checklists.length === 0 ? (
 
-        <div className="alert alert-light border mt-3 rounded-4">
-          Nenhuma checklist cadastrada.
+        <div className="w-100 py-5 text-center border rounded bg-light mt-3">
+          <p className="text-muted mb-0">Nenhuma checklist encontrada.</p>
         </div>
 
       ) : (

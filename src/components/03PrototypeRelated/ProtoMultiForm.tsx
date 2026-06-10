@@ -9,7 +9,11 @@ import Step3 from "./Steps/Step3";
 import { PlusLg } from "react-bootstrap-icons";
 
 interface Props {
-    projectId: string
+    projectId?: string
+    projectOptions?: { value: string; label: string }[]
+    show?: boolean
+    onClose?: () => void
+    onSuccess?: () => void
 }
 
 export interface StepProps {
@@ -17,11 +21,15 @@ export interface StepProps {
   errors: Record<string, string>
   onChange: (name: string, value: string | string[]) => void
   isFieldRequired: (name: string) => boolean
+  projectOptions?: { value: string; label: string }[]
 }
 
-export default function ProtoMultiForm({ projectId }: Props) {
-    const [show, setShow] = useState(false);
+export default function ProtoMultiForm({ projectId, projectOptions, show: controlledShow, onClose, onSuccess }: Props) {
+    const [internalShow, setInternalShow] = useState(false);
     const formRef = useRef<HTMLFormElement | null>(null);
+
+    const isControlled = controlledShow !== undefined;
+    const show = isControlled ? controlledShow : internalShow;
 
     const {
         values,
@@ -43,15 +51,18 @@ export default function ProtoMultiForm({ projectId }: Props) {
     const isLastStep = currentStep === totalSteps - 1;
 
     function openModal() {
-        setShow(true);
+        setInternalShow(true);
     }
 
     function closeModal() {
-        setShow(false);
+        if (onClose) onClose();
+        else setInternalShow(false);
         reset();
     }
 
-    function onSubmit(e: React.FormEvent) {
+    const [isSaving, setIsSaving] = useState(false);
+
+    async function onSubmit(e: React.FormEvent) {
         e.preventDefault();
 
         const form = formRef.current;
@@ -65,19 +76,31 @@ export default function ProtoMultiForm({ projectId }: Props) {
             return;
         }
 
-        handleSubmit(() => {
-            setShow(false);
-        });
+        try
+        {
+            setIsSaving(true);
+            await handleSubmit(() => {
+                if (onClose) onClose();
+                else setInternalShow(false);
+                if (onSuccess) onSuccess();
+            });
+        }
+        finally
+        {
+            setIsSaving(false);
+        }
     }
 
     return (
         <>
-            <button className="btn-custom btn-custom-outline-black" onClick={openModal}>
-                <div className="mb-0 fs-6 d-flex gap-2 align-items-center fw-bold">
-                    <PlusLg size={20} />
-                    Novo protótipo
-                </div>
-            </button>
+            {!isControlled && (
+                <button className="btn-custom btn-custom-outline-black" onClick={openModal}>
+                    <div className="mb-0 fs-6 d-flex gap-2 align-items-center fw-bold">
+                        <PlusLg size={20} />
+                        Novo protótipo
+                    </div>
+                </button>
+            )}
 
             <Modal show={show} onHide={closeModal} centered size="lg">
                 <Modal.Header closeButton className="border-0 mt-3 mx-3" />
@@ -111,6 +134,7 @@ export default function ProtoMultiForm({ projectId }: Props) {
                                 errors={errors}
                                 onChange={handleChange}
                                 isFieldRequired={isFieldRequired}
+                                projectOptions={projectOptions}
                                 />
                             </fieldset>
                             ))}
@@ -146,8 +170,8 @@ export default function ProtoMultiForm({ projectId }: Props) {
                             )}
 
                             {isLastStep && (
-                                <button type="submit" className="btn-custom btn-custom-success">
-                                    Finalizar
+                                <button type="submit" className="btn-custom btn-custom-success" disabled={isSaving}>
+                                    {isSaving ? "Finalizando..." : "Finalizar"}
                                 </button>
                             )}
 

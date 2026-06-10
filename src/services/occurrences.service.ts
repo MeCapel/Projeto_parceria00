@@ -8,12 +8,17 @@ export interface OccurrenceProps {
   name: string;
   description: string;
   criticity: string;
+  criticityLabel: string;
   prototypeId: string;
   image?: string;
   progress: "pendente" | "em andamento" | "concluido";
+  progressLabel: string;
+  actions: string;
+  results: string;
   dueOn: Date | null; // Keep as Date for API
   createdBy?: string;
   createdAt?: Date | Timestamp;
+  status?: "active" | "disabled";
 }
 
 export interface PaginatedOccurrencesResponse {

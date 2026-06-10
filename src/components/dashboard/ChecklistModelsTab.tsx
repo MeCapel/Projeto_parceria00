@@ -1,18 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
 import { Modal } from "react-bootstrap";
-import { Trash3Fill } from "react-bootstrap-icons";
+import { ArrowLeftCircleFill, Trash3Fill } from "react-bootstrap-icons";
 import { useChecklistModels } from "../../hooks/useChecklistModels";
 import type { ChecklistModelInput } from "../04ChecklistRelated/new-models/ChecklistModelForm";
 import CrudPageLayout from "../Others/CrudPageLayout";
 import CrudHeader from "../Others/CrudHeader";
 import SearchInput from "../forms/SearchInput";
+import MultiCheckFilter from "../forms/MultiCheckFilter";
 import CrudList from "../Others/CrudList";
 import { CrudTable } from "../Others/CrudTable";
 import CrudModal from "../Others/CrudModal";
 import ChecklistModelForm from "../04ChecklistRelated/new-models/ChecklistModelForm";
 import { formatDateBR } from "../../utils/date";
+import { useNavigate } from "react-router";
 
 export default function ChecklistModelsTab() {
+  const navigate = useNavigate();
+
   const {
     checklistModels,
 
@@ -28,12 +32,18 @@ export default function ChecklistModelsTab() {
     deleteChecklistModel,
   } = useChecklistModels();
 
+  // ===== STATUS LABEL MAP =====
+  const statusLabel: Record<string, string> = {
+    active: "Ativo",
+    disabled: "Desativado",
+  };
+
   // ===== STATES =====
 
   const [search, setSearch] = useState("");
 
-  const [statusFilter, setStatusFilter] =
-    useState<"all" | "active" | "disabled">("all");
+  const [statusFilters, setStatusFilters] =
+    useState<string[]>([]);
 
   // MULTI SELECT VERTICALS
   const [verticalFilters, setVerticalFilters] =
@@ -48,14 +58,17 @@ export default function ChecklistModelsTab() {
   const [toDelete, setToDelete] =
     useState<string | null>(null);
 
-  // ===== AVAILABLE VERTICALS =====
+  const [isSaving, setIsSaving] =
+    useState(false);
 
-  const availableVerticals = useMemo(() => {
+  // ===== VERTICAL OPTIONS =====
+
+  const verticalOptions = useMemo(() => {
 
     const verticals =
-      checklistModels.map(c => c.vertical);
+      [...new Set(checklistModels.map(c => c.vertical))];
 
-    return [...new Set(verticals)];
+    return verticals.map(v => ({ label: v, value: v }));
 
   }, [checklistModels]);
 
@@ -63,16 +76,16 @@ export default function ChecklistModelsTab() {
 
   const apiFilters = useMemo(() => {
 
-    return {
+    let status: "active" | "disabled" | undefined;
+    if (statusFilters.length === 0 || statusFilters.length === 2) {
+      status = undefined;
+    } else {
+      status = statusFilters[0] as "active" | "disabled";
+    }
 
-      status:
-        statusFilter === "all"
-          ? undefined
-          : statusFilter,
+    return { status };
 
-    };
-
-  }, [statusFilter]);
+  }, [statusFilters]);
 
   // ===== INITIAL FETCH =====
 
@@ -161,27 +174,36 @@ export default function ChecklistModelsTab() {
     data: ChecklistModelInput
   ) => {
 
-    if (editingId) {
+    try
+    {
+      setIsSaving(true);
 
-      await updateChecklistModel(
-        editingId,
-        data
-      );
+      if (editingId) {
 
+        await updateChecklistModel(
+          editingId,
+          data
+        );
+
+      }
+      else {
+
+        await createChecklistModel(data);
+
+      }
+
+      await fetchChecklistModels({
+        reset: true,
+        limit: 10,
+        filters: apiFilters,
+      });
+
+      setShowModal(false);
     }
-    else {
-
-      await createChecklistModel(data);
-
+    finally
+    {
+      setIsSaving(false);
     }
-
-    await fetchChecklistModels({
-      reset: true,
-      limit: 10,
-      filters: apiFilters,
-    });
-
-    setShowModal(false);
   };
 
   const confirmDelete = async () => {
@@ -201,24 +223,6 @@ export default function ChecklistModelsTab() {
 
   // ===== CHECKBOX FILTER =====
 
-  const toggleVerticalFilter = (
-    vertical: string
-  ) => {
-
-    setVerticalFilters(prev => {
-
-      if (prev.includes(vertical)) {
-
-        return prev.filter(v => v !== vertical);
-
-      }
-
-      return [...prev, vertical];
-
-    });
-
-  };
-
   // ===== EDITING ITEM =====
 
   const editingItem =
@@ -230,6 +234,18 @@ export default function ChecklistModelsTab() {
 
   return (
     <>
+      <div className="ps-5 pt-5 pb-0 pe-0">
+          <button 
+              className="btn-custom btn-custom-link d-flex gap-3 align-items-center border-0 bg-transparent p-0" 
+              onClick={() => navigate(`/admin-dashboard`)}
+          >
+              <ArrowLeftCircleFill size={30} className="text-custom-black" />
+              <p className="text-custom-black fs-5 mb-0 fw-semibold">
+                  voltar
+              </p>
+          </button>
+      </div>
+
       <CrudPageLayout
 
         // ===== HEADER =====
@@ -244,111 +260,32 @@ export default function ChecklistModelsTab() {
 
             {/* ===== FILTERS ===== */}
 
-            <div className="d-flex flex-column gap-3 pb-3">
+            <div className="d-flex flex-wrap gap-3 pb-3">
 
-              {/* TOP ROW */}
-              <div className="d-flex flex-wrap gap-3 align-items-start">
-
-                {/* SEARCH */}
-                <div
-                  className="grow"
-                  style={{
-                    minWidth: 260
-                  }}
-                >
-                  <SearchInput
-                    value={search}
-                    onChange={setSearch}
-                    placeholder="Buscar checklist..."
-                  />
-                </div>
-
-                {/* STATUS */}
-                <select
-                  className="form-select rounded-3"
-
-                  style={{
-                    width: 220
-                  }}
-
-                  value={statusFilter}
-
-                  onChange={(e) =>
-                    setStatusFilter(
-                      e.target.value as
-                        | "all"
-                        | "active"
-                        | "disabled"
-                    )
-                  }
-                >
-                  <option value="all">
-                    Todos status
-                  </option>
-
-                  <option value="active">
-                    Active
-                  </option>
-
-                  <option value="disabled">
-                    Disabled
-                  </option>
-
-                </select>
-
+              <div className="flex-grow-1">
+                <SearchInput
+                  value={search}
+                  onChange={setSearch}
+                  placeholder="Buscar checklist..."
+                />
               </div>
 
-              {/* VERTICAL CHECKBOXES */}
-              {availableVerticals.length > 0 && (
+              <MultiCheckFilter
+                label="Status"
+                options={[
+                  { label: "Ativos", value: "active" },
+                  { label: "Desativados", value: "disabled" },
+                ]}
+                selected={statusFilters}
+                onChange={setStatusFilters}
+              />
 
-                <div className="d-flex flex-wrap gap-3">
-
-                  {availableVerticals.map(vertical => {
-
-                    const checked =
-                      verticalFilters.includes(vertical);
-
-                    return (
-                      <label
-                        key={vertical}
-                        className="
-                          d-flex
-                          align-items-center
-                          gap-2
-                          border
-                          rounded-3
-                          px-3
-                          py-2
-                          bg-white
-                          cursor-pointer
-                        "
-                        style={{
-                          cursor: "pointer"
-                        }}
-                      >
-
-                        <input
-                          type="checkbox"
-
-                          checked={checked}
-
-                          onChange={() =>
-                            toggleVerticalFilter(vertical)
-                          }
-                        />
-
-                        <span className="text-secondary">
-                          {vertical}
-                        </span>
-
-                      </label>
-                    );
-
-                  })}
-
-                </div>
-
-              )}
+              <MultiCheckFilter
+                label="Vertical"
+                options={verticalOptions}
+                selected={verticalFilters}
+                onChange={setVerticalFilters}
+              />
 
             </div>
           </>
@@ -401,7 +338,7 @@ export default function ChecklistModelsTab() {
 
                         {/* VERTICAL */}
                         <td className="px-4 text-secondary">
-                          {c.vertical}
+                          {c.verticalLabel}
                         </td>
 
                         {/* VERSION */}
@@ -419,7 +356,7 @@ export default function ChecklistModelsTab() {
                                 : "bg-secondary-subtle text-secondary"
                             }`}
                           >
-                            {c.status}
+                            {statusLabel[c.status ?? ""] ?? c.status}
                           </span>
 
                         </td>
@@ -494,6 +431,8 @@ export default function ChecklistModelsTab() {
               initialData={editingItem}
 
               onSubmit={handleSave}
+
+              loading={isSaving}
             />
 
           </CrudModal>

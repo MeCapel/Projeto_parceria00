@@ -1,30 +1,18 @@
 // ===== IMPORTS =====
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePrototypes } from "../../hooks/usePrototypes";
-import { useForm } from "../../hooks/useForm";
-import CrudModal from "../Others/CrudModal";
-import FormInput from "../forms/FormInput";
-import FormTextarea from "../forms/FormTextarea";
+import { useProjects } from "../../hooks/useProjects";
 import CrudPageLayout from "../Others/CrudPageLayout";
 import CrudHeader from "../Others/CrudHeader";
 import SearchInput from "../forms/SearchInput";
+import MultiCheckFilter from "../forms/MultiCheckFilter";
 import CrudList from "../Others/CrudList";
 import { CrudTable } from "../Others/CrudTable";
 import { formatDateBR } from "../../utils/date";
 import { Modal } from "react-bootstrap";
-import { Trash3Fill } from "react-bootstrap-icons";
+import { ArrowLeftCircleFill, Trash3Fill } from "react-bootstrap-icons";
 import { useNavigate } from "react-router";
-
-// ===== TYPES =====
-interface PrototypeForm {
-  code?: string,
-  name: string;
-  description: string;
-  vertical: string;
-  stage: string,
-  projectId: string;
-  areaSize?: number;
-}
+import ProtoMultiForm from "../03PrototypeRelated/ProtoMultiForm";
 
 interface PrototypesTabProps {
   projectId?: string;
@@ -32,52 +20,67 @@ interface PrototypesTabProps {
 
 export default function PrototypesTab({ projectId }: PrototypesTabProps) {
   const navigate = useNavigate();
-  // ===== HOOK =====
+
+  // ===== HOOKS =====
   const {
     prototypes,
     loading,
     hasMore,
     fetchPrototypes,
     loadMore,
-    createPrototype,
-    updatePrototype,
     changePrototypeStatus,
     deletePrototype,
   } = usePrototypes({ projectId });
 
+  const {
+    projects: allProjects,
+  } = useProjects({});
+
+  // ===== STATUS LABEL MAP =====
+  const statusLabel: Record<string, string> = {
+    active: "Ativo",
+    disabled: "Desativado",
+  };
+
   // ===== STATES =====
   const [search, setSearch] = useState("");
 
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "disabled">("all");
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
 
-  const [showModal, setShowModal] = useState(false);
+  const [verticalFilters, setVerticalFilters] = useState<string[]>([]);
 
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [stageFilters, setStageFilters] = useState<string[]>([]);
+
+  const verticalOptions = useMemo(() => {
+    const values = [...new Set(prototypes.map(p => p.vertical).filter(Boolean))] as string[];
+    return values.map(v => ({ label: v, value: v }));
+  }, [prototypes]);
+
+  const stageOptions = useMemo(() => {
+    const values = [...new Set(prototypes.map(p => p.stage).filter(Boolean))] as string[];
+    return values.map(v => ({ label: v, value: v }));
+  }, [prototypes]);
+
+  const [showProtoForm, setShowProtoForm] = useState(false);
 
   const [toDelete, setToDelete] = useState<string | null>(null);
 
-  // ===== FORM =====
-  const formRef = useRef<HTMLFormElement | null>(null);
-
-  const { values, setValues, handleChange, reset,} = useForm<PrototypeForm>({
-    name: "",
-    description: "",
-    stage: "",
-    vertical: "",
-    projectId: projectId || "",
-    areaSize: undefined,
-  });
+  // ===== PROJECT OPTIONS =====
+  const projectOptions = useMemo(() =>
+    allProjects.map(p => ({ value: p.id, label: p.name })),
+    [allProjects]
+  );
 
   // ===== API FILTERS =====
   const apiFilters = useMemo(() => {
-    return {
-      projectId,
-      status:
-        statusFilter === "all"
-          ? undefined
-          : statusFilter,
-    };
-  }, [projectId, statusFilter]);
+    let status: "active" | "disabled" | undefined;
+    if (statusFilters.length === 0 || statusFilters.length === 2) {
+      status = undefined;
+    } else {
+      status = statusFilters[0] as "active" | "disabled";
+    }
+    return { projectId, status };
+  }, [projectId, statusFilters]);
 
   // ===== INITIAL FETCH =====
   useEffect(() => {
@@ -95,7 +98,7 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
 
       const q = search.toLowerCase();
 
-      return (
+      const matchesSearch =
         p.name
           ?.toLowerCase()
           .includes(q) ||
@@ -106,7 +109,20 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
 
         p.vertical
           ?.toLowerCase()
-          .includes(q)
+          .includes(q);
+
+      const matchesVertical =
+        verticalFilters.length === 0
+          || (p.vertical && verticalFilters.includes(p.vertical));
+
+      const matchesStage =
+        stageFilters.length === 0
+          || (p.stage && stageFilters.includes(p.stage));
+
+      return (
+        matchesSearch &&
+        matchesVertical &&
+        matchesStage
       );
 
     });
@@ -114,76 +130,17 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
   }, [
     prototypes,
     search,
+    verticalFilters,
+    stageFilters,
   ]);
 
   // ===== ACTIONS =====
   const handleNew = () => {
-
-    reset();
-
-    setEditingId(null);
-
-    setValues(prev => ({
-      ...prev,
-      projectId: projectId || "",
-    }));
-
-    setShowModal(true);
+    setShowProtoForm(true);
   };
 
   const handleNavigate = (id: string) => {
-    navigate(`/projects/${projectId}/${id}`);
-  };
-
-  const handleSave = async (
-    e: React.FormEvent
-  ) => {
-
-    e.preventDefault();
-
-    const form =
-      formRef.current;
-
-    if (!form) return;
-
-    form.classList.add(
-      "was-validated"
-    );
-
-    if (!form.checkValidity())
-    {
-      const firstInvalid =
-        form.querySelector<HTMLElement>(
-          ":invalid"
-        );
-
-      if (firstInvalid)
-      {
-        firstInvalid.focus();
-      }
-
-      return;
-    }
-
-    if (editingId)
-    {
-      await updatePrototype({
-        id: editingId,
-        ...values,
-      });
-    }
-    else
-    {
-      await createPrototype(values);
-    }
-
-    await fetchPrototypes({
-      reset: true,
-      limit: 10,
-      filters: apiFilters,
-    });
-
-    setShowModal(false);
+    navigate(`/admin-prototype/${id}`);
   };
 
   const handleDelete = (
@@ -236,6 +193,18 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
   // ===== JSX =====
   return (
     <>
+      <div className="ps-5 pt-5 pb-0 pe-0">
+          <button 
+              className="btn-custom btn-custom-link d-flex gap-3 align-items-center border-0 bg-transparent p-0" 
+              onClick={() => navigate(`/admin-dashboard`)}
+          >
+              <ArrowLeftCircleFill size={30} className="text-custom-black" />
+              <p className="text-custom-black fs-5 mb-0 fw-semibold">
+                  voltar
+              </p>
+          </button>
+      </div>
+
       <CrudPageLayout
 
         header={
@@ -246,14 +215,9 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
               onNew={handleNew}
             />
 
-            <div className="d-flex flex-wrap gap-3 pb-3 align-items-center">
+            <div className="d-flex flex-wrap gap-3 pb-3">
 
-              <div
-                className="grow"
-                style={{
-                  minWidth: 260
-                }}
-              >
+              <div className="flex-grow-1">
                 <SearchInput
                   value={search}
                   onChange={setSearch}
@@ -261,37 +225,29 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
                 />
               </div>
 
-              <select
-                className="form-select rounded-3"
+              <MultiCheckFilter
+                label="Status"
+                options={[
+                  { label: "Ativos", value: "active" },
+                  { label: "Desativados", value: "disabled" },
+                ]}
+                selected={statusFilters}
+                onChange={setStatusFilters}
+              />
 
-                style={{
-                  width: 220
-                }}
+              <MultiCheckFilter
+                label="Vertical"
+                options={verticalOptions}
+                selected={verticalFilters}
+                onChange={setVerticalFilters}
+              />
 
-                value={statusFilter}
-
-                onChange={(e) =>
-                  setStatusFilter(
-                    e.target.value as
-                      | "all"
-                      | "active"
-                      | "disabled"
-                  )
-                }
-              >
-                <option value="all">
-                  Todos status
-                </option>
-
-                <option value="active">
-                  Active
-                </option>
-
-                <option value="disabled">
-                  Disabled
-                </option>
-
-              </select>
+              <MultiCheckFilter
+                label="Etapa"
+                options={stageOptions}
+                selected={stageFilters}
+                onChange={setStageFilters}
+              />
 
             </div>
           </>
@@ -337,11 +293,11 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
                         </td>
 
                         <td className="px-4 text-secondary">
-                          {p.vertical}
+                          {p.verticalLabel}
                         </td>
 
                         <td className="px-4 text-secondary">
-                          {p.stage}
+                          {p.stageLabel}
                         </td>
 
                         <td className="px-4 text-secondary">
@@ -353,7 +309,7 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
                                 : "bg-secondary-subtle text-secondary"
                             }`}
                           >
-                            {p.status}
+                            {statusLabel[p.status ?? ""] ?? p.status}
                           </span>
 
                         </td>
@@ -404,110 +360,19 @@ export default function PrototypesTab({ projectId }: PrototypesTabProps) {
           </>
         }
 
-        // ===== MODAL =====
-        modal={
-          <CrudModal
-            show={showModal}
+      />
 
-            title={
-              editingId
-                ? "Editar protótipo"
-                : "Novo protótipo"
-            }
-
-            onClose={() =>
-              setShowModal(false)
-            }
-
-            edit={!!editingId}
-          >
-
-            <form
-              ref={formRef}
-
-              onSubmit={handleSave}
-
-              noValidate
-
-              className="d-flex flex-column gap-3"
-            >
-
-              <div className="d-flex gap-3">
-
-                <div className="form-floating w-100">
-                  <input 
-                      name="code"
-                      value={values.code}
-                      placeholder="Código"
-                      onChange={handleChange}
-                      minLength={3}
-                      maxLength={55}
-                      className="form-control"
-                  />
-
-                  <label>Código</label>
-                </div>
-
-                <FormInput
-                  label="Nome"
-                  name="name"
-                  value={values.name}
-                  onChange={handleChange}
-                  required
-                />
-
-              </div>
-
-              <FormTextarea
-                label="Descrição"
-                name="description"
-                value={values.description}
-                onChange={handleChange}
-                required
-              />
-
-              <div className="d-flex gap-3">
-
-                <FormInput
-                  label="Fase"
-                  name="stage"
-                  value={values.stage}
-                  onChange={handleChange}
-                  required
-                />
-
-                <FormInput
-                  label="Vertical"
-                  name="vertical"
-                  value={values.vertical}
-                  onChange={handleChange}
-                  required
-                />
-
-              </div>
-
-              <FormInput
-                label="Área (ha)"
-                name="areaSize"
-                type="number"
-                value={String(values.areaSize || "")}
-                onChange={handleChange}
-              />
-
-              <div className="d-flex justify-content-end mt-4">
-
-                <button
-                  type="submit"
-                  className="btn-custom btn-custom-success px-4"
-                >
-                  Salvar
-                </button>
-
-              </div>
-
-            </form>
-
-          </CrudModal>
+      {/* ===== PROTO MULTI FORM (creation) ===== */}
+      <ProtoMultiForm
+        show={showProtoForm}
+        onClose={() => setShowProtoForm(false)}
+        projectOptions={projectOptions}
+        onSuccess={() =>
+          fetchPrototypes({
+            reset: true,
+            limit: 10,
+            filters: apiFilters,
+          })
         }
       />
 

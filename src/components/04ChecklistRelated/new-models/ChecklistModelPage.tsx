@@ -24,7 +24,7 @@ export default function ChecklistModelPage() {
 
     createChecklistModel,
     updateChecklistModel,
-    deleteChecklistModel,
+    changeChecklistModelStatus,
   } = useChecklistModels();
 
   // ===== STATES =====
@@ -121,7 +121,7 @@ export default function ChecklistModelPage() {
 
     if (!toDelete) return;
 
-    await deleteChecklistModel(toDelete);
+    await changeChecklistModelStatus(toDelete, "disabled");
 
     await fetchChecklistModels({
       reset: true,
@@ -291,11 +291,11 @@ export default function ChecklistModelPage() {
           />
 
           <h4 className="fw-bold mb-3">
-            Excluir modelo de checklist?
+            Desativar modelo de checklist?
           </h4>
 
           <p className="text-muted mb-5">
-            Esta ação não pode ser desfeita.
+            O modelo de checklist será desativado.
           </p>
 
           <div className="d-flex gap-3 justify-content-center">
@@ -313,7 +313,7 @@ export default function ChecklistModelPage() {
 
               onClick={confirmDelete}
             >
-              Excluir
+              Desativar
             </button>
 
           </div>

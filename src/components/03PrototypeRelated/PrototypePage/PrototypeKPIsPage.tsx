@@ -69,6 +69,13 @@ export default function PrototypeKPIsPage({ prototypeId }: Props) {
   }
 
   return (
+    <>
+      <div className="d-flex align-items-center justify-content-between mb-3">
+        <div>
+          <h4 className="fw-bold text-custom-black mb-0">KPI's do protótipo</h4>
+          <small className="text-muted">Acompanhe as métricas do protótipo</small>
+        </div>
+      </div>
     <div className="d-flex flex-wrap gap-3 justify-content-between">
       <PieChart
         title="Progresso das ocorrências do protótipo"
@@ -83,5 +90,6 @@ export default function PrototypeKPIsPage({ prototypeId }: Props) {
         height={450}
       />
     </div>
+    </>
   );
 }

@@ -1,6 +1,6 @@
 // ===== IMPORTS =====
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useLocation } from "react-router";
 
 import { Modal } from "react-bootstrap";
 
@@ -30,6 +30,14 @@ export default function PrototypePage() {
   const { prototypeid } =
     useParams();
 
+  const location =
+    useLocation();
+
+  const isAdminContext =
+    location.pathname.startsWith(
+      "/admin-prototype"
+    );
+
   const {
     prototype,
     loading,
@@ -39,7 +47,7 @@ export default function PrototypePage() {
     updatePrototype,
     patchPrototype,
 
-    deletePrototype,
+    changePrototypeStatus,
   } = usePrototypes();
 
   // ===== STATES =====
@@ -83,35 +91,16 @@ export default function PrototypePage() {
     {
       await updatePrototype({
         id: prototype.id,
-
-        code:
-          prototype.code,
-
-        name:
-          prototype.name,
-
-        description:
-          prototype.description,
-
-        stage:
-          prototype.stage
-            ?.toLowerCase() || "",
-
-        vertical:
-          prototype.vertical
-            ?.toLowerCase() || "",
-
-        projectId:
-          prototype.projectId,
-
-        clientId:
-          prototype.clientId || undefined,
-
-        location:
-          prototype.location,
-
-        areaSize:
-          prototype.areaSize
+        code: prototype.code,
+        name: prototype.name,
+        description: prototype.description,
+        image:prototype.image,
+        stage: prototype.stage ?.toLowerCase() || "",
+        vertical: prototype.vertical ?.toLowerCase() || "",
+        projectId: prototype.projectId,
+        clientId: prototype.clientId || undefined,
+        location: prototype.location,
+        areaSize: prototype.areaSize
             ? Number(prototype.areaSize)
             : undefined,
       });
@@ -129,12 +118,15 @@ export default function PrototypePage() {
 
     try
     {
-      await deletePrototype(
-        prototype.id
+      await changePrototypeStatus(
+        prototype.id,
+        "disabled"
       );
 
       navigate(
-        `/projects/${prototype.projectId}`
+        isAdminContext
+          ? "/prototypes-dashboard"
+          : `/projects/${prototype.projectId}`
       );
     }
     catch (err)
@@ -222,7 +214,9 @@ export default function PrototypePage() {
 
           onClick={() =>
             navigate(
-              `/projects/${prototype.projectId}`
+              isAdminContext
+                ? "/prototypes-dashboard"
+                : `/projects/${prototype.projectId}`
             )
           }
         >
@@ -233,7 +227,7 @@ export default function PrototypePage() {
           />
 
           <p className="text-custom-black fs-5 mb-0 fw-semibold">
-            voltar ao projeto
+            {isAdminContext ? "voltar aos protótipos" : "voltar ao projeto"}
           </p>
 
         </button>
@@ -358,11 +352,11 @@ export default function PrototypePage() {
             />
 
             <h4 className="fw-bold mb-3">
-              Excluir protótipo?
+              Desativar protótipo?
             </h4>
 
             <p className="text-muted mb-5">
-              Esta ação não pode ser desfeita.
+              O protótipo será desativado.
             </p>
 
             <div className="d-flex gap-3 justify-content-center">
@@ -380,7 +374,7 @@ export default function PrototypePage() {
 
                 onClick={handleDelete}
               >
-                Excluir
+                Desativar
               </button>
 
             </div>

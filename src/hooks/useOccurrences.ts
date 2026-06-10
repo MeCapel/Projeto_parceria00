@@ -22,6 +22,7 @@ interface FetchOccurrencesOptions {
 
 interface UseOccurrencesProps {
   prototypeId?: string;
+  status?: "active" | "disabled";
 }
 
 // ===== HOOK =====
@@ -119,10 +120,11 @@ export const useOccurrences = (props?: UseOccurrencesProps) => {
       reset: true,
       filters: {
         prototypeId,
+        status: props?.status,
       },
     });
 
-  }, [prototypeId]);
+  }, [prototypeId, props?.status]);
 
   // ===== GET ONE =====
   const getOccurrence = async (id: string) => {
@@ -144,9 +146,9 @@ export const useOccurrences = (props?: UseOccurrencesProps) => {
     {
       const result = await createOccurrenceService(data);
 
-      // await fetchOccurrences({ reset: true, filters });
+      await fetchOccurrences({ reset: true, filters });
 
-      setOccurrences(prev => [ result, ...prev ]);
+      // setOccurrences(prev => [ result, ...prev ]);
 
       return result;
     }
@@ -164,15 +166,15 @@ export const useOccurrences = (props?: UseOccurrencesProps) => {
     {
       const result = await updateOccurrenceService(id, data);
 
-      // await fetchOccurrences({ reset: true, filters });
+      await fetchOccurrences({ reset: true, filters });
 
-      setOccurrences(prev =>
-        prev.map(occurrence =>
-          occurrence.id === id
-            ? result
-            : occurrence
-        )
-      );
+      // setOccurrences(prev =>
+      //   prev.map(occurrence =>
+      //     occurrence.id === id
+      //       ? result
+      //       : occurrence
+      //   )
+      // );
 
       return result;
     }

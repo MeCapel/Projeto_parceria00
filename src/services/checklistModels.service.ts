@@ -23,6 +23,7 @@ export interface ChecklistModelProps {
   normalizedName?: string,
 
   vertical: string;
+  verticalLabel: string;
   
   categories: ChecklistCategory[];
   

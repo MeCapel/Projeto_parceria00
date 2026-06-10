@@ -1,7 +1,6 @@
 import { type StepProps } from "../ProtoMultiForm";
 import FormRadioGroup from "../../forms/FormRadioGroup";
-import FormInput from "../../forms/FormInput";
-import SelectLocation from "../../Others/SelectLocation";
+import ClientSelector from "../../08ClientsRelated/ClientSelector";
 
 export default function Step2({ values, errors, onChange, isFieldRequired }: StepProps) {
     const stageArray = [
@@ -12,7 +11,6 @@ export default function Step2({ values, errors, onChange, isFieldRequired }: Ste
     
     return (
         <div className="">
-            {/* 🔵 Radio select div status */}
             <FormRadioGroup
                 label="Etapa"
                 name="stage"
@@ -23,27 +21,23 @@ export default function Step2({ values, errors, onChange, isFieldRequired }: Ste
                 error={errors.stage}
             />
 
-            {values.stage === "Validação de campo" && (
+            {values.stage === "validacao de campo" && (
 
                 <div className="d-flex flex-column my-4 gap-3" style={{ overflow: "auto"}}>
 
-                    <div className="d-flex justify-content-between gap-3">
+                    <ClientSelector
+                        value={values.clientId}
+                        onSelect={(client) => {
+                            onChange("clientId", client.id);
+                            onChange("state", client.state);
+                            onChange("city", client.city);
+                            onChange("areaSize", client.area || "");
+                        }}
+                        hideNewClientButton
+                        error={errors.clientId}
+                        required={isFieldRequired("clientId")}
+                    />
 
-                        <SelectLocation
-                            stateValue={values.state || ""}
-                            cityValue={values.city || ""}
-                            onChangeState={(e) => onChange("state", e.target.value)}
-                            onChangeCity={(e) => onChange("city", e.target.value)}
-                        />
-
-                        <FormInput
-                            label="Área"
-                            name="areaSize"
-                            value={values.areaSize ?? ""}
-                            onChange={e => onChange("areaSize", e.target.value)}
-                            required={isFieldRequired("areaSize")}
-                        />
-                    </div>
                 </div>
             )}
     </div>

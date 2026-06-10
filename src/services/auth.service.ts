@@ -133,8 +133,6 @@ export const inviteUser = async (data: { username: string, email: string, role: 
     try 
     {
         const res = await api.post("/invite", {userCreated: data});
-        console.log("Link para a nova conta: ", res.data.inviteLink);
-        alert(`Link de redefinição:\n${res.data.inviteLink}`);
         return res.data;
     } 
     catch (err) 

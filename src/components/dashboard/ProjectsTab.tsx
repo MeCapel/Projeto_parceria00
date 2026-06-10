@@ -1,17 +1,19 @@
 // ===== GERAL IMPORTS =====
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Modal } from "react-bootstrap";
-import { Trash3Fill } from "react-bootstrap-icons";
+import { ArrowLeftCircleFill, Trash3Fill } from "react-bootstrap-icons";
 import { useProjects } from "../../hooks/useProjects";
 import { useForm } from "../../hooks/useForm";
 import CrudPageLayout from "../Others/CrudPageLayout";
 import CrudHeader from "../Others/CrudHeader";
 import SearchInput from "../forms/SearchInput";
+import MultiCheckFilter from "../forms/MultiCheckFilter";
 import CrudList from "../Others/CrudList";
 import { CrudTable } from "../Others/CrudTable";
 import CrudModal from "../Others/CrudModal";
 import FormInput from "../forms/FormInput";
 import { formatDateBR } from "../../utils/date";
+import { useNavigate } from "react-router";
 
 // ===== TYPES =====
 interface ProjectForm {
@@ -21,6 +23,7 @@ interface ProjectForm {
 }
 
 export default function ProjectsTab() {
+  const navigate = useNavigate();
 
   // ===== HOOK =====
   const {
@@ -35,29 +38,24 @@ export default function ProjectsTab() {
     deleteProject,
   } = useProjects();
 
+  // ===== STATUS LABEL MAP =====
+  const statusLabel: Record<string, string> = {
+    active: "Ativo",
+    disabled: "Desativado",
+  };
+
   // ===== STATES =====
-  const [search, setSearch] =
-    useState("");
+  const [search, setSearch] = useState("");
 
-  const [statusFilter, setStatusFilter] =
-    useState<
-      "all" |
-      "active" |
-      "disabled"
-    >("all");
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
 
-  const [showModal, setShowModal] =
-    useState(false);
-
-  const [editingId, setEditingId] =
-    useState<string | null>(null);
-
-  const [toDelete, setToDelete] =
-    useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [toDelete, setToDelete] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // ===== FORM =====
-  const formRef =
-    useRef<HTMLFormElement | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   const {
     values,
@@ -72,17 +70,14 @@ export default function ProjectsTab() {
 
   // ===== API FILTERS =====
   const apiFilters = useMemo(() => {
-
-    return {
-
-      status:
-        statusFilter === "all"
-          ? undefined
-          : statusFilter,
-
-    };
-
-  }, [statusFilter]);
+    let status: "active" | "disabled" | undefined;
+    if (statusFilters.length === 0 || statusFilters.length === 2) {
+      status = undefined;
+    } else {
+      status = statusFilters[0] as "active" | "disabled";
+    }
+    return { status };
+  }, [statusFilters]);
 
   // ===== INITIAL FETCH =====
   useEffect(() => {
@@ -122,30 +117,19 @@ export default function ProjectsTab() {
   // ===== ACTIONS =====
 
   const handleNew = () => {
-
     reset();
-
     setEditingId(null);
-
     setShowModal(true);
-
   };
 
-  const handleEdit = (
-    id: string
-  ) => {
+  const handleEdit = (id: string) => {
 
-    const project =
-      projects.find(
-        (p) => p.id === id
-      );
+    const project = projects.find((p) => p.id === id);
 
     if (!project) return;
 
     setEditingId(id);
-
     setShowModal(true);
-
     setValues({
       name: project.name,
       description: project.description || "",
@@ -154,70 +138,55 @@ export default function ProjectsTab() {
 
   };
 
-  const handleSave = async (
-    e: React.FormEvent
-  ) => {
-
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const form =
-      formRef.current;
+    const form = formRef.current;
 
     if (!form) return;
 
-    form.classList.add(
-      "was-validated"
-    );
+    form.classList.add("was-validated");
 
     if (!form.checkValidity())
     {
-      const firstInvalid =
-        form.querySelector<HTMLElement>(
-          ":invalid"
-        );
+      const firstInvalid = form.querySelector<HTMLElement>(":invalid");
 
-      if (firstInvalid)
-      {
-        firstInvalid.focus();
-      }
+      if (firstInvalid) firstInvalid.focus();
 
       return;
     }
 
-    // ===== UPDATE =====
-    if (editingId)
+    try
     {
+      setIsSaving(true);
 
-      await updateProject({
-        id: editingId,
-        ...values,
+      // ===== UPDATE =====
+      if (editingId)
+      {
+        await updateProject({ id: editingId, ...values });
+      }
+
+      // ===== CREATE =====
+      else
+      {
+        await createProject(values);
+      }
+
+      await fetchProjects({
+        reset: true,
+        limit: 10,
+        filters: apiFilters,
       });
 
+      setShowModal(false);
     }
-
-    // ===== CREATE =====
-    else
+    finally
     {
-      await createProject(values);
+      setIsSaving(false);
     }
-
-    await fetchProjects({
-      reset: true,
-      limit: 10,
-      filters: apiFilters,
-    });
-
-    setShowModal(false);
-
   };
 
-  const handleDelete = (
-    id: string
-  ) => {
-
-    setToDelete(id);
-
-  };
+  const handleDelete = (id: string) => { setToDelete(id) };
 
   const confirmDelete = async () => {
 
@@ -232,37 +201,37 @@ export default function ProjectsTab() {
     });
 
     setToDelete(null);
-
   };
 
-  const handleStatusChange = async (
-    id: string,
-    currentStatus:
-      | "active"
-      | "disabled"
-  ) => {
-
-    const newStatus =
-      currentStatus === "active"
+  const handleStatusChange = async (id: string, currentStatus: "active" | "disabled") => {
+    const newStatus = currentStatus === "active"
         ? "disabled"
         : "active";
 
-    await changeProjectStatus(
-      id,
-      newStatus
-    );
+    await changeProjectStatus(id, newStatus);
 
     await fetchProjects({
       reset: true,
       limit: 10,
       filters: apiFilters,
     });
-
   };
 
   // ===== JSX =====
   return (
     <>
+      <div className="ps-5 pt-5 pb-0 pe-0">
+          <button 
+              className="btn-custom btn-custom-link d-flex gap-3 align-items-center border-0 bg-transparent p-0" 
+              onClick={() => navigate(`/admin-dashboard`)}
+          >
+              <ArrowLeftCircleFill size={30} className="text-custom-black" />
+              <p className="text-custom-black fs-5 mb-0 fw-semibold">
+                  voltar
+              </p>
+          </button>
+      </div>
+
       <CrudPageLayout
 
         // ===== HEADER =====
@@ -275,59 +244,28 @@ export default function ProjectsTab() {
             />
 
             {/* ===== FILTERS ===== */}
-            <div className="d-flex flex-wrap gap-3 pb-3 align-items-center">
+            <div className="d-flex flex-wrap gap-3 pb-3">
 
-              {/* SEARCH */}
-              <div
-                className="flex-grow-1"
-                style={{
-                  minWidth: 260,
-                }}
-              >
-
+              <div className="flex-grow-1">
                 <SearchInput
                   value={search}
                   onChange={setSearch}
                   placeholder="Pesquisar projeto..."
                 />
-
               </div>
 
-              {/* STATUS */}
-              <select
-                className="form-select rounded-3"
-
-                style={{
-                  width: 220,
-                }}
-
-                value={statusFilter}
-
-                onChange={(e) =>
-                  setStatusFilter(
-                    e.target.value as
-                      | "all"
-                      | "active"
-                      | "disabled"
-                  )
-                }
-              >
-
-                <option value="all">
-                  Todos status
-                </option>
-
-                <option value="active">
-                  Active
-                </option>
-
-                <option value="disabled">
-                  Disabled
-                </option>
-
-              </select>
+              <MultiCheckFilter
+                label="Status"
+                options={[
+                  { label: "Ativos", value: "active" },
+                  { label: "Desativados", value: "disabled" },
+                ]}
+                selected={statusFilters}
+                onChange={setStatusFilters}
+              />
 
             </div>
+
           </>
         }
 
@@ -375,7 +313,7 @@ export default function ProjectsTab() {
 
                         {/* DESCRIPTION */}
                         <td className="px-4 text-secondary">
-                          {p.description || "-"}
+                          {(p.description && p.description.length > 25 ? p.description.substring(0, 25) + "..." : p.description) || "-"}
                         </td>
 
                         {/* MEMBERS */}
@@ -405,7 +343,7 @@ export default function ProjectsTab() {
                                 : "bg-secondary-subtle text-secondary"
                             }`}
                           >
-                            {p.status}
+                            {statusLabel[p.status ?? ""] ?? p.status}
                           </span>
 
                         </td>
@@ -472,34 +410,33 @@ export default function ProjectsTab() {
 
             <form
               ref={formRef}
-
               onSubmit={handleSave}
-
               noValidate
-
               className="d-flex flex-column gap-3"
             >
 
               <FormInput
                 label="Nome"
-
                 name="name"
-
                 value={values.name}
-
                 onChange={handleChange}
-
                 required
               />
 
               <FormInput
                 label="Descrição"
-
                 name="description"
-
                 value={values.description}
-
                 onChange={handleChange}
+              />
+
+              <FormInput
+                label="Líder"
+                name="leader"
+                value={values.leader}
+                onChange={handleChange}
+                required
+                minLength={3}
               />
 
               <div className="d-flex justify-content-end mt-4">
@@ -507,8 +444,9 @@ export default function ProjectsTab() {
                 <button
                   type="submit"
                   className="btn-custom btn-custom-success px-4"
+                  disabled={isSaving}
                 >
-                  Salvar
+                  {isSaving ? "Salvando..." : "Salvar"}
                 </button>
 
               </div>

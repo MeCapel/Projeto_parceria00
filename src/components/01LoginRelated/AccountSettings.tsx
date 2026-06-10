@@ -1,10 +1,10 @@
 // ===== GERAL IMPORTS ======
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
-import { useState, useEffect, useContext } from "react";
-import { PersonCircle, BoxArrowRight, InfoCircle, PersonAdd } from "react-bootstrap-icons";
+import { useContext } from "react";
+import { PersonCircle, BoxArrowRight, InfoCircle } from "react-bootstrap-icons";
 import { AuthContext } from "../../context/AuthContext";
-import { listenCurrentUser, logout, type UserProps } from "../../services/auth.service";
+import { logout } from "../../services/auth.service";
 
 // ===== INTERFACE TYPES =====
 interface AccountSettingsProps {
@@ -17,30 +17,19 @@ interface AccountSettingsProps {
 // ----- Componente responsável por exbir pequeno menu de ações relacionadas a conta do usuário ao criar na foto de perfil no canto direito superior ----- 
 export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSettingsProps)
 {
-    const { user, loading } = useContext(AuthContext);
-    const [ userData, setUserData ] = useState<UserProps | null>(null);
+    const { user } = useContext(AuthContext);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if (loading || !user) return;
-
-        const unsubscribe = listenCurrentUser((data) => {
-            setUserData(data);
-        });
-
-        return () => unsubscribe();
-    }, [user, loading]);
 
     return(
         <div className="d-flex justify-content-center">
             {/* Botão do Header */}
             <button 
                 className={ isOpen ? "d-flex align-items-center btn-custom btn-custom-gray shadow-sm overflow-hidden" : "d-flex align-items-center text-custom-black btn-custom overflow-hidden" }
-                style={{ borderRadius: "50%", padding: userData?.profileImage ? "0px" : "8px", width: "45px", height: "45px" }}
+                style={{ borderRadius: "50%", padding: user?.profileImage ? "0px" : "8px", width: "45px", height: "45px" }}
                 onClick={ () => (isOpen ? onClose() : onOpen() ) }
             >
-                {userData?.profileImage ? (
-                    <img src={userData.profileImage} alt="Me" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                {user?.profileImage ? (
+                    <img src={user.profileImage} alt="Me" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                     <PersonCircle size={28} />
                 )}
@@ -67,30 +56,20 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
                                         className="d-flex align-items-center justify-content-center rounded-circle border bg-light shadow-sm overflow-hidden"
                                         style={{ width: '60px', height: '60px', flexShrink: 0 }}
                                     >
-                                            {userData?.profileImage ? (
-                                                <img src={userData.profileImage} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            {user?.profileImage ? (
+                                                <img src={user.profileImage} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             ) : (
                                                 <PersonCircle size={40} className="text-secondary" />
                                             )}
                                     </div>
 
                                     <div className="overflow-hidden">
-                                        <p className="fs-5 mb-0 fw-bold text-dark text-truncate">{userData?.username || "Usuário"}</p>
+                                        <p className="fs-5 mb-0 fw-bold text-dark text-truncate">{user?.username || "Usuário"}</p>
                                         <p className="small mb-0 text-muted text-truncate">{user?.email}</p>
                                     </div>
                                 </div>
 
                                 <div className="d-flex flex-column gap-2">
-                                    <button
-                                        className="btn-custom btn-custom-gray d-flex gap-3 align-items-center w-100 justify-content-start py-2 border-0 rounded-3"
-                                        onClick={() => {
-                                            onClose();
-                                            navigate("/signup");
-                                        }}
-                                    >
-                                        <PersonAdd size={20}/>
-                                        <span className="fw-semibold">Convidar</span>
-                                    </button>
                                     <button
                                         className="btn-custom btn-custom-gray d-flex gap-3 align-items-center w-100 justify-content-start py-2 border-0 rounded-3"
                                         onClick={() => {
@@ -109,6 +88,7 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
                                         onClick={async () => {
                                             onClose();
                                             await logout();
+                                            navigate("/login");
                                         }}
                                     >
                                         <BoxArrowRight size={20}/>

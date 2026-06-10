@@ -1,11 +1,10 @@
 import { useRef, useState } from "react"
-import { FiletypeDocx, Paperclip, Trash3Fill, XCircleFill } from "react-bootstrap-icons"
+import { FiletypeDocx, Paperclip, PlusLg, Trash3Fill, XCircleFill } from "react-bootstrap-icons"
 import { Modal } from "react-bootstrap"
 import type { Timestamp } from "firebase/firestore"
 import { useOccurrences } from "../../../hooks/useOccurrences"
 import { useForm } from "../../../hooks/useForm"
 import { useImageUpload } from "../../../hooks/useImageUpload"
-import CrudHeader from "../../Others/CrudHeader"
 import { CrudTable } from "../../Others/CrudTable"
 import { formatDateBR } from "../../../utils/date"
 import { showErrorToast } from "../../../utils/errorToast"
@@ -16,13 +15,17 @@ import FormTextarea from "../../forms/FormTextarea"
 import FormRadioGroup from "../../forms/FormRadioGroup"
 import FormDatePicker from "../../forms/FormDatePicker"
 
-interface OccurrenceForm {
+export interface OccurrenceForm {
     name: string;
     description: string;
     criticity: string;
+    criticityLabel: string;
     image?: string;
     prototypeId: string;
-    progress: "pendente" | "em andamento" | "concluido" ,
+    progress: "pendente" | "em andamento" | "concluido",
+    progressLabel: string;
+    actions: string;
+    results: string;
     dueOn: Date | null,
     createdAt: Date | Timestamp;
 }
@@ -45,7 +48,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
         {label: "Concluído", value: "concluido"},
     ];
 
-    const { occurrences, createOccurrence, updateOccurrence, deleteOccurrence } = useOccurrences({ prototypeId });
+    const { occurrences, createOccurrence, updateOccurrence, changeOccurrencesStatus, fetchOccurrences } = useOccurrences({ prototypeId, status: "active" });
 
     const [showModal, setShowModal] = useState(false);
     const [editingOccurrenceId, setEditingOccurrence] = useState<string | null>(null);
@@ -60,9 +63,13 @@ export default function OccurrencesPage({ prototypeId }: Props)
         name: "",
         description: "",
         criticity: "",
+        criticityLabel: "",
         image: "",
         prototypeId,
         progress: "pendente",
+        progressLabel: "Pendente",
+        actions: "",
+        results: "",
         dueOn: null,
     });
 
@@ -94,9 +101,13 @@ export default function OccurrencesPage({ prototypeId }: Props)
             name: "",
             description: "",
             criticity: "",
+            criticityLabel: "",
             image: "",
             prototypeId,
             progress: "pendente",
+            progressLabel: "Pendente",
+            actions: "",
+            results: "",
             dueOn: null,
         });
 
@@ -118,8 +129,12 @@ export default function OccurrencesPage({ prototypeId }: Props)
             name: occurrence.name,
             description: occurrence.description,
             criticity: occurrence.criticity,
+            criticityLabel: occurrence.criticityLabel,
             prototypeId: occurrence.prototypeId || "",
             progress: occurrence.progress,
+            progressLabel: occurrence.progressLabel,
+            actions: occurrence.actions,
+            results: occurrence.results,
             dueOn: occurrence.dueOn || null,
         });
     };
@@ -167,7 +182,8 @@ export default function OccurrencesPage({ prototypeId }: Props)
     const confirmDelete = async () => {
         if (!occurrenceToDelete) return;
 
-        await deleteOccurrence(occurrenceToDelete);
+        await changeOccurrencesStatus(occurrenceToDelete, "disabled");
+        await fetchOccurrences({ reset: true });
         setOccurrenceToDelete(null);
     };
 
@@ -215,11 +231,27 @@ export default function OccurrencesPage({ prototypeId }: Props)
     // ================= RENDER =================
     return (
         <div>
-            <CrudHeader
-                title="Ocorrências do protótipo"
-                subtitle="Gerencie as ocorrências"
-                onNew={handleNew}
-            />
+            <div className="d-flex align-items-center justify-content-between mb-3">
+              <div>
+                <h4 className="fw-bold text-custom-black mb-0">Ocorrências do protótipo</h4>
+                <small className="text-muted">Gerencie as ocorrências</small>
+              </div>
+              <button
+                className="btn-custom btn-custom-outline-black d-flex gap-3 align-items-center"
+                onClick={handleNew}
+              >
+                <PlusLg size={18} />
+                Nova ocorrência
+              </button>
+            </div>
+
+            {occurrences.length === 0 ? (
+
+                <div className="w-100 py-5 text-center border rounded bg-light">
+                    <p className="text-muted mb-0">Nenhuma ocorrência encontrada.</p>
+                </div>
+
+            ) : (
 
             <CrudTable
                 headers={["Nome", "Descrição", "Criticidade", "Status", "Data", "Data de vencimento"]}
@@ -231,15 +263,15 @@ export default function OccurrencesPage({ prototypeId }: Props)
                 renderRow={(o) => (
                     <>
                         <td className="px-4 text-secondary">{o.name}</td>
-                        <td className="px-4 text-secondary">{o.description}</td>
+                        <td className="px-4 text-secondary">{o.description && o.description.length > 25 ? o.description.substring(0, 25) + "..." : o.description}</td>
 
                         <td className="px-4 text-secondary">
                             <span className="badge bg-danger-subtle text-danger px-3 py-2 rounded-3">
-                                {o.criticity}
+                                {o.criticityLabel}
                             </span>
                         </td>
 
-                        <td className="px-4 text-secondary">{o.progress}</td>
+                        <td className="px-4 text-secondary">{o.progressLabel}</td>
 
                         <td className="px-4 text-secondary">
                             {formatDateBR(o.createdAt!)}
@@ -264,6 +296,8 @@ export default function OccurrencesPage({ prototypeId }: Props)
                     </button>
                 )}
             />
+
+            )}
 
             {/* ================= MODAL ================= */}
             <CrudModal
@@ -311,6 +345,22 @@ export default function OccurrencesPage({ prototypeId }: Props)
                             value={values.progress}
                             onChange={handleChange}
                             options={statusArray}
+                            required
+                        />
+
+                        <FormTextarea
+                            label="Ações necessárias"
+                            name="actions"
+                            value={values.actions}
+                            onChange={handleChange}
+                            required
+                        />
+
+                        <FormTextarea
+                            label="Resultados esperados"
+                            name="results"
+                            value={values.results}
+                            onChange={handleChange}
                             required
                         />
 
@@ -411,10 +461,10 @@ export default function OccurrencesPage({ prototypeId }: Props)
                 <Modal.Body className="text-center p-5">
                     <Trash3Fill size={50} className="text-danger mb-4" />
 
-                    <h4 className="fw-bold mb-3">Excluir ocorrência?</h4>
+                    <h4 className="fw-bold mb-3">Desativar ocorrência?</h4>
 
                     <p className="text-muted mb-5">
-                        Esta ação não pode ser desfeita.
+                        A ocorrência será desativada.
                     </p>
 
                     <div className="d-flex gap-3 justify-content-center">
@@ -429,7 +479,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
                             className="btn-custom btn-custom-outline-primary px-4"
                             onClick={confirmDelete}
                         >
-                            Excluir
+                            Desativar
                         </button>
                     </div>
                 </Modal.Body>

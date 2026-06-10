@@ -1,193 +1,89 @@
 import { useState } from "react";
 import { useClients } from "../../hooks/useClients";
 import NewClientModal from "./NewClientModal";
-import { PlusLg, CaretDownFill } from "react-bootstrap-icons";
+import { PlusLg } from "react-bootstrap-icons";
 import type { ClientProps } from "../../services/clients.service";
 
 interface Props {
   value?: string; // clientId
   onSelect: (client: ClientProps) => void;
+  hideNewClientButton?: boolean;
+  error?: string;
+  required?: boolean;
 }
 
-export default function ClientSelector({ value, onSelect }: Props) {
+export default function ClientSelector({ value, onSelect, hideNewClientButton, error, required }: Props) {
   const { clients, createClient } = useClients();
 
-  const [open, setOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  const selectedClient = clients.find(c => c.id === value);
-
   return (
-    <div className="mt-4 p-4 border rounded-3 bg-light shadow-sm">
+    <fieldset className={`w-100 mt-4 p-3 border rounded-3 position-relative ${error ? "border-danger" : ""}`}>
 
-        <div className="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h5 className="fw-bold mb-0 text-custom-black">Dados do cliente</h5>
-            <small className="text-muted">Selecione ou cadastre um cliente</small>
-        </div>
-        </div>
+      <legend
+        className="w-auto py-1 px-3 text-white fs-6 position-absolute bg-custom-gray00 rounded-pill"
+        style={{ top: "-1rem", left: "1rem" }}
+      >
+        Cliente
+      </legend>
 
-        <div className="d-flex flex-column gap-3 w-100">
+      <div className="d-flex gap-3 justify-content-start align-items-start mt-3 flex-row flex-wrap">
 
-            <div className="d-flex gap-3 align-items-center">
-
-                
-                {/* SELECT */}
-                <div className="position-relative w-100">
-
-                    <div
-                        className={`
-                            form-control d-flex justify-content-between align-items-center
-                            px-3 py-2 cursor-pointer transition
-                            ${open ? "shadow-sm" : ""}
-                        `}
-                        style={{ cursor: "pointer" }}
-                        onClick={() => setOpen(prev => !prev)}
-                    >
-                        <span className={selectedClient ? "text-dark" : "text-muted"}>
-                            {selectedClient
-                            ? `${selectedClient.name} • ${selectedClient.city}/${selectedClient.state}`
-                            : "Selecione um cliente"}
-                        </span>
-
-                        <span
-                            style={{
-                            transition: "0.2s",
-                            transform: open ? "rotate(180deg)" : "rotate(0deg)"
-                            }}
-                        >
-                            <CaretDownFill size={18}/>
-                        </span>
-                    </div>
-
-                    {/* DROPDOWN */}
-                    {open && (
-                    <div className="position-absolute w-100 bg-white border rounded-3 mt-2 shadow z-3">
-
-                        <ul className="list-unstyled m-0 p-2 d-flex flex-column gap-2">
-
-                        {clients.length === 0 && (
-                            <li className="text-center text-muted p-2">
-                            Nenhum cliente encontrado
-                            </li>
-                        )}
-
-                        {clients.map(c => (
-                            <li
-                            key={c.id}
-                            className="d-flex gap-3 align-items-center justify-content-between p-3 border rounded-3 hover-shadow cursor-pointer transition"
-                            style={{ cursor: "pointer" }}
-                            onClick={() => {
-                                onSelect(c);
-                                setOpen(false);
-                            }}
-                            >
-                                <div className="d-flex justify-content-between gap-1">
-                                    <p className="mb-0 fw-semibold">Nome:</p>
-                                    <span>{c.name}</span>
-                                </div>
-                                <div className="d-flex justify-content-between gap-1">
-                                    <p className="mb-0 fw-semibold">Telefone do cliente:</p>
-                                    <span>{c.clientFone}</span>
-                                </div>
-                                <div className="d-flex justify-content-between gap-1">
-                                    <p className="mb-0 fw-semibold">Revenda:</p>
-                                    <span>{c.revend}</span>
-                                </div>
-                                <div className="d-flex justify-content-between gap-1">
-                                    <p className="mb-0 fw-semibold">Telefone da revenda:</p>
-                                    <span>{c.revendFone}</span>
-                                </div>
-                                <div className="d-flex justify-content-between gap-1">
-                                    <p className="mb-0 fw-semibold">Localização:</p>
-                                    <span>{c.city} - {c.state}</span>
-                                </div>
-                                
-                            </li>
-                        ))}
-
-                        </ul>
-
-                    </div>
-                    )}
-
-            </div>
-
-            {/* ACTION */}
-            <div className="p-2">
-                <button
-                    type="button"
-                    className="btn-custom btn-custom-outline-black w-100 d-flex align-items-center justify-content-center gap-2"
-                    onClick={() => setShowModal(true)}
-                >
-                    <span style={{ fontSize: "18px" }}><PlusLg size={18}/></span>
-                    Novo cliente
-                </button>
-            </div>
-        </div>
-
-        {/* PREVIEW DO CLIENTE */}
-        {selectedClient && (
-            <div className="table-responsive rounded-3 border">
-                <table className="table table-hover align-middle mb-0">
-
-                    {/* HEADER */}
-                    <thead className="table-light">
-                        <tr>
-                            <th className="py-3 px-4 text-custom-black fw-bold">Nome</th>
-                            <th className="py-3 px-4 text-custom-black fw-bold">Telefone do cliente</th>
-                            <th className="py-3 px-4 text-custom-black fw-bold">Revenda</th>
-                            <th className="py-3 px-4 text-custom-black fw-bold">Telefone da revenda</th>
-                            <th className="py-3 px-4 text-custom-black fw-bold">Cidade / Estado</th>
-                            <th className="py-3 px-4 text-custom-black fw-bold">Área</th>
-                        </tr>
-                    </thead>
-
-                    {/* BODY */}
-                    <tbody>
-                        <tr>
-                            <td className="px-4">
-                                {selectedClient.name}
-                            </td>
-
-                            <td className="px-4 text-muted">
-                                {selectedClient.clientFone}
-                            </td>
-                            <td className="px-4 text-muted">
-                                {selectedClient.revend}
-                            </td>
-                            <td className="px-4 text-muted">
-                                {selectedClient.revendFone}
-                            </td>
-
-                            <td className="px-4 text-muted">
-                                {selectedClient.city} - {selectedClient.state}
-                            </td>
-
-                            <td className="px-4 text-muted">
-                                Área: {selectedClient.area}
-                            </td>
-                        </tr>
-                    </tbody>
-
-                </table>
-            </div>
+        {clients.length === 0 && (
+          <p className="text-muted text-center w-100 mb-0 py-2">Nenhum cliente encontrado</p>
         )}
 
-        </div>
+        {clients.map((client, index) => (
+          <label
+            key={client.id}
+            className="d-flex flex-column px-3 py-2 border rounded-3 w-100 w-md-auto"
+            style={{ cursor: "pointer", minWidth: "220px" }}
+          >
+            <div className="d-flex align-items-center gap-2">
+              <input
+                type="radio"
+                name="clientId"
+                value={client.id}
+                checked={value === client.id}
+                onChange={() => onSelect(client)}
+                className={`form-check-input ${error ? "is-invalid" : ""}`}
+                required={required && index === 0}
+              />
+              <span className="fw-semibold">{client.name}</span>
+            </div>
+            <div className="ms-4 small text-muted">
+              {client.revend} &bull; {client.city}/{client.state}
+            </div>
+          </label>
+        ))}
 
-        {/* MODAL */}
-        <NewClientModal
+      </div>
+
+      <div className="invalid-feedback d-block">
+        {error || "Selecione um cliente"}
+      </div>
+
+      {!hideNewClientButton && (
+        <button
+          type="button"
+          className="btn-custom btn-custom-outline-black w-100 d-flex align-items-center justify-content-center gap-2 mt-3"
+          onClick={() => setShowModal(true)}
+        >
+          <PlusLg size={18} />
+          Novo cliente
+        </button>
+      )}
+
+      <NewClientModal
         show={showModal}
         onClose={() => setShowModal(false)}
         onCreated={(client) => {
-            onSelect(client);
-            setShowModal(false);
-            setOpen(false);
+          onSelect(client);
+          setShowModal(false);
         }}
         createClient={createClient}
-        />
+      />
 
-    </div>
-    );
+    </fieldset>
+  );
 }

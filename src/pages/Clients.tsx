@@ -24,7 +24,7 @@ export interface ClientForm {
 
 export default function Clients()
 {
-    const { clients, createClient, updateClient, deleteClient } = useClients();
+    const { clients, createClient, updateClient, changeClientStatus } = useClients({ status: "active" });
     // Consulta Clientes pelo searchTerm
     const [search, setSearch] = useState("");
     // Filtra a lista baseada no nome ou na revenda
@@ -38,6 +38,8 @@ export default function Clients()
     const [showModal, setShowModal] = useState<boolean>(false);
     const [editingClientId, setEditingClientId] = useState<string | null>(null);
     const [clientToDelete, setClientToDelete] = useState<string | null>(null);
+
+    const [isSaving, setIsSaving] = useState(false);
 
     const formRef = useRef<HTMLFormElement | null>(null);
     const { values, setValues, handleChange, reset } = useForm<ClientForm>({
@@ -89,16 +91,25 @@ export default function Clients()
             return;
         }
 
-        if (editingClientId) {
-            await updateClient({
-                id: editingClientId,
-                ...values
-            });
-        } else {
-            await createClient(values);
-        }
+        try
+        {
+            setIsSaving(true);
 
-        setShowModal(false);
+            if (editingClientId) {
+                await updateClient({
+                    id: editingClientId,
+                    ...values
+                });
+            } else {
+                await createClient(values);
+            }
+
+            setShowModal(false);
+        }
+        finally
+        {
+            setIsSaving(false);
+        }
     };
 
     const handleDelete = (id: string) => {
@@ -108,7 +119,7 @@ export default function Clients()
     const confirmDelete = async () => {
         if (!clientToDelete) return;
 
-        await deleteClient(clientToDelete);
+        await changeClientStatus(clientToDelete, "disabled");
         setClientToDelete(null);
     };
 
@@ -132,7 +143,11 @@ export default function Clients()
                 </>
                 }
 
-                list={
+                list={filteredData.length === 0 ? (
+                    <div className="w-100 py-5 text-center border rounded bg-light">
+                        <p className="text-muted mb-0">Nenhum cliente encontrado.</p>
+                    </div>
+                ) : (
                     <CrudTable
                         headers={["Nome", "Telefone do cliente", "Revenda", "Telefone da revenda", "Estado", "Cidade", "Área"]}
 
@@ -155,7 +170,7 @@ export default function Clients()
                         onEdit={handleEdit}
                         onDelete={handleDelete}
                     />
-                }
+                )}
 
                 modal={
                     <CrudModal
@@ -223,8 +238,9 @@ export default function Clients()
                                 <button 
                                     type="submit"
                                     className='btn-custom btn-custom-success px-4'
+                                    disabled={isSaving}
                                 >
-                                    Salvar
+                                    {isSaving ? "Salvando..." : "Salvar"}
                                 </button>
                             </div>
 
@@ -241,9 +257,9 @@ export default function Clients()
                 <Modal.Body className="text-center p-5">
                     <Trash3Fill size={50} className="text-danger mb-4" />
 
-                    <h4 className="fw-bold mb-3">Excluir cliente?</h4>
+                    <h4 className="fw-bold mb-3">Desativar cliente?</h4>
                     <p className="text-muted mb-5">
-                        Esta ação não pode ser desfeita.
+                        O cliente será desativado.
                     </p>
 
                     <div className="d-flex gap-3 justify-content-center">
@@ -258,7 +274,7 @@ export default function Clients()
                             className="btn-custom btn-custom-outline-primary px-4 rounded-3 shadow-sm"
                             onClick={confirmDelete}
                         >
-                            Excluir
+                            Desativar
                         </button>
                     </div>
                 </Modal.Body>

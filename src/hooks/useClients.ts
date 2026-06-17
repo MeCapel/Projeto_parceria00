@@ -130,7 +130,7 @@ export const useClients = (props?: { status?: "active" | "disabled" }) => {
       const result = await createClientService(data);
 
       // setClients(prev => [result, ...prev]);
-      await fetchClients();
+      await fetchClients({ reset: true, filters });
 
       return result;
     } 
@@ -150,7 +150,7 @@ export const useClients = (props?: { status?: "active" | "disabled" }) => {
 
       // setClients(prev => prev.map(c => (c.id === data.id ? { ...c, ...data } : c)));
 
-      await fetchClients();
+      await fetchClients({ reset: true, filters });
     } 
     catch (err) 
     {
@@ -187,7 +187,7 @@ export const useClients = (props?: { status?: "active" | "disabled" }) => {
 
       // setClients(prev => prev.filter(c => c.id !== clientId));
 
-      await fetchClients();
+      await fetchClients({ reset: true, filters });
     } 
     catch (err) 
     {

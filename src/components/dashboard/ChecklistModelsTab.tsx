@@ -42,33 +42,36 @@ export default function ChecklistModelsTab() {
 
   const [search, setSearch] = useState("");
 
-  const [statusFilters, setStatusFilters] =
-    useState<string[]>([]);
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
 
-  // MULTI SELECT VERTICALS
-  const [verticalFilters, setVerticalFilters] =
-    useState<string[]>([]);
+  // Filters
+  const [verticalFilters, setVerticalFilters] = useState<string[]>([]);
+  const [versionFilters, setVersionFilters] = useState<string[]>([]);
 
-  const [showModal, setShowModal] =
-    useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-  const [editingId, setEditingId] =
-    useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const [toDelete, setToDelete] =
-    useState<string | null>(null);
+  const [toDelete, setToDelete] = useState<string | null>(null);
 
-  const [isSaving, setIsSaving] =
-    useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // ===== VERTICAL OPTIONS =====
 
   const verticalOptions = useMemo(() => {
 
-    const verticals =
-      [...new Set(checklistModels.map(c => c.vertical))];
+    const verticals = [...new Set(checklistModels.map(c => c.vertical))];
 
     return verticals.map(v => ({ label: v, value: v }));
+
+  }, [checklistModels]);
+
+  // ===== VERSION OPTIONS =====
+  const versionOptions = useMemo(() => {
+
+    const versions = [...new Set(checklistModels.map(c => String(c.version)))];
+
+    return versions.map(v => ({ label: `v${v}`, value: v }));
 
   }, [checklistModels]);
 
@@ -117,9 +120,16 @@ export default function ChecklistModelsTab() {
           ? true
           : verticalFilters.includes(model.vertical);
 
+      // VERSIONS
+      const matchesVersion =
+        versionFilters.length === 0
+          ? true
+          : versionFilters.includes(String(model.version));
+
       return (
         matchesSearch &&
-        matchesVertical
+        matchesVertical &&
+        matchesVersion
       );
 
     });
@@ -127,7 +137,8 @@ export default function ChecklistModelsTab() {
   }, [
     checklistModels,
     search,
-    verticalFilters
+    verticalFilters,
+    versionFilters
   ]);
 
   // ===== ACTIONS =====
@@ -285,6 +296,13 @@ export default function ChecklistModelsTab() {
                 options={verticalOptions}
                 selected={verticalFilters}
                 onChange={setVerticalFilters}
+              />
+
+              <MultiCheckFilter
+                label="Versão"
+                options={versionOptions}
+                selected={versionFilters}
+                onChange={setVersionFilters}
               />
 
             </div>

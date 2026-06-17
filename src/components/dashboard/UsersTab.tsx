@@ -52,14 +52,11 @@ export default function UsersTab() {
   };
 
   // ===== STATES =====
-  const [search, setSearch] =
-    useState("");
+  const [search, setSearch] = useState("");
 
-  const [statusFilters, setStatusFilters] =
-    useState<string[]>([]);
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
 
-  const [roleFilters, setRoleFilters] =
-    useState<string[]>([]);
+  const [roleFilters, setRoleFilters] = useState<string[]>([]);
 
   const roleLabels: Record<string, string> = {
     "admin": "Administrador",
@@ -74,25 +71,23 @@ export default function UsersTab() {
     return roles.map(r => ({ label: roleLabels[r] ?? r, value: r }));
   }, [users]);
 
-  const [showInviteModal, setShowInviteModal] =
-    useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
-  const [showModal, setShowModal] =
-    useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-  const [editingId, setEditingId] =
-    useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const [toDisable, setToDisable] =
-    useState<string | null>(null);
+  const [pendingStatusChange, setPendingStatusChange] = useState<{
+    id: string;
+    newStatus: "active" | "disabled";
+  } | null>(null);
 
   // ===== FORM =====
-  const formRef =
-    useRef<HTMLFormElement | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
 
-    const [toDelete, setToDelete] = useState<string | null>(null);
+  const [toDelete, setToDelete] = useState<string | null>(null);
 
-    const [isSaving, setIsSaving] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const {
     values,
@@ -138,25 +133,13 @@ export default function UsersTab() {
         search.toLowerCase();
 
       const matchesSearch =
-        u.username
-          .toLowerCase()
-          .includes(q)
-
+        (u.username ?? "").toLowerCase().includes(q)
         ||
-
-        u.email
-          .toLowerCase()
-          .includes(q)
-
+        (u.email ?? "").toLowerCase().includes(q)
         ||
+        (u.role ?? "").toLowerCase().includes(q);
 
-        u.role
-          .toLowerCase()
-          .includes(q);
-
-      const matchesRole =
-        roleFilters.length === 0
-          || roleFilters.includes(u.role);
+      const matchesRole = roleFilters.length === 0 || roleFilters.includes(u.role);
 
       return (
         matchesSearch &&
@@ -258,23 +241,34 @@ export default function UsersTab() {
 
   };
 
-  const handleStatusChange = async (
-    id: string,
-    currentStatus:
-      | "active"
-      | "disabled"
-  ) => {
+  const handleStatusChange = (id: string, currentStatus: "active" | "disabled") => {
+    const newStatus = currentStatus === "active" ? "disabled" : "active";
+    setPendingStatusChange({ id, newStatus });
+  };
 
-    const newStatus =
-      currentStatus === "active"
-        ? "disabled"
-        : "active";
+  const handleDelete = (id: string) => { setToDelete(id) };
 
-    setToDisable(id);
+  const confirmDelete = async () => {
+      if (!toDelete) return;
+
+      await deleteUser(toDelete);
+
+      await fetchUsers({
+          reset: true,
+          limit: 10,
+          filters: apiFilters,
+      });
+
+      setToDelete(null);
+  };
+
+  const confirmStatusChange = async () => {
+
+    if (!pendingStatusChange) return;
 
     await changeUserStatus(
-      id,
-      newStatus
+      pendingStatusChange.id,
+      pendingStatusChange.newStatus
     );
 
     await fetchUsers({
@@ -283,27 +277,9 @@ export default function UsersTab() {
       filters: apiFilters,
     });
 
-    setToDisable(null);
+    setPendingStatusChange(null);
 
   };
-
-    const handleDelete = (id: string) => {
-        setToDelete(id);
-    };
-
-    const confirmDelete = async () => {
-        if (!toDelete) return;
-
-        await deleteUser(toDelete);
-
-        await fetchUsers({
-            reset: true,
-            limit: 10,
-            filters: apiFilters,
-        });
-
-        setToDelete(null);
-    };
 
   // ===== JSX =====
   return (
@@ -584,12 +560,8 @@ export default function UsersTab() {
 
       {/* ===== STATUS MODAL ===== */}
       <Modal
-        show={!!toDisable}
-
-        onHide={() =>
-          setToDisable(null)
-        }
-
+        show={!!pendingStatusChange}
+        onHide={() => setPendingStatusChange(null)}
         centered
       >
 
@@ -601,33 +573,31 @@ export default function UsersTab() {
           />
 
           <h4 className="fw-bold mb-3">
-            Alterar status do usuário?
+            {pendingStatusChange?.newStatus === "disabled"
+              ? "Desabilitar usuário?"
+              : "Habilitar usuário?"}
           </h4>
 
           <p className="text-muted mb-5">
-            Esta ação poderá impedir o acesso do usuário ao sistema.
+            {pendingStatusChange?.newStatus === "disabled"
+              ? "Esta ação impedirá o acesso do usuário ao sistema."
+              : "Esta ação permitirá que o usuário volte a acessar o sistema."}
           </p>
 
           <div className="d-flex gap-3 justify-content-center">
 
             <button
               className="btn-custom btn-custom-outline-secondary px-4 rounded-3"
-
-              onClick={() =>
-                setToDisable(null)
-              }
+              onClick={() => setPendingStatusChange(null)}
             >
               Cancelar
             </button>
 
             <button
               className="btn-custom btn-custom-outline-primary px-4 rounded-3 shadow-sm"
-
-              onClick={() =>
-                setToDisable(null)
-              }
+              onClick={confirmStatusChange}
             >
-              Fechar
+              Confirmar
             </button>
 
           </div>

@@ -35,11 +35,11 @@ export default function ChecklistModelPage() {
 
   const [showModal, setShowModal] = useState(false);
 
-  const [editingId, setEditingId] =
-    useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const [toDelete, setToDelete] =
-    useState<string | null>(null);
+  const [toDelete, setToDelete] = useState<string | null>(null);
+
+  const [isSaving, setIsSaving] = useState(false);
 
   // ===== INITIAL LOAD =====
 
@@ -86,35 +86,45 @@ export default function ChecklistModelPage() {
 
   };
 
-  const handleSave = async (
-    data: ChecklistModelInput
-  ) => {
+  const handleSave = async (data: ChecklistModelInput) => {
+    if (isSaving) return;
 
-    if (editingId) {
+    try {
 
-      await updateChecklistModel(
-        editingId,
-        data
-      );
+      setIsSaving(true);
+
+      if (editingId) {
+
+        await updateChecklistModel(
+          editingId,
+          data
+        );
+
+      }
+      else {
+
+        await createChecklistModel(data);
+
+      }
+
+      await fetchChecklistModels({
+        reset: true,
+
+        limit: showAll ? 10 : 5,
+
+        filters: {
+          status: "active",
+        },
+      });
+
+      setShowModal(false);
 
     }
-    else {
+    finally {
 
-      await createChecklistModel(data);
+      setIsSaving(false);
 
     }
-
-    await fetchChecklistModels({
-      reset: true,
-
-      limit: showAll ? 10 : 5,
-
-      filters: {
-        status: "active",
-      },
-    });
-
-    setShowModal(false);
   };
 
   const confirmDelete = async () => {
@@ -253,19 +263,15 @@ export default function ChecklistModelPage() {
         modal={
           <CrudModal
             show={showModal}
-
             title="Modelo de Checklist"
-
             onClose={() => setShowModal(false)}
-
             edit={!!editingId}
           >
 
             <ChecklistModelForm
               key={editingId ?? "new"}
-
               initialData={editingItem}
-
+              loading={isSaving}
               onSubmit={handleSave}
             />
 
@@ -277,9 +283,7 @@ export default function ChecklistModelPage() {
 
       <Modal
         show={!!toDelete}
-
         onHide={() => setToDelete(null)}
-
         centered
       >
 

@@ -12,7 +12,7 @@ export type ChecklistModelInput = Omit<
 interface Props {
   initialData?: ChecklistModelProps
   loading?: boolean
-  onSubmit: (data: ChecklistModelInput) => void
+  onSubmit: (data: ChecklistModelInput) => Promise<void>
 }
 
 export default function ChecklistModelForm({ initialData, loading, onSubmit }: Props) {
@@ -113,7 +113,7 @@ export default function ChecklistModelForm({ initialData, loading, onSubmit }: P
   }
 
   // ===== SUBMIT =====
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
      try 
@@ -130,7 +130,7 @@ export default function ChecklistModelForm({ initialData, loading, onSubmit }: P
 
         console.log(checklist)
 
-        onSubmit(checklist)
+        await onSubmit(checklist)
 
     } catch (err) {
       console.error(err)

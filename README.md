@@ -77,6 +77,7 @@ Projeto_paceria00/
 │  └── hooks/                     # Hooks customizados
 │  └── pages/                     # Páginas inteiras
 │  └── services/                  # Funções Firestore 
+|    └── api.ts                   # Configuração da url da API
 │  └── styles/                    # Estilos
 │  └── App.tsx                    # Página principal (SPA aka Single Page Application)
 │  └── main.tsx                   # Importações gerais

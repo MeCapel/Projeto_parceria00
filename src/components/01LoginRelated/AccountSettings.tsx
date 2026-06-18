@@ -17,7 +17,7 @@ interface AccountSettingsProps {
 // ----- Componente responsável por exbir pequeno menu de ações relacionadas a conta do usuário ao criar na foto de perfil no canto direito superior ----- 
 export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSettingsProps)
 {
-    const { user } = useContext(AuthContext);
+    const { user, checkAuth } = useContext(AuthContext);
     const navigate = useNavigate();
 
     return(
@@ -88,6 +88,7 @@ export default function AccountSettings({ isOpen, onOpen, onClose } : AccountSet
                                         onClick={async () => {
                                             onClose();
                                             await logout();
+                                            await checkAuth();
                                             navigate("/login");
                                         }}
                                     >

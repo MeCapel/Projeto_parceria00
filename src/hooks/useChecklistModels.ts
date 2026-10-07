@@ -119,13 +119,14 @@ export const useChecklistModels = () => {
       name: string;
       vertical: string;
       categories: ChecklistCategory[];
-    }) => {
+    }, options?: { refresh?: boolean }) => {
     try 
     {
       const result = await createChecklistModelService(data);
 
-      // refetch usando filtros atuais
-      await fetchChecklistModels({ reset: true, filters });
+      if (options?.refresh !== false) {
+        await fetchChecklistModels({ reset: true, filters });
+      }
 
       // setChecklistModels(prev => [ result, ...prev ]);
 
@@ -181,10 +182,14 @@ export const useChecklistModels = () => {
   const deleteChecklistModel = async (id: string) => {
     try 
     {
+      const deletedModel = checklistModels.find((model) => model.id === id);
       await deleteChecklistModelService(id);
-      await fetchChecklistModels({ reset: true, filters });
-
-      // setChecklistModels(prev => prev.filter(c => c.id !== id));
+      setChecklistModels((prev) => prev.filter((model) =>
+        model.id !== id &&
+        !(deletedModel &&
+          model.baseModelId === deletedModel.baseModelId &&
+          model.version >= deletedModel.version)
+      ));
     }
     catch (err)
     {

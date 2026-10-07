@@ -53,6 +53,7 @@ export default function ProjectsTab() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // ===== FORM =====
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -88,6 +89,7 @@ export default function ProjectsTab() {
       filters: apiFilters,
     });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiFilters]);
 
   // ===== SEARCH FILTER =====
@@ -190,17 +192,22 @@ export default function ProjectsTab() {
 
   const confirmDelete = async () => {
 
-    if (!toDelete) return;
+    if (!toDelete || isDeleting) return;
 
-    await deleteProject(toDelete);
-
-    await fetchProjects({
-      reset: true,
-      limit: 10,
-      filters: apiFilters,
-    });
-
-    setToDelete(null);
+    setIsDeleting(true);
+    try
+    {
+      await deleteProject(toDelete);
+      setToDelete(null);
+    }
+    catch
+    {
+      // The hook reports the request error.
+    }
+    finally
+    {
+      setIsDeleting(false);
+    }
   };
 
   const handleStatusChange = async (id: string, currentStatus: "active" | "disabled") => {
@@ -461,9 +468,9 @@ export default function ProjectsTab() {
       <Modal
         show={!!toDelete}
 
-        onHide={() =>
-          setToDelete(null)
-        }
+        onHide={() => {
+          if (!isDeleting) setToDelete(null);
+        }}
 
         centered
       >
@@ -491,6 +498,7 @@ export default function ProjectsTab() {
               onClick={() =>
                 setToDelete(null)
               }
+              disabled={isDeleting}
             >
               Cancelar
             </button>
@@ -499,8 +507,9 @@ export default function ProjectsTab() {
               className="btn-custom btn-custom-outline-primary px-4 rounded-3 shadow-sm"
 
               onClick={confirmDelete}
+              disabled={isDeleting}
             >
-              Excluir
+              {isDeleting ? "Excluindo..." : "Excluir"}
             </button>
 
           </div>

@@ -15,6 +15,7 @@ export default function PrototypeChecklistsTab({
   const {
     checklists,
     fetchChecklists,
+    replaceChecklists,
   } = useChecklistInstances({ prototypeId });
 
   return (
@@ -35,8 +36,13 @@ export default function PrototypeChecklistsTab({
             .filter(c => c.originalModel && !modelIds.includes(c.originalModel))
             .map(c => c.id);
 
-          await updatePrototype(prototypeId, { addChecklistModelIds, removeChecklistIds });
-          await fetchChecklists();
+          if (addChecklistModelIds.length === 0 && removeChecklistIds.length === 0) return;
+
+          const updatedPrototype = await updatePrototype(prototypeId, {
+            addChecklistModelIds,
+            removeChecklistIds,
+          });
+          replaceChecklists(updatedPrototype.checklists);
         }}
         onClose={() => {}}
       />

@@ -1,5 +1,6 @@
 import type { CreatePrototypeDTO } from "../hooks/usePrototypes";
 import type { Pagination } from "../utils/pagination.types";
+import type { ChecklistInstance } from "./checklistInstances.service";
 import { api } from "./api";
 
 // ===== TYPES =====
@@ -80,7 +81,7 @@ export const updatePrototype = async (
     addChecklistModelIds?: string[];
     removeChecklistIds?: string[];
   }
-) => {
+): Promise<{ checklists: ChecklistInstance[] }> => {
   const response = await api.patch(`/prototypes/${prototypeId}`, data);
   return response.data;
 };

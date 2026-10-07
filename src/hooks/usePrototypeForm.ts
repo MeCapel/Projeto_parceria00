@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createPrototype } from "../services/prototypes.service";
+import { showErrorToast } from "../utils/errorToast";
 
 export interface PrototypeFormValues {
   projectId: string;
@@ -207,6 +208,7 @@ export function usePrototypeForm(projectId?: string) {
       reset();
 
     } catch (err) {
+      showErrorToast(err);
       console.error("Erro ao criar protótipo:", err);
     }
   }

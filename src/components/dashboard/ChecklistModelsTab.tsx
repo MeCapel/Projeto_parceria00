@@ -55,6 +55,7 @@ export default function ChecklistModelsTab() {
   const [toDelete, setToDelete] = useState<string | null>(null);
 
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // ===== VERTICAL OPTIONS =====
 
@@ -100,6 +101,7 @@ export default function ChecklistModelsTab() {
       filters: apiFilters,
     });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiFilters]);
 
   // ===== LOCAL FILTERS =====
@@ -199,15 +201,17 @@ export default function ChecklistModelsTab() {
       }
       else {
 
-        await createChecklistModel(data);
+        await createChecklistModel(data, { refresh: false });
+
+        setShowModal(false);
+        void fetchChecklistModels({
+          reset: true,
+          limit: 10,
+          filters: apiFilters,
+        });
+        return;
 
       }
-
-      await fetchChecklistModels({
-        reset: true,
-        limit: 10,
-        filters: apiFilters,
-      });
 
       setShowModal(false);
     }
@@ -219,17 +223,22 @@ export default function ChecklistModelsTab() {
 
   const confirmDelete = async () => {
 
-    if (!toDelete) return;
+    if (!toDelete || isDeleting) return;
 
-    await deleteChecklistModel(toDelete);
-
-    await fetchChecklistModels({
-      reset: true,
-      limit: 10,
-      filters: apiFilters,
-    });
-
-    setToDelete(null);
+    setIsDeleting(true);
+    try
+    {
+      await deleteChecklistModel(toDelete);
+      setToDelete(null);
+    }
+    catch (err)
+    {
+      console.error("Erro ao excluir modelo de checklist:", err);
+    }
+    finally
+    {
+      setIsDeleting(false);
+    }
   };
 
   // ===== CHECKBOX FILTER =====
@@ -273,7 +282,7 @@ export default function ChecklistModelsTab() {
 
             <div className="d-flex flex-wrap gap-3 pb-3">
 
-              <div className="flex-grow-1">
+              <div className="grow">
                 <SearchInput
                   value={search}
                   onChange={setSearch}
@@ -488,6 +497,7 @@ export default function ChecklistModelsTab() {
               className="btn-custom btn-custom-outline-secondary px-4 rounded-3"
 
               onClick={() => setToDelete(null)}
+              disabled={isDeleting}
             >
               Cancelar
             </button>
@@ -496,8 +506,9 @@ export default function ChecklistModelsTab() {
               className="btn-custom btn-custom-outline-primary px-4 rounded-3 shadow-sm"
 
               onClick={confirmDelete}
+              disabled={isDeleting}
             >
-              Excluir
+              {isDeleting ? "Excluindo..." : "Excluir"}
             </button>
 
           </div>

@@ -159,6 +159,7 @@ export const useProjects = (props?: UseProjectsProps) => {
   useEffect(() => {
     if (skip) return;
     fetchProjects({ reset: true, filters: { status: props?.status } });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, skip, props?.status]);
 
   // ===== GET ONE =====
@@ -246,10 +247,7 @@ export const useProjects = (props?: UseProjectsProps) => {
     try
     {
       await deleteProjectService(projectId);
-
-      await fetchProjects({ reset: true, filters });
-
-      // setProjects(prev => prev.filter(c => c.id !== projectId));
+      setProjects((prev) => prev.filter((project) => project.id !== projectId));
     }
     catch (err)
     {

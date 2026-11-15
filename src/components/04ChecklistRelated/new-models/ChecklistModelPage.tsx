@@ -13,15 +13,12 @@ import ChecklistModelForm from "./ChecklistModelForm";
 
 export default function ChecklistModelPage() {
 
-  const {
+const {
     checklistModels,
-
     loading,
     hasMore,
-
     fetchChecklistModels,
     loadMore,
-
     createChecklistModel,
     updateChecklistModel,
     changeChecklistModelStatus,
@@ -30,32 +27,25 @@ export default function ChecklistModelPage() {
   // ===== STATES =====
 
   const [search, setSearch] = useState("");
-
   const [showAll, setShowAll] = useState(false);
-
   const [showModal, setShowModal] = useState(false);
-
   const [editingId, setEditingId] = useState<string | null>(null);
-
   const [toDelete, setToDelete] = useState<string | null>(null);
-
   const [isSaving, setIsSaving] = useState(false);
 
+  // ===== FILTERS MEMOIZED =====
+
+const activeFilters = useMemo(() => ({ status: "active" as const }), []);
   // ===== INITIAL LOAD =====
 
   useEffect(() => {
-
     fetchChecklistModels({
       reset: true,
-
       limit: showAll ? 10 : 5,
-
-      filters: {
-        status: "active",
-      },
+      filters: activeFilters,
     });
-
-  }, [showAll]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showAll, activeFilters]);
 
   // ===== FILTER =====
 

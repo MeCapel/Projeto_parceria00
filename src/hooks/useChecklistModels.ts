@@ -1,5 +1,5 @@
 // ===== GERAL IMPORTS =====
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   type ChecklistModelProps,
   type ChecklistCategory,
@@ -39,18 +39,18 @@ export const useChecklistModels = () => {
   }>({});
 
   // ===== GET ALL =====
-  const fetchChecklistModels = async (options?: FetchChecklistModelsOptions) => {
-    try 
-    {
+    const fetchChecklistModels = useCallback(async (options?: FetchChecklistModelsOptions) => {
+    try {
       setLoading(true);
 
       const isReset = options?.reset ?? false;
 
       // filtros novos OU mantém antigos
       const currentFilters = options?.filters ?? filters;
-
       // se resetar:
       // limpa cursor e salva filtros
+
+      const currentCursor = isReset ? null : cursor;
       if (isReset) {
         setCursor(null);
         setHasMore(true);
@@ -59,47 +59,40 @@ export const useChecklistModels = () => {
 
       const response = await getChecklistModelsService({
         limit: options?.limit ?? 10,
-        cursor: isReset
-          ? null
-          : cursor,
+        cursor: currentCursor,
         vertical: currentFilters.vertical,
         status: currentFilters.status,
       });
 
       // RESET
-      if (isReset) setChecklistModels(response.data || []);
-
-      // LOAD MORE
-      else 
-      {
-        setChecklistModels(prev => [
-          ...prev,
-          ...response.data,
-        ]);
+      if (isReset) {
+        setChecklistModels(response.data || []);
       }
 
-      setCursor(response.pagination.nextCursor);
-      setHasMore(response.pagination.hasMore);
-    }
-    catch (err) 
-    {
+      // LOAD MORE
+      else {
+        setChecklistModels((prev) => [...prev, ...(response.data || [])]);
+      }
+
+      setCursor(response.pagination?.nextCursor ?? null);
+      setHasMore(response.pagination?.hasMore ?? false);
+    } catch (err) {
       console.error("Erro ao buscar checklist models:", err);
-    }
-    finally 
-    {
+    } finally {
       setLoading(false);
     }
-  };
+  }, [cursor, filters]);
 
-  // ===== LOAD MORE =====
+// ===== LOAD MORE =====
   const loadMore = async () => {
     if (!hasMore || loading) return;
-    await fetchChecklistModels({ filters });
+    await fetchChecklistModels({ reset: false, filters });
   };
 
   // ===== INITIAL LOAD =====
   useEffect(() => {
     fetchChecklistModels({ reset: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ===== GET ONE =====
@@ -119,13 +112,14 @@ export const useChecklistModels = () => {
       name: string;
       vertical: string;
       categories: ChecklistCategory[];
-    }) => {
+    }, options?: { refresh?: boolean }) => {
     try 
     {
       const result = await createChecklistModelService(data);
 
-      // refetch usando filtros atuais
-      await fetchChecklistModels({ reset: true, filters });
+      if (options?.refresh !== false) {
+        await fetchChecklistModels({ reset: true, filters });
+      }
 
       // setChecklistModels(prev => [ result, ...prev ]);
 
@@ -181,10 +175,14 @@ export const useChecklistModels = () => {
   const deleteChecklistModel = async (id: string) => {
     try 
     {
+      const deletedModel = checklistModels.find((model) => model.id === id);
       await deleteChecklistModelService(id);
-      await fetchChecklistModels({ reset: true, filters });
-
-      // setChecklistModels(prev => prev.filter(c => c.id !== id));
+      setChecklistModels((prev) => prev.filter((model) =>
+        model.id !== id &&
+        !(deletedModel &&
+          model.baseModelId === deletedModel.baseModelId &&
+          model.version >= deletedModel.version)
+      ));
     }
     catch (err)
     {

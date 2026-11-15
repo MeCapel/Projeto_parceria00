@@ -36,6 +36,10 @@ export function useChecklistInstances({ prototypeId }: Params) {
     }
   }, [prototypeId]);
 
+  const replaceChecklists = (updatedChecklists: ChecklistInstance[]) => {
+    setChecklists(updatedChecklists);
+  };
+
   useEffect(() => {
     fetchChecklists();
   }, [fetchChecklists]);
@@ -98,6 +102,7 @@ export function useChecklistInstances({ prototypeId }: Params) {
     checklists,
     loading,
     fetchChecklists,
+    replaceChecklists,
     linkChecklist,
     toggleItem,
     removeChecklist,

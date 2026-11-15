@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createPrototype } from "../services/prototypes.service";
+import type { CreatePrototypeDTO } from "./usePrototypes";
 
 export interface PrototypeFormValues {
   projectId: string;
@@ -171,12 +172,12 @@ export function usePrototypeForm(projectId?: string) {
 
     try {
       // Transform data to match API schema expectations
-      const payload: any = {
+      const payload: CreatePrototypeDTO = {
         projectId: values.projectId,
         code: values.code,
         name: values.name,
         description: values.description,
-        image: values.image,
+        image: values.image ?? "",
         stage: values.stage.toLowerCase(), // API expects lowercase
         clientId: values.clientId || undefined,
         vertical: values.vertical,

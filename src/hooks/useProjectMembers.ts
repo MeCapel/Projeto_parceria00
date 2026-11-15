@@ -10,11 +10,12 @@ import {
   type ProjectMember,
 } from "../services/projectMembers.service";
 import { showErrorToast } from "../utils/errorToast";
+import type { UserProps } from "../services/auth.service";
 
 // ===== HOOK =====
 export const useProjectMembers = (projectId: string) => {
   const [members, setMembers] = useState<ProjectMember[]>([]);
-  const [usersNotInProject, setUsersNotInProject] = useState<ProjectMember[]>([]);
+  const [usersNotInProject, setUsersNotInProject] = useState<UserProps[]>([]);
 
   const [loadingMembers, setLoadingMembers] = useState(false);
   const [loadingUsersNotInProject, setLoadingUsersNotInProject] = useState(false);

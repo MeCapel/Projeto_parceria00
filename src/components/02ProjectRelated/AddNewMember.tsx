@@ -62,7 +62,7 @@ export default function AddNewMember({ projectId }: Props) {
 
             <ul className="list-unstyled d-flex flex-column gap-3">
 
-                {usersNotInProject.map((user: any) => {
+                {usersNotInProject.map((user) => {
 
                     if (!user.id) return null;
 

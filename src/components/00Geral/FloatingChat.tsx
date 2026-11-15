@@ -9,7 +9,7 @@ import { AuthContext } from "../../context/AuthContext";
 // ----- Componente responsável pelo botão flutuante do chat -----
 export default function FloatingChat() {
     const { projectid } = useParams();
-    const { user }: any = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
     const [isOpen, setIsOpen] = useState(false);
 
     // Efeito para fechar o chat automaticamente ao trocar de projeto ou sair da tela de projeto

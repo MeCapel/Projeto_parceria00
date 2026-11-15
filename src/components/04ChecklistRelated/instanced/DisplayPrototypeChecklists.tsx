@@ -57,6 +57,7 @@ export default function DisplayPrototypeChecklists({
               data={checklists}
 
               getId={(c) => c.id}
+              onRowClick={(checklist) => handleEdit(checklist.id)}
 
               renderRow={(c) => {
                 const totalItems =

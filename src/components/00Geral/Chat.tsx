@@ -5,10 +5,12 @@ import {
     Paperclip,
     XCircleFill,
     PencilFill,
+    Trash3Fill,
     Check2All
 } from "react-bootstrap-icons";
-import { markMessageAsRead, sendMessage, subscribeToMessages, updateMessage, type MessageProps } from "../../services/chat.service";
+import { deleteMessage, markMessageAsRead, sendMessage, subscribeToMessages, updateMessage, type MessageProps } from "../../services/chat.service";
 import { useProjectMembers } from "../../hooks/useProjectMembers";
+import { showErrorToast } from "../../utils/errorToast";
 
 // ===== TYPE INTERFACE =====
 interface ChatProps {
@@ -116,6 +118,20 @@ export default function Chat({ projectId, userId }: ChatProps) {
         setNewMessage(msg.text);
     };
 
+    const handleDelete = async (messageId: string) => {
+        if (!window.confirm("Deseja excluir esta mensagem?")) return;
+
+        try {
+            await deleteMessage(projectId, messageId);
+            if (editingId === messageId) {
+                setEditingId(null);
+                setNewMessage("");
+            }
+        } catch (error) {
+            showErrorToast(error);
+        }
+    };
+
     return (
         <div className="d-flex flex-column h-100 chat-container">
 
@@ -154,12 +170,28 @@ export default function Chat({ projectId, userId }: ChatProps) {
 
                                 <div className="d-flex align-items-center gap-2">
                                     {isMyMessage && (
-                                        <PencilFill
-                                            size={12}
-                                            className="text-muted edit-btn-trigger"
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => startEditing(msg)}
-                                        />
+                                        <>
+                                            <button
+                                                type="button"
+                                                className="text-muted edit-btn-trigger border-0 bg-transparent p-0"
+                                                style={{ cursor: "pointer" }}
+                                                title="Editar mensagem"
+                                                aria-label="Editar mensagem"
+                                                onClick={() => startEditing(msg)}
+                                            >
+                                                <PencilFill size={12} />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="text-danger edit-btn-trigger border-0 bg-transparent p-0"
+                                                style={{ cursor: "pointer" }}
+                                                title="Excluir mensagem"
+                                                aria-label="Excluir mensagem"
+                                                onClick={() => void handleDelete(msg.id)}
+                                            >
+                                                <Trash3Fill size={12} />
+                                            </button>
+                                        </>
                                     )}
 
                                     <div

@@ -1,3 +1,5 @@
+import axios from "axios";
+import { FirebaseError } from "firebase/app";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth, db } from "../firebaseConfig/config";
 import { api } from "./api";
@@ -102,15 +104,15 @@ export const signIn = async (email: string, password: string) => {
         // console.log("depois login");
 
     } 
-    catch (error: any) 
+    catch (error) 
     {
         // console.error("Erro no backend login:", error?.response?.data || error.message);
         
-        if (error.code === "auth/wrong-password") throw new Error("Senha incorreta");
+        if (error instanceof FirebaseError && error.code === "auth/wrong-password") throw new Error("Senha incorreta");
 
-        if (error.code === "auth/user-not-found") throw new Error("Usuário não encontrado");
+        if (error instanceof FirebaseError && error.code === "auth/user-not-found") throw new Error("Usuário não encontrado");
 
-        if (error.response?.status === 401) throw new Error("Sessão inválida");
+        if (axios.isAxiosError(error) && error.response?.status === 401) throw new Error("Sessão inválida");
 
         throw new Error("Erro ao fazer login");
     }   

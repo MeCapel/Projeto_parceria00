@@ -53,8 +53,8 @@ export const getClient = async (clientId: string): Promise<ClientProps> => {
 // ===== POST =====
 
 // criar cliente
-export const createClient = async (data: Omit<ClientProps, "id">) => {
-  const response = await api.post("/clients", data);
+export const createClient = async (data: Omit<ClientProps, "id">): Promise<ClientProps> => {
+  const response = await api.post<ClientProps>("/clients", data);
   return response.data;
 };
 

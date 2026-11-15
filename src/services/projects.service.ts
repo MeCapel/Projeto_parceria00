@@ -28,6 +28,7 @@ export const getProjects = async (
     limit?: number;
     cursor?: string | null;
     status?: "active" | "disabled";
+    search?: string;
   }
 ): Promise<PaginatedProjectsResponse> => {
   const searchParams = new URLSearchParams();
@@ -37,6 +38,8 @@ export const getProjects = async (
   if (params?.cursor) searchParams.append("cursor", params.cursor);
 
   if (params?.status) searchParams.append("status", params.status);
+
+  if (params?.search) searchParams.append("search", params.search);
 
 
   const response = await api.get(`/projects?${searchParams.toString()}`);

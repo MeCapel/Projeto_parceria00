@@ -147,7 +147,7 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
                                         </p>
                                     )}
 
-                                    {members.map((member: any) => {
+                                    {members.map((member) => {
 
                                         const isSelf = member.userId === currentUserId
 
@@ -159,9 +159,8 @@ export default function DisplayProjectMembersModal({ projectId }: Props) {
                                                         id: member.userId,
                                                         username: member.username,
                                                         email: member.email || "Sem email",
-                                                        role: member.role || "Sem papél",
+                                                        role: member.role,
                                                         profileImage: member.profileImage,
-                                                        status: member.status || "Sem status"
                                                     }}
                                                     onDelete={
                                                         canManage && !isSelf

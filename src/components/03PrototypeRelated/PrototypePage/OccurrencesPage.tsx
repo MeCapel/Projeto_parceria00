@@ -1,3 +1,4 @@
+import axios from "axios"
 import { useRef, useState } from "react"
 import { FiletypeDocx, Paperclip, PlusLg, Trash3Fill, XCircleFill } from "react-bootstrap-icons"
 import { Modal } from "react-bootstrap"
@@ -211,8 +212,8 @@ export default function OccurrencesPage({ prototypeId }: Props)
             const filename = match?.[1] || `Relatorio_${occurrenceId}.docx`;
 
             downloadBlob(response.data, filename);
-        } catch (err: any) {
-            if (err.response?.data instanceof Blob) {
+        } catch (err) {
+            if (axios.isAxiosError<Blob>(err) && err.response?.data instanceof Blob) {
                 try {
                     const text = await err.response.data.text();
                     const json = JSON.parse(text);
@@ -259,6 +260,7 @@ export default function OccurrencesPage({ prototypeId }: Props)
                 data={occurrences}
 
                 getId={(o) => o.id!}
+                onRowClick={(o) => handleEdit(o.id)}
 
                 renderRow={(o) => (
                     <>

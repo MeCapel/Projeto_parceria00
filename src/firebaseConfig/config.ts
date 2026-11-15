@@ -10,7 +10,7 @@ declare global {
 }
  
 // Ativa modo debug (necessário em localhost)
-if (typeof window !== "undefined") {
+if (import.meta.env.DEV && typeof window !== "undefined") {
   window.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
 }
  

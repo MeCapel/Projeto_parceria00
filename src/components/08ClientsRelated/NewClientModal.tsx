@@ -11,7 +11,7 @@ interface Props {
   show: boolean;
   onClose: () => void;
   onCreated?: (client: ClientProps) => void;
-  createClient: (data: ClientForm) => Promise<any>;
+    createClient: (data: ClientForm) => Promise<ClientProps>;
 }
 
 export default function NewClientModal({ show, onClose, onCreated, createClient }: Props) {
@@ -42,7 +42,7 @@ export default function NewClientModal({ show, onClose, onCreated, createClient 
       }
 
       const newClient = await createClient(values);
-      const clientData = newClient?.data || newClient;
+    const clientData = newClient;
 
       if (clientData) {
           onCreated?.(clientData);

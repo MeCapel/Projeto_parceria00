@@ -100,7 +100,7 @@ export default function ChecklistModelsTab() {
       filters: apiFilters,
     });
 
-  }, [apiFilters]);
+  }, [apiFilters, fetchChecklistModels]);
 
   // ===== LOCAL FILTERS =====
 

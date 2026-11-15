@@ -1,4 +1,5 @@
 import { api } from "./api";
+import type { Role, UserProps } from "./auth.service";
 
 // ===== TYPES =====
 export interface ProjectMember {
@@ -6,7 +7,7 @@ export interface ProjectMember {
     username: string;
     email?: string;
     profileImage?: string;
-    role?: string;
+    role?: Role;
     status?: string;
 }
 
@@ -30,7 +31,7 @@ export const getProjectMember = async (projectId: string, userId: string) => {
     return response.data;
 };
 
-export const getUsersNotInProject = async (projectId: string) => {
+export const getUsersNotInProject = async (projectId: string): Promise<UserProps[]> => {
     const response = await api.get(`/project/${projectId}/users-not-in-project`);
     return response.data.data;
 };

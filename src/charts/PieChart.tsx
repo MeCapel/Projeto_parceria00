@@ -52,6 +52,12 @@ export function PieChart({ title, data, width = 400, height = 400 }: PieChartPro
     .innerRadius(0)
     .outerRadius(radius - 10);
 
+  // Gerador de arco para posição dos textos/rótulos de porcentagem
+  const labelArc = d3
+    .arc<d3.PieArcDatum<PieData>>()
+    .innerRadius(radius * 0.55)
+    .outerRadius(radius * 0.55);
+
   return (
     <div className="container-fluid card-chart card-chart-hover" style={{ width: (width + 150) }}>
       <div className="row justify-content-center">
@@ -78,32 +84,48 @@ export function PieChart({ title, data, width = 400, height = 400 }: PieChartPro
               <g transform={`translate(${width / 2}, ${height / 2})`}>
                 {pieData.map((arc, index) => {
                   const path = arcGenerator(arc);
+                  const centroid = labelArc.centroid(arc);
+                  const percent = total > 0 ? (arc.data.value / total) * 100 : 0;
 
                   return (
-                    <path
-                      key={arc.data.name}
-                      d={path || ""}
-                      fill={COLORS[index % COLORS.length]}
-                      stroke="#fff"
-                      strokeWidth={2}
-                      onMouseMove={(event) => {
-                        if (!containerRef.current) return;
+                    <g key={arc.data.name}>
+                      <path
+                        d={path || ""}
+                        fill={COLORS[index % COLORS.length]}
+                        stroke="#fff"
+                        strokeWidth={2}
+                        onMouseMove={(event) => {
+                          if (!containerRef.current) return;
 
-                        const rect = containerRef.current.getBoundingClientRect();
+                          const rect = containerRef.current.getBoundingClientRect();
 
-                        setTooltip({
-                          x: event.clientX - rect.left,
-                          y: event.clientY - rect.top,
-                          label: arc.data.name,
-                          value: arc.data.value,
-                        });
-                      }}
-                      onMouseLeave={() => setTooltip(null)}
-                      style={{
-                        cursor: "pointer",
-                        transition: "0.2s",
-                      }}
-                    />
+                          setTooltip({
+                            x: event.clientX - rect.left,
+                            y: event.clientY - rect.top,
+                            label: arc.data.name,
+                            value: arc.data.value,
+                          });
+                        }}
+                        onMouseLeave={() => setTooltip(null)}
+                        style={{
+                          cursor: "pointer",
+                          transition: "0.2s",
+                        }}
+                      />
+                      {arc.data.value > 0 && (
+                        <text
+                          transform={`translate(${centroid[0]}, ${centroid[1]})`}
+                          textAnchor="middle"
+                          dominantBaseline="central"
+                          fill="#ffffff"
+                          fontSize={13}
+                          fontWeight="bold"
+                          style={{ pointerEvents: "none", textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}
+                        >
+                          {percent.toFixed(1)}%
+                        </text>
+                      )}
+                    </g>
                   );
                 })}
               </g>
@@ -148,7 +170,7 @@ export function PieChart({ title, data, width = 400, height = 400 }: PieChartPro
                   />
 
                   <span className="small">
-                    {item.name} ({item.value})
+                    {item.name} ({item.value} - {total > 0 ? ((item.value / total) * 100).toFixed(1) : 0}%)
                   </span>
                 </div>
               ))}

@@ -1,7 +1,7 @@
 import type { UserProps } from "../../services/auth.service"
 
 interface Props {
-    user: UserProps
+    user: Pick<UserProps, "id" | "username" | "email" | "profileImage"> & Partial<Pick<UserProps, "role">>
     subtitle?: string
     onDelete?: (userId: string) => void
     children?: React.ReactNode

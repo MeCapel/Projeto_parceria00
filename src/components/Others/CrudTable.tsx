@@ -9,6 +9,7 @@ interface CrudTableProps<T> {
     renderRow: (item: T) => React.ReactNode;
 
     onEdit?: (id: string) => void;
+    onRowClick?: (item: T) => void;
     onStatusChange?: (id: string, currentStatus: Status) => void;
     onDelete?: (id: string) => void;
 
@@ -22,6 +23,7 @@ export function CrudTable<T>({
     data,
     renderRow,
     onEdit,
+    onRowClick,
     onStatusChange,
     onDelete,
     renderActions,
@@ -52,7 +54,23 @@ export function CrudTable<T>({
                         const id = getId(item);
 
                         return (
-                            <tr key={id}>
+                            <tr
+                                key={id}
+                                tabIndex={onRowClick ? 0 : undefined}
+                                style={{ cursor: onRowClick ? "pointer" : undefined }}
+                                onClick={onRowClick ? (event) => {
+                                    const target = event.target as HTMLElement;
+                                    if (target.closest("button, a, input, select, textarea, [role='button']")) return;
+                                    onRowClick(item);
+                                } : undefined}
+                                onKeyDown={onRowClick ? (event) => {
+                                    if (event.target !== event.currentTarget) return;
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault();
+                                        onRowClick(item);
+                                    }
+                                } : undefined}
+                            >
 
                                 {/* Conteúdo dinâmico */}
                                 {renderRow(item)}
@@ -64,7 +82,10 @@ export function CrudTable<T>({
 
                                             {onEdit && (
                                                 <button
-                                                    onClick={() => onEdit(id)}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        onEdit(id);
+                                                    }}
                                                     className="btn-custom btn-custom-inside-primary px-2 py-1 border-0 bg-transparent"
                                                 >
                                                     <PencilSquare />
@@ -73,7 +94,8 @@ export function CrudTable<T>({
 
                                             {onStatusChange && (
                                                 <button
-                                                    onClick={() => {
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
                                                         const status = (item as unknown as { status?: "active" | "disabled" }).status;
                                                         if (!status) return;
 
@@ -98,7 +120,10 @@ export function CrudTable<T>({
 
                                             {onDelete && (
                                                 <button
-                                                    onClick={() => onDelete(id)}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        onDelete(id);
+                                                    }}
                                                     className="btn-custom btn-custom-inside-primary px-2 py-1 border-0 bg-transparent"
                                                 >
                                                     <Trash3Fill />
